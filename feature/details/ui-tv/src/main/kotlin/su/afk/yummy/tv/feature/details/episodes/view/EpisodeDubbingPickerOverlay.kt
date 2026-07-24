@@ -135,16 +135,6 @@ internal fun EpisodeDubbingPickerOverlay(
                             overflow = TextOverflow.Ellipsis,
                         )
                     }
-                    selection.episodeDescription?.takeIf { it.isNotBlank() }?.let { description ->
-                        // Скроллить текст с пульта нельзя — ограничиваем строками.
-                        Text(
-                            text = description,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = Color.White.copy(alpha = 0.72f),
-                            maxLines = 6,
-                            overflow = TextOverflow.Ellipsis,
-                        )
-                    }
                 }
                 LazyColumn(
                     modifier = Modifier

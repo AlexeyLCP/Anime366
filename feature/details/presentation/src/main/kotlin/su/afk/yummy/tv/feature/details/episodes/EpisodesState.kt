@@ -32,7 +32,6 @@ class EpisodesState {
         val episode: String,
         val options: List<EpisodeDubbingOption>,
         val episodeTitle: String? = null,
-        val episodeDescription: String? = null,
     )
 
     data class EpisodeDubbingOption(

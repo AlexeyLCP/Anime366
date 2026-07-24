@@ -488,7 +488,6 @@ class EpisodesViewModel @AssistedInject internal constructor(
                     episode = episode,
                     options = options,
                     episodeTitle = info?.title,
-                    episodeDescription = info?.description,
                 )
             )
         }

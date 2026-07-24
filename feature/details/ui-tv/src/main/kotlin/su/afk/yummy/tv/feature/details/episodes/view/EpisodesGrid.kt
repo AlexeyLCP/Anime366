@@ -2,6 +2,7 @@ package su.afk.yummy.tv.feature.details.episodes.view
 
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -107,77 +108,106 @@ internal fun EpisodesGrid(
         }
     }
 
-    LazyVerticalGrid(
-        state = gridState,
-        columns = GridCells.Adaptive(minSize = 220.dp),
-        modifier = modifier
-            .focusRequester(gridFocusRequester)
-            .tvFocusRestorer(
-                fallback = focusRequesters.getOrNull(lastFocusedIndex) ?: FocusRequester.Default,
-                enabled = episodeGroups.isNotEmpty(),
-            )
-            .onFocusChanged { state ->
-                val hadFocus = gridHasFocus
-                gridHasFocus = state.hasFocus
-                if (!state.hasFocus) {
-                    isRestoringFocus = false
-                }
-                if (state.isFocused && !hadFocus && episodeGroups.isNotEmpty() && !isRestoringFocus) {
-                    requestEpisodeFocus(lastFocusedIndex)
-                }
-            }
-            .focusable(),
-        contentPadding = PaddingValues(
-            start = TvScreenPadding.Horizontal,
-            top = TvScreenPadding.Vertical,
-            end = TvScreenPadding.Horizontal,
-            bottom = TvScreenPadding.Vertical,
-        ),
-        horizontalArrangement = Arrangement.spacedBy(TvCardSpacing.Horizontal),
-        verticalArrangement = Arrangement.spacedBy(TvCardSpacing.Vertical),
-    ) {
-        item(span = { GridItemSpan(maxLineSpan) }, contentType = { "header" }) {
-            Text(
-                text = stringResource(R.string.details_episodes_count_title, episodeGroups.size),
-                style = MaterialTheme.typography.headlineSmall,
-                color = MaterialTheme.colorScheme.onBackground,
+    // Панель имеет смысл только когда у тайтла вообще есть данные серий из API
+    val showEpisodeInfoPanel = remember(episodeInfo) {
+        episodeInfo.values.any { !it.title.isNullOrBlank() || !it.description.isNullOrBlank() }
+    }
+
+    Column(modifier = modifier) {
+        if (showEpisodeInfoPanel) {
+            val focusedEpisode = episodeGroups.getOrNull(lastFocusedIndex)?.key
+            EpisodeInfoPanel(
+                episode = focusedEpisode.orEmpty(),
+                info = focusedEpisode?.let(episodeInfo::get),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 2.dp),
+                    .padding(
+                        horizontal = TvScreenPadding.Horizontal,
+                        vertical = TvScreenPadding.Vertical,
+                    ),
             )
         }
 
-        itemsIndexed(
-            episodeGroups,
-            key = { _, entry -> entry.key },
-            contentType = { _, _ -> "item" },
-        ) { index, (episode, groupVideos) ->
-            val representative = groupVideos.firstOrNull { it.dubbing == bestDubbing }
-                ?: groupVideos.first()
-            EpisodeCard(
-                video = representative,
-                watchStatus = groupVideos.watchStatus(watchProgress),
-                episodeTitle = episodeInfo[episode]?.title,
-                kodikIframeUrl = groupVideos.kodikThumbnailIframeUrl(bestDubbing),
-                onClick = {
-                    lastFocusedIndex = index
-                    val kodikOpts = groupVideos.filter {
-                        it.iframeUrl.isKodikPlayerUrl() && !it.isAlloha()
+        LazyVerticalGrid(
+            state = gridState,
+            columns = GridCells.Adaptive(minSize = 220.dp),
+            modifier = Modifier
+                .weight(1f)
+                .focusRequester(gridFocusRequester)
+                .tvFocusRestorer(
+                    fallback = focusRequesters.getOrNull(lastFocusedIndex)
+                        ?: FocusRequester.Default,
+                    enabled = episodeGroups.isNotEmpty(),
+                )
+                .onFocusChanged { state ->
+                    val hadFocus = gridHasFocus
+                    gridHasFocus = state.hasFocus
+                    if (!state.hasFocus) {
+                        isRestoringFocus = false
                     }
-                    val pick = (kodikOpts.firstOrNull { it.dubbing == bestDubbing }
-                        ?: kodikOpts.firstOrNull())
-                        ?: groupVideos.firstOrNull { !it.isAlloha() }
-                        ?: groupVideos.first()
-                    onVideoSelected(pick)
-                },
-                modifier = Modifier
-                    .focusRequester(focusRequesters[index])
-                    .onFocusChanged {
-                        if (it.hasFocus && !isRestoringFocus) {
-                            lastFocusedIndex = index
+                    if (state.isFocused && !hadFocus && episodeGroups.isNotEmpty() &&
+                        !isRestoringFocus
+                    ) {
+                        requestEpisodeFocus(lastFocusedIndex)
+                    }
+                }
+                .focusable(),
+            contentPadding = PaddingValues(
+                start = TvScreenPadding.Horizontal,
+                // Верхний отступ уже дала панель описания
+                top = if (showEpisodeInfoPanel) 8.dp else TvScreenPadding.Vertical,
+                end = TvScreenPadding.Horizontal,
+                bottom = TvScreenPadding.Vertical,
+            ),
+            horizontalArrangement = Arrangement.spacedBy(TvCardSpacing.Horizontal),
+            verticalArrangement = Arrangement.spacedBy(TvCardSpacing.Vertical),
+        ) {
+            item(span = { GridItemSpan(maxLineSpan) }, contentType = { "header" }) {
+                Text(
+                    text = stringResource(
+                        R.string.details_episodes_count_title,
+                        episodeGroups.size,
+                    ),
+                    style = MaterialTheme.typography.headlineSmall,
+                    color = MaterialTheme.colorScheme.onBackground,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 2.dp),
+                )
+            }
+
+            itemsIndexed(
+                episodeGroups,
+                key = { _, entry -> entry.key },
+                contentType = { _, _ -> "item" },
+            ) { index, (episode, groupVideos) ->
+                val representative = groupVideos.firstOrNull { it.dubbing == bestDubbing }
+                    ?: groupVideos.first()
+                EpisodeCard(
+                    video = representative,
+                    watchStatus = groupVideos.watchStatus(watchProgress),
+                    episodeTitle = episodeInfo[episode]?.title,
+                    kodikIframeUrl = groupVideos.kodikThumbnailIframeUrl(bestDubbing),
+                    onClick = {
+                        lastFocusedIndex = index
+                        val kodikOpts = groupVideos.filter {
+                            it.iframeUrl.isKodikPlayerUrl() && !it.isAlloha()
                         }
+                        val pick = (kodikOpts.firstOrNull { it.dubbing == bestDubbing }
+                            ?: kodikOpts.firstOrNull())
+                            ?: groupVideos.firstOrNull { !it.isAlloha() }
+                            ?: groupVideos.first()
+                        onVideoSelected(pick)
                     },
-            )
+                    modifier = Modifier
+                        .focusRequester(focusRequesters[index])
+                        .onFocusChanged {
+                            if (it.hasFocus && !isRestoringFocus) {
+                                lastFocusedIndex = index
+                            }
+                        },
+                )
+            }
         }
     }
 }
