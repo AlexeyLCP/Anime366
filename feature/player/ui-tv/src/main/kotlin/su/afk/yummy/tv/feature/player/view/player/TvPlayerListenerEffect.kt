@@ -8,52 +8,34 @@ import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
 import su.afk.yummy.tv.feature.player.PlayerState
 import su.afk.yummy.tv.feature.player.common.PlayerAutoHideController
-import su.afk.yummy.tv.feature.player.common.PlayerCompletionTracker
 import su.afk.yummy.tv.feature.player.common.PlayerStepSeekToastState
 import su.afk.yummy.tv.feature.player.common.logPlaybackError
 import su.afk.yummy.tv.feature.player.common.toPlaybackErrorEvent
-import su.afk.yummy.tv.feature.player.common.utils.playerEndPromptFor
 import su.afk.yummy.tv.feature.player.common.utils.positionSnapshot
-import su.afk.yummy.tv.feature.player.model.PlayerFinalEpisodeAction
-import su.afk.yummy.tv.feature.player.model.TvPlayerExitState
-import su.afk.yummy.tv.feature.player.model.TvPlayerPanelsState
-import su.afk.yummy.tv.feature.player.model.TvPlayerPromptsState
 import su.afk.yummy.tv.feature.player.model.TvPlayerSkipUiState
 
 /**
- * Player.Listener TV-плеера: play/pause, завершение эпизода с промптами, ошибки.
- * Выгрузкой сервиса и финальным сохранением владеет TvPlayerLifecycleEffect.
+ * Player.Listener TV-плеера: play/pause, завершение эпизода, ошибки.
+ * Промптами конца эпизода владеет handleEpisodeEnd в TvExoPlayerView,
+ * выгрузкой сервиса и финальным сохранением — TvPlayerLifecycleEffect.
  */
 @Composable
 internal fun TvPlayerListenerEffect(
     player: Player,
-    completionTracker: PlayerCompletionTracker,
     autoHide: PlayerAutoHideController,
     skipUi: TvPlayerSkipUiState,
     stepSeekToast: PlayerStepSeekToastState,
-    panels: TvPlayerPanelsState,
-    prompts: TvPlayerPromptsState,
-    exitState: TvPlayerExitState,
     fallbackDurationMs: () -> Long,
-    hasNextEpisode: () -> Boolean,
-    nextEpisodeSwitchesDubbing: () -> Boolean,
-    finalEpisodeAction: () -> PlayerFinalEpisodeAction,
-    autoPlayNextEpisode: () -> Boolean,
     wantsPlay: () -> Boolean,
     onWantsPlayChanged: (Boolean) -> Unit,
-    onControllerVisibleChange: (Boolean) -> Unit,
+    onEpisodeEnd: (positionMs: Long, durationMs: Long) -> Unit,
     onEvent: (PlayerState.Event) -> Unit,
 ) {
     val currentFallbackDuration by rememberUpdatedState(fallbackDurationMs)
-    val currentHasNextEpisode by rememberUpdatedState(hasNextEpisode)
-    val currentNextEpisodeSwitchesDubbing by rememberUpdatedState(nextEpisodeSwitchesDubbing)
-    val currentFinalEpisodeAction by rememberUpdatedState(finalEpisodeAction)
-    val currentAutoPlayNextEpisode by rememberUpdatedState(autoPlayNextEpisode)
     val currentWantsPlay by rememberUpdatedState(wantsPlay)
     val currentOnWantsPlayChanged by rememberUpdatedState(onWantsPlayChanged)
-    val currentOnControllerVisibleChange by rememberUpdatedState(onControllerVisibleChange)
+    val currentOnEpisodeEnd by rememberUpdatedState(onEpisodeEnd)
     val currentOnEvent by rememberUpdatedState(onEvent)
-    val currentCompletionTracker by rememberUpdatedState(completionTracker)
     val currentStepSeekToast by rememberUpdatedState(stepSeekToast)
 
     DisposableEffect(player) {
@@ -70,31 +52,7 @@ internal fun TvPlayerListenerEffect(
                 }
                 if (playbackState == Player.STATE_ENDED) {
                     val snapshot = player.positionSnapshot(currentFallbackDuration())
-                    currentCompletionTracker.onEpisodeEnd(
-                        positionMs = snapshot.positionMs,
-                        durationMs = snapshot.durationMs,
-                    )
-                    if (exitState.requested) return
-                    if (currentHasNextEpisode()) {
-                        // При переходе в другую озвучку авто-отсчёт не запускаем:
-                        // озвучку не меняем без явного подтверждения пользователя
-                        prompts.nextEpisodePrompt = playerEndPromptFor(
-                            currentAutoPlayNextEpisode() && !currentNextEpisodeSwitchesDubbing()
-                        )
-                        currentOnControllerVisibleChange(true)
-                        panels.close()
-                        autoHide.cancel()
-                    } else {
-                        val action = currentFinalEpisodeAction()
-                        if (action == PlayerFinalEpisodeAction.RateTitle ||
-                            action == PlayerFinalEpisodeAction.ManageSubscriptions
-                        ) {
-                            prompts.finalEpisodeActionPrompt = action
-                            currentOnControllerVisibleChange(true)
-                            panels.close()
-                            autoHide.cancel()
-                        }
-                    }
+                    currentOnEpisodeEnd(snapshot.positionMs, snapshot.durationMs)
                 }
             }
 

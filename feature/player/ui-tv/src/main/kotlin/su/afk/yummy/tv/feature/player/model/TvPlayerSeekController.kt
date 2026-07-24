@@ -8,14 +8,16 @@ import androidx.media3.common.Player
 import su.afk.yummy.tv.feature.player.common.PlayerProgressReporter
 import su.afk.yummy.tv.feature.player.common.PlayerStepSeekToastState
 import su.afk.yummy.tv.feature.player.common.model.StepSeekDirection
+import su.afk.yummy.tv.feature.player.common.utils.isAtPlayerEnd
 
-/** Перемотка TV-плеера: clamp к длительности, обновление локальной позиции, step-seek. */
+/** Перемотка TV-плеера: clamp к длительности, обработка конца эпизода, step-seek. */
 @Stable
 internal class TvPlayerSeekController(
     private val player: Player,
     private val progress: TvPlaybackProgressState,
     private val reporter: PlayerProgressReporter,
     private val stepSeekToast: PlayerStepSeekToastState,
+    private val onEpisodeEnd: (positionMs: Long, durationMs: Long) -> Unit,
     private val onBackwardStep: () -> Unit,
 ) {
     fun seekTo(positionMs: Long) {
@@ -29,8 +31,12 @@ internal class TvPlayerSeekController(
         player.seekTo(clamped)
         progress.currentPosition = clamped
         progress.lastSeekTimeMs = System.currentTimeMillis()
-        reporter.notifyPositionChanged(clamped, playerDuration)
-        reporter.saveProgress(clamped, progress.duration)
+        if (isAtPlayerEnd(clamped, playerDuration)) {
+            onEpisodeEnd(clamped, playerDuration)
+        } else {
+            reporter.notifyPositionChanged(clamped, playerDuration)
+            reporter.saveProgress(clamped, progress.duration)
+        }
     }
 
     fun stepSeek(direction: StepSeekDirection) {
@@ -49,8 +55,10 @@ internal fun rememberTvPlayerSeekController(
     progress: TvPlaybackProgressState,
     reporter: PlayerProgressReporter,
     stepSeekToast: PlayerStepSeekToastState,
+    onEpisodeEnd: (positionMs: Long, durationMs: Long) -> Unit,
     onBackwardStep: () -> Unit,
 ): TvPlayerSeekController {
+    val currentOnEpisodeEnd = rememberUpdatedState(onEpisodeEnd)
     val currentOnBackwardStep = rememberUpdatedState(onBackwardStep)
     return remember(player, progress, reporter, stepSeekToast) {
         TvPlayerSeekController(
@@ -58,6 +66,9 @@ internal fun rememberTvPlayerSeekController(
             progress = progress,
             reporter = reporter,
             stepSeekToast = stepSeekToast,
+            onEpisodeEnd = { positionMs, durationMs ->
+                currentOnEpisodeEnd.value.invoke(positionMs, durationMs)
+            },
             onBackwardStep = { currentOnBackwardStep.value.invoke() },
         )
     }

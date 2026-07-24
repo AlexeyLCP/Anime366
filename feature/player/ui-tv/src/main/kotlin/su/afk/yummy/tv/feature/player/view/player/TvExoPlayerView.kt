@@ -1,5 +1,6 @@
 package su.afk.yummy.tv.feature.player.view.player
 
+import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.annotation.OptIn
 import androidx.compose.foundation.background
@@ -51,9 +52,12 @@ import su.afk.yummy.tv.feature.player.common.service.PlayerMediaItemUpdater
 import su.afk.yummy.tv.feature.player.common.service.rememberPlayerPlaybackConfig
 import su.afk.yummy.tv.feature.player.common.service.rememberPlayerPlaybackSessionClient
 import su.afk.yummy.tv.feature.player.common.toastIcon
+import su.afk.yummy.tv.feature.player.common.utils.isVisible
+import su.afk.yummy.tv.feature.player.common.utils.playerEndPromptFor
 import su.afk.yummy.tv.feature.player.common.view.PlayerEndPromptCountdownEffect
 import su.afk.yummy.tv.feature.player.model.PanelReturnFocusTarget
 import su.afk.yummy.tv.feature.player.model.PlayerControlFocusTarget
+import su.afk.yummy.tv.feature.player.model.PlayerFinalEpisodeAction
 import su.afk.yummy.tv.feature.player.model.PlayerPlaybackUiState
 import su.afk.yummy.tv.feature.player.model.TvPlayerExitState
 import su.afk.yummy.tv.feature.player.model.TvPlayerPanel
@@ -242,12 +246,56 @@ internal fun TvExoPlayerView(
         reporter = reporter,
         onEvent = onPlayerEvent,
     )
+    var endHandled by remember(episodeKey, streamUrl) { mutableStateOf(false) }
+
+    /**
+     * Единая точка конца эпизода: STATE_ENDED, перемотка в конец и детект по позиции.
+     * Повторные вызовы гасит endHandled — поллинг тикает каждые 500 мс.
+     */
+    fun handleEpisodeEnd(positionMs: Long, durationMs: Long, source: TvPlayerEndSource) {
+        if (endHandled) return
+        endHandled = true
+        Log.i(
+            TV_PLAYER_END_LOG_TAG,
+            "episode end source=${source.name} position=$positionMs duration=$durationMs",
+        )
+        completionTracker.onEpisodeEnd(positionMs = positionMs, durationMs = durationMs)
+        if (exitState.requested) return
+        if (playback.hasNextEpisode || playback.nextEpisodeDubbing != null) {
+            if (prompts.nextEpisodePromptDismissed) return
+            // При переходе в другую озвучку авто-отсчёт не запускаем:
+            // озвучку не меняем без явного подтверждения пользователя
+            prompts.nextEpisodePrompt = playerEndPromptFor(
+                state.autoPlayNextEpisode && playback.hasNextEpisode
+            )
+        } else {
+            val action = playback.finalEpisodeAction
+            if (action != PlayerFinalEpisodeAction.RateTitle &&
+                action != PlayerFinalEpisodeAction.ManageSubscriptions
+            ) {
+                return
+            }
+            prompts.finalEpisodeActionPrompt = action
+        }
+        controllerVisible = true
+        panels.close()
+        autoHide.cancel()
+    }
+
     val seekController = rememberTvPlayerSeekController(
         player = player,
         progress = progress,
         reporter = reporter,
         stepSeekToast = stepSeekToast,
-        onBackwardStep = { prompts.nextEpisodePrompt = PlayerEndPromptState.Hidden },
+        onEpisodeEnd = { positionMs, durationMs ->
+            handleEpisodeEnd(positionMs, durationMs, TvPlayerEndSource.Seek)
+        },
+        onBackwardStep = {
+            // Ушли от конца серии — конец эпизода должен отработать заново
+            prompts.nextEpisodePrompt = PlayerEndPromptState.Hidden
+            prompts.nextEpisodePromptDismissed = false
+            endHandled = false
+        },
     )
 
     fun togglePanel(panel: TvPlayerPanel, returnFocusTarget: PanelReturnFocusTarget) {
@@ -316,23 +364,15 @@ internal fun TvExoPlayerView(
 
     TvPlayerListenerEffect(
         player = player,
-        completionTracker = completionTracker,
         autoHide = autoHide,
         skipUi = skipUi,
         stepSeekToast = stepSeekToast,
-        panels = panels,
-        prompts = prompts,
-        exitState = exitState,
         fallbackDurationMs = { progress.duration },
-        hasNextEpisode = { playback.hasNextEpisode || playback.nextEpisodeDubbing != null },
-        nextEpisodeSwitchesDubbing = {
-            !playback.hasNextEpisode && playback.nextEpisodeDubbing != null
-        },
-        finalEpisodeAction = { playback.finalEpisodeAction },
-        autoPlayNextEpisode = { state.autoPlayNextEpisode },
         wantsPlay = { wantsPlay },
         onWantsPlayChanged = { wantsPlay = it },
-        onControllerVisibleChange = { controllerVisible = it },
+        onEpisodeEnd = { positionMs, durationMs ->
+            handleEpisodeEnd(positionMs, durationMs, TvPlayerEndSource.Ended)
+        },
         onEvent = onPlayerEvent,
     )
 
@@ -346,6 +386,9 @@ internal fun TvExoPlayerView(
         reporter = reporter,
         episodeKey = { episodeKey },
         onBufferedProgressChange = { bufferedProgress = it },
+        onPositionAtEnd = { positionMs, durationMs ->
+            handleEpisodeEnd(positionMs, durationMs, TvPlayerEndSource.Position)
+        },
     )
 
     TvPlayerFocusEffects(
@@ -379,6 +422,7 @@ internal fun TvExoPlayerView(
 
     BackHandler(enabled = panels.isAnyOpen || prompts.anyVisible || controllerVisible) {
         if (panels.isAnyOpen || prompts.anyVisible) {
+            if (prompts.nextEpisodePrompt.isVisible) prompts.nextEpisodePromptDismissed = true
             prompts.nextEpisodePrompt = PlayerEndPromptState.Hidden
             prompts.finalEpisodeActionPrompt = null
             panels.close(
@@ -625,3 +669,8 @@ internal fun TvExoPlayerView(
         )
     }
 }
+
+/** Как поймали конец эпизода — нужно для диагностики проблемных балансеров в логах. */
+internal enum class TvPlayerEndSource { Ended, Position, Seek }
+
+private const val TV_PLAYER_END_LOG_TAG = "TvPlayerEnd"

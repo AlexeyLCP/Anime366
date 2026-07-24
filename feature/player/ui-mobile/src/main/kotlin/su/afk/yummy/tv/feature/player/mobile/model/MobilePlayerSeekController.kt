@@ -8,7 +8,7 @@ import androidx.media3.common.Player
 import su.afk.yummy.tv.feature.player.common.PlayerProgressReporter
 import su.afk.yummy.tv.feature.player.common.PlayerStepSeekToastState
 import su.afk.yummy.tv.feature.player.common.model.StepSeekDirection
-import su.afk.yummy.tv.feature.player.mobile.utils.isAtMobilePlayerEnd
+import su.afk.yummy.tv.feature.player.common.utils.isAtPlayerEnd
 
 /** Перемотка мобильного плеера: clamp к длительности, обработка конца эпизода, step-seek. */
 @Stable
@@ -30,7 +30,7 @@ internal class MobilePlayerSeekController(
         player.seekTo(clamped)
         if (
             playerDuration > 0L &&
-            isAtMobilePlayerEnd(clamped, playerDuration)
+            isAtPlayerEnd(clamped, playerDuration)
         ) {
             onEpisodeEnd(clamped, playerDuration)
         } else {

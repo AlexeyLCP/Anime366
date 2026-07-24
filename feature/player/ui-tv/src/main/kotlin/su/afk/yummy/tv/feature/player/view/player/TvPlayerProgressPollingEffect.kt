@@ -8,12 +8,16 @@ import androidx.media3.common.Player
 import kotlinx.coroutines.delay
 import su.afk.yummy.tv.feature.player.common.PlayerProgressReporter
 import su.afk.yummy.tv.feature.player.common.utils.calculateBufferedProgress
+import su.afk.yummy.tv.feature.player.common.utils.isAtPlayerEnd
 import su.afk.yummy.tv.feature.player.model.TvPlaybackProgressState
 import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * Цикл 500ms: позиция (с защитой после seek), длительность, буферизация,
  * notify раз в секунду и сохранение каждые 10 секунд.
+ *
+ * Здесь же страховка конца эпизода: часть потоков не доигрывает до duration и не даёт
+ * STATE_ENDED, поэтому конец ловим ещё и по позиции.
  */
 @Composable
 internal fun TvPlayerProgressPollingEffect(
@@ -22,11 +26,16 @@ internal fun TvPlayerProgressPollingEffect(
     reporter: PlayerProgressReporter,
     episodeKey: () -> String,
     onBufferedProgressChange: (Float) -> Unit,
+    onPositionAtEnd: (positionMs: Long, durationMs: Long) -> Unit,
 ) {
     val currentEpisodeKey by rememberUpdatedState(episodeKey)
     val currentOnBufferedProgressChange by rememberUpdatedState(onBufferedProgressChange)
+    val currentOnPositionAtEnd by rememberUpdatedState(onPositionAtEnd)
 
     LaunchedEffect(player) {
+        // Серию, открытую сразу с конечной позиции, концом не считаем: сначала должна быть
+        // позиция вне зоны конца, иначе промпт выскочит на старте
+        var sawPositionBeforeEnd = false
         while (true) {
             val sinceSeek = System.currentTimeMillis() - progress.lastSeekTimeMs
             if (!progress.isSeeking && sinceSeek > 1_000L) {
@@ -52,6 +61,15 @@ internal fun TvPlayerProgressPollingEffect(
                 now - reporter.lastSaveTimeMs > 10_000L
             ) {
                 reporter.saveProgress(progress.currentPosition, progress.duration)
+            }
+            if (!progress.isSeeking && progress.duration > 0) {
+                if (isAtPlayerEnd(progress.currentPosition, progress.duration)) {
+                    if (sawPositionBeforeEnd) {
+                        currentOnPositionAtEnd(progress.currentPosition, progress.duration)
+                    }
+                } else {
+                    sawPositionBeforeEnd = true
+                }
             }
             delay(500.milliseconds)
         }

@@ -20,4 +20,10 @@ fun PlayerEndPromptState.downgradedCountdown(): PlayerEndPromptState =
         this
     }
 
+/** Часть потоков останавливается чуть раньше duration — считаем это концом эпизода. */
+fun isAtPlayerEnd(positionMs: Long, durationMs: Long): Boolean =
+    durationMs > 0L && durationMs - positionMs <= PLAYER_END_POSITION_TOLERANCE_MS
+
 const val PLAYER_END_PROMPT_COUNTDOWN_SECONDS = 10
+
+const val PLAYER_END_POSITION_TOLERANCE_MS = 500L

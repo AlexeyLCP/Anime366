@@ -17,9 +17,13 @@ import su.afk.yummy.tv.feature.player.common.utils.isVisible
 @Stable
 internal class TvPlayerPromptsState(
     nextEpisodePromptState: MutableState<PlayerEndPromptState>,
+    nextEpisodePromptDismissedState: MutableState<Boolean>,
     finalEpisodeActionPromptState: MutableState<PlayerFinalEpisodeAction?>,
 ) {
     var nextEpisodePrompt: PlayerEndPromptState by nextEpisodePromptState
+
+    /** Пользователь отказался от перехода: не показываем промпт повторно по детекту конца. */
+    var nextEpisodePromptDismissed: Boolean by nextEpisodePromptDismissedState
     var finalEpisodeActionPrompt: PlayerFinalEpisodeAction? by finalEpisodeActionPromptState
 
     val anyVisible: Boolean
@@ -34,10 +38,12 @@ internal fun rememberTvPlayerPromptsState(
     val nextEpisodePrompt = remember(episodeKey, streamUrl) {
         mutableStateOf<PlayerEndPromptState>(PlayerEndPromptState.Hidden)
     }
+    val nextEpisodePromptDismissed = remember(episodeKey, streamUrl) { mutableStateOf(false) }
     val finalEpisodeActionPrompt = remember { mutableStateOf<PlayerFinalEpisodeAction?>(null) }
     return remember(nextEpisodePrompt) {
         TvPlayerPromptsState(
             nextEpisodePromptState = nextEpisodePrompt,
+            nextEpisodePromptDismissedState = nextEpisodePromptDismissed,
             finalEpisodeActionPromptState = finalEpisodeActionPrompt,
         )
     }

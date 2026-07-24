@@ -48,6 +48,7 @@ internal fun BoxScope.TvPlayerEndPrompts(
         onPrimary = onPlayNextEpisode,
         onStay = {
             prompts.nextEpisodePrompt = PlayerEndPromptState.Hidden
+            prompts.nextEpisodePromptDismissed = true
             onInteraction()
         },
         onInteraction = onInteraction,
