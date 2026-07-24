@@ -34,6 +34,7 @@ import kotlinx.coroutines.launch
 import su.afk.yummy.tv.core.designsystem.presenter.dimensions.TvCardSpacing
 import su.afk.yummy.tv.core.designsystem.presenter.dimensions.TvScreenPadding
 import su.afk.yummy.tv.core.designsystem.presenter.focus.tvFocusRestorer
+import su.afk.yummy.tv.core.model.anime.AnimeEpisodeInfo
 import su.afk.yummy.tv.core.model.anime.AnimeVideo
 import su.afk.yummy.tv.core.model.anime.kodikThumbnailIframeUrl
 import su.afk.yummy.tv.feature.details.R
@@ -47,6 +48,7 @@ internal fun EpisodesGrid(
     videos: List<AnimeVideo>,
     watchProgress: DetailsWatchProgressIndex,
     restoreFocusRequest: Int,
+    episodeInfo: Map<String, AnimeEpisodeInfo>,
     onVideoSelected: (AnimeVideo) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -149,12 +151,13 @@ internal fun EpisodesGrid(
             episodeGroups,
             key = { _, entry -> entry.key },
             contentType = { _, _ -> "item" },
-        ) { index, (_, groupVideos) ->
+        ) { index, (episode, groupVideos) ->
             val representative = groupVideos.firstOrNull { it.dubbing == bestDubbing }
                 ?: groupVideos.first()
             EpisodeCard(
                 video = representative,
                 watchStatus = groupVideos.watchStatus(watchProgress),
+                episodeTitle = episodeInfo[episode]?.title,
                 kodikIframeUrl = groupVideos.kodikThumbnailIframeUrl(bestDubbing),
                 onClick = {
                     lastFocusedIndex = index

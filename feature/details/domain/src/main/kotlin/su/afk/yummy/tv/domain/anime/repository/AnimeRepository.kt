@@ -2,6 +2,7 @@ package su.afk.yummy.tv.domain.anime.repository
 
 import kotlinx.coroutines.flow.Flow
 import su.afk.yummy.tv.core.model.anime.AnimeDetails
+import su.afk.yummy.tv.core.model.anime.AnimeEpisodeInfo
 import su.afk.yummy.tv.core.model.anime.AnimeRecommendation
 import su.afk.yummy.tv.core.model.anime.AnimeRecommendationReaction
 import su.afk.yummy.tv.core.model.anime.AnimeRecommendationVote
@@ -17,6 +18,7 @@ interface AnimeRepository {
     suspend fun getAnimeVideos(animeId: Int): List<AnimeVideo>
     suspend fun refreshAnimeVideos(animeId: Int): List<AnimeVideo>
     suspend fun getCachedAnimeVideos(animeId: Int): List<AnimeVideo>?
+    suspend fun getAnimeEpisodeInfo(animeId: Int): Map<String, AnimeEpisodeInfo>
     suspend fun getAnimeTrailers(animeId: Int): List<AnimeTrailer>
     suspend fun getAnimeRelation(reference: AnimeRelationReference): AnimeRelation
     suspend fun getAnimeRecommendations(animeId: Int, fromAi: Boolean): List<AnimeRecommendation>

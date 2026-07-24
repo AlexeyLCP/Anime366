@@ -47,6 +47,7 @@ private val ThumbnailHeight = 124.dp  // 16:9 for 220dp width
 internal fun EpisodeCard(
     video: AnimeVideo,
     watchStatus: EpisodeWatchStatus = EpisodeWatchStatus.None,
+    episodeTitle: String? = null,
     kodikIframeUrl: String?,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -139,7 +140,7 @@ internal fun EpisodeCard(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .heightIn(min = 58.dp)
+                    .heightIn(min = if (episodeTitle.isNullOrBlank()) 58.dp else 88.dp)
                     .padding(horizontal = 10.dp, vertical = 8.dp),
             ) {
                 Column(
@@ -167,16 +168,25 @@ internal fun EpisodeCard(
                             )
                         }
                     }
-                }
-                if (!timingLabel.isNullOrBlank()) {
-                    Text(
-                        text = timingLabel,
-                        style = MaterialTheme.typography.labelSmall,
-                        color = InProgressColor,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.align(Alignment.BottomEnd),
-                    )
+                    if (!episodeTitle.isNullOrBlank()) {
+                        Text(
+                            text = episodeTitle,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.78f),
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                    }
+                    if (!timingLabel.isNullOrBlank()) {
+                        Text(
+                            text = timingLabel,
+                            style = MaterialTheme.typography.labelSmall,
+                            color = InProgressColor,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.align(Alignment.End),
+                        )
+                    }
                 }
             }
         }

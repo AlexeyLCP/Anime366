@@ -79,6 +79,7 @@ internal fun YaniAnimeDetailsDto.toAnimeDetailsCache(
             episodesNextDateEpochSeconds = source.episodes?.nextDate?.takeIf { it > 0 },
             episodesPrevDateEpochSeconds = source.episodes?.prevDate?.takeIf { it > 0 },
             reviewsCount = source.reviewsCount,
+            malId = source.remoteIds?.myAnimeListId?.takeIf { it > 0 },
             cachedAt = cachedAt,
         ),
         otherTitles = source.otherTitles.filter { it.isNotBlank() }.mapIndexed { index, title ->
@@ -226,6 +227,7 @@ internal fun AnimeDetailsCache.toAnimeDetails(): AnimeDetails {
             )
         },
         reviewsCount = source.reviewsCount,
+        malId = source.malId,
     )
 }
 

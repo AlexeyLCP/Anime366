@@ -50,6 +50,8 @@ internal fun DetailsMediaCard(
     mediaProgress: Float? = null,
     mediaProgressColor: Color = Color.Unspecified,
     mediaTopEndContent: (@Composable () -> Unit)? = null,
+    /** Блок под основной строкой карточки — например, раскрывашка описания. */
+    bottomContent: (@Composable () -> Unit)? = null,
     onClick: () -> Unit,
 ) {
     val contentWeight = 1f - mediaWeight
@@ -196,6 +198,8 @@ internal fun DetailsMediaCard(
                 trailingAction?.invoke()
             }
         }
+        // Card — это Column, поэтому блок ложится под основной строкой карточки.
+        bottomContent?.invoke()
     }
 }
 

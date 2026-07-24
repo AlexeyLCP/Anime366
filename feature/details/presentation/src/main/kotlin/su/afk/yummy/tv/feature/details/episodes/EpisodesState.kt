@@ -3,6 +3,7 @@ package su.afk.yummy.tv.feature.details.episodes
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiEffect
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiEvent
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiState
+import su.afk.yummy.tv.core.model.anime.AnimeEpisodeInfo
 import su.afk.yummy.tv.core.model.anime.AnimeVideo
 import su.afk.yummy.tv.feature.details.details.BalancerPickerState
 import su.afk.yummy.tv.feature.details.details.VideosUiState
@@ -21,11 +22,17 @@ class EpisodesState {
         val pendingDownloadBalancerSelection: EpisodeDownloadBalancerSelection? = null,
         val pendingDownloadQualitySelection: EpisodeDownloadQualitySelection? = null,
         val pendingDownloadedEpisodeAction: DownloadedEpisodeAction? = null,
+        /** Названия и описания серий из YummyTV API по номеру серии. */
+        val episodeInfo: Map<String, AnimeEpisodeInfo> = emptyMap(),
+        /** Серии с раскрытым описанием (мобильная карточка). */
+        val expandedEpisodeDescriptions: Set<String> = emptySet(),
     ) : UiState
 
     data class EpisodeDubbingSelection(
         val episode: String,
         val options: List<EpisodeDubbingOption>,
+        val episodeTitle: String? = null,
+        val episodeDescription: String? = null,
     )
 
     data class EpisodeDubbingOption(
@@ -109,6 +116,9 @@ class EpisodesState {
 
         /** Пользователь запросил повторную загрузку списка серий. */
         data object RetryVideosSelected : Event
+
+        /** Пользователь свернул или раскрыл описание серии. */
+        data class EpisodeDescriptionToggled(val episode: String) : Event
 
         /** Пользователь открыл озвучки для указанного эпизода. */
         data class EpisodeDubbingsSelected(val episode: String) : Event

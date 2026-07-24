@@ -9,6 +9,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import su.afk.yummy.tv.core.designsystem.presenter.components.loader.TvLoadingScreen
 import su.afk.yummy.tv.core.designsystem.presenter.tv.TvStateMessage
+import su.afk.yummy.tv.core.model.anime.AnimeEpisodeInfo
 import su.afk.yummy.tv.core.model.anime.AnimeVideo
 import su.afk.yummy.tv.feature.details.R
 import su.afk.yummy.tv.feature.details.details.VideosUiState
@@ -20,6 +21,7 @@ internal fun EpisodesSection(
     watchProgress: DetailsWatchProgressIndex,
     restoreFocusRequest: Int,
     onVideoSelected: (AnimeVideo) -> Unit,
+    episodeInfo: Map<String, AnimeEpisodeInfo> = emptyMap(),
     onRetry: (() -> Unit)? = null,
 ) {
     when (state) {
@@ -41,6 +43,7 @@ internal fun EpisodesSection(
             videos = state.videos,
             watchProgress = watchProgress,
             restoreFocusRequest = restoreFocusRequest,
+            episodeInfo = episodeInfo,
             onVideoSelected = onVideoSelected,
             modifier = Modifier.fillMaxSize(),
         )

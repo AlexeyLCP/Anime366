@@ -75,6 +75,8 @@
     <string name="details_mobile_views">%1$d просмотров</string>
     <string name="details_mobile_episode">Серия %1$s</string>
     <string name="details_mobile_episode_dubbings_action">Информация о серии</string>
+    <string name="details_mobile_episode_description_expand">Развернуть описание серии</string>
+    <string name="details_mobile_episode_description_collapse">Свернуть описание серии</string>
     <string name="details_mobile_episode_download_action">Скачать серию</string>
     <string name="details_mobile_episode_downloaded_action">Серия скачана</string>
     <string name="details_mobile_episode_open_downloads_action">Открыть загрузки</string>

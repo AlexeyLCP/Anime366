@@ -24,6 +24,7 @@ import su.afk.yummy.tv.core.preferences.settings.PreferredPlayer
 import su.afk.yummy.tv.core.preferences.settings.SettingsStore
 import su.afk.yummy.tv.domain.account.usecase.ObserveAccountSessionUseCase
 import su.afk.yummy.tv.domain.anime.usecase.GetAnimeDetailsUseCase
+import su.afk.yummy.tv.domain.anime.usecase.GetAnimeEpisodeInfoUseCase
 import su.afk.yummy.tv.domain.anime.usecase.GetAnimeVideosUseCase
 import su.afk.yummy.tv.domain.anime.usecase.ObserveAnimeWatchProgressUseCase
 import su.afk.yummy.tv.domain.anime.usecase.RefreshAnimeVideosUseCase
@@ -56,6 +57,7 @@ class EpisodesViewModel @AssistedInject internal constructor(
     private val videoDownloadNavigator: IVideoDownloadNavigator,
     private val getAnimeDetails: GetAnimeDetailsUseCase,
     private val getAnimeVideos: GetAnimeVideosUseCase,
+    private val getAnimeEpisodeInfo: GetAnimeEpisodeInfoUseCase,
     private val refreshAnimeVideos: RefreshAnimeVideosUseCase,
     private val observeAnimeWatchProgress: ObserveAnimeWatchProgressUseCase,
     private val settingsStore: SettingsStore,
@@ -92,6 +94,7 @@ class EpisodesViewModel @AssistedInject internal constructor(
         analytics.eventEpisodesScreenOpened(animeId)
         viewModelScope.launch { loadMeta() }
         viewModelScope.launch { loadVideos() }
+        viewModelScope.launch { loadEpisodeInfo() }
         observeVideoDownloadStatuses(animeId)
             .onEach { statuses ->
                 setState {
@@ -127,6 +130,16 @@ class EpisodesViewModel @AssistedInject internal constructor(
         when (event) {
             EpisodesState.Event.BackSelected -> nav.back()
             EpisodesState.Event.RetryVideosSelected -> viewModelScope.launch { loadVideos() }
+            is EpisodesState.Event.EpisodeDescriptionToggled -> setState {
+                copy(
+                    expandedEpisodeDescriptions = if (event.episode in expandedEpisodeDescriptions) {
+                        expandedEpisodeDescriptions - event.episode
+                    } else {
+                        expandedEpisodeDescriptions + event.episode
+                    }
+                )
+            }
+
             is EpisodesState.Event.EpisodeDubbingsSelected -> {
                 analytics.eventEpisodesEpisodeDubbingsSelected(animeId)
                 nav.navigate(detailsNavigator.getEpisodeDubbingsDest(animeId, event.episode))
@@ -257,6 +270,13 @@ class EpisodesViewModel @AssistedInject internal constructor(
             screenshotsByEpisode = details.screenshots
                 .mapNotNull { s -> s.episode?.let { ep -> ep to (s.small ?: "") } }
                 .toMap()
+        }
+    }
+
+    private suspend fun loadEpisodeInfo() {
+        val info = runCatching { getAnimeEpisodeInfo(animeId) }.getOrDefault(emptyMap())
+        if (info.isNotEmpty()) {
+            setState { copy(episodeInfo = info) }
         }
     }
 
@@ -461,11 +481,14 @@ class EpisodesViewModel @AssistedInject internal constructor(
             navigateToPlayer(balancerVideo)
             return
         }
+        val info = currentState.episodeInfo[episode]
         setState {
             copy(
                 pendingEpisodeDubbingSelection = EpisodesState.EpisodeDubbingSelection(
                     episode = episode,
                     options = options,
+                    episodeTitle = info?.title,
+                    episodeDescription = info?.description,
                 )
             )
         }

@@ -11,6 +11,7 @@ import su.afk.yummy.tv.core.storage.anime.AnimeStorageStore
 import su.afk.yummy.tv.core.storage.document.DocumentCacheStore
 import su.afk.yummy.tv.core.storage.watchprogress.WatchProgressStore
 import su.afk.yummy.tv.data.details.network.YaniAnimeApi
+import su.afk.yummy.tv.data.details.network.YummyEpisodesApi
 import su.afk.yummy.tv.data.details.repository.YaniAnimeRepository
 import su.afk.yummy.tv.domain.anime.repository.AnimeRepository
 import javax.inject.Singleton
@@ -26,8 +27,14 @@ object DetailsDataModule {
 
     @Provides
     @Singleton
+    fun provideYummyEpisodesApi(clientProvider: YaniHttpClientProvider): YummyEpisodesApi =
+        YummyEpisodesApi(clientProvider)
+
+    @Provides
+    @Singleton
     fun provideAnimeRepository(
         api: YaniAnimeApi,
+        episodesApi: YummyEpisodesApi,
         animeStorage: AnimeStorageStore,
         accountStorage: AccountStorageStore,
         settingsStore: SettingsStore,
@@ -36,6 +43,7 @@ object DetailsDataModule {
     ): AnimeRepository =
         YaniAnimeRepository(
             api,
+            episodesApi,
             animeStorage,
             accountStorage,
             settingsStore,

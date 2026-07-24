@@ -88,6 +88,7 @@ fun EpisodesTvScreen(
             state = state.videosState,
             watchProgress = state.watchProgress,
             restoreFocusRequest = restoreEpisodesFocusRequest,
+            episodeInfo = state.episodeInfo,
             onVideoSelected = { video -> onEvent(EpisodesState.Event.TvEpisodeSelected(video)) },
             onRetry = { onEvent(EpisodesState.Event.RetryVideosSelected) },
         )

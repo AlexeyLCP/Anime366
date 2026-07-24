@@ -20,4 +20,6 @@ data class AnimeDetails(
     val viewingOrder: List<AnimeViewingOrderItem>,
     val screenshots: List<AnimeScreenshot>,
     val reviewsCount: Int = 0,
+    /** id тайтла в MyAnimeList — ключ для API названий и описаний серий. */
+    val malId: Int? = null,
 )

@@ -46,6 +46,7 @@ internal fun YaniAnimeDetailsDto.toAnimeDetails(): AnimeDetails {
         },
         screenshots = source.randomScreenshots.toAnimeScreenshots(),
         reviewsCount = source.reviewsCount.coerceAtLeast(0),
+        malId = source.remoteIds?.myAnimeListId?.takeIf { it > 0 },
     )
 }
 

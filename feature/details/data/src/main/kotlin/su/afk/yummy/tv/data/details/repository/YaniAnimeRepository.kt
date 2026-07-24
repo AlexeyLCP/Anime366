@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 import su.afk.yummy.tv.core.model.anime.AnimeDetails
+import su.afk.yummy.tv.core.model.anime.AnimeEpisodeInfo
 import su.afk.yummy.tv.core.model.anime.AnimeRecommendation
 import su.afk.yummy.tv.core.model.anime.AnimeRecommendationReaction
 import su.afk.yummy.tv.core.model.anime.AnimeRecommendationVote
@@ -29,9 +30,12 @@ import su.afk.yummy.tv.data.details.dto.YaniRecommendationItemDto
 import su.afk.yummy.tv.data.details.dto.YaniRecommendationsDto
 import su.afk.yummy.tv.data.details.dto.YaniRelatedAnimeDto
 import su.afk.yummy.tv.data.details.dto.YaniStudioResponseDto
+import su.afk.yummy.tv.data.details.dto.YummyEpisodesDto
 import su.afk.yummy.tv.data.details.mapper.toAnimeDetails
+import su.afk.yummy.tv.data.details.mapper.toAnimeEpisodeInfoByNumber
 import su.afk.yummy.tv.data.details.mapper.toAnimeRelation
 import su.afk.yummy.tv.data.details.network.YaniAnimeApi
+import su.afk.yummy.tv.data.details.network.YummyEpisodesApi
 import su.afk.yummy.tv.data.details.storage.mapper.toAccountUserRatingEntry
 import su.afk.yummy.tv.data.details.storage.mapper.toAnimeDetailsCache
 import su.afk.yummy.tv.data.details.storage.mapper.toAnimeRecommendationsCache
@@ -53,9 +57,12 @@ private const val ANIME_PUBLIC_EXTRAS_TTL_MS = 6 * 60 * 60 * 1000L
 private const val ANIME_RELATION_TTL_MS = 24 * 60 * 60 * 1000L
 private const val ANIME_PERSONAL_RECOMMENDATIONS_TTL_MS = 5 * 60 * 1000L
 private const val ANIME_RECOMMENDATIONS_CACHE_NAMESPACE = "anime-recommendations"
+private const val ANIME_EPISODE_INFO_CACHE_NAMESPACE = "anime-episode-info"
+private const val ANIME_EPISODE_INFO_TTL_MS = 7 * 24 * 60 * 60 * 1000L
 
 class YaniAnimeRepository(
     private val api: YaniAnimeApi,
+    private val episodesApi: YummyEpisodesApi,
     private val animeStorage: AnimeStorageStore,
     private val accountStorage: AccountStorageStore,
     private val settingsStore: SettingsStore,
@@ -203,6 +210,25 @@ class YaniAnimeRepository(
             vote = AnimeRecommendationVote.fromApi(response.vote),
         )
     }
+
+    override suspend fun getAnimeEpisodeInfo(animeId: Int): Map<String, AnimeEpisodeInfo> =
+        withContext(Dispatchers.IO) {
+            try {
+                val malId = getAnimeDetails(animeId).malId ?: return@withContext emptyMap()
+                documentCache.getOrFetch(
+                    cacheKey = "$ANIME_EPISODE_INFO_CACHE_NAMESPACE:$malId",
+                    ttlMs = ANIME_EPISODE_INFO_TTL_MS,
+                    decode = { YaniApiJson.decodeFromString<YummyEpisodesDto>(it) },
+                    encode = { YaniApiJson.encodeToString(it) },
+                    fetch = { episodesApi.getEpisodes(malId) },
+                ).toAnimeEpisodeInfoByNumber()
+            } catch (error: CancellationException) {
+                throw error
+            } catch (_: Throwable) {
+                // Названия серий — необязательная надстройка: экран должен работать и без них.
+                emptyMap()
+            }
+        }
 
     override suspend fun getAnimeTrailers(animeId: Int): List<AnimeTrailer> =
         withContext(Dispatchers.IO) {

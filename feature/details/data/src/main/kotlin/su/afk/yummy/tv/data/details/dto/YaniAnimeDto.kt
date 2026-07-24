@@ -30,6 +30,12 @@ data class YaniAnimeResponseDto(
     @SerialName("random_screenshots") val randomScreenshots: List<YaniScreenshotDto> = emptyList(),
     val user: YaniAnimeUserDto? = null,
     @SerialName("reviews_count") val reviewsCount: Int = 0,
+    @SerialName("remote_ids") val remoteIds: YaniRemoteIdsDto? = null,
+)
+
+@Serializable
+data class YaniRemoteIdsDto(
+    @SerialName("myanimelist_id") val myAnimeListId: Int? = null,
 )
 
 @Serializable

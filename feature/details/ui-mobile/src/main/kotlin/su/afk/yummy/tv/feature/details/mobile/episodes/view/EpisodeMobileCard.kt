@@ -1,13 +1,19 @@
 package su.afk.yummy.tv.feature.details.mobile.episodes.view
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Download
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.HourglassEmpty
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.RestartAlt
@@ -17,12 +23,14 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import su.afk.yummy.tv.core.model.anime.AnimeVideo
 import su.afk.yummy.tv.core.utils.KodikThumbnail
@@ -45,9 +53,13 @@ internal fun EpisodeMobileCard(
     video: AnimeVideo,
     watchStatus: EpisodeMobileWatchStatus,
     kodikIframeUrl: String?,
+    episodeTitle: String?,
+    episodeDescription: String?,
+    descriptionExpanded: Boolean,
     downloadStatus: EpisodesState.EpisodeDownloadUiState?,
     downloadResolving: Boolean,
     downloadAwaitingQualitySelection: Boolean,
+    onToggleDescription: () -> Unit,
     onInfoClick: () -> Unit,
     onDownloadClick: () -> Unit,
     onOpenDownloadsClick: () -> Unit,
@@ -97,8 +109,76 @@ internal fun EpisodeMobileCard(
                 )
             }
         },
+        bottomContent = if (episodeTitle.isNullOrBlank() && episodeDescription.isNullOrBlank()) {
+            null
+        } else {
+            {
+                EpisodeInfoBlock(
+                    title = episodeTitle?.takeIf { it.isNotBlank() },
+                    description = episodeDescription?.takeIf { it.isNotBlank() },
+                    expanded = descriptionExpanded,
+                    onToggle = onToggleDescription,
+                )
+            }
+        },
         onClick = onClick,
     )
+}
+
+/** Название и описание серии со сворачиванием; тап по блоку не запускает воспроизведение. */
+@Composable
+private fun EpisodeInfoBlock(
+    title: String?,
+    description: String?,
+    expanded: Boolean,
+    onToggle: () -> Unit,
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .then(if (description == null) Modifier else Modifier.clickable(onClick = onToggle))
+            .padding(start = 12.dp, end = 4.dp, bottom = 10.dp),
+        verticalAlignment = Alignment.Top,
+    ) {
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .padding(top = 6.dp),
+        ) {
+            if (title != null) {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
+            if (description != null) {
+                Text(
+                    text = description,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.78f),
+                    maxLines = if (expanded) Int.MAX_VALUE else 3,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
+        }
+        if (description != null) {
+            Icon(
+                imageVector = if (expanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
+                contentDescription = stringResource(
+                    if (expanded) {
+                        R.string.details_mobile_episode_description_collapse
+                    } else {
+                        R.string.details_mobile_episode_description_expand
+                    }
+                ),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.78f),
+                modifier = Modifier.padding(8.dp),
+            )
+        }
+    }
 }
 
 @Composable

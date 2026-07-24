@@ -31,6 +31,9 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 const val YANI_BASE_URL = "https://api.yani.tv"
+
+/** Собственный сервис с названиями, описаниями и превью серий (данные TMDB). */
+const val YUMMY_TV_API_BASE_URL = "https://yummytv.kemonos.win/api"
 private const val YANI_API_HOST = "api.yani.tv"
 private const val YANI_APPLICATION_HEADER = "X-Application"
 private const val YANI_LANGUAGE_HEADER = "Lang"

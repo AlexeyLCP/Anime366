@@ -119,13 +119,20 @@ fun EpisodesMobileScreen(
                     val downloadAwaitingQualitySelection = state.pendingDownloadQualitySelection
                         ?.let { selection -> group.videos.any { it.id == selection.videoId } }
                         ?: false
+                    val episodeInfo = state.episodeInfo[group.episode]
                     EpisodeMobileCard(
                         video = group.video,
                         watchStatus = group.videos.mobileWatchStatus(state.watchProgress),
                         kodikIframeUrl = group.kodikIframeUrl,
+                        episodeTitle = episodeInfo?.title,
+                        episodeDescription = episodeInfo?.description,
+                        descriptionExpanded = group.episode in state.expandedEpisodeDescriptions,
                         downloadStatus = downloadStatus,
                         downloadResolving = downloadResolving,
                         downloadAwaitingQualitySelection = downloadAwaitingQualitySelection,
+                        onToggleDescription = {
+                            onEvent(EpisodesState.Event.EpisodeDescriptionToggled(group.episode))
+                        },
                         onInfoClick = {
                             onEvent(EpisodesState.Event.EpisodeDubbingsSelected(group.episode))
                         },

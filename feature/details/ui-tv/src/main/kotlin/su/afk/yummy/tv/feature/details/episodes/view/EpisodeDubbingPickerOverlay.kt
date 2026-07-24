@@ -113,15 +113,39 @@ internal fun EpisodeDubbingPickerOverlay(
                     .padding(18.dp),
                 verticalArrangement = Arrangement.spacedBy(10.dp),
             ) {
-                Text(
-                    text = stringResource(
-                        R.string.details_episode_dubbings_title,
-                        selection.episode
-                    ),
-                    style = MaterialTheme.typography.titleSmall,
-                    color = Color.White.copy(alpha = 0.70f),
+                Column(
                     modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
-                )
+                    verticalArrangement = Arrangement.spacedBy(6.dp),
+                ) {
+                    Text(
+                        text = stringResource(
+                            R.string.details_episode_dubbings_title,
+                            selection.episode
+                        ),
+                        style = MaterialTheme.typography.titleSmall,
+                        color = Color.White.copy(alpha = 0.70f),
+                    )
+                    selection.episodeTitle?.takeIf { it.isNotBlank() }?.let { title ->
+                        Text(
+                            text = title,
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.SemiBold,
+                            color = Color.White,
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                    }
+                    selection.episodeDescription?.takeIf { it.isNotBlank() }?.let { description ->
+                        // Скроллить текст с пульта нельзя — ограничиваем строками.
+                        Text(
+                            text = description,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Color.White.copy(alpha = 0.72f),
+                            maxLines = 6,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                    }
+                }
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxWidth()
