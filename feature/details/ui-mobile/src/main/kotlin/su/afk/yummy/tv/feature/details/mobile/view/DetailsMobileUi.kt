@@ -38,6 +38,7 @@ internal fun DetailsMediaCard(
     subtitle: String?,
     imageModel: Any?,
     modifier: Modifier = Modifier,
+    subtitleColor: Color = Color.Unspecified,
     footerText: String? = null,
     footerTextColor: Color = Color.Unspecified,
     secondaryFooterText: String? = null,
@@ -59,6 +60,11 @@ internal fun DetailsMediaCard(
         MaterialTheme.colorScheme.primary
     } else {
         mediaProgressColor
+    }
+    val resolvedSubtitleColor = if (subtitleColor == Color.Unspecified) {
+        MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.72f)
+    } else {
+        subtitleColor
     }
     val resolvedFooterTextColor = if (footerTextColor == Color.Unspecified) {
         MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.82f)
@@ -171,7 +177,7 @@ internal fun DetailsMediaCard(
                         Text(
                             text = subtitle,
                             style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.72f),
+                            color = resolvedSubtitleColor,
                             maxLines = 2,
                             overflow = TextOverflow.Ellipsis,
                         )

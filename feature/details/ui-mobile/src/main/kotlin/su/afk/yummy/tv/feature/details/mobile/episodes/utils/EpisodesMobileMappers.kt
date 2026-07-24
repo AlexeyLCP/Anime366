@@ -28,9 +28,3 @@ private fun List<AnimeVideo>.representativeVideo(bestKodikDubbing: String): Anim
         ?: source.maxByOrNull { it.views ?: 0 }
         ?: first()
 }
-
-internal fun Int.formatDuration(): String {
-    val minutes = this / 60
-    val seconds = this % 60
-    return "$minutes:${seconds.toString().padStart(2, '0')}"
-}

@@ -65,12 +65,6 @@ private fun AnimeEpisodes.formatReleaseCountdown(): String? {
     return pluralStringResource(resource, countdown.value, countdown.value)
 }
 
-internal fun Int.formatDuration(): String {
-    val m = this / 60
-    val s = this % 60
-    return "$m:${s.toString().padStart(2, '0')}"
-}
-
 internal val AnimePoster.bestUrl: String?
     get() = big ?: medium ?: fullsize ?: small
 

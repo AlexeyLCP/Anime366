@@ -37,10 +37,9 @@ import su.afk.yummy.tv.core.utils.KodikThumbnail
 import su.afk.yummy.tv.feature.details.episodes.EpisodesState
 import su.afk.yummy.tv.feature.details.mobile.R
 import su.afk.yummy.tv.feature.details.mobile.episodes.model.EpisodeMobileWatchStatus
-import su.afk.yummy.tv.feature.details.mobile.episodes.utils.formatDuration
+import su.afk.yummy.tv.feature.details.mobile.episodes.utils.durationLabel
 import su.afk.yummy.tv.feature.details.mobile.episodes.utils.isDownloadBusy
 import su.afk.yummy.tv.feature.details.mobile.episodes.utils.isPaused
-import su.afk.yummy.tv.feature.details.mobile.episodes.utils.timingLabel
 import su.afk.yummy.tv.feature.details.mobile.view.DetailsMediaCard
 import kotlin.math.roundToInt
 
@@ -77,9 +76,12 @@ internal fun EpisodeMobileCard(
     }
     DetailsMediaCard(
         title = stringResource(R.string.details_mobile_episode, video.episode),
-        subtitle = video.durationSeconds?.formatDuration(),
-        footerText = watchStatus.timingLabel(),
-        footerTextColor = InProgressColor,
+        subtitle = watchStatus.durationLabel(video.durationSeconds),
+        subtitleColor = if (watchStatus == EpisodeMobileWatchStatus.None) {
+            Color.Unspecified
+        } else {
+            InProgressColor
+        },
         secondaryFooterText = downloadStatusText,
         secondaryFooterTextColor = downloadStatusColor,
         imageModel = kodikIframeUrl?.let(::KodikThumbnail),

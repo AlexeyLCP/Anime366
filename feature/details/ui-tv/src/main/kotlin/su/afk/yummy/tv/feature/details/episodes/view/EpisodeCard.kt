@@ -35,8 +35,7 @@ import su.afk.yummy.tv.core.model.anime.AnimeVideo
 import su.afk.yummy.tv.core.utils.KodikThumbnail
 import su.afk.yummy.tv.feature.details.R
 import su.afk.yummy.tv.feature.details.episodes.model.EpisodeWatchStatus
-import su.afk.yummy.tv.feature.details.episodes.utils.timingLabel
-import su.afk.yummy.tv.feature.details.utils.formatDuration
+import su.afk.yummy.tv.feature.details.episodes.utils.durationLabel
 
 private val InProgressColor = Color(0xFF4CAF50)
 
@@ -52,7 +51,7 @@ internal fun EpisodeCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val timingLabel = watchStatus.timingLabel()
+    val durationLabel = watchStatus.durationLabel(video.durationSeconds)
     val shape = RoundedCornerShape(8.dp)
     Card(
         modifier = modifier
@@ -160,11 +159,15 @@ internal fun EpisodeCard(
                             overflow = TextOverflow.Ellipsis,
                             modifier = Modifier.weight(1f),
                         )
-                        video.durationSeconds?.let {
+                        if (!durationLabel.isNullOrBlank()) {
                             Text(
-                                text = it.formatDuration(),
+                                text = durationLabel,
                                 style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.60f),
+                                color = if (watchStatus == EpisodeWatchStatus.None) {
+                                    MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.60f)
+                                } else {
+                                    InProgressColor
+                                },
                             )
                         }
                     }
@@ -175,16 +178,6 @@ internal fun EpisodeCard(
                             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.78f),
                             maxLines = 2,
                             overflow = TextOverflow.Ellipsis,
-                        )
-                    }
-                    if (!timingLabel.isNullOrBlank()) {
-                        Text(
-                            text = timingLabel,
-                            style = MaterialTheme.typography.labelSmall,
-                            color = InProgressColor,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                            modifier = Modifier.align(Alignment.End),
                         )
                     }
                 }

@@ -35,27 +35,26 @@ internal fun List<AnimeVideo>.watchStatus(
     }
 }
 
+/** Тайминг серии: «24:00» без прогресса и у досмотренных, «11:24 / 24:00» — у начатых. */
 @Composable
-internal fun EpisodeWatchStatus.timingLabel(): String? {
-    val positionMs: Long
-    val durationMs: Long
-    when (this) {
-        EpisodeWatchStatus.None -> return null
-        is EpisodeWatchStatus.InProgress -> {
-            positionMs = this.positionMs
-            durationMs = this.durationMs
-        }
+internal fun EpisodeWatchStatus.durationLabel(fallbackDurationSeconds: Int?): String? {
+    val fallbackMs = fallbackDurationSeconds?.takeIf { it > 0 }?.times(1_000L)
+    return when (this) {
+        EpisodeWatchStatus.None -> fallbackMs?.toWatchTimeString()
 
-        is EpisodeWatchStatus.Watched -> {
-            positionMs = this.positionMs
-            durationMs = this.durationMs
+        is EpisodeWatchStatus.Watched ->
+            (durationMs.takeIf { it > 0 } ?: fallbackMs)?.toWatchTimeString()
+
+        is EpisodeWatchStatus.InProgress -> {
+            val totalMs = durationMs.takeIf { it > 0 } ?: fallbackMs
+            ?: return positionMs.toWatchTimeString()
+            stringResource(
+                R.string.details_episode_watch_timing,
+                positionMs.toWatchTimeString(),
+                totalMs.toWatchTimeString(),
+            )
         }
     }
-    return stringResource(
-        R.string.details_episode_watch_timing,
-        positionMs.toWatchTimeString(),
-        durationMs.toWatchTimeString(),
-    )
 }
 
 private fun Long.toWatchTimeString(): String {

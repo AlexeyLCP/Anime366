@@ -32,10 +32,21 @@ internal fun List<AnimeVideo>.mobileWatchStatus(
     }
 }
 
-internal fun EpisodeMobileWatchStatus.timingLabel(): String? = when (this) {
-    EpisodeMobileWatchStatus.None -> null
-    is EpisodeMobileWatchStatus.InProgress -> "${positionMs.toMobileWatchTimeString()} / ${durationMs.toMobileWatchTimeString()}"
-    is EpisodeMobileWatchStatus.Watched -> "${positionMs.toMobileWatchTimeString()} / ${durationMs.toMobileWatchTimeString()}"
+/** Тайминг серии: «24:00» без прогресса и у досмотренных, «11:24 / 24:00» — у начатых. */
+internal fun EpisodeMobileWatchStatus.durationLabel(fallbackDurationSeconds: Int?): String? {
+    val fallbackMs = fallbackDurationSeconds?.takeIf { it > 0 }?.times(1_000L)
+    return when (this) {
+        EpisodeMobileWatchStatus.None -> fallbackMs?.toMobileWatchTimeString()
+
+        is EpisodeMobileWatchStatus.Watched ->
+            (durationMs.takeIf { it > 0 } ?: fallbackMs)?.toMobileWatchTimeString()
+
+        is EpisodeMobileWatchStatus.InProgress -> {
+            val totalMs = durationMs.takeIf { it > 0 } ?: fallbackMs
+            ?: return positionMs.toMobileWatchTimeString()
+            "${positionMs.toMobileWatchTimeString()} / ${totalMs.toMobileWatchTimeString()}"
+        }
+    }
 }
 
 private fun Long.toMobileWatchTimeString(): String {
