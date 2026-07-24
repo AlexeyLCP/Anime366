@@ -43,7 +43,8 @@ internal data class AllohaStreamState(
  *  2. A small segment cache + prefetch + in-flight de-dup to smooth out playback.
  *  3. A cheap "rewrite to the current session's path" retry for stale-path segment 403s.
  *  4. Rebuilding the OkHttp client/connection pool whenever the session generation changes, so no
- *     stale keep-alive connections survive a session refresh.
+ *     stale keep-alive connections survive a session refresh - while keeping the segment cache and
+ *     the fetches already in flight, which the previous token already authorized.
  *  5. Serving the reference 188-byte empty TS packet for unrecoverable `-a1.ts`/`-a2.ts` audio
  *     segments, while every other failed media segment remains an explicit transport error.
  *  6. A single-flight escalation to one full session refresh after bounded local recovery.
@@ -126,16 +127,16 @@ internal class AllohaStreamProxy(
     }
 
     private fun onSessionRotated(state: AllohaStreamState) {
-        val oldClient = client
+        // Only the transport is rebuilt. The cached segment bytes and the fetches already in flight
+        // were authorized by the previous token and stay perfectly valid - dropping them would just
+        // force Media3 to redownload content we already have, which is visible as a stall right at
+        // the rotation. The new client/pool is what matters: no keep-alive connection from the old
+        // session may survive into the new one.
         val oldPool = connectionPool
         connectionPool = buildConnectionPool()
         client = buildClient()
-        synchronized(cacheLock) { segmentCache.clear() }
-        recentSegments = emptyList()
-        val oldInFlight = inFlightSegments.values.toList()
-        inFlightSegments.clear()
-        oldInFlight.forEach { it.cancel() }
-        oldClient.dispatcher.cancelAll()
+        // evictAll() closes the idle connections only, so nothing from the old session can be
+        // picked up again, while the calls still running on it are allowed to finish.
         oldPool.evictAll()
         Log.i(LOG_TAG, "Session transport reset ${state.safeSummary()}")
     }
@@ -275,9 +276,8 @@ internal class AllohaStreamProxy(
         return try {
             deferred.await()
         } catch (_: CancellationException) {
-            // A generation rotation deliberately cancels every old in-flight deferred. The
-            // loopback caller still needs a complete HTTP response, so retry this one segment
-            // against the already-committed generation instead of letting the socket end at EOF.
+            // The loopback caller still needs a complete HTTP response, so retry this one segment
+            // rather than letting the socket end at EOF.
             if (scope.isActive) fetchWithRecovery(url) else null
         } finally {
             inFlightSegments.remove(url, deferred)
@@ -312,12 +312,6 @@ internal class AllohaStreamProxy(
     ): FetchResult? {
         val initialState = streamStateProvider()
         noteActiveState(initialState)
-        if (rejectedSessionGeneration.get() >= initialState.generation) {
-            if (lastRejectionMarker.get() != TOKEN_DECRYPT_MARKER) {
-                scheduleBackgroundSessionRefresh(initialState.generation)
-            }
-            return null
-        }
 
         var rejectedGeneration = -1L
         var rejectedMarker: String? = null
@@ -414,6 +408,50 @@ internal class AllohaStreamProxy(
 
         val initialGeneration = initialState.generation
 
+        // Range requests and playlists are excluded: byte-range semantics must stay exact, and
+        // Media3 polls the media playlist on its own timer, so holding it back helps nothing.
+        val canHoldForRefresh = !allowRange && !isPlaylistUrl(url)
+
+        // Escalates to one background session refresh and, for plain segment requests, holds this
+        // loopback request until the fresh token lands so it can be retried transparently.
+        //
+        // Holding is what lets Media3 ride the gap out of its own buffer: a pending HTTP request is
+        // invisible to it, whereas the 503 serveSegment() would otherwise send trips the error path
+        // immediately and surfaces as a visible loader.
+        //
+        // Skip the refresh entirely when the CDN rejected with token_decrypt: refresh() reloads the
+        // SAME WebView instance, and logs show that always gets routed back to the identical
+        // accepts-controls edge_hash it just failed with - so the retry is a guaranteed-useless
+        // ~2-4s stall. Failing fast there lets the caller escalate straight to a genuinely fresh
+        // WebView/extractor, which does get a new edge.
+        suspend fun holdForRefreshThenRetry(): FetchResult? {
+            if (lastRejectionMarker.get() == TOKEN_DECRYPT_MARKER) return null
+            if (!scheduleBackgroundSessionRefresh(initialGeneration)) return null
+            if (!canHoldForRefresh) return null
+            val deadline = System.currentTimeMillis() + SEGMENT_HOLD_FOR_REFRESH_MS
+            while (System.currentTimeMillis() < deadline) {
+                delay(SESSION_REFRESH_POLL_MS)
+                val state = streamStateProvider()
+                if (state.generation > initialGeneration) {
+                    noteActiveState(state)
+                    Log.i(
+                        LOG_TAG,
+                        "Retrying held segment on refreshed session ${state.safeSummary()} " +
+                                "target=${url.safeTarget()}",
+                    )
+                    // Prefer the current session's path: the refreshed master usually moves.
+                    val target = rewriteToCurrentPath(url, state.masterUrl) ?: url
+                    return execute(target)
+                }
+            }
+            Log.w(LOG_TAG, "Held segment timed out waiting for refresh target=${url.safeTarget()}")
+            return null
+        }
+
+        if (rejectedSessionGeneration.get() >= initialGeneration) {
+            return holdForRefreshThenRetry()
+        }
+
         // Exact request first. A 403 receives exactly one same-URL retry on a fresh connection
         // inside execute(), matching the reference proxy.
         execute(url)?.let { return it }
@@ -430,17 +468,7 @@ internal class AllohaStreamProxy(
             }
         }
 
-        // Do not hold Media3's localhost segment request while WebView establishes a new session.
-        // All concurrent failures share this one background refresh and receive an immediate
-        // 188-byte audio fallback or 503 from serveSegment(). Skip the refresh entirely when the CDN
-        // rejected with token_decrypt: refresh() reloads the SAME WebView instance, and logs show
-        // that always gets routed back to the identical accepts-controls edge_hash it just failed
-        // with - so the retry is a guaranteed-useless ~2-4s stall. Failing fast here lets the caller
-        // escalate straight to a genuinely fresh WebView/extractor, which does get a new edge.
-        if (lastRejectionMarker.get() != TOKEN_DECRYPT_MARKER) {
-            scheduleBackgroundSessionRefresh(initialGeneration)
-        }
-        return null
+        return holdForRefreshThenRetry()
     }
 
     private fun markSessionRejected(state: AllohaStreamState, marker: String?) {
@@ -529,13 +557,14 @@ internal class AllohaStreamProxy(
         return streamStateProvider().generation > previousGeneration
     }
 
-    private fun scheduleBackgroundSessionRefresh(previousGeneration: Long) {
+    /** @return true when a refresh is now in flight, so a caller may wait for a new generation. */
+    private fun scheduleBackgroundSessionRefresh(previousGeneration: Long): Boolean {
         if (!backgroundRefreshScheduled.compareAndSet(false, true)) {
             Log.d(
                 LOG_TAG,
                 "Background session refresh already scheduled generation=$previousGeneration"
             )
-            return
+            return true
         }
         if (!backgroundRefreshConsumedSinceSuccess.compareAndSet(false, true)) {
             backgroundRefreshScheduled.set(false)
@@ -544,7 +573,7 @@ internal class AllohaStreamProxy(
                 "Background session refresh already consumed without a successful CDN response " +
                         "generation=$previousGeneration",
             )
-            return
+            return false
         }
         scope.launch {
             try {
@@ -559,6 +588,7 @@ internal class AllohaStreamProxy(
                 backgroundRefreshScheduled.set(false)
             }
         }
+        return true
     }
 
     private fun rewritePlaylist(content: String, playlistUrl: String): String {
@@ -645,6 +675,13 @@ internal class AllohaStreamProxy(
         const val LOG_TAG = "AllohaStreamProxy"
         const val SESSION_REFRESH_WAIT_MS = 20_000L
         const val SESSION_REFRESH_POLL_MS = 150L
+
+        // How long a plain segment request may hang waiting for a session refresh before we give up
+        // and let the caller fail it. Media3 plays out of its own buffer for the whole hold, so this
+        // is affordable against the 15-60s it keeps (see PlayerLoadControlFactory), and it must
+        // outlast the extractor's forced staged-commit timeout - giving up just before the new token
+        // commits would trade a recoverable stall for a full session recovery.
+        const val SEGMENT_HOLD_FOR_REFRESH_MS = 10_000L
         const val CACHE_CAPACITY = 4
         const val PREFETCH_COUNT = 2
         const val MIN_SEGMENT_BYTES_HINT = 1000

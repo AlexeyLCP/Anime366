@@ -32,6 +32,19 @@ internal class PlayerAllohaSessionHandler @Inject constructor(
                 )
                 if (activeSession === session && session.expiresAtMs() == expiresAt) {
                     session.refresh()
+                    // refresh() deliberately keeps the current expiry live so the still-valid token
+                    // keeps serving while the new one is staged; poll until the rotation commits a
+                    // new one instead of re-entering the (now zero-length) delay above on every
+                    // tick. Bounded, so a rotation that never produces a TTL falls through to
+                    // another refresh attempt rather than wedging this loop.
+                    val deadline = System.currentTimeMillis() + SESSION_ROTATION_WAIT_MS
+                    while (
+                        activeSession === session &&
+                        session.expiresAtMs() == expiresAt &&
+                        System.currentTimeMillis() < deadline
+                    ) {
+                        delay(SESSION_EXPIRY_POLL_MS)
+                    }
                 }
             }
         }
@@ -51,5 +64,9 @@ internal class PlayerAllohaSessionHandler @Inject constructor(
     private companion object {
         const val SESSION_REFRESH_LEAD_MS = 20_000L
         const val SESSION_EXPIRY_POLL_MS = 500L
+
+        // Upper bound on waiting for a staged rotation to commit a new TTL. Must exceed the
+        // extractor's own forced-commit timeout so the normal path always wins the race.
+        const val SESSION_ROTATION_WAIT_MS = 15_000L
     }
 }
