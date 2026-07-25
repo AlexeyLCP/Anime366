@@ -122,7 +122,7 @@ internal class PlayerSourceStreamHandler @Inject constructor(
             resumeFromMs = if (preservePlaybackPosition) state.resumeFromMs else 0L,
             playbackPositionMs = if (preservePlaybackPosition) state.playbackPositionMs else 0L,
             playbackDurationMs = if (preservePlaybackPosition) state.playbackDurationMs else 0L,
-            isAllohaPlaybackRecovering = false,
+            isPlaybackRecovering = false,
         )
     }
 

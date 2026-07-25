@@ -144,7 +144,7 @@ internal fun MobileNativePlayer(
     val canChangeDubbing = ui.dubbingNames.size > 1
     // Пока виден хинт восстановления, оверлей не автоскрываем:
     // кнопки «Сменить плеер/озвучку» и контролы должны оставаться на экране
-    val recoveryHintVisible = state.isAllohaPlaybackRecovering && state.showChangePlayerHint &&
+    val recoveryHintVisible = state.isPlaybackRecovering && state.showChangePlayerHint &&
             (canChangePlayer || canChangeDubbing) && !isInPictureInPictureMode
     val overlay = rememberMobilePlayerOverlayController(
         canHide = {
@@ -440,7 +440,7 @@ internal fun MobileNativePlayer(
                 player = player,
                 surfaceType = SURFACE_TYPE_TEXTURE_VIEW,
                 contentScale = ContentScale.Fit,
-                keepContentOnReset = state.isAllohaPlaybackRecovering,
+                keepContentOnReset = state.isPlaybackRecovering,
                 modifier = Modifier
                     .fillMaxSize()
                     .graphicsLayer {
@@ -460,7 +460,7 @@ internal fun MobileNativePlayer(
         }
 
         PlayerBufferingIndicator(
-            visible = isBuffering || state.isAllohaPlaybackRecovering,
+            visible = isBuffering || state.isPlaybackRecovering,
             modifier = Modifier.align(Alignment.Center),
         )
 

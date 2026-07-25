@@ -131,7 +131,7 @@ internal fun TvExoPlayerView(
     val canChangeDubbing = playback.dubbingNames.size > 1
     // Пока виден хинт восстановления, оверлей нельзя автоскрывать:
     // иначе фокус уйдёт на скрытый key-оверлей и кнопки хинта станут недостижимы
-    val recoveryHintVisible = state.isAllohaPlaybackRecovering && state.showChangePlayerHint &&
+    val recoveryHintVisible = state.isPlaybackRecovering && state.showChangePlayerHint &&
             (canChangePlayer || canChangeDubbing)
     val autoHide = rememberPlayerAutoHideController(
         canHide = { !panels.isAnyOpen && !prompts.anyVisible && !recoveryHintVisible },
@@ -486,7 +486,7 @@ internal fun TvExoPlayerView(
             player = player,
             surfaceType = SURFACE_TYPE_SURFACE_VIEW,
             contentScale = tvPlayerContentScale(state.resizeMode, state.zoomLevel),
-            keepContentOnReset = state.isAllohaPlaybackRecovering,
+            keepContentOnReset = state.isPlaybackRecovering,
             shutter = {
                 Box(
                     Modifier
@@ -512,7 +512,7 @@ internal fun TvExoPlayerView(
         )
 
         PlayerBufferingIndicator(
-            visible = isBuffering || state.isAllohaPlaybackRecovering,
+            visible = isBuffering || state.isPlaybackRecovering,
             modifier = Modifier.align(Alignment.Center),
         )
 

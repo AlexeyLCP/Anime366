@@ -61,7 +61,7 @@ class PlayerState {
         val mobileVideoOffsetY: Float = 0f,
         val isOfflinePlayback: Boolean = false,
         val offlineCacheKey: String? = null,
-        val isAllohaPlaybackRecovering: Boolean = false,
+        val isPlaybackRecovering: Boolean = false,
         val showChangePlayerHint: Boolean = false,
         val finalEpisodeAction: PlayerFinalEpisodeAction = PlayerFinalEpisodeAction.Loading,
     ) : UiState

@@ -29,6 +29,7 @@ import su.afk.yummy.tv.feature.player.handler.PlayerAllohaSessionHandler
 import su.afk.yummy.tv.feature.player.handler.PlayerDisplaySettingsHandler
 import su.afk.yummy.tv.feature.player.handler.PlayerFinalEpisodeActionHandler
 import su.afk.yummy.tv.feature.player.handler.PlayerPlaybackProgressHandler
+import su.afk.yummy.tv.feature.player.handler.PlayerPlaybackRetryHandler
 import su.afk.yummy.tv.feature.player.handler.PlayerSettingsHandler
 import su.afk.yummy.tv.feature.player.handler.PlayerSourceGraphLoadResult
 import su.afk.yummy.tv.feature.player.handler.PlayerSourceSelectionHandler
@@ -61,6 +62,7 @@ class PlayerViewModel @AssistedInject internal constructor(
     private val strings: StringProvider,
     private val analytics: PlayerAnalytics,
     private val allohaRecovery: PlayerAllohaRecoveryHandler,
+    private val playbackRetry: PlayerPlaybackRetryHandler,
     private val allohaSession: PlayerAllohaSessionHandler,
 ) : BaseViewModelNew<PlayerState.State, PlayerState.Event, PlayerState.Effect>(savedStateHandle) {
 
@@ -73,6 +75,7 @@ class PlayerViewModel @AssistedInject internal constructor(
     private var pendingDestinationResumeMs: Long? = dest.resumeFromMs.takeIf { it > 0L }
     private var sourceGraphJob: Job? = null
     private var allohaPlaybackRecoveryJob: Job? = null
+    private var playbackRetryJob: Job? = null
     private var streamLoadingHintJob: Job? = null
     private var finalEpisodeActionJob: Job? = null
     private var mobileGestureTutorialReady = false
@@ -84,6 +87,8 @@ class PlayerViewModel @AssistedInject internal constructor(
         allohaSession.close()
         allohaRecovery.reset()
         allohaPlaybackRecoveryJob?.cancel()
+        playbackRetry.reset()
+        playbackRetryJob?.cancel()
         activeDest = newDest
         pendingDestinationResumeMs = newDest.resumeFromMs.takeIf { it > 0L }
         setState {
@@ -181,6 +186,8 @@ class PlayerViewModel @AssistedInject internal constructor(
 
             PlayerState.Event.RetryStream -> {
                 analytics.eventRetryStream(currentState.animeId)
+                playbackRetry.reset()
+                playbackRetryJob?.cancel()
                 if (currentState.isOfflinePlayback) {
                     setState { copy(retryKey = retryKey + 1) }
                     loadDownloadedDestination(activeDest.downloadId)
@@ -252,11 +259,16 @@ class PlayerViewModel @AssistedInject internal constructor(
                         selectedQuality = currentState.selectedQuality,
                         initialDelayMs = ALLOHA_PLAYBACK_RECOVERY_DELAY_MS,
                     )
+                } else if (!currentState.isOfflinePlayback && playbackRetry.canRetry()) {
+                    schedulePlaybackRetryAttempt()
                 } else {
+                    playbackRetry.reset()
+                    playbackRetryJob?.cancel()
                     streamLoadingHintJob?.cancel()
                     setState {
                         copy(
                             streamUrl = null,
+                            isPlaybackRecovering = false,
                             playerError = sourceStreamHandler.playbackErrorMessage(
                                 message = event.message,
                                 errorCode = event.errorCode,
@@ -268,8 +280,10 @@ class PlayerViewModel @AssistedInject internal constructor(
             }
 
             PlayerState.Event.PlaybackReady -> {
+                // Успешный старт - бюджет тихих повторов освобождается для нового сеанса.
+                playbackRetry.reset()
                 if (
-                    currentState.isAllohaPlaybackRecovering &&
+                    currentState.isPlaybackRecovering &&
                     !allohaRecovery.isRecovering &&
                     !currentState.isOfflinePlayback &&
                     currentState.isAllohaSource()
@@ -279,7 +293,14 @@ class PlayerViewModel @AssistedInject internal constructor(
                         "Background Alloha playback recovery ready " +
                                 "positionMs=${currentState.playbackPositionMs.coerceAtLeast(0L)}",
                     )
-                    setState { copy(isAllohaPlaybackRecovering = false) }
+                    setState { copy(isPlaybackRecovering = false) }
+                } else if (currentState.isPlaybackRecovering && !allohaRecovery.isRecovering) {
+                    Log.i(
+                        LOG_TAG,
+                        "Silent playback retry recovered " +
+                                "positionMs=${currentState.playbackPositionMs.coerceAtLeast(0L)}",
+                    )
+                    setState { copy(isPlaybackRecovering = false) }
                 }
             }
 
@@ -606,6 +627,8 @@ class PlayerViewModel @AssistedInject internal constructor(
         if (state == null) return
         allohaRecovery.reset()
         allohaPlaybackRecoveryJob?.cancel()
+        playbackRetry.reset()
+        playbackRetryJob?.cancel()
         setState { sourceStreamHandler.preparingStreamLoad(state, resumeMode) }
         if (sourceScopeChanged) {
             observeActivePlayerResizeSettings()
@@ -886,7 +909,7 @@ class PlayerViewModel @AssistedInject internal constructor(
                             } else {
                                 retryKey
                             },
-                            isAllohaPlaybackRecovering =
+                            isPlaybackRecovering =
                                 completedAllohaPlaybackRecovery && !resolveFailed,
                             showChangePlayerHint = false,
                         )
@@ -926,7 +949,7 @@ class PlayerViewModel @AssistedInject internal constructor(
                 kodikBlockedError = null,
                 resumeFromMs = resumePosition,
                 playbackPositionMs = resumePosition,
-                isAllohaPlaybackRecovering = true,
+                isPlaybackRecovering = true,
                 showChangePlayerHint = false,
             )
         }
@@ -975,8 +998,44 @@ class PlayerViewModel @AssistedInject internal constructor(
         }
     }
 
+    /**
+     * Тихий повтор воспроизведения для не-Alloha плееров: держим последний кадр + спиннер и молча
+     * перерезолвим источник. До [PlayerPlaybackRetryHandler.MAX_ATTEMPTS] раз, дальше - оверлей ошибки.
+     */
+    private fun schedulePlaybackRetryAttempt() {
+        playbackRetryJob?.cancel()
+        val destination = activeDest
+        val iframeUrl = activeIframeUrl(currentState)
+        val attempt = playbackRetry.next()
+        streamLoadingHintJob?.cancel()
+        setState {
+            copy(
+                playerError = null,
+                isPlaybackRecovering = true,
+                showChangePlayerHint = false,
+            )
+        }
+        Log.i(
+            LOG_TAG,
+            "Silent playback retry attempt=$attempt/${PlayerPlaybackRetryHandler.MAX_ATTEMPTS}",
+        )
+        playbackRetryJob = viewModelScope.launch {
+            delay(PLAYBACK_RETRY_DELAY_MS)
+            if (
+                destination == activeDest &&
+                activeIframeUrl(currentState) == iframeUrl &&
+                !currentState.isOfflinePlayback
+            ) {
+                setState { copy(retryKey = retryKey + 1) }
+                allohaSession.close()
+                loadStream(refreshSourcesOnFailure = true)
+            }
+        }
+    }
+
     override fun onCleared() {
         allohaPlaybackRecoveryJob?.cancel()
+        playbackRetryJob?.cancel()
         allohaSession.close(immediately = false)
         streamLoadingHintJob?.cancel()
         super.onCleared()
@@ -989,6 +1048,7 @@ class PlayerViewModel @AssistedInject internal constructor(
         private const val ALLOHA_PLAYER_NAME = "alloha"
         private const val LOG_TAG = "PlayerViewModel"
         private const val ALLOHA_PLAYBACK_RECOVERY_DELAY_MS = 1_000L
+        private const val PLAYBACK_RETRY_DELAY_MS = 1_000L
         private const val CHANGE_PLAYER_HINT_DELAY_MS = 10_000L
         private const val ALLOHA_RECOVERY_HINT_DELAY_MS = 15_000L
     }
