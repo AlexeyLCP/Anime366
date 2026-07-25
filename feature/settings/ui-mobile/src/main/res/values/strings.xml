@@ -115,6 +115,9 @@
     <string name="settings_auto_play_next_episode_enabled">Start the next episode after a 10-second countdown</string>
     <string name="settings_picture_in_picture_label">Picture-in-Picture (PiP)</string>
     <string name="settings_picture_in_picture_enabled">Automatically open when leaving the app during playback</string>
+    <string name="settings_mobile_advanced_volume_label">Advanced volume in the player</string>
+    <string name="settings_mobile_advanced_volume_enabled">The player has its own volume (0–100%, 1% steps), independent of the system</string>
+    <string name="settings_mobile_advanced_volume_disabled">Volume changes the system volume as usual</string>
     <string name="settings_player_gesture_tutorial_reset">Replay gesture tutorial</string>
     <string name="settings_player_gesture_tutorial_reset_hint">Show the tutorial the next time a video is opened</string>
     <string name="settings_player_gesture_tutorial_reset_done">The tutorial will be shown the next time a video is opened</string>

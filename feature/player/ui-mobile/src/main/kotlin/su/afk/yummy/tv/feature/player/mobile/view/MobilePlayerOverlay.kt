@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.VolumeUp
+import androidx.compose.material.icons.filled.GraphicEq
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.SkipNext
@@ -41,6 +42,8 @@ internal fun MobilePlayerOverlay(
     onNextEpisode: () -> Unit,
     onTrackSettings: () -> Unit,
     onPlaybackSettings: () -> Unit,
+    showVolumeButton: Boolean = false,
+    onVolumeSettings: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     if (!visible) return
@@ -85,6 +88,12 @@ internal fun MobilePlayerOverlay(
                     icon = Icons.AutoMirrored.Filled.VolumeUp,
                     onClick = onTrackSettings,
                 )
+                if (showVolumeButton) {
+                    MobilePlayerActionButton(
+                        icon = Icons.Filled.GraphicEq,
+                        onClick = onVolumeSettings,
+                    )
+                }
             }
             Spacer(Modifier.weight(1f))
             MobilePlayerActionButton(

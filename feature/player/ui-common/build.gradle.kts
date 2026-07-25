@@ -9,6 +9,7 @@ android {
 
 dependencies {
     implementation(project(":core:designsystem"))
+    implementation(project(":core:preferences"))
     implementation(project(":feature:player:api"))
     implementation(project(":feature:player:domain"))
     implementation(project(":feature:player:presentation"))

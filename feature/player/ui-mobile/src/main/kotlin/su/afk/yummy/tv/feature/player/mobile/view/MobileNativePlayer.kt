@@ -11,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateListOf
@@ -46,6 +47,7 @@ import su.afk.yummy.tv.feature.player.common.rememberPlayerPlaybackUiState
 import su.afk.yummy.tv.feature.player.common.rememberPlayerProgressReporter
 import su.afk.yummy.tv.feature.player.common.rememberPlayerStepSeekToastState
 import su.afk.yummy.tv.feature.player.common.rememberPlayerSystemVolumeController
+import su.afk.yummy.tv.feature.player.common.rememberPlayerVolumeController
 import su.afk.yummy.tv.feature.player.common.service.PlayerMediaItemUpdater
 import su.afk.yummy.tv.feature.player.common.service.rememberPlayerMediaController
 import su.afk.yummy.tv.feature.player.common.service.rememberPlayerPlaybackConfig
@@ -70,6 +72,7 @@ import su.afk.yummy.tv.feature.player.mobile.utils.toGesturePercentText
 import su.afk.yummy.tv.feature.player.mobile.view.tutorial.MobilePlayerGestureTutorial
 import su.afk.yummy.tv.feature.player.presentation.R
 import su.afk.yummy.tv.feature.player.view.deriveQualityUrls
+import kotlin.math.roundToInt
 
 @OptIn(UnstableApi::class)
 @Composable
@@ -106,6 +109,7 @@ internal fun MobileNativePlayer(
     val duration = state.playbackDurationMs
     var settingsMode by remember { mutableStateOf<MobilePlayerSettingsMode?>(null) }
     var settingsTrackTab by remember { mutableStateOf(MobilePlayerTrackSettingsTab.Dubbing) }
+    var volumePanelOpen by remember { mutableStateOf(false) }
     var wantsPlay by remember { mutableStateOf(true) }
     val resumeAfterLifecyclePause = remember { mutableStateOf(false) }
     var isSeeking by remember { mutableStateOf(false) }
@@ -121,7 +125,17 @@ internal fun MobileNativePlayer(
     }
     val mediaController = rememberPlayerMediaController()
     val systemVolume = rememberPlayerSystemVolumeController()
+    val volumeController = rememberPlayerVolumeController()
+    val advancedVolumeEnabled = state.advancedPlayerVolumeEnabled
+    val playerVolumeLevel by volumeController.volume.collectAsState()
+    val playerVolumePercent = (playerVolumeLevel * 100f).roundToInt()
     val playbackConfig = rememberPlayerPlaybackConfig()
+
+    // При выключении режима прячем регулятор; звук вернётся к системному через эффект
+    // применения player.volume (100%). Сохранённый уровень при этом не сбрасываем.
+    LaunchedEffect(advancedVolumeEnabled) {
+        if (!advancedVolumeEnabled) volumePanelOpen = false
+    }
     val stepSeekToast = rememberPlayerStepSeekToastState(
         streamUrl = streamUrl,
         toastDuration = MOBILE_PLAYER_SEEK_TOAST_DURATION,
@@ -153,8 +167,20 @@ internal fun MobileNativePlayer(
     val gestures = rememberMobilePlayerGestureController(
         activity = activity,
         initialTransform = videoTransform,
-        volumeLevelProvider = { systemVolume.currentFraction() },
-        onVolumeChanged = { level -> systemVolume.setFraction(level) },
+        volumeLevelProvider = {
+            if (advancedVolumeEnabled) {
+                volumeController.volume.value
+            } else {
+                systemVolume.currentFraction()
+            }
+        },
+        onVolumeChanged = { level ->
+            if (advancedVolumeEnabled) {
+                volumeController.setPercent((level * 100f).roundToInt())
+            } else {
+                systemVolume.setFraction(level)
+            }
+        },
         onGestureStart = { overlay.cancelHide() },
         onVideoTransformChanged = onVideoTransformChanged,
     )
@@ -368,6 +394,12 @@ internal fun MobileNativePlayer(
         pipSession.setPlaying(playbackShouldPlay, activity)
     }
 
+    // «Продвинутая» громкость: внутренний уровень плеера (0–100%), независимо от системы.
+    // При выключенном режиме держим 100%, чтобы работал системный звук как раньше.
+    LaunchedEffect(player, advancedVolumeEnabled, playerVolumeLevel) {
+        player.volume = if (advancedVolumeEnabled) playerVolumeLevel else 1f
+    }
+
     MobilePlayerProgressPollingEffect(
         player = player,
         episodeKey = ui.activeIframeUrl,
@@ -507,7 +539,29 @@ internal fun MobileNativePlayer(
                 overlay.visible = true
                 overlay.cancelHide()
             },
+            showVolumeButton = advancedVolumeEnabled,
+            onVolumeSettings = {
+                volumePanelOpen = !volumePanelOpen
+                overlay.visible = true
+                overlay.cancelHide()
+            },
         )
+
+        if (volumePanelOpen &&
+            advancedVolumeEnabled &&
+            overlay.visible &&
+            !isInPictureInPictureMode &&
+            !tutorialBlocksPlayback
+        ) {
+            MobilePlayerVolumePanel(
+                percent = playerVolumePercent,
+                onPercentChange = { volumeController.setPercent(it) },
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = 132.dp)
+                    .padding(horizontal = 18.dp),
+            )
+        }
 
         MobilePlayerSeekToast(
             text = stepSeekToast.text.takeUnless {

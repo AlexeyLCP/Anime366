@@ -55,6 +55,7 @@ class PlayerState {
         val mobileGestureTutorialReady: Boolean = false,
         val showMobileGestureTutorial: Boolean = false,
         val tvPlayerVolumeKeysEnabled: Boolean = false,
+        val advancedPlayerVolumeEnabled: Boolean = false,
         val mobileVideoScale: Float = 1f,
         val mobileVideoOffsetX: Float = 0f,
         val mobileVideoOffsetY: Float = 0f,

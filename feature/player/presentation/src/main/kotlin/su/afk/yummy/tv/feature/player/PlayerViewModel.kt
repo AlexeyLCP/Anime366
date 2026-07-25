@@ -96,6 +96,7 @@ class PlayerViewModel @AssistedInject internal constructor(
                 mobileGestureTutorialReady = mobileGestureTutorialReady,
                 showMobileGestureTutorial = showMobileGestureTutorial,
                 tvPlayerVolumeKeysEnabled = tvPlayerVolumeKeysEnabled,
+                advancedPlayerVolumeEnabled = advancedPlayerVolumeEnabled,
             )
         }
         loadFinalEpisodeAction(newDest.animeId)
@@ -138,6 +139,9 @@ class PlayerViewModel @AssistedInject internal constructor(
             .launchIn(viewModelScope)
         settingsHandler.tvPlayerVolumeKeysEnabled
             .onEach { enabled -> setState { copy(tvPlayerVolumeKeysEnabled = enabled) } }
+            .launchIn(viewModelScope)
+        settingsHandler.advancedPlayerVolumeEnabled
+            .onEach { enabled -> setState { copy(advancedPlayerVolumeEnabled = enabled) } }
             .launchIn(viewModelScope)
         if (dest.downloadId > 0L) {
             loadDownloadedDestination(dest.downloadId)

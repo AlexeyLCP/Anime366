@@ -30,12 +30,14 @@ internal fun BoxScope.TvPlayerPanelsHost(
     activeSpeed: Float,
     resizeMode: PlayerResizeMode,
     zoomLevel: PlayerZoomLevel,
+    volumePercent: Int,
     onQualitySelected: (index: Int) -> Unit,
     onDubbingSelected: (index: Int) -> Unit,
     onBalancerSelected: (index: Int) -> Unit,
     onSpeedSelected: (index: Int) -> Unit,
     onResizeModeSelected: (PlayerResizeMode) -> Unit,
     onZoomLevelSelected: (PlayerZoomLevel) -> Unit,
+    onVolumeChange: (Int) -> Unit,
     onExitPanelDown: (PanelReturnFocusTarget) -> Unit,
 ) {
     val resizeModes = PlayerResizeMode.entries.toList()
@@ -125,5 +127,16 @@ internal fun BoxScope.TvPlayerPanelsHost(
         itemMeta = { stringResource(R.string.player_balancer_meta) },
         onItemSelected = onBalancerSelected,
         onExitDown = { onExitPanelDown(PanelReturnFocusTarget.Balancer) },
+    )
+
+    TvPlayerVolumePanel(
+        visible = panels.isOpen(TvPlayerPanel.Volume),
+        percent = volumePercent,
+        focusRequester = focus.selectedVolume,
+        onPercentChange = onVolumeChange,
+        onExitDown = { onExitPanelDown(PanelReturnFocusTarget.Volume) },
+        modifier = Modifier
+            .align(Alignment.BottomEnd)
+            .padding(end = 48.dp, bottom = 72.dp),
     )
 }

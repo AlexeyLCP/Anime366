@@ -12,6 +12,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableLongStateOf
@@ -48,6 +49,7 @@ import su.afk.yummy.tv.feature.player.common.rememberPlayerMediaReadyState
 import su.afk.yummy.tv.feature.player.common.rememberPlayerProgressReporter
 import su.afk.yummy.tv.feature.player.common.rememberPlayerStepSeekToastState
 import su.afk.yummy.tv.feature.player.common.rememberPlayerSystemVolumeController
+import su.afk.yummy.tv.feature.player.common.rememberPlayerVolumeController
 import su.afk.yummy.tv.feature.player.common.service.PlayerMediaItemUpdater
 import su.afk.yummy.tv.feature.player.common.service.rememberPlayerPlaybackConfig
 import su.afk.yummy.tv.feature.player.common.service.rememberPlayerPlaybackSessionClient
@@ -78,6 +80,7 @@ import su.afk.yummy.tv.feature.player.utils.toPlayerSkipType
 import su.afk.yummy.tv.feature.player.utils.tvPlayerContentScale
 import su.afk.yummy.tv.feature.player.view.TvPlayerRecoveryHint
 import su.afk.yummy.tv.feature.player.view.deriveQualityUrls
+import kotlin.math.roundToInt
 
 @OptIn(UnstableApi::class)
 @Composable
@@ -117,8 +120,11 @@ internal fun TvExoPlayerView(
     )
     val focus = rememberTvPlayerFocusRequesters()
     val systemVolume = rememberPlayerSystemVolumeController()
+    val volumeController = rememberPlayerVolumeController()
+    val advancedVolumeEnabled = state.advancedPlayerVolumeEnabled
+    val playerVolumeLevel by volumeController.volume.collectAsState()
+    val playerVolumePercent = (playerVolumeLevel * 100f).roundToInt()
     val volumeKeys = rememberTvPlayerVolumeKeysState(
-        systemVolume = systemVolume,
         indicatorDuration = TV_PLAYER_INLINE_TOAST_DURATION,
     )
     val canChangePlayer = playback.balancerNames.size > 1
@@ -380,6 +386,12 @@ internal fun TvExoPlayerView(
         player.setPlaybackSpeed(activeSpeed)
     }
 
+    // «Продвинутая» громкость: внутренний уровень плеера (0–100%), независимо от системы.
+    // При выключенном режиме держим 100%, чтобы работал системный звук как раньше.
+    LaunchedEffect(player, advancedVolumeEnabled, playerVolumeLevel) {
+        player.volume = if (advancedVolumeEnabled) playerVolumeLevel else 1f
+    }
+
     TvPlayerProgressPollingEffect(
         player = player,
         progress = progress,
@@ -432,6 +444,7 @@ internal fun TvExoPlayerView(
                     TvPlayerPanel.Balancer -> PanelReturnFocusTarget.Balancer
                     TvPlayerPanel.Speed -> PanelReturnFocusTarget.Speed
                     TvPlayerPanel.Resize -> PanelReturnFocusTarget.Resize
+                    TvPlayerPanel.Volume -> PanelReturnFocusTarget.Volume
                     null -> null
                 }
             )
@@ -445,25 +458,28 @@ internal fun TvExoPlayerView(
         modifier = Modifier
             .fillMaxSize()
             .onPreviewKeyEvent { event ->
-                // Без настройки кнопки уходят системе — поведение по умолчанию не меняем
-                if (!state.tvPlayerVolumeKeysEnabled) return@onPreviewKeyEvent false
+                // «Продвинутая» громкость меняет внутренний уровень плеера (±1%, 0–200%),
+                // иначе — системную (если включён перехват). Без обеих настроек кнопки
+                // уходят системе — поведение по умолчанию не меняем.
+                if (!advancedVolumeEnabled && !state.tvPlayerVolumeKeysEnabled) {
+                    return@onPreviewKeyEvent false
+                }
                 if (event.type != KeyEventType.KeyDown) {
                     return@onPreviewKeyEvent event.key == Key.VolumeUp ||
                             event.key == Key.VolumeDown
                 }
-                when (event.key) {
-                    Key.VolumeUp -> {
-                        volumeKeys.step(up = true)
-                        true
-                    }
-
-                    Key.VolumeDown -> {
-                        volumeKeys.step(up = false)
-                        true
-                    }
-
-                    else -> false
+                val up = when (event.key) {
+                    Key.VolumeUp -> true
+                    Key.VolumeDown -> false
+                    else -> return@onPreviewKeyEvent false
                 }
+                if (advancedVolumeEnabled) {
+                    volumeKeys.show(volumeController.stepBy(if (up) 1 else -1))
+                } else {
+                    val fraction = systemVolume.stepBy(if (up) 0.01f else -0.01f)
+                    volumeKeys.show((fraction * 100f).roundToInt())
+                }
+                true
             },
     ) {
         ContentFrame(
@@ -555,6 +571,7 @@ internal fun TvExoPlayerView(
             qualityCount = qualities.size,
             currentQualityLabel = activeQuality.orEmpty(),
             currentSpeedLabel = activeSpeed.speedLabel(),
+            showVolumeButton = advancedVolumeEnabled,
             onPlayPause = { if (wantsPlay) player.pause() else player.play() },
             onSeekTo = seekController::seekTo,
             onInteraction = ::onInteraction,
@@ -580,6 +597,9 @@ internal fun TvExoPlayerView(
             onToggleSpeed = {
                 togglePanel(TvPlayerPanel.Speed, PanelReturnFocusTarget.Speed)
             },
+            onToggleVolume = {
+                togglePanel(TvPlayerPanel.Volume, PanelReturnFocusTarget.Volume)
+            },
         )
 
         TvPlayerPanelsHost(
@@ -592,6 +612,7 @@ internal fun TvExoPlayerView(
             activeSpeed = activeSpeed,
             resizeMode = state.resizeMode,
             zoomLevel = state.zoomLevel,
+            volumePercent = playerVolumePercent,
             onQualitySelected = { idx ->
                 val quality = qualities.keys.toList()[idx]
                 if (quality != activeQuality) {
@@ -631,6 +652,7 @@ internal fun TvExoPlayerView(
                 }
                 onInteraction()
             },
+            onVolumeChange = { volumeController.setPercent(it) },
             onExitPanelDown = ::exitPanelDown,
         )
 

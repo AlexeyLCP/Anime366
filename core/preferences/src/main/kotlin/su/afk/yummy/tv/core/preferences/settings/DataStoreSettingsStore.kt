@@ -44,6 +44,10 @@ class DataStoreSettingsStore(private val context: Context) : SettingsStore {
         booleanPreferencesKey("player_mobile_gesture_tutorial_dismissed")
     private val tvPlayerVolumeKeysEnabledKey =
         booleanPreferencesKey("tv_player_volume_keys_enabled")
+    private val advancedPlayerVolumeEnabledKey =
+        booleanPreferencesKey("advanced_player_volume_enabled")
+    private val advancedPlayerVolumePercentKey =
+        intPreferencesKey("advanced_player_volume_percent")
     private val playerResizeModeKey = stringPreferencesKey("player_resize_mode")
     private val playerZoomLevelKey = stringPreferencesKey("player_zoom_level")
     private val detailsButtonOrderKey = stringPreferencesKey("details_button_order")
@@ -148,6 +152,14 @@ class DataStoreSettingsStore(private val context: Context) : SettingsStore {
 
     override val tvPlayerVolumeKeysEnabled: Flow<Boolean> = context.dataStore.data.map { prefs ->
         prefs[tvPlayerVolumeKeysEnabledKey] ?: false
+    }
+
+    override val advancedPlayerVolumeEnabled: Flow<Boolean> = context.dataStore.data.map { prefs ->
+        prefs[advancedPlayerVolumeEnabledKey] ?: false
+    }
+
+    override val advancedPlayerVolumePercent: Flow<Int> = context.dataStore.data.map { prefs ->
+        (prefs[advancedPlayerVolumePercentKey] ?: 100).coerceIn(0, 100)
     }
 
     override val playerResizeMode: Flow<PlayerResizeMode> = context.dataStore.data.map { prefs ->
@@ -271,6 +283,7 @@ class DataStoreSettingsStore(private val context: Context) : SettingsStore {
             refreshContinueWatchingProgressOnLaunch =
                 prefs[refreshContinueWatchingProgressOnLaunchKey] ?: false,
             tvPlayerVolumeKeysEnabled = prefs[tvPlayerVolumeKeysEnabledKey] ?: false,
+            advancedPlayerVolumeEnabled = prefs[advancedPlayerVolumeEnabledKey] ?: false,
             videoExportAutoEnabled = prefs[videoExportAutoEnabledKey] ?: false,
             yaniApplicationToken = prefs.yaniApplicationToken(),
             contentLanguage = YaniContentLanguage.fromPreferenceValue(prefs[yaniContentLanguageKey])
@@ -399,6 +412,18 @@ class DataStoreSettingsStore(private val context: Context) : SettingsStore {
     override suspend fun setTvPlayerVolumeKeysEnabled(enabled: Boolean) {
         context.dataStore.edit { prefs ->
             prefs[tvPlayerVolumeKeysEnabledKey] = enabled
+        }
+    }
+
+    override suspend fun setAdvancedPlayerVolumeEnabled(enabled: Boolean) {
+        context.dataStore.edit { prefs ->
+            prefs[advancedPlayerVolumeEnabledKey] = enabled
+        }
+    }
+
+    override suspend fun setAdvancedPlayerVolumePercent(percent: Int) {
+        context.dataStore.edit { prefs ->
+            prefs[advancedPlayerVolumePercentKey] = percent.coerceIn(0, 100)
         }
     }
 

@@ -10,6 +10,7 @@ internal enum class PanelReturnFocusTarget {
     Balancer,
     Resize,
     Speed,
+    Volume,
 }
 
 internal data class ActiveSkip(

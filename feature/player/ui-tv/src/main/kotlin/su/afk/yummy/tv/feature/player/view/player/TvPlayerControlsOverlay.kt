@@ -43,6 +43,7 @@ internal fun BoxScope.TvPlayerControlsOverlay(
     qualityCount: Int,
     currentQualityLabel: String,
     currentSpeedLabel: String,
+    showVolumeButton: Boolean,
     onPlayPause: () -> Unit,
     onSeekTo: (positionMs: Long) -> Unit,
     onInteraction: () -> Unit,
@@ -56,6 +57,7 @@ internal fun BoxScope.TvPlayerControlsOverlay(
     onToggleBalancer: () -> Unit,
     onToggleResize: () -> Unit,
     onToggleSpeed: () -> Unit,
+    onToggleVolume: () -> Unit,
 ) {
     val visibleSkip = activeSkip.takeUnless { autoSkipOpeningsEndings }
     val progressDownFocusRequester = when {
@@ -165,6 +167,9 @@ internal fun BoxScope.TvPlayerControlsOverlay(
                     onToggleResize = onToggleResize,
                     currentSpeedLabel = currentSpeedLabel,
                     onToggleSpeed = onToggleSpeed,
+                    volumeFocusRequester = focus.volume,
+                    showVolumeButton = showVolumeButton,
+                    onToggleVolume = onToggleVolume,
                 )
             }
         }

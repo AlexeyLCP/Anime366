@@ -127,6 +127,9 @@
     <string name="settings_tv_volume_keys_label">Кнопки громкости в плеере</string>
     <string name="settings_tv_volume_keys_enabled">Плеер сам меняет громкость шагом 1%</string>
     <string name="settings_tv_volume_keys_disabled">Громкостью управляет система как обычно</string>
+    <string name="settings_tv_advanced_volume_label">Продвинутая громкость в плеере</string>
+    <string name="settings_tv_advanced_volume_enabled">У плеера своя громкость (0–100%, шаг 1%), независимо от системы</string>
+    <string name="settings_tv_advanced_volume_disabled">Громкость меняет системный звук как обычно</string>
     <string name="settings_cache_size_min">Минимальный</string>
     <string name="settings_cache_size_50">50 МБ</string>
     <string name="settings_cache_size_standard">Стандартный</string>

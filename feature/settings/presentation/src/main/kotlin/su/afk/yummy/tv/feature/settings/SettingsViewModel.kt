@@ -61,6 +61,7 @@ class SettingsViewModel @Inject internal constructor(
                         refreshContinueWatchingProgressOnLaunch =
                             snapshot.refreshContinueWatchingProgressOnLaunch,
                         tvPlayerVolumeKeysEnabled = snapshot.tvPlayerVolumeKeysEnabled,
+                        advancedPlayerVolumeEnabled = snapshot.advancedPlayerVolumeEnabled,
                         videoExportAutoEnabled = snapshot.videoExportAutoEnabled,
                         yaniApplicationToken = snapshot.yaniApplicationToken,
                         contentLanguage = snapshot.contentLanguage,
@@ -170,6 +171,12 @@ class SettingsViewModel @Inject internal constructor(
                 val enabled = !currentState.tvPlayerVolumeKeysEnabled
                 analytics.eventTvPlayerVolumeKeysToggled(enabled)
                 settingsStore.setTvPlayerVolumeKeysEnabled(enabled)
+            }
+
+            SettingsState.Event.AdvancedPlayerVolumeToggled -> viewModelScope.launch {
+                val enabled = !currentState.advancedPlayerVolumeEnabled
+                analytics.eventAdvancedPlayerVolumeToggled(enabled)
+                settingsStore.setAdvancedPlayerVolumeEnabled(enabled)
             }
 
             SettingsState.Event.MobilePlayerGestureTutorialReset -> viewModelScope.launch {

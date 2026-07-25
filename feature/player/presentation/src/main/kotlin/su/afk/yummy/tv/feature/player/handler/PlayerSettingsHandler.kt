@@ -19,6 +19,7 @@ internal class PlayerSettingsHandler @Inject constructor(
     val mobilePlayerGestureTutorialDismissed: Flow<Boolean> =
         settingsStore.mobilePlayerGestureTutorialDismissed
     val tvPlayerVolumeKeysEnabled: Flow<Boolean> = settingsStore.tvPlayerVolumeKeysEnabled
+    val advancedPlayerVolumeEnabled: Flow<Boolean> = settingsStore.advancedPlayerVolumeEnabled
 
     suspend fun dismissMobilePlayerGestureTutorial() {
         settingsStore.dismissMobilePlayerGestureTutorial()

@@ -179,6 +179,14 @@ internal class SettingsAnalytics @Inject constructor(
         )
     }
 
+    /** Пользователь включил или выключил продвинутую (внутреннюю) громкость плеера. */
+    fun eventAdvancedPlayerVolumeToggled(enabled: Boolean) {
+        tracker.track(
+            EVENT_ADVANCED_PLAYER_VOLUME_TOGGLED,
+            analyticsParamsOf(PARAM_TARGET_STATE to enabled),
+        )
+    }
+
     /** Пользователь включил повторный показ обучения жестам мобильного плеера. */
     fun eventMobilePlayerGestureTutorialReset() {
         tracker.track(EVENT_MOBILE_PLAYER_GESTURE_TUTORIAL_RESET)
@@ -299,6 +307,8 @@ internal class SettingsAnalytics @Inject constructor(
         const val EVENT_VIDEO_EXPORT_AUTO_TOGGLED = "settings_video_export_auto_toggled"
         const val EVENT_TV_PLAYER_VOLUME_KEYS_TOGGLED =
             "settings_tv_player_volume_keys_toggled"
+        const val EVENT_ADVANCED_PLAYER_VOLUME_TOGGLED =
+            "settings_advanced_player_volume_toggled"
         const val EVENT_MOBILE_PLAYER_GESTURE_TUTORIAL_RESET =
             "settings_mobile_player_gesture_tutorial_reset"
         const val EVENT_WATCH_NEXT_TOGGLED = "settings_watch_next_toggled"

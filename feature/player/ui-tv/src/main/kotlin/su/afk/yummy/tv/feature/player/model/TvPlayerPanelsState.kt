@@ -12,6 +12,7 @@ internal enum class TvPlayerPanel {
     Balancer,
     Speed,
     Resize,
+    Volume,
 }
 
 internal class TvPlayerPanelsState {

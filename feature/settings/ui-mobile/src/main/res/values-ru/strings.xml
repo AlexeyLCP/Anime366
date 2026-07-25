@@ -115,6 +115,9 @@
     <string name="settings_auto_play_next_episode_enabled">Запускать следующую серию после 10-секундного отсчёта</string>
     <string name="settings_picture_in_picture_label">Плавающий режим (PiP)</string>
     <string name="settings_picture_in_picture_enabled">Автоматически включать при выходе из приложения во время воспроизведения</string>
+    <string name="settings_mobile_advanced_volume_label">Продвинутая громкость в плеере</string>
+    <string name="settings_mobile_advanced_volume_enabled">У плеера своя громкость (0–100%, шаг 1%), независимо от системы</string>
+    <string name="settings_mobile_advanced_volume_disabled">Громкость меняет системный звук как обычно</string>
     <string name="settings_player_gesture_tutorial_reset">Повторить обучение жестам</string>
     <string name="settings_player_gesture_tutorial_reset_hint">Показать обучалку при следующем открытии видео</string>
     <string name="settings_player_gesture_tutorial_reset_done">Обучалка будет показана при следующем открытии видео</string>

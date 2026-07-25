@@ -8,7 +8,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.AspectRatio
+import androidx.compose.material.icons.filled.GraphicEq
+import androidx.compose.material.icons.filled.SkipNext
+import androidx.compose.material.icons.filled.SkipPrevious
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -43,6 +46,8 @@ internal fun TvPlayerEpisodeRow(
     balancerFocusRequester: FocusRequester? = null,
     resizeFocusRequester: FocusRequester? = null,
     speedFocusRequester: FocusRequester? = null,
+    volumeFocusRequester: FocusRequester? = null,
+    showVolumeButton: Boolean = false,
     upFocusRequester: FocusRequester,
     onInteraction: () -> Unit,
     onPrevEpisode: () -> Unit,
@@ -54,6 +59,7 @@ internal fun TvPlayerEpisodeRow(
     onToggleBalancer: () -> Unit,
     onToggleResize: () -> Unit,
     onToggleSpeed: () -> Unit,
+    onToggleVolume: () -> Unit = {},
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -63,12 +69,16 @@ internal fun TvPlayerEpisodeRow(
             TvControlButton(
                 onClick = onPrevEpisode,
                 onFocused = onInteraction,
-                modifier = Modifier.focusProperties { up = upFocusRequester },
+                modifier = Modifier
+                    .focusProperties { up = upFocusRequester }
+                    .width(48.dp),
+                contentPadding = PaddingValues(horizontal = 0.dp, vertical = 9.dp),
             ) { color ->
-                Text(
-                    stringResource(R.string.player_previous_episode),
-                    style = MaterialTheme.typography.labelLarge,
-                    color = color
+                Icon(
+                    imageVector = Icons.Filled.SkipPrevious,
+                    contentDescription = stringResource(R.string.player_previous_episode),
+                    tint = color,
+                    modifier = Modifier.size(20.dp),
                 )
             }
         }
@@ -145,11 +155,30 @@ internal fun TvPlayerEpisodeRow(
             contentPadding = PaddingValues(horizontal = 0.dp, vertical = 9.dp),
         ) { color ->
             Icon(
-                imageVector = Icons.Filled.Settings,
+                imageVector = Icons.Filled.AspectRatio,
                 contentDescription = stringResource(R.string.player_resize_title),
                 tint = color,
                 modifier = Modifier.size(20.dp),
             )
+        }
+        if (showVolumeButton) {
+            Spacer(Modifier.width(8.dp))
+            TvControlButton(
+                onClick = onToggleVolume,
+                onFocused = onInteraction,
+                focusRequester = volumeFocusRequester,
+                modifier = Modifier
+                    .focusProperties { up = upFocusRequester }
+                    .width(48.dp),
+                contentPadding = PaddingValues(horizontal = 0.dp, vertical = 9.dp),
+            ) { color ->
+                Icon(
+                    imageVector = Icons.Filled.GraphicEq,
+                    contentDescription = stringResource(R.string.player_volume_title),
+                    tint = color,
+                    modifier = Modifier.size(20.dp),
+                )
+            }
         }
         Spacer(Modifier.width(8.dp))
         TvControlButton(
@@ -177,12 +206,16 @@ internal fun TvPlayerEpisodeRow(
             TvControlButton(
                 onClick = onNextEpisode,
                 onFocused = onInteraction,
-                modifier = Modifier.focusProperties { up = upFocusRequester },
+                modifier = Modifier
+                    .focusProperties { up = upFocusRequester }
+                    .width(48.dp),
+                contentPadding = PaddingValues(horizontal = 0.dp, vertical = 9.dp),
             ) { color ->
-                Text(
-                    stringResource(R.string.player_next_episode),
-                    style = MaterialTheme.typography.labelLarge,
-                    color = color
+                Icon(
+                    imageVector = Icons.Filled.SkipNext,
+                    contentDescription = stringResource(R.string.player_next_episode),
+                    tint = color,
+                    modifier = Modifier.size(20.dp),
                 )
             }
         } else if (hasFinalEpisodeAction) {

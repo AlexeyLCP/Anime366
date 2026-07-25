@@ -41,6 +41,7 @@ class SettingsState {
         val suggestNextEpisodeOnWatched: Boolean = true,
         val refreshContinueWatchingProgressOnLaunch: Boolean = false,
         val tvPlayerVolumeKeysEnabled: Boolean = false,
+        val advancedPlayerVolumeEnabled: Boolean = false,
         val videoExportAutoEnabled: Boolean = false,
         val yaniApplicationToken: String = "",
         val contentLanguage: YaniContentLanguage = YaniContentLanguage.DEFAULT,
@@ -99,6 +100,8 @@ class SettingsState {
 
         /** Пользователь переключил перехват кнопок громкости в ТВ-плеере. */
         data object TvPlayerVolumeKeysToggled : Event
+
+        data object AdvancedPlayerVolumeToggled : Event
 
         /** Пользователь запросил повторный показ обучения жестам мобильного плеера. */
         data object MobilePlayerGestureTutorialReset : Event

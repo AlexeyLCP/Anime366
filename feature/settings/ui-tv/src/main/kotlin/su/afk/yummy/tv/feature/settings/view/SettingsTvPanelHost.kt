@@ -355,15 +355,15 @@ internal fun SettingsTvPanelHost(
                         )
                         SettingsDivider()
                         ToggleRow(
-                            label = stringResource(R.string.settings_tv_volume_keys_label),
-                            hint = if (state.tvPlayerVolumeKeysEnabled) {
-                                stringResource(R.string.settings_tv_volume_keys_enabled)
+                            label = stringResource(R.string.settings_tv_advanced_volume_label),
+                            hint = if (state.advancedPlayerVolumeEnabled) {
+                                stringResource(R.string.settings_tv_advanced_volume_enabled)
                             } else {
-                                stringResource(R.string.settings_tv_volume_keys_disabled)
+                                stringResource(R.string.settings_tv_advanced_volume_disabled)
                             },
-                            enabled = state.tvPlayerVolumeKeysEnabled,
+                            enabled = state.advancedPlayerVolumeEnabled,
                             onClick = {
-                                onEvent(SettingsState.Event.TvPlayerVolumeKeysToggled)
+                                onEvent(SettingsState.Event.AdvancedPlayerVolumeToggled)
                             },
                         )
                     }

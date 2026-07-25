@@ -126,4 +126,13 @@ internal fun TvPlayerFocusEffects(
             }
         }
     }
+    LaunchedEffect(panels.isOpen(TvPlayerPanel.Volume)) {
+        if (panels.isOpen(TvPlayerPanel.Volume)) {
+            withFrameNanos { }
+            try {
+                focus.selectedVolume.requestFocus()
+            } catch (_: Exception) {
+            }
+        }
+    }
 }

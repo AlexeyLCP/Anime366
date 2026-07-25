@@ -11,21 +11,16 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import su.afk.yummy.tv.feature.player.common.PlayerSystemVolumeController
-import kotlin.math.roundToInt
 import kotlin.time.Duration
 
-/** Шаг громкости при перехвате кнопок пульта. */
-private const val TV_VOLUME_KEY_STEP = 0.01f
-
 /**
- * Перехват кнопок громкости в ТВ-плеере: меняет системную громкость шагом 1%
- * и показывает свой индикатор вместо системного.
+ * Индикатор громкости при перехвате кнопок пульта: показывает текущий уровень в процентах
+ * и сам скрывается через [indicatorDuration]. Логика шага (системная или «продвинутая»
+ * внутренняя громкость) решается на стороне вызывающего кода.
  */
 @Stable
 internal class TvPlayerVolumeKeysState(
     private val scope: CoroutineScope,
-    private val systemVolume: PlayerSystemVolumeController,
     private val indicatorDuration: Duration,
 ) {
     var indicatorText: String? by mutableStateOf(null)
@@ -33,9 +28,9 @@ internal class TvPlayerVolumeKeysState(
 
     private var hideJob: Job? = null
 
-    fun step(up: Boolean) {
-        val fraction = systemVolume.stepBy(if (up) TV_VOLUME_KEY_STEP else -TV_VOLUME_KEY_STEP)
-        indicatorText = "${(fraction * 100f).roundToInt()}%"
+    /** Показать уровень [percent] % и запланировать скрытие индикатора. */
+    fun show(percent: Int) {
+        indicatorText = "$percent%"
         hideJob?.cancel()
         hideJob = scope.launch {
             delay(indicatorDuration)
@@ -46,14 +41,12 @@ internal class TvPlayerVolumeKeysState(
 
 @Composable
 internal fun rememberTvPlayerVolumeKeysState(
-    systemVolume: PlayerSystemVolumeController,
     indicatorDuration: Duration,
 ): TvPlayerVolumeKeysState {
     val scope = rememberCoroutineScope()
-    return remember(systemVolume) {
+    return remember {
         TvPlayerVolumeKeysState(
             scope = scope,
-            systemVolume = systemVolume,
             indicatorDuration = indicatorDuration,
         )
     }

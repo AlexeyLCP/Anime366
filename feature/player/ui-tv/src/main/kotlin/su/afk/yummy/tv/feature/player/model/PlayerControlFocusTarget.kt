@@ -6,4 +6,5 @@ internal enum class PlayerControlFocusTarget {
     Quality,
     Resize,
     Speed,
+    Volume,
 }
