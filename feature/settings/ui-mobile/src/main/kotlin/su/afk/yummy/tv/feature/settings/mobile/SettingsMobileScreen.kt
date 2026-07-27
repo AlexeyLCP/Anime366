@@ -32,6 +32,7 @@ import su.afk.yummy.tv.core.designsystem.presenter.mobile.MobileTopBar
 import su.afk.yummy.tv.core.designsystem.presenter.preview.ScreenPreviewTheme
 import su.afk.yummy.tv.core.preferences.interface_mode.AppInterfaceMode
 import su.afk.yummy.tv.core.preferences.settings.AppTheme
+import su.afk.yummy.tv.core.preferences.settings.BackgroundStyle
 import su.afk.yummy.tv.core.preferences.settings.LibraryContinueWatchingCardSize
 import su.afk.yummy.tv.core.preferences.settings.PosterCardSize
 import su.afk.yummy.tv.core.preferences.settings.PosterQuality
@@ -153,6 +154,12 @@ fun SettingsMobileScreen(
                         value = state.appTheme.label(),
                         hint = state.appTheme.hint(),
                         onClick = { activePicker = SettingsMobilePicker.THEME },
+                    )
+                    SettingsMobileOptionRow(
+                        label = stringResource(R.string.settings_mobile_background),
+                        value = state.backgroundStyle.label(),
+                        hint = state.backgroundStyle.hint(),
+                        onClick = { activePicker = SettingsMobilePicker.BACKGROUND },
                     )
                     SettingsMobileOptionRow(
                         label = stringResource(R.string.settings_mobile_poster_size),
@@ -396,6 +403,23 @@ fun SettingsMobileScreen(
             onDismiss = { activePicker = null },
             onSelected = {
                 onEvent(SettingsState.Event.AppThemeSelected(it))
+                activePicker = null
+            },
+        )
+
+        SettingsMobilePicker.BACKGROUND -> SettingsMobilePickerSheet(
+            title = stringResource(R.string.settings_mobile_background),
+            selectedValue = state.backgroundStyle,
+            options = BackgroundStyle.entries.map {
+                SettingsMobilePickerOption(
+                    it,
+                    it.label(),
+                    it.hint()
+                )
+            },
+            onDismiss = { activePicker = null },
+            onSelected = {
+                onEvent(SettingsState.Event.BackgroundStyleSelected(it))
                 activePicker = null
             },
         )

@@ -1,7 +1,10 @@
 package su.afk.yummy.tv.feature.player.common.service
 
+import android.content.Context
 import androidx.media3.datasource.DataSource
+import androidx.media3.datasource.DefaultDataSource
 import androidx.media3.datasource.cache.CacheDataSource
+import dagger.hilt.android.qualifiers.ApplicationContext
 import su.afk.yummy.tv.feature.player.common.PlayerDataSourceFactory
 import su.afk.yummy.tv.feature.videodownload.playback.VideoDownloadPlaybackCache
 import javax.inject.Inject
@@ -15,6 +18,7 @@ interface PlayerPlaybackConfig {
         useRotatingHlsCacheKeys: Boolean,
         audioTrackPolicy: PlayerAudioTrackPolicy,
         isOfflinePlayback: Boolean,
+        isLocalFile: Boolean,
     )
 
     fun dataSourceFactory(): DataSource.Factory
@@ -34,6 +38,7 @@ private data class OfflineCacheConfig(
 
 @Singleton
 class DefaultPlayerPlaybackConfig @Inject constructor(
+    @ApplicationContext private val context: Context,
     private val downloadPlaybackCache: VideoDownloadPlaybackCache,
     private val streamingCacheProvider: PlayerStreamingCacheProvider,
 ) : PlayerPlaybackConfig {
@@ -42,6 +47,9 @@ class DefaultPlayerPlaybackConfig @Inject constructor(
 
     @Volatile
     private var offlineCacheConfig: OfflineCacheConfig? = null
+
+    @Volatile
+    private var isLocalFile: Boolean = false
 
     @Volatile
     private var trackSelection = PlayerTrackSelectionConfig()
@@ -53,8 +61,10 @@ class DefaultPlayerPlaybackConfig @Inject constructor(
         useRotatingHlsCacheKeys: Boolean,
         audioTrackPolicy: PlayerAudioTrackPolicy,
         isOfflinePlayback: Boolean,
+        isLocalFile: Boolean,
     ) {
         this.headers = headers.toMap()
+        this.isLocalFile = isLocalFile
         offlineCacheConfig = offlineCacheKey?.let { cacheKey ->
             OfflineCacheConfig(
                 cacheKey = cacheKey,
@@ -69,7 +79,11 @@ class DefaultPlayerPlaybackConfig @Inject constructor(
 
     override fun dataSourceFactory(): DataSource.Factory = DataSource.Factory {
         val offline = offlineCacheConfig
-        if (offline != null) {
+        if (isLocalFile) {
+            // Локальный файл (content://, file://): без кэша, DefaultDataSource
+            // сам обслуживает content/file/asset/rawresource-схемы.
+            DefaultDataSource.Factory(context).createDataSource()
+        } else if (offline != null) {
             CacheDataSource.Factory()
                 .setCache(downloadPlaybackCache.cache)
                 .apply {

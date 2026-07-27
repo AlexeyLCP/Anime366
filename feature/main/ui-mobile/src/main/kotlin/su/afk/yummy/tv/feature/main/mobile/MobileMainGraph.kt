@@ -118,7 +118,11 @@ class MobileMainGraph @Inject internal constructor(
                 }
             }
 
-            YummyTvTheme(appTheme = state.appTheme, isTelevision = false) {
+            YummyTvTheme(
+                appTheme = state.appTheme,
+                backgroundStyle = state.backgroundStyle,
+                isTelevision = false,
+            ) {
                 val items = listOf(
                     MobileMenuItem(
                         stringResource(R.string.main_mobile_tab_news),

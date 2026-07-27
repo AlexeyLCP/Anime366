@@ -6,6 +6,7 @@ import su.afk.yummy.tv.feature.settings.R
 internal enum class SettingsTab(@param:StringRes val labelRes: Int) {
     INTERFACE(R.string.settings_tab_interface),
     THEME(R.string.settings_tab_theme),
+    BACKGROUND(R.string.settings_tab_background),
     PLAYER(R.string.settings_tab_player),
     PLAYER_QUALITY(R.string.settings_tab_player_quality),
     PLAYER_SOURCE(R.string.settings_tab_player_source),

@@ -11,6 +11,13 @@
     <string name="settings_mobile_section_api">API</string>
     <string name="settings_mobile_section_about">О приложении</string>
     <string name="settings_mobile_theme">Тема</string>
+    <string name="settings_mobile_background">Фон</string>
+    <string name="settings_background_system">Как в системе</string>
+    <string name="settings_background_system_hint">Следовать теме устройства</string>
+    <string name="settings_background_light">Светлый</string>
+    <string name="settings_background_light_hint">Белый фон с тёмным текстом</string>
+    <string name="settings_background_dark">Тёмный</string>
+    <string name="settings_background_dark_hint">Тёмный фон (по умолчанию)</string>
     <string name="settings_interface_type">Тип интерфейса</string>
     <string name="settings_interface_mobile">Мобильный</string>
     <string name="settings_interface_mobile_hint">Управление с сенсорного экрана</string>

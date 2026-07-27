@@ -31,6 +31,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import su.afk.yummy.tv.core.preferences.interface_mode.AppInterfaceMode
 import su.afk.yummy.tv.core.preferences.settings.AppTheme
+import su.afk.yummy.tv.core.preferences.settings.BackgroundStyle
 import su.afk.yummy.tv.core.preferences.settings.LibraryContinueWatchingCardSize
 import su.afk.yummy.tv.core.preferences.settings.PosterCardSize
 import su.afk.yummy.tv.core.preferences.settings.PosterQuality
@@ -130,6 +131,29 @@ internal fun SettingsTvPanelHost(
                                 .restoreCategoryFocusOnLeft(tabFocusRequester, index == 0),
                         )
                         if (index < AppTheme.entries.lastIndex) {
+                            SettingsDivider()
+                        }
+                    }
+
+                    SettingsTab.BACKGROUND -> BackgroundStyle.entries.forEachIndexed { index, style ->
+                        QualityRow(
+                            label = style.label(),
+                            hint = style.hint(),
+                            selected = style == state.backgroundStyle,
+                            onClick = {
+                                onEvent(SettingsState.Event.BackgroundStyleSelected(style))
+                            },
+                            modifier = Modifier
+                                .then(
+                                    if (index == 0) {
+                                        Modifier.focusRequester(tabContentFocusRequester)
+                                    } else {
+                                        Modifier
+                                    },
+                                )
+                                .restoreCategoryFocusOnLeft(tabFocusRequester, index == 0),
+                        )
+                        if (index < BackgroundStyle.entries.lastIndex) {
                             SettingsDivider()
                         }
                     }

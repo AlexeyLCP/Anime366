@@ -82,6 +82,7 @@ internal fun buildMobilePlayerMediaItemConfig(
     headers = state.streamHeaders,
     offlineCacheKey = state.offlineCacheKey,
     isOfflinePlayback = state.isOfflinePlayback,
+    isLocalFile = state.isLocalFile,
     useRotatingHlsCacheKeys = playerUseRotatingHlsCacheKeys(
         isOfflinePlayback = state.isOfflinePlayback,
         episodeUrl = episodeUrl,

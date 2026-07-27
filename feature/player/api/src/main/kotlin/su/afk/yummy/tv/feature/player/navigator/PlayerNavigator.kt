@@ -38,4 +38,13 @@ class PlayerNavigator : IPlayerNavigator {
             playerName = "",
             downloadId = downloadId,
         )
+
+    override fun getLocalFilePlayerDest(uri: String, title: String): NavKey =
+        PlayerDestination(
+            iframeUrl = "",
+            animeTitle = title,
+            episode = "",
+            playerName = "",
+            localFileUri = uri,
+        )
 }

@@ -17,4 +17,5 @@ data class PlayerDestination(
     val selectedScreenshotUrl: String = "",
     val resumeFromMs: Long = 0L,
     val downloadId: Long = 0L,
+    val localFileUri: String = "",
 ) : NavKey

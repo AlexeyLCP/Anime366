@@ -6,6 +6,13 @@
     <string name="settings_tab_poster_quality">Качество</string>
     <string name="settings_tab_continue_watching">Продолжить</string>
     <string name="settings_tab_theme">Тема</string>
+    <string name="settings_tab_background">Фон</string>
+    <string name="settings_background_system">Как в системе</string>
+    <string name="settings_background_system_hint">Следовать теме устройства</string>
+    <string name="settings_background_light">Светлый</string>
+    <string name="settings_background_light_hint">Белый фон с тёмным текстом</string>
+    <string name="settings_background_dark">Тёмный</string>
+    <string name="settings_background_dark_hint">Тёмный фон (по умолчанию)</string>
     <string name="settings_tab_details">Деталка</string>
     <string name="settings_tab_player">Плеер</string>
     <string name="settings_tab_player_quality">Качество видео</string>

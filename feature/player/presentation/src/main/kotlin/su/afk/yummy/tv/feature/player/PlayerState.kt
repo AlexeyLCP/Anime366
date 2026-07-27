@@ -60,6 +60,7 @@ class PlayerState {
         val mobileVideoOffsetX: Float = 0f,
         val mobileVideoOffsetY: Float = 0f,
         val isOfflinePlayback: Boolean = false,
+        val isLocalFile: Boolean = false,
         val offlineCacheKey: String? = null,
         val isPlaybackRecovering: Boolean = false,
         val showChangePlayerHint: Boolean = false,

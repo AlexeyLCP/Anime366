@@ -5,6 +5,7 @@ import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiEvent
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiState
 import su.afk.yummy.tv.core.preferences.interface_mode.AppInterfaceMode
 import su.afk.yummy.tv.core.preferences.settings.AppTheme
+import su.afk.yummy.tv.core.preferences.settings.BackgroundStyle
 import su.afk.yummy.tv.core.preferences.settings.DetailsButtonAction
 import su.afk.yummy.tv.core.preferences.settings.LibraryContinueWatchingCardSize
 import su.afk.yummy.tv.core.preferences.settings.PosterCardSize
@@ -24,6 +25,7 @@ class SettingsState {
     data class State(
         val interfaceMode: AppInterfaceMode = AppInterfaceMode.MOBILE,
         val appTheme: AppTheme = AppTheme.WARM_AMBER,
+        val backgroundStyle: BackgroundStyle = BackgroundStyle.DARK,
         val posterQuality: PosterQuality = PosterQuality.STANDARD,
         val posterCardSize: PosterCardSize = PosterCardSize.STANDARD,
         val showTopTitleYear: Boolean = false,
@@ -56,6 +58,9 @@ class SettingsState {
 
         /** Пользователь выбрал тему приложения. */
         data class AppThemeSelected(val theme: AppTheme) : Event
+
+        /** Пользователь выбрал цвет фона интерфейса. */
+        data class BackgroundStyleSelected(val style: BackgroundStyle) : Event
 
         /** Пользователь подтвердил смену типа интерфейса. */
         data class InterfaceModeSelected(val mode: AppInterfaceMode) : Event

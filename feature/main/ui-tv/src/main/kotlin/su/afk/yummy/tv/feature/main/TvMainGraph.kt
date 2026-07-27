@@ -117,7 +117,11 @@ class TvMainGraph @Inject constructor(
                 }
             }
 
-            YummyTvTheme(appTheme = state.appTheme, isTelevision = true) {
+            YummyTvTheme(
+                appTheme = state.appTheme,
+                backgroundStyle = state.backgroundStyle,
+                isTelevision = true,
+            ) {
                 CompositionLocalProvider(
                     LocalPosterQuality provides state.posterQuality,
                     LocalPosterCardSize provides state.posterCardSize,

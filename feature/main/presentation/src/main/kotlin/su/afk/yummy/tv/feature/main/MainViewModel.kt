@@ -100,6 +100,7 @@ class MainViewModel @Inject constructor(
                 setState {
                     copy(
                         appTheme = snapshot.appTheme,
+                        backgroundStyle = snapshot.backgroundStyle,
                         posterQuality = snapshot.posterQuality,
                         posterCardSize = snapshot.posterCardSize,
                         yaniNickname = snapshot.yaniNickname,

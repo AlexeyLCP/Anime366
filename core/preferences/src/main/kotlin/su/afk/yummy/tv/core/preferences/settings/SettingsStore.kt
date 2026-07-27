@@ -4,6 +4,7 @@ import kotlinx.coroutines.flow.Flow
 
 data class SettingsSnapshot(
     val appTheme: AppTheme,
+    val backgroundStyle: BackgroundStyle,
     val posterQuality: PosterQuality,
     val posterCardSize: PosterCardSize,
     val showTopTitleYear: Boolean,
@@ -27,6 +28,7 @@ data class SettingsSnapshot(
 
 data class MainSettingsSnapshot(
     val appTheme: AppTheme,
+    val backgroundStyle: BackgroundStyle,
     val posterQuality: PosterQuality,
     val posterCardSize: PosterCardSize,
     val yaniNickname: String,
@@ -63,6 +65,7 @@ interface SettingsStore {
     val playerResizeMode: Flow<PlayerResizeMode>
     val playerZoomLevel: Flow<PlayerZoomLevel>
     val appTheme: Flow<AppTheme>
+    val backgroundStyle: Flow<BackgroundStyle>
     val detailsButtonOrder: Flow<List<DetailsButtonAction>>
 
     /** Тайтлы, которые пользователь попросил больше не рекомендовать. */
@@ -131,6 +134,7 @@ interface SettingsStore {
     )
 
     suspend fun setAppTheme(theme: AppTheme)
+    suspend fun setBackgroundStyle(style: BackgroundStyle)
     suspend fun setDetailsButtonOrder(order: List<DetailsButtonAction>)
     suspend fun setYaniApplicationToken(token: String)
 

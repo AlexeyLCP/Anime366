@@ -4,6 +4,7 @@ import su.afk.yummy.tv.core.analytics.AnalyticsTracker
 import su.afk.yummy.tv.core.analytics.analyticsParamsOf
 import su.afk.yummy.tv.core.preferences.interface_mode.AppInterfaceMode
 import su.afk.yummy.tv.core.preferences.settings.AppTheme
+import su.afk.yummy.tv.core.preferences.settings.BackgroundStyle
 import su.afk.yummy.tv.core.preferences.settings.DetailsButtonAction
 import su.afk.yummy.tv.core.preferences.settings.LibraryContinueWatchingCardSize
 import su.afk.yummy.tv.core.preferences.settings.PosterCardSize
@@ -48,6 +49,18 @@ internal class SettingsAnalytics @Inject constructor(
         tracker.track(
             EVENT_APP_THEME_SELECTED,
             analyticsParamsOf(PARAM_VALUE to theme.name.lowercase()),
+        )
+    }
+
+    /**
+     * Пользователь изменил цвет фона интерфейса.
+     *
+     * Параметры: value.
+     */
+    fun eventBackgroundStyleSelected(style: BackgroundStyle) {
+        tracker.track(
+            EVENT_BACKGROUND_STYLE_SELECTED,
+            analyticsParamsOf(PARAM_VALUE to style.name.lowercase()),
         )
     }
 
@@ -275,6 +288,7 @@ internal class SettingsAnalytics @Inject constructor(
         private const val PARAM_VALUE = "value"
 
         const val EVENT_APP_THEME_SELECTED = "settings_app_theme_selected"
+        const val EVENT_BACKGROUND_STYLE_SELECTED = "settings_background_style_selected"
         const val EVENT_AUTO_SKIP_OPENINGS_ENDINGS_TOGGLED =
             "settings_auto_skip_openings_endings_toggled"
         const val EVENT_CONTENT_LANGUAGE_SELECTED = "settings_content_language_selected"

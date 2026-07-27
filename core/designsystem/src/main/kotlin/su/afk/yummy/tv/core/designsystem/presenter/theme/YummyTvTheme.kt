@@ -1,12 +1,21 @@
 package su.afk.yummy.tv.core.designsystem.presenter.theme
 
+import android.app.Activity
+import android.content.Context
+import android.content.ContextWrapper
 import android.content.res.Configuration
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalView
+import androidx.core.view.WindowCompat
 import su.afk.yummy.tv.core.preferences.settings.AppTheme
+import su.afk.yummy.tv.core.preferences.settings.BackgroundStyle
 
 private data class YummyTvPalette(
     val background: Color,
@@ -19,6 +28,13 @@ private data class YummyTvPalette(
     val primaryContainer: Color,
     val onPrimaryContainer: Color,
     val secondary: Color,
+    // Светлые варианты акцента (для BackgroundStyle.GRAY/LIGHT): более тёмный/насыщенный тон
+    // того же оттенка, читаемый на белом фоне. Нейтрали при этом общие (см. LightNeutrals).
+    val primaryLight: Color,
+    val onPrimaryLight: Color,
+    val primaryContainerLight: Color,
+    val onPrimaryContainerLight: Color,
+    val secondaryLight: Color,
     val error: Color = Color(0xFFFFB4AB),
     val onError: Color = Color(0xFF690005),
     val outline: Color = Color(0xFF8E877D),
@@ -35,6 +51,11 @@ private val WarmAmberPalette = YummyTvPalette(
     primaryContainer = Color(0xFF3D2612),
     onPrimaryContainer = Color(0xFFFFE0BA),
     secondary = Color(0xFFD8C3A5),
+    primaryLight = Color(0xFFB05A00),
+    onPrimaryLight = Color(0xFFFFFFFF),
+    primaryContainerLight = Color(0xFFFFDCC0),
+    onPrimaryContainerLight = Color(0xFF2E1500),
+    secondaryLight = Color(0xFF7A5A2E),
 )
 
 private val SakuraPalette = YummyTvPalette(
@@ -48,6 +69,11 @@ private val SakuraPalette = YummyTvPalette(
     primaryContainer = Color(0xFF4E1C2C),
     onPrimaryContainer = Color(0xFFFFD8E6),
     secondary = Color(0xFFE3BBCB),
+    primaryLight = Color(0xFFB0295E),
+    onPrimaryLight = Color(0xFFFFFFFF),
+    primaryContainerLight = Color(0xFFFFD9E4),
+    onPrimaryContainerLight = Color(0xFF3E0021),
+    secondaryLight = Color(0xFF8E4A63),
     outline = Color(0xFF9A8390),
 )
 
@@ -62,6 +88,11 @@ private val MintPalette = YummyTvPalette(
     primaryContainer = Color(0xFF123B30),
     onPrimaryContainer = Color(0xFFB7F7DD),
     secondary = Color(0xFFC3D8CF),
+    primaryLight = Color(0xFF00695C),
+    onPrimaryLight = Color(0xFFFFFFFF),
+    primaryContainerLight = Color(0xFFB8F0DD),
+    onPrimaryContainerLight = Color(0xFF00201A),
+    secondaryLight = Color(0xFF3D6B5E),
     outline = Color(0xFF7F938C),
 )
 
@@ -76,6 +107,11 @@ private val OceanPalette = YummyTvPalette(
     primaryContainer = Color(0xFF163851),
     onPrimaryContainer = Color(0xFFD2EBFF),
     secondary = Color(0xFFC0D3E1),
+    primaryLight = Color(0xFF00629E),
+    onPrimaryLight = Color(0xFFFFFFFF),
+    primaryContainerLight = Color(0xFFCFE5FF),
+    onPrimaryContainerLight = Color(0xFF001D33),
+    secondaryLight = Color(0xFF4A607A),
     outline = Color(0xFF8292A0),
 )
 
@@ -90,12 +126,35 @@ private val GraphitePalette = YummyTvPalette(
     primaryContainer = Color(0xFF363633),
     onPrimaryContainer = Color(0xFFF4F2EC),
     secondary = Color(0xFFD0CEC8),
-    outline = Color(0xFF8F8F8A),
+    primaryLight = Color(0xFF3A3D40),
+    onPrimaryLight = Color(0xFFFFFFFF),
+    primaryContainerLight = Color(0xFFDDE0E3),
+    onPrimaryContainerLight = Color(0xFF1A1C1E),
+    secondaryLight = Color(0xFF55595C),
 )
+
+/** Общие нейтрали светлой схемы (фон/поверхности/текст), задаются режимом фона. */
+private data class LightNeutrals(
+    val background: Color,
+    val surface: Color,
+    val surfaceVariant: Color,
+)
+
+private val LightNeutralsWhite = LightNeutrals(
+    // Фон белый, панели чуть серее — иначе сливаются с белым.
+    background = Color(0xFFFFFFFF),
+    surface = Color(0xFFF0F0F0),
+    surfaceVariant = Color(0xFFE6E6E6),
+)
+
+private val LightOnBackground = Color(0xFF1A1A1A)
+private val LightOnSurfaceVariant = Color(0xFF444444)
+private val LightOutline = Color(0xFF757575)
 
 @Composable
 fun YummyTvTheme(
     appTheme: AppTheme = AppTheme.WARM_AMBER,
+    backgroundStyle: BackgroundStyle = BackgroundStyle.DARK,
     isTelevision: Boolean? = null,
     content: @Composable () -> Unit,
 ) {
@@ -103,11 +162,45 @@ fun YummyTvTheme(
             LocalConfiguration.current.uiMode and Configuration.UI_MODE_TYPE_MASK ==
                     Configuration.UI_MODE_TYPE_TELEVISION
             )
+    val darkTheme = when (backgroundStyle) {
+        BackgroundStyle.SYSTEM -> isSystemInDarkTheme()
+        BackgroundStyle.LIGHT -> false
+        BackgroundStyle.DARK -> true
+    }
+    val palette = appTheme.palette
+    val colorScheme = if (darkTheme) {
+        palette.toDarkColorScheme()
+    } else {
+        palette.toLightColorScheme(LightNeutralsWhite)
+    }
+
+    // Иконки статус-бара и навигационной полосы: тёмные на светлом фоне, светлые на тёмном.
+    // Тема — единственное место, знающее выбранный BackgroundStyle, поэтому синхронизируем здесь.
+    val view = LocalView.current
+    if (!view.isInEditMode) {
+        val lightBars = !darkTheme
+        DisposableEffect(lightBars) {
+            view.context.findActivity()?.window?.let { window ->
+                WindowCompat.getInsetsController(window, view).apply {
+                    isAppearanceLightStatusBars = lightBars
+                    isAppearanceLightNavigationBars = lightBars
+                }
+            }
+            onDispose { }
+        }
+    }
+
     MaterialTheme(
-        colorScheme = appTheme.palette.toColorScheme(),
+        colorScheme = colorScheme,
         typography = if (useTvTypography) YummyTvTypography else YummyMobileTypography,
         content = content,
     )
+}
+
+private tailrec fun Context.findActivity(): Activity? = when (this) {
+    is Activity -> this
+    is ContextWrapper -> baseContext.findActivity()
+    else -> null
 }
 
 private val AppTheme.palette: YummyTvPalette
@@ -119,7 +212,7 @@ private val AppTheme.palette: YummyTvPalette
         AppTheme.GRAPHITE -> GraphitePalette
     }
 
-private fun YummyTvPalette.toColorScheme() = darkColorScheme(
+private fun YummyTvPalette.toDarkColorScheme() = darkColorScheme(
     background = background,
     onBackground = onBackground,
     surface = surface,
@@ -148,4 +241,36 @@ private fun YummyTvPalette.toColorScheme() = darkColorScheme(
     inverseSurface = onBackground,
     inverseOnSurface = background,
     inversePrimary = primaryContainer,
+)
+
+private fun YummyTvPalette.toLightColorScheme(neutrals: LightNeutrals) = lightColorScheme(
+    background = neutrals.background,
+    onBackground = LightOnBackground,
+    surface = neutrals.surface,
+    onSurface = LightOnBackground,
+    surfaceVariant = neutrals.surfaceVariant,
+    onSurfaceVariant = LightOnSurfaceVariant,
+    primary = primaryLight,
+    onPrimary = onPrimaryLight,
+    primaryContainer = primaryContainerLight,
+    onPrimaryContainer = onPrimaryContainerLight,
+    secondary = secondaryLight,
+    onSecondary = onPrimaryLight,
+    // Акцентная «таблетка» выделения (напр. активная вкладка нижнего меню) несёт оттенок палитры.
+    secondaryContainer = primaryContainerLight,
+    onSecondaryContainer = onPrimaryContainerLight,
+    tertiary = primaryContainerLight,
+    onTertiary = onPrimaryContainerLight,
+    tertiaryContainer = primaryContainerLight,
+    onTertiaryContainer = onPrimaryContainerLight,
+    error = Color(0xFFBA1A1A),
+    onError = Color(0xFFFFFFFF),
+    errorContainer = Color(0xFFFFDAD6),
+    onErrorContainer = Color(0xFF410002),
+    outline = LightOutline,
+    outlineVariant = neutrals.surfaceVariant,
+    scrim = Color.Black,
+    inverseSurface = LightOnBackground,
+    inverseOnSurface = neutrals.background,
+    inversePrimary = primaryContainerLight,
 )

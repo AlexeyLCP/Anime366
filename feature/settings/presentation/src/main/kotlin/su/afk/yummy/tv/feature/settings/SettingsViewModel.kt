@@ -46,6 +46,7 @@ class SettingsViewModel @Inject internal constructor(
                 setState {
                     copy(
                         appTheme = snapshot.appTheme,
+                        backgroundStyle = snapshot.backgroundStyle,
                         posterQuality = snapshot.posterQuality,
                         posterCardSize = snapshot.posterCardSize,
                         showTopTitleYear = snapshot.showTopTitleYear,
@@ -99,6 +100,11 @@ class SettingsViewModel @Inject internal constructor(
             is SettingsState.Event.AppThemeSelected -> viewModelScope.launch {
                 analytics.eventAppThemeSelected(event.theme)
                 settingsStore.setAppTheme(event.theme)
+            }
+
+            is SettingsState.Event.BackgroundStyleSelected -> viewModelScope.launch {
+                analytics.eventBackgroundStyleSelected(event.style)
+                settingsStore.setBackgroundStyle(event.style)
             }
 
             is SettingsState.Event.PosterQualitySelected -> viewModelScope.launch {

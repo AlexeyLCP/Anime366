@@ -21,6 +21,7 @@ data class PlayerMediaItemConfig(
     val headers: Map<String, String>,
     val offlineCacheKey: String?,
     val isOfflinePlayback: Boolean,
+    val isLocalFile: Boolean,
     val useRotatingHlsCacheKeys: Boolean,
     val audioTrackPolicy: PlayerAudioTrackPolicy,
     val playbackPositionMs: Long,
@@ -54,6 +55,7 @@ class PlayerMediaItemUpdater {
             useRotatingHlsCacheKeys = config.useRotatingHlsCacheKeys,
             audioTrackPolicy = config.audioTrackPolicy,
             isOfflinePlayback = config.isOfflinePlayback,
+            isLocalFile = config.isLocalFile,
         )
         val resume = config.playbackPositionMs.takeIf { it > 0L } ?: config.resumeFromMs
         if (player.currentMediaItem?.localConfiguration?.uri?.toString() != config.url || playbackKey != config.playbackKey) {

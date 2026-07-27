@@ -109,6 +109,8 @@ class PlayerViewModel @AssistedInject internal constructor(
         observeActivePlayerMobileVideoTransformSettings(force = true)
         if (newDest.downloadId > 0L) {
             loadDownloadedDestination(newDest.downloadId)
+        } else if (newDest.localFileUri.isNotBlank()) {
+            loadLocalFileDestination(newDest.localFileUri, newDest.animeTitle)
         } else {
             loadSourceGraph()
             loadStream()
@@ -150,6 +152,10 @@ class PlayerViewModel @AssistedInject internal constructor(
             .launchIn(viewModelScope)
         if (dest.downloadId > 0L) {
             loadDownloadedDestination(dest.downloadId)
+        } else if (dest.localFileUri.isNotBlank()) {
+            observeActivePlayerResizeSettings()
+            observeActivePlayerMobileVideoTransformSettings()
+            loadLocalFileDestination(dest.localFileUri, dest.animeTitle)
         } else {
             loadFinalEpisodeAction(dest.animeId)
             observeActivePlayerResizeSettings()
@@ -188,7 +194,12 @@ class PlayerViewModel @AssistedInject internal constructor(
                 analytics.eventRetryStream(currentState.animeId)
                 playbackRetry.reset()
                 playbackRetryJob?.cancel()
-                if (currentState.isOfflinePlayback) {
+                if (currentState.isLocalFile) {
+                    setState { copy(retryKey = retryKey + 1) }
+                    activeDest.localFileUri.takeIf(String::isNotBlank)?.let {
+                        loadLocalFileDestination(it, activeDest.animeTitle)
+                    }
+                } else if (currentState.isOfflinePlayback) {
                     setState { copy(retryKey = retryKey + 1) }
                     loadDownloadedDestination(activeDest.downloadId)
                 } else if (currentState.isAllohaSource()) {
@@ -519,6 +530,56 @@ class PlayerViewModel @AssistedInject internal constructor(
                 )
             }
             loadFinalEpisodeAction(item.animeId)
+        }
+    }
+
+    /**
+     * Воспроизведение локального файла, открытого извне (ACTION_VIEW, content://).
+     * Идёт по офлайн-маршруту, чтобы не запускать сетевые ретраи/резолв source-graph,
+     * но с отдельным локальным data-source (флаг [PlayerState.State.isLocalFile]).
+     */
+    private fun loadLocalFileDestination(uri: String, title: String) {
+        allohaSession.close()
+        streamLoadingHintJob?.cancel()
+        val displayTitle = title.takeIf(String::isNotBlank)
+            ?: strings.get(R.string.player_local_file_title)
+        val sourceGraph = PlayerSourceGraph(
+            balancers = listOf(
+                PlayerSourceBalancer(
+                    name = "",
+                    dubbings = listOf(
+                        PlayerSourceDubbing(
+                            name = "",
+                            episodes = listOf(
+                                PlayerSourceEpisode(
+                                    id = 0,
+                                    playerId = null,
+                                    number = "",
+                                    iframeUrl = uri,
+                                    screenshotUrl = "",
+                                )
+                            ),
+                        )
+                    ),
+                )
+            ),
+        )
+        setState {
+            copy(
+                animeTitle = displayTitle,
+                animeId = 0,
+                posterUrl = "",
+                sourceGraph = sourceGraph,
+                sourceSelection = PlayerSourceSelection(),
+                streamUrl = uri,
+                streamHeaders = emptyMap(),
+                streamQualityMap = null,
+                selectedQuality = null,
+                isOfflinePlayback = true,
+                isLocalFile = true,
+                offlineCacheKey = null,
+                playerError = null,
+            )
         }
     }
 

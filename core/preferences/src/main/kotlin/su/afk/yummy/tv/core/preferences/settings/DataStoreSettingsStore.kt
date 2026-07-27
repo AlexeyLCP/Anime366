@@ -53,6 +53,7 @@ class DataStoreSettingsStore(private val context: Context) : SettingsStore {
     private val detailsButtonOrderKey = stringPreferencesKey("details_button_order")
     private val hiddenRecommendationIdsKey = stringSetPreferencesKey("hidden_recommendation_ids")
     private val appThemeKey = stringPreferencesKey("app_theme")
+    private val backgroundStyleKey = stringPreferencesKey("background_style")
     private val yaniApplicationTokenKey = stringPreferencesKey("yani_application_token")
     private val yaniAccessTokenKey = stringPreferencesKey("yani_access_token")
     private val yaniUserIdKey = intPreferencesKey("yani_user_id")
@@ -203,6 +204,12 @@ class DataStoreSettingsStore(private val context: Context) : SettingsStore {
         } ?: AppTheme.WARM_AMBER
     }
 
+    override val backgroundStyle: Flow<BackgroundStyle> = context.dataStore.data.map { prefs ->
+        prefs[backgroundStyleKey]?.let { name ->
+            runCatching { BackgroundStyle.valueOf(name) }.getOrNull()
+        } ?: BackgroundStyle.DARK
+    }
+
     override val detailsButtonOrder: Flow<List<DetailsButtonAction>> =
         context.dataStore.data.map { prefs ->
             prefs[detailsButtonOrderKey].toDetailsButtonOrder()
@@ -252,6 +259,7 @@ class DataStoreSettingsStore(private val context: Context) : SettingsStore {
             appTheme = prefs[appThemeKey]?.let { name ->
                 runCatching { AppTheme.valueOf(name) }.getOrNull()
             } ?: AppTheme.WARM_AMBER,
+            backgroundStyle = prefs.backgroundStyle(),
             posterQuality = prefs[posterQualityKey]?.let { name ->
                 runCatching { PosterQuality.valueOf(name) }.getOrNull()
             }
@@ -298,6 +306,7 @@ class DataStoreSettingsStore(private val context: Context) : SettingsStore {
                 appTheme = prefs[appThemeKey]?.let { name ->
                     runCatching { AppTheme.valueOf(name) }.getOrNull()
                 } ?: AppTheme.WARM_AMBER,
+                backgroundStyle = prefs.backgroundStyle(),
                 posterQuality = prefs[posterQualityKey]?.let { name ->
                     runCatching { PosterQuality.valueOf(name) }.getOrNull()
                 }
@@ -463,6 +472,10 @@ class DataStoreSettingsStore(private val context: Context) : SettingsStore {
         context.dataStore.edit { prefs -> prefs[appThemeKey] = theme.name }
     }
 
+    override suspend fun setBackgroundStyle(style: BackgroundStyle) {
+        context.dataStore.edit { prefs -> prefs[backgroundStyleKey] = style.name }
+    }
+
     override suspend fun setDetailsButtonOrder(order: List<DetailsButtonAction>) {
         context.dataStore.edit { prefs ->
             prefs[detailsButtonOrderKey] =
@@ -606,6 +619,11 @@ class DataStoreSettingsStore(private val context: Context) : SettingsStore {
             .mapNotNull { name -> runCatching { DetailsButtonAction.valueOf(name) }.getOrNull() }
             .normalizedDetailsButtonOrder()
     }
+
+    private fun Preferences.backgroundStyle(): BackgroundStyle =
+        this[backgroundStyleKey]?.let { name ->
+            runCatching { BackgroundStyle.valueOf(name) }.getOrNull()
+        } ?: BackgroundStyle.DARK
 
     private fun Preferences.yaniApplicationToken(): String =
         this[yaniApplicationTokenKey]?.takeIf { it.isNotBlank() } ?: DEFAULT_YANI_APPLICATION_TOKEN

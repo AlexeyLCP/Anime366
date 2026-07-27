@@ -7,6 +7,7 @@ import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.res.stringResource
 import su.afk.yummy.tv.core.preferences.interface_mode.AppInterfaceMode
 import su.afk.yummy.tv.core.preferences.settings.AppTheme
+import su.afk.yummy.tv.core.preferences.settings.BackgroundStyle
 import su.afk.yummy.tv.core.preferences.settings.DetailsButtonAction
 import su.afk.yummy.tv.core.preferences.settings.LibraryContinueWatchingCardSize
 import su.afk.yummy.tv.core.preferences.settings.PosterCardSize
@@ -84,6 +85,24 @@ internal fun AppTheme.hint(): String = stringResource(
         AppTheme.MINT -> R.string.settings_theme_mint_hint
         AppTheme.OCEAN -> R.string.settings_theme_ocean_hint
         AppTheme.GRAPHITE -> R.string.settings_theme_graphite_hint
+    },
+)
+
+@Composable
+internal fun BackgroundStyle.label(): String = stringResource(
+    when (this) {
+        BackgroundStyle.SYSTEM -> R.string.settings_background_system
+        BackgroundStyle.LIGHT -> R.string.settings_background_light
+        BackgroundStyle.DARK -> R.string.settings_background_dark
+    },
+)
+
+@Composable
+internal fun BackgroundStyle.hint(): String = stringResource(
+    when (this) {
+        BackgroundStyle.SYSTEM -> R.string.settings_background_system_hint
+        BackgroundStyle.LIGHT -> R.string.settings_background_light_hint
+        BackgroundStyle.DARK -> R.string.settings_background_dark_hint
     },
 )
 

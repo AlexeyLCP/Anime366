@@ -18,4 +18,6 @@ interface IPlayerNavigator {
     ): NavKey
 
     fun getDownloadedPlayerDest(downloadId: Long): NavKey
+
+    fun getLocalFilePlayerDest(uri: String, title: String = ""): NavKey
 }
