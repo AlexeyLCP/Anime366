@@ -250,12 +250,6 @@ class PlayerViewModel @AssistedInject internal constructor(
             }
 
             is PlayerState.Event.PlaybackError -> {
-                analytics.eventPlaybackError(
-                    state = currentState,
-                    message = event.message,
-                    errorCode = event.errorCode,
-                    errorType = event.errorType,
-                )
                 if (!currentState.isOfflinePlayback && currentState.isAllohaSource()) {
                     if (allohaRecovery.isRecovering) {
                         Log.w(
@@ -273,6 +267,16 @@ class PlayerViewModel @AssistedInject internal constructor(
                 } else if (!currentState.isOfflinePlayback && playbackRetry.canRetry()) {
                     schedulePlaybackRetryAttempt()
                 } else {
+                    // Тихие ретраи исчерпаны (или offline) — сейчас юзеру показывается окно
+                    // «повторить/сменить». Логируем именно здесь, а не на каждую ошибку плеера,
+                    // чтобы не репортить транзиентные сбои, которые сами починились ретраем.
+                    analytics.eventPlaybackError(
+                        state = currentState,
+                        message = event.message,
+                        errorCode = event.errorCode,
+                        errorType = event.errorType,
+                        retryAttempts = playbackRetry.attempts,
+                    )
                     playbackRetry.reset()
                     playbackRetryJob?.cancel()
                     streamLoadingHintJob?.cancel()

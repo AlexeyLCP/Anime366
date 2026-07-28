@@ -4,6 +4,7 @@ import su.afk.yummy.tv.core.analytics.AnalyticsTracker
 import su.afk.yummy.tv.core.analytics.analyticsParamsOf
 import su.afk.yummy.tv.core.preferences.settings.PlayerResizeMode
 import su.afk.yummy.tv.core.preferences.settings.PlayerZoomLevel
+import su.afk.yummy.tv.feature.player.handler.PlayerStreamResult
 import su.afk.yummy.tv.feature.player.utils.activeBalancerName
 import su.afk.yummy.tv.feature.player.utils.activeDubbingEpisodes
 import su.afk.yummy.tv.feature.player.utils.activeDubbingName
@@ -212,6 +213,7 @@ internal class PlayerAnalytics @Inject constructor(
         message: String,
         errorCode: String?,
         errorType: String?,
+        retryAttempts: Int = 0,
     ) {
         // Ошибки сети — ожидаемый транзиентный кейс, не засоряем крэш-репортинг.
         if (errorCode in IGNORED_ERROR_CODES) return
@@ -226,6 +228,7 @@ internal class PlayerAnalytics @Inject constructor(
                     PARAM_ERROR_CODE to errorCode,
                     PARAM_ERROR_TYPE to errorType,
                     PARAM_ERROR_MESSAGE to errorMessage,
+                    PARAM_RETRY_ATTEMPTS to retryAttempts,
                 ),
             ),
             throwable = syntheticPlayerError(
@@ -250,16 +253,23 @@ internal class PlayerAnalytics @Inject constructor(
         val source = state.analyticsSource()
         val errorType = throwable?.analyticsType()
         val errorMessage = (message ?: throwable?.analyticsMessage())?.analyticsMessage()
+        val extras = analyticsParamsOf(
+            PARAM_REASON to reason,
+            PARAM_ERROR_TYPE to errorType,
+            PARAM_ERROR_MESSAGE to errorMessage,
+        )
+        // Серия/озвучка недоступна на источнике (kodik_blocked / unavailable) — это состояние
+        // контента, а не сбой приложения. Шлём обычное аналитическое событие, а не non-fatal.
+        if (reason in UNAVAILABLE_REASONS) {
+            tracker.track(EVENT_STREAM_RESOLVE_FAILED, sourceParams(source) + extras)
+            return
+        }
         tracker.reportError(
             groupIdentifier = EVENT_STREAM_RESOLVE_FAILED,
             message = playerErrorReportMessage(
                 eventName = EVENT_STREAM_RESOLVE_FAILED,
                 source = source,
-                extras = analyticsParamsOf(
-                    PARAM_REASON to reason,
-                    PARAM_ERROR_TYPE to errorType,
-                    PARAM_ERROR_MESSAGE to errorMessage,
-                ),
+                extras = extras,
             ),
             throwable = throwable ?: syntheticPlayerError(
                 eventName = EVENT_STREAM_RESOLVE_FAILED,
@@ -401,6 +411,7 @@ internal class PlayerAnalytics @Inject constructor(
         private const val PARAM_POSITION_MS = "position_ms"
         private const val PARAM_QUALITY = "quality"
         private const val PARAM_REASON = "reason"
+        private const val PARAM_RETRY_ATTEMPTS = "retry_attempts"
         private const val PARAM_SKIP_TYPE = "skip_type"
         private const val PARAM_SOURCE = "source"
         private const val PARAM_SPEED = "speed"
@@ -408,9 +419,22 @@ internal class PlayerAnalytics @Inject constructor(
         private const val PARAM_VIDEO_ID = "video_id"
         private const val MAX_ERROR_MESSAGE_LENGTH = 180
 
+        // Коды ошибок Media3, которые вызваны сетью/окружением, а не багом приложения —
+        // не репортим их как non-fatal, чтобы не засорять крэш-репортинг.
         private val IGNORED_ERROR_CODES = setOf(
+            // Нет соединения с сервером (обрыв сети, недоступный хост).
             "ERROR_CODE_IO_NETWORK_CONNECTION_FAILED",
+            // Сервер вернул некорректный HTTP-статус (4xx/5xx на отдаче потока).
             "ERROR_CODE_IO_BAD_HTTP_STATUS",
+            // Таймаут операции плеера (медленная сеть или зависшая операция железа).
+            "ERROR_CODE_TIMEOUT",
+        )
+
+        // Причины «серия недоступна на источнике»: контентное состояние, не баг приложения —
+        // отправляем как обычную аналитику, а не как non-fatal ошибку.
+        private val UNAVAILABLE_REASONS = setOf(
+            PlayerStreamResult.REASON_KODIK_BLOCKED,
+            PlayerStreamResult.REASON_UNAVAILABLE,
         )
 
         const val EVENT_BALANCER_SELECTED = "player_balancer_selected"

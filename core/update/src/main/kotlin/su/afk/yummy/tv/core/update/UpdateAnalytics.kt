@@ -4,6 +4,7 @@ import android.os.Build
 import su.afk.yummy.tv.core.analytics.AnalyticsEvents
 import su.afk.yummy.tv.core.analytics.AnalyticsTracker
 import su.afk.yummy.tv.core.analytics.analyticsParamsOf
+import su.afk.yummy.tv.core.update.apk.UpdatePermissionRequiredException
 import javax.inject.Inject
 
 internal class UpdateAnalytics @Inject constructor(
@@ -42,11 +43,15 @@ internal class UpdateAnalytics @Inject constructor(
     private fun trackError(phase: String, version: String?, error: Throwable) {
         val params = errorParams(phase, version, error)
         tracker.track(AnalyticsEvents.updateError(params))
-        tracker.reportError(
-            groupIdentifier = EVENT_UPDATE_ERROR,
-            message = errorReportMessage(params),
-            throwable = error,
-        )
+        // «Нет разрешения на установку из неизвестных источников» — не баг, а ожидаемый шаг UX:
+        // оставляем плановое событие update_error, но не репортим как non-fatal ошибку.
+        if (error !is UpdatePermissionRequiredException) {
+            tracker.reportError(
+                groupIdentifier = EVENT_UPDATE_ERROR,
+                message = errorReportMessage(params),
+                throwable = error,
+            )
+        }
     }
 
     private fun errorParams(

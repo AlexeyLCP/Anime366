@@ -31,7 +31,9 @@ class ApkInstaller(private val context: Context) {
                     Uri.parse("package:${context.packageName}"),
                 ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
             )
-            error(context.getString(R.string.update_install_unknown_sources_required))
+            throw UpdatePermissionRequiredException(
+                context.getString(R.string.update_install_unknown_sources_required)
+            )
         }
 
         val packageInstaller = context.packageManager.packageInstaller

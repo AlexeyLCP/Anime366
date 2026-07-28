@@ -24,11 +24,14 @@ internal class PlayerProgressHandler @Inject constructor(
     private val syncingRemoteVideoIds = mutableSetOf<Int>()
     private val lastRemoteSyncAttemptAt = mutableMapOf<Int, Long>()
 
-    /**
-     * Уникальные просмотренные секунды-позиции по videoId. Сервер считает `spent_time`
-     * как размер объединения этого набора с уже сохранённым (см. веб-контракт yani).
-     */
+    /** Все уникальные просмотренные секунды-позиции по videoId (что реально проиграли). */
     private val watchedSecondsByVideoId = mutableMapOf<Int, MutableSet<Int>>()
+
+    /**
+     * Секунды, уже успешно отправленные на сервер. Сервер СУММИРУЕТ присланные `times`,
+     * поэтому каждую секунду шлём ровно один раз (дельта = watched − synced).
+     */
+    private val syncedSecondsByVideoId = mutableMapOf<Int, MutableSet<Int>>()
 
     /** Копит реально проигранную секунду (вызывается по тику ~1с из плеера). */
     fun recordWatchedSecond(videoId: Int, positionMs: Long, durationMs: Long) {
@@ -139,15 +142,18 @@ internal class PlayerProgressHandler @Inject constructor(
         val durationSeconds = (snapshot.durationMs / 1000L).toInt()
         val maxSecond = (durationSeconds - WATCH_END_TOLERANCE_SECONDS).coerceAtLeast(0)
         val timeSeconds = (snapshot.positionMs / 1000L).toInt().coerceIn(0, maxSecond)
-        val times = watchedSecondsByVideoId[videoId]?.toList().orEmpty()
+        // Дельта — фиксированная копия ДО suspend-вызова; помечаем отправленной только при успехе.
+        val synced = syncedSecondsByVideoId.getOrPut(videoId) { sortedSetOf() }
+        val delta = (watchedSecondsByVideoId[videoId].orEmpty() - synced).sorted()
         runCatching {
             saveVideoWatchProgress(
                 videoId = videoId,
                 timeSeconds = timeSeconds,
                 durationSeconds = durationSeconds,
-                times = times,
+                times = delta,
             )
         }.onSuccess {
+            synced.addAll(delta)
             if (watchedEnough) completedRemoteVideoIds += videoId
         }.also {
             syncingRemoteVideoIds -= videoId

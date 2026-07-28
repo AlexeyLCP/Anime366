@@ -27,11 +27,13 @@ internal class ErrorHandlerUseCaseImpl @Inject constructor(
         if (t is CancellationException) throw t
 
         owner?.let {
-            runCatching {
-                errorAnalyticsReporter.reportCoroutineError(
-                    owner = it,
-                    throwable = t,
-                )
+            if (!t.isNetworkError()) {
+                runCatching {
+                    errorAnalyticsReporter.reportCoroutineError(
+                        owner = it,
+                        throwable = t,
+                    )
+                }
             }
         }
 
@@ -68,6 +70,14 @@ internal class ErrorHandlerUseCaseImpl @Inject constructor(
 
         return item
     }
+
+    /**
+     * Сетевые/оффлайн-ошибки (нет DNS, нет соединения, таймаут) — не баги приложения,
+     * поэтому их не репортим в аналитику. UnknownHostException, ConnectException,
+     * SocketTimeoutException и прочие обрывы соединения — наследники IOException,
+     * который код и так маппит на «нет соединения»/«таймаут».
+     */
+    private fun Throwable.isNetworkError(): Boolean = this is IOException
 
     private fun parseKtorResponse(e: ResponseException): ErrorItem {
         val code = e.response.status.value
