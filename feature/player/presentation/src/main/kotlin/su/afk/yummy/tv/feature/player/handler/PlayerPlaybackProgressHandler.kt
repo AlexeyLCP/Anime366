@@ -5,6 +5,7 @@ import su.afk.yummy.tv.feature.player.PlayerAnalytics
 import su.afk.yummy.tv.feature.player.PlayerProgressSnapshot
 import su.afk.yummy.tv.feature.player.PlayerState
 import su.afk.yummy.tv.feature.player.model.PlayerCompletionAnalyticsKey
+import su.afk.yummy.tv.feature.player.utils.activeVideoId
 import su.afk.yummy.tv.feature.player.utils.completionAnalyticsKey
 import su.afk.yummy.tv.feature.player.utils.isFirstEpisodeNumber
 import su.afk.yummy.tv.feature.player.utils.progressContext
@@ -116,6 +117,15 @@ internal class PlayerPlaybackProgressHandler @Inject constructor(
         return PlayerProgressSaveRequest(
             context = state.progressContext(),
             snapshot = snapshot,
+        )
+    }
+
+    /** Копит реально проигранную секунду активного видео (тик плеера ~1с). */
+    fun recordWatchedTick(state: PlayerState.State, positionMs: Long, durationMs: Long) {
+        progressHandler.recordWatchedSecond(
+            videoId = activeVideoId(state),
+            positionMs = positionMs,
+            durationMs = durationMs,
         )
     }
 

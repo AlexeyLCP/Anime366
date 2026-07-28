@@ -454,6 +454,7 @@ class PlayerViewModel @AssistedInject internal constructor(
                         playbackDurationMs = duration,
                     )
                 }
+                playbackProgressHandler.recordWatchedTick(currentState, position, duration)
                 saveWatchedProgressIfNeeded(position, duration)
             }
 

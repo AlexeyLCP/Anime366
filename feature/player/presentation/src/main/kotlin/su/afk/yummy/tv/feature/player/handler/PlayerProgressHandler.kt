@@ -10,6 +10,9 @@ import javax.inject.Inject
 
 private const val REMOTE_PROGRESS_SYNC_INTERVAL_MS = 10_000L
 
+/** Хвост эпизода, который на сервер не отправляем как позицию/секунду (как в веб-клиенте). */
+private const val WATCH_END_TOLERANCE_SECONDS = 10
+
 /** Сохраняет локальный прогресс просмотра и тихо синхронизирует его с сервером. */
 internal class PlayerProgressHandler @Inject constructor(
     private val watchProgressStore: WatchProgressStore,
@@ -20,6 +23,21 @@ internal class PlayerProgressHandler @Inject constructor(
     private val completionAttemptedVideoIds = mutableSetOf<Int>()
     private val syncingRemoteVideoIds = mutableSetOf<Int>()
     private val lastRemoteSyncAttemptAt = mutableMapOf<Int, Long>()
+
+    /**
+     * Уникальные просмотренные секунды-позиции по videoId. Сервер считает `spent_time`
+     * как размер объединения этого набора с уже сохранённым (см. веб-контракт yani).
+     */
+    private val watchedSecondsByVideoId = mutableMapOf<Int, MutableSet<Int>>()
+
+    /** Копит реально проигранную секунду (вызывается по тику ~1с из плеера). */
+    fun recordWatchedSecond(videoId: Int, positionMs: Long, durationMs: Long) {
+        if (videoId <= 0 || durationMs <= 0) return
+        val maxSecond = ((durationMs / 1000L).toInt() - WATCH_END_TOLERANCE_SECONDS)
+            .coerceAtLeast(0)
+        val second = (positionMs / 1000L).toInt().coerceIn(0, maxSecond)
+        watchedSecondsByVideoId.getOrPut(videoId) { sortedSetOf() }.add(second)
+    }
 
     suspend fun saveProgress(
         context: PlayerProgressContext,
@@ -118,11 +136,16 @@ internal class PlayerProgressHandler @Inject constructor(
         syncingRemoteVideoIds += videoId
         lastRemoteSyncAttemptAt[videoId] = now
         if (watchedEnough) completionAttemptedVideoIds += videoId
+        val durationSeconds = (snapshot.durationMs / 1000L).toInt()
+        val maxSecond = (durationSeconds - WATCH_END_TOLERANCE_SECONDS).coerceAtLeast(0)
+        val timeSeconds = (snapshot.positionMs / 1000L).toInt().coerceIn(0, maxSecond)
+        val times = watchedSecondsByVideoId[videoId]?.toList().orEmpty()
         runCatching {
             saveVideoWatchProgress(
                 videoId = videoId,
-                timeSeconds = (snapshot.positionMs / 1000L).toInt(),
-                durationSeconds = (snapshot.durationMs / 1000L).toInt(),
+                timeSeconds = timeSeconds,
+                durationSeconds = durationSeconds,
+                times = times,
             )
         }.onSuccess {
             if (watchedEnough) completedRemoteVideoIds += videoId

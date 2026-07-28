@@ -7,6 +7,11 @@ import javax.inject.Inject
 class SaveVideoWatchProgressUseCase @Inject constructor(
     private val repository: VideoWatchesRepository,
 ) {
-    suspend operator fun invoke(videoId: Int, timeSeconds: Int, durationSeconds: Int): Boolean =
-        repository.markWatched(videoId, timeSeconds, durationSeconds)
+    suspend operator fun invoke(
+        videoId: Int,
+        timeSeconds: Int,
+        durationSeconds: Int,
+        times: List<Int>,
+    ): Boolean =
+        repository.markWatched(videoId, timeSeconds, durationSeconds, times)
 }

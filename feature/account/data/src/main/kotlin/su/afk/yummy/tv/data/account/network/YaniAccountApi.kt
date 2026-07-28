@@ -349,10 +349,21 @@ class YaniAccountApi(
         clientProvider.get().delete("$YANI_BASE_URL/anime/$animeId/list/fav")
     }
 
-    suspend fun markWatched(videoId: Int, timeSeconds: Int, durationSeconds: Int): Boolean =
+    suspend fun markWatched(
+        videoId: Int,
+        timeSeconds: Int,
+        durationSeconds: Int,
+        times: List<Int>,
+    ): Boolean =
         clientProvider.get().put("$YANI_BASE_URL/video/$videoId") {
             contentType(ContentType.Application.Json)
-            setBody(YaniPutVideoBodyDto(time = timeSeconds, duration = durationSeconds))
+            setBody(
+                YaniPutVideoBodyDto(
+                    time = timeSeconds,
+                    duration = durationSeconds,
+                    times = times
+                )
+            )
         }.body<YaniBooleanResponseDto>().response
 
     suspend fun syncWatched(videos: List<YaniPostVideoItemDto>): Boolean =
