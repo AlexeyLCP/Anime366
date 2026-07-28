@@ -15,7 +15,6 @@ import su.afk.yummy.tv.core.error.storage.RetryStorage
 import su.afk.yummy.tv.core.navigation.NavigationManager
 import su.afk.yummy.tv.core.preferences.settings.SettingsStore
 import su.afk.yummy.tv.domain.comments.model.CommentTargetType
-import su.afk.yummy.tv.domain.posts.model.PostReaction
 import su.afk.yummy.tv.domain.posts.model.PostVote
 import su.afk.yummy.tv.domain.posts.usecase.GetPostDetailsUseCase
 import su.afk.yummy.tv.domain.posts.usecase.RemovePostVoteUseCase
@@ -87,7 +86,7 @@ class PostDetailsViewModel @AssistedInject constructor(
                 setState {
                     copy(
                         loading = false,
-                        error = it.message ?: strings.get(R.string.posts_load_error)
+                        error = errorHandler.parse(it).message
                     )
                 }
             },
@@ -123,22 +122,11 @@ class PostDetailsViewModel @AssistedInject constructor(
                     }
                 },
                 {
-                    setState { copy(details = old, voting = false) }; toast(
-                    it.message ?: strings.get(
-                        R.string.posts_vote_error
-                    )
-                )
+                    setState { copy(details = old, voting = false) }
+                    toast(strings.get(R.string.posts_vote_error))
                 },
             )
         }
-    }
-
-    private fun PostReaction.optimistic(target: PostVote): PostReaction {
-        var nextLikes = likes - if (vote == PostVote.LIKE) 1 else 0
-        var nextDislikes = dislikes - if (vote == PostVote.DISLIKE) 1 else 0
-        if (target == PostVote.LIKE) nextLikes++
-        if (target == PostVote.DISLIKE) nextDislikes++
-        return copy(nextLikes.coerceAtLeast(0), nextDislikes.coerceAtLeast(0), target)
     }
 
     private fun toast(message: String) = setEffect(PostDetailsState.Effect.ShowToast(message))

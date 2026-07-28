@@ -1,9 +1,6 @@
 package su.afk.yummy.tv.data.bloggers.repository
 
-import kotlinx.coroutines.flow.first
-import su.afk.yummy.tv.core.network.YaniApiJson
-import su.afk.yummy.tv.core.preferences.settings.SettingsStore
-import su.afk.yummy.tv.core.storage.document.DocumentCacheStore
+import su.afk.yummy.tv.core.network.UserScopedCache
 import su.afk.yummy.tv.core.utils.toHttpsUrl
 import su.afk.yummy.tv.data.bloggers.dto.BloggerDetailsDto
 import su.afk.yummy.tv.data.bloggers.dto.BloggerDetailsResponseDto
@@ -28,8 +25,7 @@ import javax.inject.Inject
 
 class YaniBloggerVideosRepository @Inject constructor(
     private val api: YaniBloggerVideosApi,
-    private val cache: DocumentCacheStore,
-    private val settingsStore: SettingsStore,
+    private val cache: UserScopedCache,
 ) :
     BloggerVideosRepository {
     override suspend fun getVideos(
@@ -38,20 +34,23 @@ class YaniBloggerVideosRepository @Inject constructor(
         sort: BloggerVideoSort,
         limit: Int,
         offset: Int
-    ) = cached<BloggerVideosResponseDto>(
+    ) = cache.cached<BloggerVideosResponseDto>(
+        namespace = BLOGGER_CACHE_NAMESPACE,
         key = "videos:$category:${bloggerId ?: 0}:${sort.apiValue}:$limit:$offset",
         ttlMs = BLOGGER_FEED_TTL_MS,
     ) { api.getVideos(category, bloggerId, sort.apiValue, limit, offset) }
         .response.map { it.toDomain() }
 
     override suspend fun getAnimeVideos(animeId: Int, limit: Int, offset: Int) =
-        cached<BloggerVideosResponseDto>(
+        cache.cached<BloggerVideosResponseDto>(
+            namespace = BLOGGER_CACHE_NAMESPACE,
             key = "anime:$animeId:$limit:$offset",
             ttlMs = BLOGGER_FEED_TTL_MS,
         ) { api.getAnimeVideos(animeId, limit, offset) }.response.map { it.toDomain() }
 
     override suspend fun getDirectory(limit: Int): BloggerDirectory =
-        cached<BloggersResponseDto>(
+        cache.cached<BloggersResponseDto>(
+            namespace = BLOGGER_CACHE_NAMESPACE,
             key = "directory:$limit",
             ttlMs = BLOGGER_DIRECTORY_TTL_MS,
         ) { api.getDirectory(limit) }.response.let { dto ->
@@ -60,12 +59,14 @@ class YaniBloggerVideosRepository @Inject constructor(
                 dto.bloggers.map { it.toDomain() })
         }
 
-    override suspend fun getBlogger(id: Int) = cached<BloggerDetailsResponseDto>(
+    override suspend fun getBlogger(id: Int) = cache.cached<BloggerDetailsResponseDto>(
+        namespace = BLOGGER_CACHE_NAMESPACE,
         key = "blogger:$id",
         ttlMs = BLOGGER_DETAIL_TTL_MS,
     ) { api.getBlogger(id) }.response.toDomain()
 
-    override suspend fun getVideo(id: Int) = cached<BloggerVideoResponseDto>(
+    override suspend fun getVideo(id: Int) = cache.cached<BloggerVideoResponseDto>(
+        namespace = BLOGGER_CACHE_NAMESPACE,
         key = "video:$id",
         ttlMs = BLOGGER_DETAIL_TTL_MS,
     ) { api.getVideo(id) }.response.toDomain()
@@ -73,7 +74,9 @@ class YaniBloggerVideosRepository @Inject constructor(
     override suspend fun setSubscribed(id: Int, subscribed: Boolean): Int {
         val result = (if (subscribed) api.subscribe(id) else api.unsubscribe(id))
             .response.subscriptions
-        cache.deleteUserNamespace(BLOGGER_CACHE_NAMESPACE)
+        // Подписка меняет только карточку блогера и директорию, не весь namespace.
+        cache.delete(BLOGGER_CACHE_NAMESPACE, "blogger:$id")
+        cache.deleteByPrefix(BLOGGER_CACHE_NAMESPACE, "directory:")
         return result
     }
 
@@ -84,26 +87,9 @@ class YaniBloggerVideosRepository @Inject constructor(
                 requireNotNull(vote.apiValue)
             ))
                 .response.toDomain()
-        cache.deleteUserNamespace(BLOGGER_CACHE_NAMESPACE)
+        // Голос затрагивает только конкретное видео, а не весь namespace.
+        cache.delete(BLOGGER_CACHE_NAMESPACE, "video:$id")
         return result
-    }
-
-    private suspend inline fun <reified T> cached(
-        key: String,
-        ttlMs: Long,
-        crossinline fetch: suspend () -> T,
-    ): T = cache.getOrFetch(
-        cacheKey = cachePrefix() + key,
-        ttlMs = ttlMs,
-        decode = YaniApiJson::decodeFromString,
-        encode = YaniApiJson::encodeToString,
-        fetch = { fetch() },
-    )
-
-    private suspend fun cachePrefix(): String {
-        val userId = settingsStore.yaniUserId.first().coerceAtLeast(0)
-        val language = settingsStore.yaniContentLanguage.first().apiCode
-        return "user:$userId:$BLOGGER_CACHE_NAMESPACE:$language:"
     }
 }
 

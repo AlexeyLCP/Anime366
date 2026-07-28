@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -37,8 +38,11 @@ internal fun ReviewExcerpt(
         if (review.status != ReviewStatus.APPROVED) {
             ReviewStatusBadge(review.status)
         }
+        val excerpt = remember(review.html) {
+            sanitizeReviewHtml(review.html).htmlToPlainText()
+        }
         Text(
-            text = sanitizeReviewHtml(review.html).htmlToPlainText(),
+            text = excerpt,
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             maxLines = if (showAnime) 6 else 8,

@@ -3,8 +3,8 @@ package su.afk.yummy.tv.data.details.storage.mapper
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.intOrNull
-import kotlinx.serialization.json.jsonPrimitive
 import su.afk.yummy.tv.core.model.anime.AnimeDetails
 import su.afk.yummy.tv.core.model.anime.AnimeEpisodes
 import su.afk.yummy.tv.core.model.anime.AnimeGenre
@@ -367,14 +367,18 @@ private fun List<Triple<YaniScreenshotDto, String?, String?>>.filterDistinctScre
 private fun JsonElement?.toSkipSegment(): Pair<Long, Long>? {
     val (start, end) = when (this) {
         is JsonObject -> {
-            val start = this["time"]?.jsonPrimitive?.intOrNull?.takeIf { it >= 0 } ?: return null
-            val length = this["length"]?.jsonPrimitive?.intOrNull?.takeIf { it > 0 } ?: return null
+            val start =
+                (this["time"] as? JsonPrimitive)?.intOrNull?.takeIf { it >= 0 } ?: return null
+            val length =
+                (this["length"] as? JsonPrimitive)?.intOrNull?.takeIf { it > 0 } ?: return null
             start to start + length
         }
 
         is JsonArray -> {
-            val start = getOrNull(0)?.jsonPrimitive?.intOrNull?.takeIf { it >= 0 } ?: return null
-            val end = getOrNull(1)?.jsonPrimitive?.intOrNull?.takeIf { it > start } ?: return null
+            val start =
+                (getOrNull(0) as? JsonPrimitive)?.intOrNull?.takeIf { it >= 0 } ?: return null
+            val end =
+                (getOrNull(1) as? JsonPrimitive)?.intOrNull?.takeIf { it > start } ?: return null
             start to end
         }
 

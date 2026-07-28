@@ -17,9 +17,9 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
+import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.booleanOrNull
 import kotlinx.serialization.json.buildJsonObject
-import kotlinx.serialization.json.jsonPrimitive
 import su.afk.yummy.tv.core.logger.AppLogger
 import su.afk.yummy.tv.core.network.YANI_BASE_URL
 import su.afk.yummy.tv.core.network.YaniApiJson
@@ -89,7 +89,7 @@ class YaniAccountApi(
             .delete("$YANI_BASE_URL/profile/login/${provider.apiValue}")
             .body<YaniUnlinkAccountResponseDto>()
             .response
-        return response?.jsonPrimitive?.booleanOrNull != false
+        return (response as? JsonPrimitive)?.booleanOrNull != false
     }
 
     suspend fun login(login: String, password: String, captchaResponse: String? = null): String {

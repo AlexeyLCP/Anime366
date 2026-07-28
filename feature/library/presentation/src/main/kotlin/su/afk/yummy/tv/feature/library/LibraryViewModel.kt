@@ -291,7 +291,7 @@ class LibraryViewModel @Inject internal constructor(
                 .onFailure {
                     setEffect(
                         LibraryState.Effect.ShowToast(
-                            it.message ?: stringProvider.get(R.string.library_history_launch_error),
+                            stringProvider.get(R.string.library_history_launch_error),
                         ),
                     )
                 }

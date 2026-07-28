@@ -25,6 +25,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -110,8 +111,11 @@ internal fun ReviewTvCard(
                     )
                 }
 
+                val excerpt = remember(review.html) {
+                    sanitizeReviewHtml(review.html).htmlToPlainText()
+                }
                 Text(
-                    text = sanitizeReviewHtml(review.html).htmlToPlainText(),
+                    text = excerpt,
                     style = MaterialTheme.typography.bodyLarge,
                     fontStyle = FontStyle.Italic,
                     maxLines = 4,

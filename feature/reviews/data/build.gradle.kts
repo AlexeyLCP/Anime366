@@ -10,6 +10,7 @@ dependencies {
     implementation(project(":core:network"))
     implementation(project(":core:preferences"))
     implementation(project(":core:storage"))
+    implementation(project(":core:utils"))
     implementation(project(":feature:reviews:domain"))
     implementation(libs.kotlinx.serialization.json)
 }

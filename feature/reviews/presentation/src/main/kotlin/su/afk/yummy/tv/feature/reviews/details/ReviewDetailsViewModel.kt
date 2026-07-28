@@ -15,7 +15,6 @@ import su.afk.yummy.tv.core.error.storage.RetryStorage
 import su.afk.yummy.tv.core.navigation.NavigationManager
 import su.afk.yummy.tv.core.preferences.settings.SettingsStore
 import su.afk.yummy.tv.domain.comments.model.CommentTargetType
-import su.afk.yummy.tv.domain.reviews.model.ReviewReactions
 import su.afk.yummy.tv.domain.reviews.model.ReviewVote
 import su.afk.yummy.tv.domain.reviews.usecase.DeleteReviewUseCase
 import su.afk.yummy.tv.domain.reviews.usecase.GetReviewDetailsUseCase
@@ -91,7 +90,7 @@ class ReviewDetailsViewModel @AssistedInject constructor(
                     details = it
                 )
             }
-        }, { setState { copy(loading = false, error = it.message) } })
+        }, { setState { copy(loading = false, error = errorHandler.parse(it).message) } })
         }
     }
 
@@ -117,9 +116,8 @@ class ReviewDetailsViewModel @AssistedInject constructor(
                     }
                 },
                 {
-                    setState { copy(details = old) }; toast(
-                    it.message ?: strings.get(R.string.reviews_vote_error)
-                )
+                    setState { copy(details = old) }
+                    toast(strings.get(R.string.reviews_vote_error))
                 },
             )
         }
@@ -135,24 +133,12 @@ class ReviewDetailsViewModel @AssistedInject constructor(
             if (it) {
                 setEffect(ReviewDetailsState.Effect.Deleted); nav.back()
             } else toast(strings.get(R.string.reviews_delete_error))
-        }, { toast(it.message ?: strings.get(R.string.reviews_delete_error)) }); setState {
+        }, { toast(strings.get(R.string.reviews_delete_error)) }); setState {
             copy(
                 deleting = false
             )
         }
         }
-    }
-
-    private fun ReviewReactions.optimistic(target: ReviewVote): ReviewReactions {
-        var nextLikes = likes - if (vote == ReviewVote.LIKE) 1 else 0
-        var nextDislikes = dislikes - if (vote == ReviewVote.DISLIKE) 1 else 0
-        if (target == ReviewVote.LIKE) nextLikes++
-        if (target == ReviewVote.DISLIKE) nextDislikes++
-        return copy(
-            likes = nextLikes.coerceAtLeast(0),
-            dislikes = nextDislikes.coerceAtLeast(0),
-            vote = target
-        )
     }
 
     private fun toast(message: String) = setEffect(ReviewDetailsState.Effect.ShowToast(message))

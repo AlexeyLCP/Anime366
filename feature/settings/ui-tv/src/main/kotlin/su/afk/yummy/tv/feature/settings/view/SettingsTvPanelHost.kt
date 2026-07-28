@@ -66,11 +66,9 @@ internal fun SettingsTvPanelHost(
             // Выход фокуса влево из панели всегда ведёт к текущей категории слева
             // (иначе пространственный поиск с нижних строк уводит в соседнюю категорию).
             .focusProperties {
-                exit = { direction ->
-                    if (direction == FocusDirection.Left) {
-                        tabFocusRequesters.getValue(selectedTab)
-                    } else {
-                        FocusRequester.Default
+                onExit = {
+                    if (requestedFocusDirection == FocusDirection.Left) {
+                        tabFocusRequesters.getValue(selectedTab).requestFocus()
                     }
                 }
             }

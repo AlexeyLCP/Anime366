@@ -19,7 +19,6 @@ import su.afk.yummy.tv.core.utils.PagedSource
 import su.afk.yummy.tv.core.utils.pagingSource
 import su.afk.yummy.tv.domain.reviews.ReviewMutationNotifier
 import su.afk.yummy.tv.domain.reviews.model.AnimeReviewSummary
-import su.afk.yummy.tv.domain.reviews.model.ReviewReactions
 import su.afk.yummy.tv.domain.reviews.model.ReviewSort
 import su.afk.yummy.tv.domain.reviews.model.ReviewVote
 import su.afk.yummy.tv.domain.reviews.usecase.GetAnimeReviewsUseCase
@@ -61,8 +60,13 @@ class ReviewsListViewModel @AssistedInject constructor(
     init {
         settingsStore.yaniUserId.onEach { setState { copy(currentUserId = it) } }
             .launchIn(viewModelScope)
-        mutationNotifier.version.drop(1).onEach { pagedSource?.invalidate() }
-            .launchIn(viewModelScope)
+        mutationNotifier.version.drop(1).onEach {
+            // Свежая страница уже несёт актуальные счётчики (кэш инвалидирован при мутации),
+            // поэтому сбрасываем накопленные оптимистичные override, чтобы они не маскировали
+            // серверное состояние и не росли безгранично.
+            setState { copy(reactionOverrides = emptyMap()) }
+            pagedSource?.invalidate()
+        }.launchIn(viewModelScope)
     }
 
     override fun onEvent(event: ReviewsListState.Event) {
@@ -105,24 +109,11 @@ class ReviewsListViewModel @AssistedInject constructor(
             runCatching { voteReview(review.id, target) }.fold(
                 { saved -> setState { copy(reactionOverrides = reactionOverrides + (review.id to saved)) } },
                 {
-                    setState { copy(reactionOverrides = reactionOverrides + (review.id to old)) }; toast(
-                    it.message ?: strings.get(R.string.reviews_vote_error)
-                )
+                    setState { copy(reactionOverrides = reactionOverrides + (review.id to old)) }
+                    toast(strings.get(R.string.reviews_vote_error))
                 },
             )
         }
-    }
-
-    private fun ReviewReactions.optimistic(target: ReviewVote): ReviewReactions {
-        var nextLikes = likes - if (vote == ReviewVote.LIKE) 1 else 0
-        var nextDislikes = dislikes - if (vote == ReviewVote.DISLIKE) 1 else 0
-        if (target == ReviewVote.LIKE) nextLikes++
-        if (target == ReviewVote.DISLIKE) nextDislikes++
-        return copy(
-            likes = nextLikes.coerceAtLeast(0),
-            dislikes = nextDislikes.coerceAtLeast(0),
-            vote = target
-        )
     }
 
     private fun toast(message: String) = setEffect(ReviewsListState.Effect.ShowToast(message))

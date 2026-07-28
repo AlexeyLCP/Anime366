@@ -13,7 +13,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Article
+import androidx.compose.material.icons.automirrored.filled.Article
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -203,7 +203,7 @@ fun PostsTvScreen(
             posts.itemCount == 0 -> item {
                 TvStateMessage(
                     title = stringResource(R.string.posts_empty),
-                    icon = Icons.Filled.Article,
+                    icon = Icons.AutoMirrored.Filled.Article,
                     fillMaxSize = false,
                 )
             }

@@ -16,7 +16,6 @@ import su.afk.yummy.tv.domain.anime.model.AnimeRelationReference
 import su.afk.yummy.tv.domain.anime.usecase.GetAnimeRelationUseCase
 import su.afk.yummy.tv.feature.details.IDetailsNavigator
 import su.afk.yummy.tv.feature.details.navigator.DetailsRelationKind
-import su.afk.yummy.tv.feature.details.presentation.R
 import su.afk.yummy.tv.feature.details.relation.model.RelationType
 
 @HiltViewModel(assistedFactory = RelationViewModel.Factory::class)
@@ -84,8 +83,7 @@ class RelationViewModel @AssistedInject internal constructor(
                     setState {
                         copy(
                             isLoading = false,
-                            error = error.message
-                                ?: stringProvider.get(R.string.details_load_error),
+                            error = errorHandler.parse(error).message,
                         )
                     }
                 },

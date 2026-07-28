@@ -405,7 +405,9 @@ class YaniAnimeRepository(
     }
 
     private suspend fun invalidateRecommendationCache() {
-        documentCache.deleteUserNamespace(ANIME_RECOMMENDATIONS_CACHE_NAMESPACE)
+        // Инвалидируем рекомендации только текущего пользователя (по всем anime), а не всех.
+        val userId = settingsStore.yaniUserId.first().coerceAtLeast(0)
+        documentCache.deleteByPrefix("user:$userId:$ANIME_RECOMMENDATIONS_CACHE_NAMESPACE:")
     }
 
     private fun recommendationCacheKey(

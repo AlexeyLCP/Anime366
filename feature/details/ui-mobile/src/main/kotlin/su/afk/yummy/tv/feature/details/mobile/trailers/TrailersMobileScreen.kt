@@ -59,7 +59,10 @@ fun TrailersMobileScreen(
                 ),
                 verticalArrangement = Arrangement.spacedBy(10.dp),
             ) {
-                itemsIndexed(state.trailers) { index, trailer ->
+                itemsIndexed(
+                    state.trailers,
+                    key = { _, trailer -> trailer.iframeUrl },
+                ) { index, trailer ->
                     TrailerMobileCard(
                         number = index + 1,
                         trailer = trailer,

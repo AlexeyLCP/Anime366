@@ -8,6 +8,10 @@ fun String.toHttpsUrl(): String = when {
     else -> this
 }
 
+/** Приводит nullable-URL к https, обрезая пробелы; пустые/бланковые значения → null. */
+fun String?.toHttpsUrlOrNull(): String? =
+    this?.trim()?.takeIf { it.isNotEmpty() }?.toHttpsUrl()
+
 fun String.normalizedHttpUrl(): String =
     when {
         startsWith("//") -> "https:$this"

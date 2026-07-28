@@ -76,7 +76,7 @@ class ScheduleViewModel @Inject internal constructor(
                     setState {
                         copy(
                             isLoading = false,
-                            error = it.message ?: "Could not load schedule"
+                            error = errorHandler.parse(it).message
                         )
                     }
                 },

@@ -160,7 +160,7 @@ class SimilarViewModel @AssistedInject internal constructor(
             setState {
                 copy(
                     similarState = similarState.updateItem(
-                        currentItem.optimisticVote(targetVote)
+                        currentItem.optimistic(targetVote)
                     ),
                     pendingVoteAnimeIds = pendingVoteAnimeIds + similarAnimeId,
                 )
@@ -230,19 +230,5 @@ class SimilarViewModel @AssistedInject internal constructor(
         } else {
             this
         }
-
-    private fun AnimeRecommendation.optimisticVote(
-        target: AnimeRecommendationVote,
-    ): AnimeRecommendation {
-        var nextLikes = likes - if (vote == AnimeRecommendationVote.LIKE) 1 else 0
-        var nextDislikes = dislikes - if (vote == AnimeRecommendationVote.DISLIKE) 1 else 0
-        if (target == AnimeRecommendationVote.LIKE) nextLikes++
-        if (target == AnimeRecommendationVote.DISLIKE) nextDislikes++
-        return copy(
-            likes = nextLikes.coerceAtLeast(0),
-            dislikes = nextDislikes.coerceAtLeast(0),
-            vote = target,
-        )
-    }
 
 }

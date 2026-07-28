@@ -1,12 +1,12 @@
 package su.afk.yummy.tv.data.reviews.repository
 
 import kotlinx.coroutines.flow.first
+import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.doubleOrNull
-import kotlinx.serialization.json.jsonPrimitive
-import su.afk.yummy.tv.core.network.YaniApiJson
+import su.afk.yummy.tv.core.network.UserScopedCache
 import su.afk.yummy.tv.core.preferences.settings.SettingsStore
 import su.afk.yummy.tv.core.storage.anime.AnimeStorageStore
-import su.afk.yummy.tv.core.storage.document.DocumentCacheStore
+import su.afk.yummy.tv.core.utils.toHttpsUrlOrNull
 import su.afk.yummy.tv.data.reviews.dto.YaniReviewDto
 import su.afk.yummy.tv.data.reviews.dto.YaniReviewResponseDto
 import su.afk.yummy.tv.data.reviews.dto.YaniReviewsFeedResponseDto
@@ -28,7 +28,7 @@ import javax.inject.Inject
 
 class YaniReviewsRepository @Inject constructor(
     private val api: YaniReviewsApi,
-    private val cache: DocumentCacheStore,
+    private val cache: UserScopedCache,
     private val animeStorage: AnimeStorageStore,
     private val settingsStore: SettingsStore,
 ) :
@@ -40,7 +40,8 @@ class YaniReviewsRepository @Inject constructor(
         limit: Int,
         offset: Int,
     ): ReviewPage = ReviewPage(
-        cached<YaniReviewsFeedResponseDto>(
+        cache.cached<YaniReviewsFeedResponseDto>(
+            namespace = REVIEW_CACHE_NAMESPACE,
             key = "feed:${sort.apiValue}:$limit:$offset",
             ttlMs = REVIEW_FEED_TTL_MS,
         ) { api.getReviews(sort.apiValue, limit, offset) }.response.mapNotNull {
@@ -55,7 +56,8 @@ class YaniReviewsRepository @Inject constructor(
         limit: Int,
         offset: Int
     ): ReviewPage {
-        val page = cached<YaniReviewsPageResponseDto>(
+        val page = cache.cached<YaniReviewsPageResponseDto>(
+            namespace = REVIEW_CACHE_NAMESPACE,
             key = "anime:$animeId:${sort.apiValue}:$limit:$offset",
             ttlMs = REVIEW_FEED_TTL_MS,
         ) { api.getAnimeReviews(animeId, sort.apiValue, limit, offset) }.response
@@ -64,7 +66,8 @@ class YaniReviewsRepository @Inject constructor(
     }
 
     override suspend fun getReview(reviewId: Int): AnimeReviewDetails {
-        val dto = cached<YaniReviewResponseDto>(
+        val dto = cache.cached<YaniReviewResponseDto>(
+            namespace = REVIEW_CACHE_NAMESPACE,
             key = "detail:$reviewId",
             ttlMs = REVIEW_DETAIL_TTL_MS,
         ) { api.getReview(reviewId) }.response
@@ -72,8 +75,9 @@ class YaniReviewsRepository @Inject constructor(
         return AnimeReviewDetails(
             review = dto.toSummaryOrNull() ?: error("Review not found"),
             animeTitle = dto.anime?.title.orEmpty(),
-            animePosterUrl = dto.anime?.poster?.run { mega ?: huge ?: big ?: medium ?: small }
-                .toHttps(),
+            animePosterUrl = dto.anime?.poster
+                ?.run { mega ?: huge ?: big ?: medium ?: small ?: fullsize }
+                .toHttpsUrlOrNull(),
             commentsCount = dto.commentsCount,
         )
     }
@@ -96,30 +100,14 @@ class YaniReviewsRepository @Inject constructor(
             vote.apiValue
         ).response
         if (!result.success) error("Vote was not saved")
-        cache.deleteUserNamespace(REVIEW_CACHE_NAMESPACE)
+        // Голос затрагивает только конкретную рецензию: чистим её деталь, а не весь namespace.
+        // Ленты имеют короткий TTL, а список применяет оптимистичный override поверх кэша.
+        cache.delete(REVIEW_CACHE_NAMESPACE, "detail:$reviewId")
         return ReviewReactions(result.likes, result.dislikes, vote)
     }
 
     private fun rememberAnimeId(dto: YaniReviewDto) {
         if (dto.reviewId > 0 && dto.animeId > 0) reviewAnimeIds[dto.reviewId] = dto.animeId
-    }
-
-    private suspend inline fun <reified T> cached(
-        key: String,
-        ttlMs: Long,
-        crossinline fetch: suspend () -> T,
-    ): T = cache.getOrFetch(
-        cacheKey = cachePrefix() + key,
-        ttlMs = ttlMs,
-        decode = { YaniApiJson.decodeFromString<T>(it) },
-        encode = { YaniApiJson.encodeToString(it) },
-        fetch = { fetch() },
-    )
-
-    private suspend fun cachePrefix(): String {
-        val userId = settingsStore.yaniUserId.first().coerceAtLeast(0)
-        val language = settingsStore.yaniContentLanguage.first().apiCode
-        return "user:$userId:$REVIEW_CACHE_NAMESPACE:$language:"
     }
 
 }
@@ -139,14 +127,14 @@ private fun YaniReviewDto.toSummaryOrNull(): AnimeReviewSummary? {
         author = ReviewAuthor(
             author.id ?: userId ?: 0,
             author.nickname ?: nickname.orEmpty(),
-            author.avatars?.run { full ?: big ?: small }.toHttps()
+            author.avatars?.run { full ?: big ?: small }.toHttpsUrlOrNull()
         ),
         createdAtSeconds = createDate,
         updatedAtSeconds = updateDate,
         views = views,
         rating = rating?.let {
             ReviewRating(
-                it.average?.jsonPrimitive?.doubleOrNull?.toInt(),
+                (it.average as? JsonPrimitive)?.doubleOrNull?.toInt(),
                 it.category.orEmpty().map { (name, score) -> ReviewRatingCategory(name, score) })
         },
         reactions = ReviewReactions(
@@ -158,12 +146,7 @@ private fun YaniReviewDto.toSummaryOrNull(): AnimeReviewSummary? {
         commentable = commentable,
         animeTitle = anime?.title.orEmpty(),
         animePosterUrl = anime?.poster?.run { mega ?: huge ?: big ?: medium ?: small ?: fullsize }
-            .toHttps(),
+            .toHttpsUrlOrNull(),
     )
 }
 
-private fun String?.toHttps(): String? = this?.trim()?.takeIf { it.isNotEmpty() }?.let {
-    when {
-        it.startsWith("//") -> "https:$it"; it.startsWith("http://") -> "https://${it.removePrefix("http://")}"; else -> it
-    }
-}

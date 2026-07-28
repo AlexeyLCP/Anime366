@@ -159,18 +159,6 @@ class BloggerVideoDetailsViewModel @AssistedInject constructor(
         setState { copy(voting = false) }
     }
 
-    private fun BloggerVideoReaction.optimistic(target: BloggerVideoVote): BloggerVideoReaction {
-        var nextLikes = likes - if (vote == BloggerVideoVote.LIKE) 1 else 0
-        var nextDislikes = dislikes - if (vote == BloggerVideoVote.DISLIKE) 1 else 0
-        if (target == BloggerVideoVote.LIKE) nextLikes++
-        if (target == BloggerVideoVote.DISLIKE) nextDislikes++
-        return copy(
-            likes = nextLikes.coerceAtLeast(0),
-            dislikes = nextDislikes.coerceAtLeast(0),
-            vote = target
-        )
-    }
-
     @AssistedFactory
     interface Factory {
         fun create(videoId: Int): BloggerVideoDetailsViewModel

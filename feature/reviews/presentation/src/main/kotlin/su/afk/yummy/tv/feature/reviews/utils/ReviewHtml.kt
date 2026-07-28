@@ -71,8 +71,9 @@ fun parseReviewBlocks(html: String): List<ReviewContentBlock> {
 }
 
 fun reviewAnnotatedText(block: ReviewContentBlock.Paragraph): AnnotatedString {
+    // safeHtml уже прошёл sanitizeReviewHtml в parseReviewBlocks — повторно не чистим.
     val safeHtml = block.safeHtml ?: block.text
-    val root = Jsoup.parseBodyFragment(sanitizeReviewHtml(safeHtml)).body()
+    val root = Jsoup.parseBodyFragment(safeHtml).body()
     return buildAnnotatedString {
         fun appendNode(node: Node) {
             when (node) {

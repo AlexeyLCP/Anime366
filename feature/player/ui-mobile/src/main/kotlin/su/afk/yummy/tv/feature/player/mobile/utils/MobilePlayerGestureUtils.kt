@@ -4,7 +4,7 @@ import android.content.Context
 import android.provider.Settings
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BrightnessMedium
-import androidx.compose.material.icons.filled.VolumeUp
+import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.ui.graphics.vector.ImageVector
 import su.afk.yummy.tv.feature.player.mobile.model.MobileVerticalGestureZone
 import kotlin.math.roundToInt
@@ -24,5 +24,5 @@ internal fun Float.toGesturePercentText(): String =
 internal val MobileVerticalGestureZone.gestureIcon: ImageVector
     get() = when (this) {
         MobileVerticalGestureZone.Brightness -> Icons.Filled.BrightnessMedium
-        MobileVerticalGestureZone.Volume -> Icons.Filled.VolumeUp
+        MobileVerticalGestureZone.Volume -> Icons.AutoMirrored.Filled.VolumeUp
     }

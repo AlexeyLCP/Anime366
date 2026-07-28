@@ -13,6 +13,7 @@ android {
 
 dependencies {
     implementation(project(":core:preferences"))
+    implementation(project(":core:storage"))
 
     api(libs.ktor.client.core)
     api(libs.okhttp)

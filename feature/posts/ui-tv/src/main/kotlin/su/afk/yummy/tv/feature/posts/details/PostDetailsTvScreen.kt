@@ -114,6 +114,9 @@ fun PostDetailsTvScreen(
             var fullscreenImage by remember { mutableStateOf<Pair<String, String?>?>(null) }
             val viewsLabel =
                 stringResource(R.string.posts_views_short, details.views.compactCount())
+            val contentBlocks = remember(details.contentHtml, details.previewImageUrl) {
+                details.contentHtml.parsePostContent(details.previewImageUrl)
+            }
             LazyColumn(
                 Modifier.fillMaxSize(),
                 state = listState,
@@ -203,7 +206,7 @@ fun PostDetailsTvScreen(
                         )
                     }
                 }
-                items(details.contentHtml.parsePostContent(details.previewImageUrl)) { block ->
+                items(contentBlocks) { block ->
                     when (block) {
                         is PostContentBlock.Text -> {
                             val interactionSource = remember { MutableInteractionSource() }
