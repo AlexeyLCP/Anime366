@@ -14,5 +14,6 @@ dependencies {
     implementation(project(":core:navigation"))
     implementation(project(":core:preferences"))
     implementation(project(":core:utils"))
+    implementation(libs.androidx.paging.runtime)
     implementation(libs.bundles.compose.presentation)
 }

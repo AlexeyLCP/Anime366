@@ -1,5 +1,8 @@
 package su.afk.yummy.tv.feature.bloggers.list
 
+import androidx.paging.PagingData
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiEffect
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiEvent
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiState
@@ -11,19 +14,16 @@ import su.afk.yummy.tv.domain.bloggers.model.BloggerVideoSort
 object BloggerVideosListState {
     data class State(
         val animeId: Int? = null,
-        val videos: List<BloggerVideo> = emptyList(),
+        val videos: Flow<PagingData<BloggerVideo>> = flowOf(PagingData.empty()),
         val categories: List<BloggerVideoCategory> = emptyList(),
         val bloggers: List<Blogger> = emptyList(),
         val selectedCategory: String = "all",
         val selectedBloggerId: Int? = null,
         val sort: BloggerVideoSort = BloggerVideoSort.NEW,
-        val isLoading: Boolean = true,
-        val error: String? = null,
     ) : UiState
 
     sealed interface Event : UiEvent {
         data object BackSelected : Event
-        data object RetrySelected : Event
         data class VideoSelected(val videoId: Int) : Event
         data class BloggerDetailsSelected(val bloggerId: Int) : Event
         data class CategorySelected(val id: String) : Event

@@ -1,10 +1,6 @@
 package su.afk.yummy.tv.feature.reviews.list
 
 import androidx.lifecycle.SavedStateHandle
-import androidx.paging.Pager
-import androidx.paging.PagingConfig
-import androidx.paging.PagingSource
-import androidx.paging.cachedIn
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -19,8 +15,8 @@ import su.afk.yummy.tv.core.error.StringProvider
 import su.afk.yummy.tv.core.error.storage.RetryStorage
 import su.afk.yummy.tv.core.navigation.NavigationManager
 import su.afk.yummy.tv.core.preferences.settings.SettingsStore
-import su.afk.yummy.tv.core.utils.OffsetPage
-import su.afk.yummy.tv.core.utils.OffsetPagingSource
+import su.afk.yummy.tv.core.utils.PagedSource
+import su.afk.yummy.tv.core.utils.pagingSource
 import su.afk.yummy.tv.domain.reviews.ReviewMutationNotifier
 import su.afk.yummy.tv.domain.reviews.model.AnimeReviewSummary
 import su.afk.yummy.tv.domain.reviews.model.ReviewReactions
@@ -56,7 +52,7 @@ class ReviewsListViewModel @AssistedInject constructor(
         fun create(animeId: Int?): ReviewsListViewModel
     }
 
-    private var pagingSource: PagingSource<Int, AnimeReviewSummary>? = null
+    private var pagedSource: PagedSource<AnimeReviewSummary>? = null
     override fun createInitialState() = ReviewsListState.State(
         reviews = createFlow(ReviewSort.NEW),
         isGeneralFeed = animeId == null,
@@ -65,7 +61,7 @@ class ReviewsListViewModel @AssistedInject constructor(
     init {
         settingsStore.yaniUserId.onEach { setState { copy(currentUserId = it) } }
             .launchIn(viewModelScope)
-        mutationNotifier.version.drop(1).onEach { pagingSource?.invalidate() }
+        mutationNotifier.version.drop(1).onEach { pagedSource?.invalidate() }
             .launchIn(viewModelScope)
     }
 
@@ -92,18 +88,11 @@ class ReviewsListViewModel @AssistedInject constructor(
     }
 
     private fun createFlow(sort: ReviewSort) =
-        Pager(PagingConfig(pageSize = 20, initialLoadSize = 20, enablePlaceholders = false)) {
-            OffsetPagingSource { limit, offset ->
-                val pageLimit = limit.coerceAtMost(20)
-                val page = animeId?.let { getAnimeReviews(it, sort, pageLimit, offset) }
-                    ?: getReviewFeed(sort, pageLimit, offset)
-                OffsetPage(
-                    page.reviews,
-                    offset + page.reviews.size,
-                    page.reviews.size >= pageLimit
-                )
-            }.also { pagingSource = it }
-        }.flow.cachedIn(viewModelScope)
+        pagingSource(viewModelScope) { limit, offset ->
+            val page = animeId?.let { getAnimeReviews(it, sort, limit, offset) }
+                ?: getReviewFeed(sort, limit, offset)
+            page.reviews
+        }.also { pagedSource = it }.flow
 
     private fun vote(review: AnimeReviewSummary, target: ReviewVote) {
         if (!currentState.isSignedIn) {

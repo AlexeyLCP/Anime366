@@ -44,7 +44,6 @@ import su.afk.yummy.tv.core.designsystem.presenter.components.StateMessage
 import su.afk.yummy.tv.core.designsystem.presenter.mobile.MobileTopBar
 import su.afk.yummy.tv.feature.messages.chat.ChatState
 import su.afk.yummy.tv.feature.messages.mobile.R
-import su.afk.yummy.tv.feature.messages.mobile.utils.orZero
 import su.afk.yummy.tv.feature.messages.mobile.view.ChatManagementMobileDialogs
 import su.afk.yummy.tv.feature.messages.mobile.view.ChatMessageMobileBubble
 import su.afk.yummy.tv.feature.messages.mobile.view.ChatMobileActionsMenu
@@ -92,7 +91,7 @@ fun ChatMobileScreen(
     }
     LaunchedEffect(state.messages.lastOrNull()?.id) {
         val lastMessageId = state.messages.lastOrNull()?.id ?: 0
-        val visibleLastIndex = listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index.orZero()
+        val visibleLastIndex = listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
         val wasNearBottom = previousLastMessageId == 0 ||
                 visibleLastIndex >= state.messages.lastIndex - 3
         if (lastMessageId != previousLastMessageId && state.messages.isNotEmpty() && wasNearBottom) {

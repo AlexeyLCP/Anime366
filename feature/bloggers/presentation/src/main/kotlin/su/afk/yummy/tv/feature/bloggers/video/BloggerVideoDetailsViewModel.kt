@@ -87,7 +87,7 @@ class BloggerVideoDetailsViewModel @AssistedInject constructor(
                 setState {
                     copy(
                         loading = false,
-                        error = error.message ?: strings.get(R.string.blogger_video_load_error)
+                        error = errorHandler.parse(error, navigate = false).message,
                     )
                 }
             },
@@ -148,7 +148,7 @@ class BloggerVideoDetailsViewModel @AssistedInject constructor(
                     if (nextTarget == null) {
                         setEffect(
                             BloggerVideoDetailsState.Effect.ShowToast(
-                                error.message ?: strings.get(R.string.blogger_vote_error)
+                                errorHandler.parse(error, navigate = false).message
                             )
                         )
                     }

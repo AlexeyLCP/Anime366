@@ -79,42 +79,26 @@ class DataStoreSettingsStore(private val context: Context) : SettingsStore {
     override val currentPreviewCacheSize: PreviewCacheSize
         get() = previewCacheSizeSnapshot
 
-    override val posterQuality: Flow<PosterQuality> = context.dataStore.data.map { prefs ->
-        prefs[posterQualityKey]?.let { name ->
-            runCatching { PosterQuality.valueOf(name) }.getOrNull()
-        }
-            ?: if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) PosterQuality.MEGA else PosterQuality.STANDARD
-    }
+    override val posterQuality: Flow<PosterQuality> = enumFlow(
+        posterQualityKey,
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) PosterQuality.MEGA else PosterQuality.STANDARD,
+    )
 
-    override val posterCardSize: Flow<PosterCardSize> = context.dataStore.data.map { prefs ->
-        prefs[posterCardSizeKey]?.let { name ->
-            runCatching { PosterCardSize.valueOf(name) }.getOrNull()
-        } ?: PosterCardSize.STANDARD
-    }
+    override val posterCardSize: Flow<PosterCardSize> =
+        enumFlow(posterCardSizeKey, PosterCardSize.STANDARD)
 
     override val showTopTitleYear: Flow<Boolean> = context.dataStore.data.map { prefs ->
         prefs[showTopTitleYearKey] ?: false
     }
 
     override val libraryContinueWatchingCardSize: Flow<LibraryContinueWatchingCardSize> =
-        context.dataStore.data.map { prefs ->
-            prefs[libraryContinueWatchingCardSizeKey]?.let { name ->
-                runCatching { LibraryContinueWatchingCardSize.valueOf(name) }.getOrNull()
-            } ?: LibraryContinueWatchingCardSize.LARGE
-        }
+        enumFlow(libraryContinueWatchingCardSizeKey, LibraryContinueWatchingCardSize.LARGE)
 
-    override val preferredPlayer: Flow<PreferredPlayer> = context.dataStore.data.map { prefs ->
-        prefs[preferredPlayerKey]?.let { name ->
-            runCatching { PreferredPlayer.valueOf(name) }.getOrNull()
-        } ?: PreferredPlayer.NONE
-    }
+    override val preferredPlayer: Flow<PreferredPlayer> =
+        enumFlow(preferredPlayerKey, PreferredPlayer.NONE)
 
     override val preferredVideoQuality: Flow<PreferredVideoQuality> =
-        context.dataStore.data.map { prefs ->
-            prefs[preferredVideoQualityKey]?.let { name ->
-                runCatching { PreferredVideoQuality.valueOf(name) }.getOrNull()
-            } ?: PreferredVideoQuality.BEST
-        }
+        enumFlow(preferredVideoQualityKey, PreferredVideoQuality.BEST)
 
     override val watchNextEnabled: Flow<Boolean> = context.dataStore.data.map { prefs ->
         prefs[watchNextEnabledKey] ?: true
@@ -163,17 +147,11 @@ class DataStoreSettingsStore(private val context: Context) : SettingsStore {
         (prefs[advancedPlayerVolumePercentKey] ?: 100).coerceIn(0, 100)
     }
 
-    override val playerResizeMode: Flow<PlayerResizeMode> = context.dataStore.data.map { prefs ->
-        prefs[playerResizeModeKey]?.let { name ->
-            runCatching { PlayerResizeMode.valueOf(name) }.getOrNull()
-        } ?: PlayerResizeMode.FIT
-    }
+    override val playerResizeMode: Flow<PlayerResizeMode> =
+        enumFlow(playerResizeModeKey, PlayerResizeMode.FIT)
 
-    override val playerZoomLevel: Flow<PlayerZoomLevel> = context.dataStore.data.map { prefs ->
-        prefs[playerZoomLevelKey]?.let { name ->
-            runCatching { PlayerZoomLevel.valueOf(name) }.getOrNull()
-        } ?: PlayerZoomLevel.PERCENT_10
-    }
+    override val playerZoomLevel: Flow<PlayerZoomLevel> =
+        enumFlow(playerZoomLevelKey, PlayerZoomLevel.PERCENT_10)
 
     override fun playerResizeSettings(
         animeId: Int,
@@ -198,17 +176,10 @@ class DataStoreSettingsStore(private val context: Context) : SettingsStore {
         }
     }
 
-    override val appTheme: Flow<AppTheme> = context.dataStore.data.map { prefs ->
-        prefs[appThemeKey]?.let { name ->
-            runCatching { AppTheme.valueOf(name) }.getOrNull()
-        } ?: AppTheme.WARM_AMBER
-    }
+    override val appTheme: Flow<AppTheme> = enumFlow(appThemeKey, AppTheme.WARM_AMBER)
 
-    override val backgroundStyle: Flow<BackgroundStyle> = context.dataStore.data.map { prefs ->
-        prefs[backgroundStyleKey]?.let { name ->
-            runCatching { BackgroundStyle.valueOf(name) }.getOrNull()
-        } ?: BackgroundStyle.DARK
-    }
+    override val backgroundStyle: Flow<BackgroundStyle> =
+        enumFlow(backgroundStyleKey, BackgroundStyle.DARK)
 
     override val detailsButtonOrder: Flow<List<DetailsButtonAction>> =
         context.dataStore.data.map { prefs ->
@@ -256,28 +227,24 @@ class DataStoreSettingsStore(private val context: Context) : SettingsStore {
 
     override val settingsSnapshot: Flow<SettingsSnapshot> = context.dataStore.data.map { prefs ->
         SettingsSnapshot(
-            appTheme = prefs[appThemeKey]?.let { name ->
-                runCatching { AppTheme.valueOf(name) }.getOrNull()
-            } ?: AppTheme.WARM_AMBER,
-            backgroundStyle = prefs.backgroundStyle(),
-            posterQuality = prefs[posterQualityKey]?.let { name ->
-                runCatching { PosterQuality.valueOf(name) }.getOrNull()
-            }
-                ?: if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) PosterQuality.MEGA else PosterQuality.STANDARD,
-            posterCardSize = prefs[posterCardSizeKey]?.let { name ->
-                runCatching { PosterCardSize.valueOf(name) }.getOrNull()
-            } ?: PosterCardSize.STANDARD,
+            appTheme = prefs.enum(appThemeKey, AppTheme.WARM_AMBER),
+            backgroundStyle = prefs.enum(backgroundStyleKey, BackgroundStyle.DARK),
+            posterQuality = prefs.enum(
+                posterQualityKey,
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) PosterQuality.MEGA else PosterQuality.STANDARD,
+            ),
+            posterCardSize = prefs.enum(posterCardSizeKey, PosterCardSize.STANDARD),
             showTopTitleYear = prefs[showTopTitleYearKey] ?: false,
             libraryContinueWatchingCardSize =
-                prefs[libraryContinueWatchingCardSizeKey]?.let { name ->
-                    runCatching { LibraryContinueWatchingCardSize.valueOf(name) }.getOrNull()
-                } ?: LibraryContinueWatchingCardSize.LARGE,
-            preferredPlayer = prefs[preferredPlayerKey]?.let { name ->
-                runCatching { PreferredPlayer.valueOf(name) }.getOrNull()
-            } ?: PreferredPlayer.NONE,
-            preferredVideoQuality = prefs[preferredVideoQualityKey]?.let { name ->
-                runCatching { PreferredVideoQuality.valueOf(name) }.getOrNull()
-            } ?: PreferredVideoQuality.BEST,
+                prefs.enum(
+                    libraryContinueWatchingCardSizeKey,
+                    LibraryContinueWatchingCardSize.LARGE
+                ),
+            preferredPlayer = prefs.enum(preferredPlayerKey, PreferredPlayer.NONE),
+            preferredVideoQuality = prefs.enum(
+                preferredVideoQualityKey,
+                PreferredVideoQuality.BEST
+            ),
             watchNextEnabled = prefs[watchNextEnabledKey] ?: true,
             previewCacheSize = (prefs[previewCacheSizeKey]
                 ?: PreviewCacheSize.MB_100.megabytes).let { mb ->
@@ -303,17 +270,13 @@ class DataStoreSettingsStore(private val context: Context) : SettingsStore {
     override val mainSettingsSnapshot: Flow<MainSettingsSnapshot> =
         context.dataStore.data.map { prefs ->
             MainSettingsSnapshot(
-                appTheme = prefs[appThemeKey]?.let { name ->
-                    runCatching { AppTheme.valueOf(name) }.getOrNull()
-                } ?: AppTheme.WARM_AMBER,
-                backgroundStyle = prefs.backgroundStyle(),
-                posterQuality = prefs[posterQualityKey]?.let { name ->
-                    runCatching { PosterQuality.valueOf(name) }.getOrNull()
-                }
-                    ?: if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) PosterQuality.MEGA else PosterQuality.STANDARD,
-                posterCardSize = prefs[posterCardSizeKey]?.let { name ->
-                    runCatching { PosterCardSize.valueOf(name) }.getOrNull()
-                } ?: PosterCardSize.STANDARD,
+                appTheme = prefs.enum(appThemeKey, AppTheme.WARM_AMBER),
+                backgroundStyle = prefs.enum(backgroundStyleKey, BackgroundStyle.DARK),
+                posterQuality = prefs.enum(
+                    posterQualityKey,
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) PosterQuality.MEGA else PosterQuality.STANDARD,
+                ),
+                posterCardSize = prefs.enum(posterCardSizeKey, PosterCardSize.STANDARD),
                 yaniNickname = prefs[yaniNicknameKey].orEmpty(),
                 yaniAvatarUrl = prefs[yaniAvatarUrlKey].orEmpty(),
                 yaniUnreadNotificationsCount = prefs[yaniUnreadNotificationsCountKey] ?: 0,
@@ -349,31 +312,23 @@ class DataStoreSettingsStore(private val context: Context) : SettingsStore {
         }
     }
 
-    override suspend fun setPosterQuality(quality: PosterQuality) {
-        context.dataStore.edit { prefs -> prefs[posterQualityKey] = quality.name }
-    }
+    override suspend fun setPosterQuality(quality: PosterQuality) =
+        setEnum(posterQualityKey, quality)
 
-    override suspend fun setPosterCardSize(size: PosterCardSize) {
-        context.dataStore.edit { prefs -> prefs[posterCardSizeKey] = size.name }
-    }
+    override suspend fun setPosterCardSize(size: PosterCardSize) = setEnum(posterCardSizeKey, size)
 
     override suspend fun setShowTopTitleYear(enabled: Boolean) {
         context.dataStore.edit { prefs -> prefs[showTopTitleYearKey] = enabled }
     }
 
-    override suspend fun setLibraryContinueWatchingCardSize(size: LibraryContinueWatchingCardSize) {
-        context.dataStore.edit { prefs ->
-            prefs[libraryContinueWatchingCardSizeKey] = size.name
-        }
-    }
+    override suspend fun setLibraryContinueWatchingCardSize(size: LibraryContinueWatchingCardSize) =
+        setEnum(libraryContinueWatchingCardSizeKey, size)
 
-    override suspend fun setPreferredPlayer(player: PreferredPlayer) {
-        context.dataStore.edit { prefs -> prefs[preferredPlayerKey] = player.name }
-    }
+    override suspend fun setPreferredPlayer(player: PreferredPlayer) =
+        setEnum(preferredPlayerKey, player)
 
-    override suspend fun setPreferredVideoQuality(quality: PreferredVideoQuality) {
-        context.dataStore.edit { prefs -> prefs[preferredVideoQualityKey] = quality.name }
-    }
+    override suspend fun setPreferredVideoQuality(quality: PreferredVideoQuality) =
+        setEnum(preferredVideoQualityKey, quality)
 
     override suspend fun setWatchNextEnabled(enabled: Boolean) {
         context.dataStore.edit { prefs -> prefs[watchNextEnabledKey] = enabled }
@@ -436,13 +391,11 @@ class DataStoreSettingsStore(private val context: Context) : SettingsStore {
         }
     }
 
-    override suspend fun setPlayerResizeMode(mode: PlayerResizeMode) {
-        context.dataStore.edit { prefs -> prefs[playerResizeModeKey] = mode.name }
-    }
+    override suspend fun setPlayerResizeMode(mode: PlayerResizeMode) =
+        setEnum(playerResizeModeKey, mode)
 
-    override suspend fun setPlayerZoomLevel(level: PlayerZoomLevel) {
-        context.dataStore.edit { prefs -> prefs[playerZoomLevelKey] = level.name }
-    }
+    override suspend fun setPlayerZoomLevel(level: PlayerZoomLevel) =
+        setEnum(playerZoomLevelKey, level)
 
     override suspend fun setPlayerResizeSettings(
         animeId: Int,
@@ -468,13 +421,10 @@ class DataStoreSettingsStore(private val context: Context) : SettingsStore {
         }
     }
 
-    override suspend fun setAppTheme(theme: AppTheme) {
-        context.dataStore.edit { prefs -> prefs[appThemeKey] = theme.name }
-    }
+    override suspend fun setAppTheme(theme: AppTheme) = setEnum(appThemeKey, theme)
 
-    override suspend fun setBackgroundStyle(style: BackgroundStyle) {
-        context.dataStore.edit { prefs -> prefs[backgroundStyleKey] = style.name }
-    }
+    override suspend fun setBackgroundStyle(style: BackgroundStyle) =
+        setEnum(backgroundStyleKey, style)
 
     override suspend fun setDetailsButtonOrder(order: List<DetailsButtonAction>) {
         context.dataStore.edit { prefs ->
@@ -547,9 +497,8 @@ class DataStoreSettingsStore(private val context: Context) : SettingsStore {
         }
     }
 
-    override suspend fun setYaniContentLanguage(language: YaniContentLanguage) {
-        context.dataStore.edit { prefs -> prefs[yaniContentLanguageKey] = language.name }
-    }
+    override suspend fun setYaniContentLanguage(language: YaniContentLanguage) =
+        setEnum(yaniContentLanguageKey, language)
 
     override suspend fun ensureYaniContentLanguageInitialized() {
         context.dataStore.edit { prefs ->
@@ -613,17 +562,45 @@ class DataStoreSettingsStore(private val context: Context) : SettingsStore {
         return shouldPrune
     }
 
+    /**
+     * Читает enum [T], сохранённый по имени константы (`value.name`), с фолбэком на [default],
+     * если ключа нет или строку не удалось распарсить (например, константу переименовали/удалили
+     * в новой версии).
+     *
+     * Почему `inline` + `reified`: `enumValueOf<T>(name)` из stdlib резолвит константу по строке,
+     * и ему нужен конкретный класс enum в рантайме. Обычный дженерик [T] стирается при компиляции
+     * (type erasure), поэтому тип помечен `reified`, а функция — `inline`: на каждом месте вызова
+     * компилятор подставляет тело с уже известным типом (`enumValueOf<AppTheme>(...)` и т.д.).
+     * Альтернатива без `reified` — тащить `KClass`/`Array<T>` параметром на каждый вызов.
+     */
+    private inline fun <reified T : Enum<T>> Preferences.enum(
+        key: Preferences.Key<String>,
+        default: T,
+    ): T = this[key]?.let { name -> runCatching { enumValueOf<T>(name) }.getOrNull() } ?: default
+
+    /**
+     * Flow-обёртка над [enum]: наблюдает значение настройки как поток. Тоже `inline`/`reified`,
+     * т.к. внутри вызывает reified-[enum] (reified-тип «прокидывается» только через inline-функции).
+     */
+    private inline fun <reified T : Enum<T>> enumFlow(
+        key: Preferences.Key<String>,
+        default: T,
+    ): Flow<T> = context.dataStore.data.map { prefs -> prefs.enum(key, default) }
+
+    /**
+     * Пишет enum по имени константы. Здесь `reified` не нужен — для записи хватает `value.name`,
+     * рантайм-класс enum не требуется, поэтому обычный дженерик с границей `T : Enum<T>`.
+     */
+    private suspend fun <T : Enum<T>> setEnum(key: Preferences.Key<String>, value: T) {
+        context.dataStore.edit { prefs -> prefs[key] = value.name }
+    }
+
     private fun String?.toDetailsButtonOrder(): List<DetailsButtonAction> {
         if (isNullOrBlank()) return SettingsStore.defaultDetailsButtonOrder
         return split(DETAILS_BUTTON_ORDER_SEPARATOR)
             .mapNotNull { name -> runCatching { DetailsButtonAction.valueOf(name) }.getOrNull() }
             .normalizedDetailsButtonOrder()
     }
-
-    private fun Preferences.backgroundStyle(): BackgroundStyle =
-        this[backgroundStyleKey]?.let { name ->
-            runCatching { BackgroundStyle.valueOf(name) }.getOrNull()
-        } ?: BackgroundStyle.DARK
 
     private fun Preferences.yaniApplicationToken(): String =
         this[yaniApplicationTokenKey]?.takeIf { it.isNotBlank() } ?: DEFAULT_YANI_APPLICATION_TOKEN

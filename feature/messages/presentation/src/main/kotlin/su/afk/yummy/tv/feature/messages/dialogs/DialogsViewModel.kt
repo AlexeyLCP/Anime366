@@ -1,10 +1,6 @@
 package su.afk.yummy.tv.feature.messages.dialogs
 
 import androidx.lifecycle.SavedStateHandle
-import androidx.paging.Pager
-import androidx.paging.PagingConfig
-import androidx.paging.PagingSource
-import androidx.paging.cachedIn
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.launchIn
@@ -13,8 +9,8 @@ import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.BaseViewModelNe
 import su.afk.yummy.tv.core.error.IErrorHandlerUseCase
 import su.afk.yummy.tv.core.error.storage.RetryStorage
 import su.afk.yummy.tv.core.navigation.NavigationManager
-import su.afk.yummy.tv.core.utils.OffsetPage
-import su.afk.yummy.tv.core.utils.OffsetPagingSource
+import su.afk.yummy.tv.core.utils.PagedSource
+import su.afk.yummy.tv.core.utils.pagingSource
 import su.afk.yummy.tv.domain.account.usecase.ObserveAccountSessionUseCase
 import su.afk.yummy.tv.domain.messages.MessagesMutationNotifier
 import su.afk.yummy.tv.domain.messages.model.DialogSummary
@@ -37,7 +33,7 @@ class DialogsViewModel @Inject constructor(
     private val getDialogs: GetDialogsUseCase,
     mutationNotifier: MessagesMutationNotifier,
 ) : BaseViewModelNew<DialogsState.State, DialogsState.Event, DialogsState.Effect>(savedStateHandle) {
-    private var pagingSource: PagingSource<Int, DialogSummary>? = null
+    private var pagedSource: PagedSource<DialogSummary>? = null
 
     override fun createInitialState() = DialogsState.State()
 
@@ -56,7 +52,7 @@ class DialogsViewModel @Inject constructor(
             .launchIn(viewModelScope)
         mutationNotifier.version
             .drop(1)
-            .onEach { pagingSource?.invalidate() }
+            .onEach { pagedSource?.invalidate() }
             .launchIn(viewModelScope)
     }
 
@@ -70,21 +66,8 @@ class DialogsViewModel @Inject constructor(
         }
     }
 
-    private fun createDialogsFlow() = Pager(
-        PagingConfig(
-            pageSize = DIALOGS_PAGE_SIZE,
-            initialLoadSize = DIALOGS_PAGE_SIZE,
-            enablePlaceholders = false,
-        )
-    ) {
-        OffsetPagingSource { limit, offset ->
-            val pageLimit = limit.coerceAtMost(50)
-            val items = getDialogs(pageLimit, offset)
-            OffsetPage(
-                items = items,
-                nextOffset = offset + items.size,
-                canLoadMore = items.size >= pageLimit,
-            )
-        }.also { pagingSource = it }
-    }.flow.cachedIn(viewModelScope)
+    private fun createDialogsFlow() =
+        pagingSource(viewModelScope, pageSize = DIALOGS_PAGE_SIZE) { limit, offset ->
+            getDialogs(limit, offset)
+        }.also { pagedSource = it }.flow
 }

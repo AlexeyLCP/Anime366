@@ -2,14 +2,16 @@ package su.afk.yummy.tv.feature.bloggers.mobile.list
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -17,10 +19,14 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.paging.LoadState
+import androidx.paging.compose.collectAsLazyPagingItems
 import kotlinx.coroutines.flow.Flow
+import su.afk.yummy.tv.core.designsystem.presenter.mobile.MobileAppendError
 import su.afk.yummy.tv.core.designsystem.presenter.mobile.MobileStateContent
 import su.afk.yummy.tv.feature.bloggers.list.BloggerVideosListState
 import su.afk.yummy.tv.feature.bloggers.mobile.R
@@ -34,6 +40,7 @@ fun BloggerVideosListMobileScreen(
     effect: Flow<BloggerVideosListState.Effect>,
     onEvent: (BloggerVideosListState.Event) -> Unit,
 ) {
+    val videos = state.videos.collectAsLazyPagingItems()
     BackHandler { onEvent(BloggerVideosListState.Event.BackSelected) }
     Scaffold(
         topBar = {
@@ -75,13 +82,12 @@ fun BloggerVideosListMobileScreen(
                     },
                 )
             }
+            val refresh = videos.loadState.refresh
             MobileStateContent(
-                isLoading = state.isLoading,
-                error = state.error?.let {
-                    it.ifBlank { stringResource(R.string.blogger_videos_error) }
-                },
-                onRetry = { onEvent(BloggerVideosListState.Event.RetrySelected) },
-                empty = state.videos.isEmpty(),
+                isLoading = refresh is LoadState.Loading,
+                error = (refresh as? LoadState.Error)?.let { stringResource(R.string.blogger_videos_error) },
+                onRetry = { videos.retry() },
+                empty = videos.itemCount == 0,
                 emptyText = stringResource(R.string.blogger_videos_empty),
             ) {
                 LazyColumn(
@@ -89,12 +95,36 @@ fun BloggerVideosListMobileScreen(
                     contentPadding = PaddingValues(16.dp),
                     verticalArrangement = Arrangement.spacedBy(14.dp),
                 ) {
-                    items(state.videos, key = { it.id }) { video ->
-                        BloggerVideoMobileCard(
-                            video,
-                            { onEvent(BloggerVideosListState.Event.VideoSelected(video.id)) },
-                            { onEvent(BloggerVideosListState.Event.BloggerDetailsSelected(video.creator.id)) },
-                        )
+                    items(
+                        videos.itemCount,
+                        key = { index -> videos[index]?.id ?: index },
+                    ) { index ->
+                        videos[index]?.let { video ->
+                            BloggerVideoMobileCard(
+                                video,
+                                { onEvent(BloggerVideosListState.Event.VideoSelected(video.id)) },
+                                { onEvent(BloggerVideosListState.Event.BloggerDetailsSelected(video.creator.id)) },
+                            )
+                        }
+                    }
+                    when (videos.loadState.append) {
+                        is LoadState.Loading -> item {
+                            Box(
+                                Modifier
+                                    .fillMaxWidth()
+                                    .padding(16.dp),
+                                contentAlignment = Alignment.Center,
+                            ) { CircularProgressIndicator() }
+                        }
+
+                        is LoadState.Error -> item {
+                            MobileAppendError(
+                                message = stringResource(R.string.blogger_videos_error),
+                                onRetry = { videos.retry() },
+                            )
+                        }
+
+                        else -> Unit
                     }
                 }
             }

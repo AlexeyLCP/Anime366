@@ -1,10 +1,7 @@
 package su.afk.yummy.tv.feature.account.usersearch
 
 import androidx.lifecycle.SavedStateHandle
-import androidx.paging.Pager
-import androidx.paging.PagingConfig
 import androidx.paging.PagingData
-import androidx.paging.cachedIn
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -14,9 +11,7 @@ import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.BaseViewModelNe
 import su.afk.yummy.tv.core.error.IErrorHandlerUseCase
 import su.afk.yummy.tv.core.error.storage.RetryStorage
 import su.afk.yummy.tv.core.navigation.NavigationManager
-import su.afk.yummy.tv.core.utils.OffsetPage
-import su.afk.yummy.tv.core.utils.OffsetPagingSource
-import su.afk.yummy.tv.domain.account.model.UserSearchItem
+import su.afk.yummy.tv.core.utils.pagingFlow
 import su.afk.yummy.tv.domain.account.usecase.SearchUsersUseCase
 import su.afk.yummy.tv.feature.account.IAccountNavigator
 import javax.inject.Inject
@@ -73,29 +68,10 @@ class UserSearchViewModel @Inject constructor(
     }
 
     private fun setResults(query: String) {
-        val flow = Pager(
-            PagingConfig(
-                pageSize = PAGE_SIZE,
-                initialLoadSize = PAGE_SIZE,
-                enablePlaceholders = false
-            ),
-        ) {
-            OffsetPagingSource { limit, offset -> loadPage(query, limit, offset) }
-        }.flow.cachedIn(viewModelScope)
+        val flow = pagingFlow(viewModelScope, pageSize = PAGE_SIZE) { limit, offset ->
+            searchUsers(query, limit, offset)
+        }
         setState { copy(results = flow, isSearchActive = true) }
-    }
-
-    private suspend fun loadPage(
-        query: String,
-        limit: Int,
-        offset: Int
-    ): OffsetPage<UserSearchItem> {
-        val items = searchUsers(query, limit, offset)
-        return OffsetPage(
-            items = items,
-            nextOffset = offset + items.size,
-            canLoadMore = items.size >= limit,
-        )
     }
 
     private companion object {

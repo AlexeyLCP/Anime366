@@ -15,9 +15,11 @@ import su.afk.yummy.tv.core.error.StringProvider
 import su.afk.yummy.tv.core.error.storage.RetryStorage
 import su.afk.yummy.tv.core.navigation.NavigationManager
 import su.afk.yummy.tv.core.preferences.settings.SettingsStore
+import su.afk.yummy.tv.core.utils.runSuspendCatching
 import su.afk.yummy.tv.domain.bloggers.usecase.GetBloggerDetailsUseCase
 import su.afk.yummy.tv.domain.bloggers.usecase.GetBloggerVideosUseCase
 import su.afk.yummy.tv.domain.bloggers.usecase.SetBloggerSubscribedUseCase
+import su.afk.yummy.tv.feature.bloggers.BLOGGER_VIDEOS_PAGE_SIZE
 import su.afk.yummy.tv.feature.bloggers.IBloggerVideosNavigator
 import su.afk.yummy.tv.feature.bloggers.presentation.R
 
@@ -56,9 +58,10 @@ class BloggerDetailsViewModel @AssistedInject constructor(
 
     private fun load() = viewModelScope.launch {
         setState { copy(loading = true, error = null) }
-        runCatching {
+        runSuspendCatching {
             val details = async { getDetails(bloggerId) }
-            val videos = async { getVideos(bloggerId = bloggerId, limit = 30) }
+            val videos =
+                async { getVideos(bloggerId = bloggerId, limit = BLOGGER_VIDEOS_PAGE_SIZE) }
             details.await() to videos.await()
         }.fold(
             { (blogger, videos) ->
@@ -74,7 +77,7 @@ class BloggerDetailsViewModel @AssistedInject constructor(
                 setState {
                     copy(
                         loading = false,
-                        error = error.message ?: strings.get(R.string.blogger_details_load_error)
+                        error = errorHandler.parse(error, navigate = false).message,
                     )
                 }
             },
@@ -91,7 +94,7 @@ class BloggerDetailsViewModel @AssistedInject constructor(
         val target = !old.isSubscribed
         setState { copy(blogger = old.copy(isSubscribed = target), subscribing = true) }
         viewModelScope.launch {
-            runCatching { setSubscribed(bloggerId, target) }.fold(
+            runSuspendCatching { setSubscribed(bloggerId, target) }.fold(
                 { subscribers ->
                     setState {
                         copy(
@@ -106,7 +109,7 @@ class BloggerDetailsViewModel @AssistedInject constructor(
                     setState { copy(blogger = old, subscribing = false) }
                     setEffect(
                         BloggerDetailsState.Effect.ShowToast(
-                            error.message ?: strings.get(R.string.blogger_subscribe_error)
+                            errorHandler.parse(error, navigate = false).message
                         )
                     )
                 },

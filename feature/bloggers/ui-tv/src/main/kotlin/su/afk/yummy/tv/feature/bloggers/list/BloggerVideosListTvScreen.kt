@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.OndemandVideo
@@ -26,11 +25,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.stringResource
+import androidx.paging.LoadState
+import androidx.paging.compose.collectAsLazyPagingItems
 import kotlinx.coroutines.flow.Flow
+import su.afk.yummy.tv.core.designsystem.presenter.components.loader.TvLoadingFooter
 import su.afk.yummy.tv.core.designsystem.presenter.components.loader.TvLoadingScreen
 import su.afk.yummy.tv.core.designsystem.presenter.dimensions.TvCardSpacing
 import su.afk.yummy.tv.core.designsystem.presenter.dimensions.TvScreenPadding
 import su.afk.yummy.tv.core.designsystem.presenter.focus.tvFocusRestorer
+import su.afk.yummy.tv.core.designsystem.presenter.tv.TvAppendErrorFooter
 import su.afk.yummy.tv.core.designsystem.presenter.tv.TvStateMessage
 import su.afk.yummy.tv.domain.bloggers.model.BloggerVideoSort
 import su.afk.yummy.tv.feature.bloggers.tv.R
@@ -46,8 +49,7 @@ fun BloggerVideosListTvScreen(
     onEvent: (BloggerVideosListState.Event) -> Unit,
 ) {
     BackHandler { onEvent(BloggerVideosListState.Event.BackSelected) }
-    val error = state.error
-    val firstCardFocus = remember { FocusRequester() }
+    val videos = state.videos.collectAsLazyPagingItems()
     Column(
         Modifier
             .fillMaxSize()
@@ -112,23 +114,24 @@ fun BloggerVideosListTvScreen(
                 }
             }
         }
+        val refresh = videos.loadState.refresh
         when {
-            state.isLoading -> TvLoadingScreen(Modifier.weight(1f))
+            refresh is LoadState.Loading -> TvLoadingScreen(Modifier.weight(1f))
 
-            error != null -> Box(
+            refresh is LoadState.Error -> Box(
                 Modifier
                     .fillMaxSize()
                     .weight(1f),
                 contentAlignment = Alignment.Center,
             ) {
                 TvStateMessage(
-                    title = error.ifBlank { stringResource(R.string.blogger_videos_error) },
+                    title = stringResource(R.string.blogger_videos_error),
                     icon = Icons.Filled.Warning,
-                    onRetry = { onEvent(BloggerVideosListState.Event.RetrySelected) },
+                    onRetry = videos::retry,
                 )
             }
 
-            state.videos.isEmpty() -> Box(
+            videos.itemCount == 0 -> Box(
                 Modifier
                     .fillMaxSize()
                     .weight(1f),
@@ -141,9 +144,8 @@ fun BloggerVideosListTvScreen(
             }
 
             else -> {
-                LaunchedEffect(state.videos.isNotEmpty()) {
-                    runCatching { firstCardFocus.requestFocus() }
-                }
+                val firstCardFocus = remember { FocusRequester() }
+                LaunchedEffect(Unit) { runCatching { firstCardFocus.requestFocus() } }
                 LazyColumn(
                     contentPadding = PaddingValues(
                         top = TvCardSpacing.Vertical,
@@ -154,16 +156,33 @@ fun BloggerVideosListTvScreen(
                         .weight(1f)
                         .tvFocusRestorer(fallback = firstCardFocus),
                 ) {
-                    items(state.videos, key = { it.id }) { video ->
-                        BloggerVideoTvCard(
-                            video,
-                            { onEvent(BloggerVideosListState.Event.VideoSelected(video.id)) },
-                            modifier = if (state.videos.firstOrNull()?.id == video.id) {
-                                Modifier.focusRequester(firstCardFocus)
-                            } else {
-                                Modifier
-                            },
-                        )
+                    items(
+                        videos.itemCount,
+                        key = { index -> videos[index]?.id ?: index },
+                    ) { index ->
+                        videos[index]?.let { video ->
+                            BloggerVideoTvCard(
+                                video,
+                                { onEvent(BloggerVideosListState.Event.VideoSelected(video.id)) },
+                                modifier = if (index == 0) {
+                                    Modifier.focusRequester(firstCardFocus)
+                                } else {
+                                    Modifier
+                                },
+                            )
+                        }
+                    }
+                    when (videos.loadState.append) {
+                        is LoadState.Loading -> item { TvLoadingFooter() }
+
+                        is LoadState.Error -> item {
+                            TvAppendErrorFooter(
+                                message = stringResource(R.string.blogger_videos_error),
+                                onRetry = videos::retry,
+                            )
+                        }
+
+                        else -> Unit
                     }
                 }
             }

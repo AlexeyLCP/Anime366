@@ -1,17 +1,13 @@
 package su.afk.yummy.tv.feature.posts.list
 
 import androidx.lifecycle.SavedStateHandle
-import androidx.paging.Pager
-import androidx.paging.PagingConfig
-import androidx.paging.cachedIn
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.BaseViewModelNew
 import su.afk.yummy.tv.core.error.IErrorHandlerUseCase
 import su.afk.yummy.tv.core.error.storage.RetryStorage
 import su.afk.yummy.tv.core.navigation.NavigationManager
-import su.afk.yummy.tv.core.utils.OffsetPage
-import su.afk.yummy.tv.core.utils.OffsetPagingSource
+import su.afk.yummy.tv.core.utils.pagingFlow
 import su.afk.yummy.tv.domain.posts.model.PostSort
 import su.afk.yummy.tv.domain.posts.usecase.GetPostCategoriesUseCase
 import su.afk.yummy.tv.domain.posts.usecase.GetPostsUseCase
@@ -62,10 +58,7 @@ class PostsListViewModel @Inject constructor(
     }
 
     private fun createFlow(category: String?, sort: PostSort) =
-        Pager(PagingConfig(pageSize = 20, initialLoadSize = 20, enablePlaceholders = false)) {
-            OffsetPagingSource { limit, offset ->
-                val page = getPosts(category, sort.apiValue, limit.coerceAtMost(20), offset)
-                OffsetPage(page, offset + page.size, page.size >= limit.coerceAtMost(20))
-            }
-        }.flow.cachedIn(viewModelScope)
+        pagingFlow(viewModelScope) { limit, offset ->
+            getPosts(category, sort.apiValue, limit, offset)
+        }
 }

@@ -1,9 +1,6 @@
 package su.afk.yummy.tv.feature.comments
 
 import androidx.lifecycle.SavedStateHandle
-import androidx.paging.Pager
-import androidx.paging.PagingConfig
-import androidx.paging.cachedIn
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -17,8 +14,7 @@ import su.afk.yummy.tv.core.error.StringProvider
 import su.afk.yummy.tv.core.error.storage.RetryStorage
 import su.afk.yummy.tv.core.navigation.NavigationManager
 import su.afk.yummy.tv.core.preferences.settings.SettingsStore
-import su.afk.yummy.tv.core.utils.OffsetPage
-import su.afk.yummy.tv.core.utils.OffsetPagingSource
+import su.afk.yummy.tv.core.utils.pagingFlow
 import su.afk.yummy.tv.domain.comments.model.Comment
 import su.afk.yummy.tv.domain.comments.model.CommentDraft
 import su.afk.yummy.tv.domain.comments.model.CommentReportReason
@@ -172,30 +168,21 @@ class CommentsViewModel @AssistedInject internal constructor(
     private fun createCommentsFlow(
         sort: CommentSort,
         forceRefreshFirstPage: Boolean = false,
-    ) = Pager(
-        config = PagingConfig(
-            pageSize = COMMENTS_PAGE_SIZE,
-            initialLoadSize = COMMENTS_PAGE_SIZE,
-            enablePlaceholders = false,
-        ),
-        pagingSourceFactory = {
-            OffsetPagingSource { limit, offset ->
-                loadCommentsPage(
-                    sort = sort,
-                    limit = limit,
-                    skip = offset,
-                    forceRefresh = forceRefreshFirstPage && offset == 0,
-                )
-            }
-        },
-    ).flow.cachedIn(viewModelScope)
+    ) = pagingFlow(viewModelScope, pageSize = COMMENTS_PAGE_SIZE) { limit, offset ->
+        loadCommentsPage(
+            sort = sort,
+            limit = limit,
+            skip = offset,
+            forceRefresh = forceRefreshFirstPage && offset == 0,
+        )
+    }
 
     private suspend fun loadCommentsPage(
         sort: CommentSort,
         limit: Int,
         skip: Int,
         forceRefresh: Boolean,
-    ): OffsetPage<CommentUi> =
+    ): List<CommentUi> =
         runCatching {
             getComments(
                 targetType = targetType,
@@ -208,11 +195,7 @@ class CommentsViewModel @AssistedInject internal constructor(
         }.fold(
             onSuccess = { page ->
                 setState { copy(isModerator = isModerator || page.isModerator, error = null) }
-                OffsetPage(
-                    items = page.comments.map { CommentUi(it) },
-                    nextOffset = skip + page.comments.size,
-                    canLoadMore = page.comments.size >= limit,
-                )
+                page.comments.map { CommentUi(it) }
             },
             onFailure = { error ->
                 analytics.eventLoadError(target, sort, error)

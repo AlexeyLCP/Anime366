@@ -1,9 +1,6 @@
 package su.afk.yummy.tv.feature.library
 
 import androidx.lifecycle.SavedStateHandle
-import androidx.paging.Pager
-import androidx.paging.PagingConfig
-import androidx.paging.cachedIn
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.first
@@ -16,8 +13,7 @@ import su.afk.yummy.tv.core.error.StringProvider
 import su.afk.yummy.tv.core.error.storage.RetryStorage
 import su.afk.yummy.tv.core.navigation.NavigationManager
 import su.afk.yummy.tv.core.preferences.settings.SettingsStore
-import su.afk.yummy.tv.core.utils.OffsetPage
-import su.afk.yummy.tv.core.utils.OffsetPagingSource
+import su.afk.yummy.tv.core.utils.pagingFlow
 import su.afk.yummy.tv.domain.home.model.HomeContinueWatchingItem
 import su.afk.yummy.tv.domain.home.usecase.GetCachedHomeFeedUseCase
 import su.afk.yummy.tv.domain.home.usecase.ObserveContinueWatchingUseCase
@@ -302,18 +298,9 @@ class LibraryViewModel @Inject internal constructor(
         }
     }
 
-    private fun createWatchHistoryFlow() = Pager(
-        config = PagingConfig(pageSize = 100, initialLoadSize = 100, enablePlaceholders = false),
-        pagingSourceFactory = {
-            OffsetPagingSource { limit, offset ->
-                val items = getWatchHistoryPage(limit.coerceAtMost(100), offset)
-                OffsetPage(
-                    items = items,
-                    nextOffset = offset + items.size,
-                    canLoadMore = items.size >= limit.coerceAtMost(100),
-                )
-            }
-        },
-    ).flow.cachedIn(viewModelScope)
+    private fun createWatchHistoryFlow() =
+        pagingFlow(viewModelScope, pageSize = 100) { limit, offset ->
+            getWatchHistoryPage(limit, offset)
+        }
 
 }
