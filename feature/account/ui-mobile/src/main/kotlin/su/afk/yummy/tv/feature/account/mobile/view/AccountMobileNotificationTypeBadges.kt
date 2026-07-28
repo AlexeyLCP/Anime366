@@ -4,16 +4,18 @@ package su.afk.yummy.tv.feature.account.mobile.view
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Badge
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import su.afk.yummy.tv.domain.account.model.NotificationCount
-import su.afk.yummy.tv.feature.account.mobile.R
+import su.afk.yummy.tv.feature.account.mobile.account.utils.notificationTypeLabel
 
 @Composable
 internal fun AccountMobileNotificationTypeBadges(counts: List<NotificationCount>) {
@@ -26,10 +28,10 @@ internal fun AccountMobileNotificationTypeBadges(counts: List<NotificationCount>
                 shape = MaterialTheme.shapes.large,
                 color = MaterialTheme.colorScheme.surfaceVariant,
             ) {
-                androidx.compose.foundation.layout.Row(
+                Row(
                     horizontalArrangement = Arrangement.spacedBy(6.dp),
-                    verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
-                    modifier = androidx.compose.ui.Modifier.padding(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(
                         horizontal = 10.dp,
                         vertical = 6.dp
                     ),
@@ -43,21 +45,4 @@ internal fun AccountMobileNotificationTypeBadges(counts: List<NotificationCount>
             }
         }
     }
-}
-
-@Composable
-private fun notificationTypeLabel(type: String): String = when (type) {
-    "news" -> stringResource(R.string.account_notification_type_news)
-    "edit" -> stringResource(R.string.account_notification_type_edit)
-    "message" -> stringResource(R.string.account_notification_type_message)
-    "comment" -> stringResource(R.string.account_notification_type_comment)
-    "animeupdate" -> stringResource(R.string.account_notification_type_animeupdate)
-    "review" -> stringResource(R.string.account_notification_type_review)
-    "viewingorderupdate", "viewing_order_update" -> stringResource(R.string.account_notification_type_viewing_order_update)
-    "anime_episode" -> stringResource(R.string.account_notification_type_anime_episode)
-    "friend" -> stringResource(R.string.account_notification_type_friend)
-    "collection" -> stringResource(R.string.account_notification_type_collection)
-    "post" -> stringResource(R.string.account_notification_type_post)
-    "blogvideo" -> stringResource(R.string.account_notification_type_blogvideo)
-    else -> type
 }

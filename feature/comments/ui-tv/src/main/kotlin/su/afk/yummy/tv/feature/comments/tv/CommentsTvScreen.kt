@@ -32,7 +32,7 @@ import su.afk.yummy.tv.core.designsystem.presenter.components.loader.TvLoadingSc
 import su.afk.yummy.tv.core.designsystem.presenter.dimensions.TvScreenPadding
 import su.afk.yummy.tv.core.designsystem.presenter.tv.TvStateMessage
 import su.afk.yummy.tv.feature.comments.CommentsState
-import su.afk.yummy.tv.feature.comments.tv.utils.resolve
+import su.afk.yummy.tv.feature.comments.tv.utils.buildVisibleComments
 import su.afk.yummy.tv.feature.comments.tv.utils.uiMessage
 import su.afk.yummy.tv.feature.comments.tv.view.CommentsComposer
 import su.afk.yummy.tv.feature.comments.tv.view.CommentsDialogs
@@ -61,9 +61,7 @@ fun CommentsTvScreen(
         state.deletedCommentIds,
         comments.itemSnapshotList.items,
     ) {
-        (state.prependedComments + comments.itemSnapshotList.items)
-            .distinctBy { it.comment.id }
-            .mapNotNull { it.resolve(state) }
+        buildVisibleComments(state, comments.itemSnapshotList.items)
     }
 
     LaunchedEffect(effect, context) {

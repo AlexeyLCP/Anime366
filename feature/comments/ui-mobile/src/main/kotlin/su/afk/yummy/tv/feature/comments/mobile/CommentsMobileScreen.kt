@@ -37,7 +37,7 @@ import su.afk.yummy.tv.core.designsystem.presenter.mobile.MobileStateContent
 import su.afk.yummy.tv.core.designsystem.presenter.mobile.MobileTopBar
 import su.afk.yummy.tv.core.designsystem.presenter.preview.ScreenPreviewTheme
 import su.afk.yummy.tv.feature.comments.CommentsState
-import su.afk.yummy.tv.feature.comments.mobile.utils.resolve
+import su.afk.yummy.tv.feature.comments.mobile.utils.buildVisibleComments
 import su.afk.yummy.tv.feature.comments.mobile.utils.uiMessage
 import su.afk.yummy.tv.feature.comments.mobile.view.CommentSortRow
 import su.afk.yummy.tv.feature.comments.mobile.view.CommentsComposer
@@ -73,9 +73,7 @@ fun CommentsMobileScreen(
         state.deletedCommentIds,
         pagingComments.itemSnapshotList.items,
     ) {
-        (state.prependedComments + pagingComments.itemSnapshotList.items)
-            .distinctBy { it.comment.id }
-            .mapNotNull { it.resolve(state) }
+        buildVisibleComments(state, pagingComments.itemSnapshotList.items)
     }
     val initialError = (refreshState as? LoadState.Error)
         ?.takeIf { visibleComments.isEmpty() }

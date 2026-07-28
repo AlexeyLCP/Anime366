@@ -11,7 +11,7 @@ import su.afk.yummy.tv.core.error.StringProvider
 
 @Module
 @InstallIn(SingletonComponent::class)
-interface ErrorModule {
+internal interface ErrorModule {
 
     @Binds
     fun bindStringProvider(impl: AndroidStringProvider): StringProvider

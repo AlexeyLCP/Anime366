@@ -13,7 +13,11 @@ class VideoDownloadState {
         val pendingReExportItem: VideoDownloadItem? = null,
         val exportDestination: VideoExportDestination? = null,
         val pendingBulkExportCount: Int = 0,
-    ) : UiState
+    ) : UiState {
+        /** Суммарный объём скачанных данных в байтах по всем загрузкам. */
+        val occupiedBytes: Long
+            get() = items.sumOf { it.bytesDownloaded.coerceAtLeast(0L) }
+    }
 
     sealed interface Event : UiEvent {
         data object BackSelected : Event

@@ -14,6 +14,15 @@ internal fun CommentsState.CommentUi.resolve(
     )
 }
 
+/** Объединяет локально добавленные комментарии с загруженной страницей и применяет оверлеи. */
+internal fun buildVisibleComments(
+    state: CommentsState.State,
+    pagedComments: List<CommentsState.CommentUi>,
+): List<CommentsState.CommentUi> =
+    (state.prependedComments + pagedComments)
+        .distinctBy { it.comment.id }
+        .mapNotNull { it.resolve(state) }
+
 private val spoilerRegex = Regex(
     pattern = "\\[спойлер(?:=\"([^\"]*)\")?](.*?)\\[/спойлер]",
     options = setOf(RegexOption.IGNORE_CASE, RegexOption.DOT_MATCHES_ALL),

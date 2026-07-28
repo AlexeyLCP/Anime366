@@ -79,9 +79,7 @@ fun VideoDownloadMobileScreen(
             }
         }
     }
-    val occupiedSize = state.items
-        .sumOf { item -> item.bytesDownloaded.coerceAtLeast(0L) }
-        .formatDiskSize()
+    val occupiedSize = state.occupiedBytes.formatDiskSize()
     BaseScreen(
         isScroll = false,
         customTopBar = {
