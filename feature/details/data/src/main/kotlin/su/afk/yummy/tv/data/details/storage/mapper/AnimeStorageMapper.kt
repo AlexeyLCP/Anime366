@@ -45,6 +45,7 @@ import su.afk.yummy.tv.data.details.dto.YaniAnimeVideoDto
 import su.afk.yummy.tv.data.details.dto.YaniRecommendationItemDto
 import su.afk.yummy.tv.data.details.dto.YaniScreenshotDto
 import su.afk.yummy.tv.data.details.dto.YaniTrailerDto
+import su.afk.yummy.tv.data.details.mapper.knownText
 
 internal fun YaniAnimeDetailsDto.toAnimeDetailsCache(
     language: String,
@@ -409,14 +410,6 @@ private fun String.toShortAgeRatingTitle(): String = when (val code = substringB
     else -> this
 }
 
-private fun String?.knownText(): String? {
-    val value = this?.trim().orEmpty()
-    return value.takeIf {
-        it.isNotBlank() &&
-                !it.equals("unknown", ignoreCase = true) &&
-                !it.equals("unknow", ignoreCase = true)
-    }
-}
 
 private fun AnimeDetailsEntry.toPosterOrNull(): AnimePoster? =
     posterOrNull(

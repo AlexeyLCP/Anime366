@@ -2,6 +2,7 @@ package su.afk.yummy.tv.feature.account.userprofile
 
 import su.afk.yummy.tv.core.analytics.AnalyticsTracker
 import su.afk.yummy.tv.core.analytics.analyticsParamsOf
+import su.afk.yummy.tv.core.analytics.analyticsType
 import javax.inject.Inject
 
 internal class UserProfileAnalytics @Inject constructor(
@@ -120,8 +121,6 @@ internal class UserProfileAnalytics @Inject constructor(
 
     private fun UserProfileState.ListFilter.analyticsValue(): String = name.lowercase()
 
-    private fun Throwable.analyticsType(): String =
-        this::class.java.simpleName.takeIf { it.isNotBlank() } ?: "unknown"
 
     internal companion object {
         private const val ERROR_OVERVIEW_LOAD = "user_profile_overview_load_error"

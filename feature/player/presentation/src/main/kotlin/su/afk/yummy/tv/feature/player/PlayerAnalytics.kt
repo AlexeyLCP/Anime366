@@ -2,6 +2,7 @@ package su.afk.yummy.tv.feature.player
 
 import su.afk.yummy.tv.core.analytics.AnalyticsTracker
 import su.afk.yummy.tv.core.analytics.analyticsParamsOf
+import su.afk.yummy.tv.core.analytics.analyticsType
 import su.afk.yummy.tv.core.preferences.settings.PlayerResizeMode
 import su.afk.yummy.tv.core.preferences.settings.PlayerZoomLevel
 import su.afk.yummy.tv.feature.player.handler.PlayerStreamResult
@@ -366,9 +367,6 @@ internal class PlayerAnalytics @Inject constructor(
         val selection = normalizedSourceSelection(this)
         return selection.episodeIndex < activeDubbingEpisodes(this).lastIndex
     }
-
-    private fun Throwable.analyticsType(): String =
-        this::class.java.simpleName.takeIf { it.isNotBlank() } ?: "unknown"
 
     private fun Throwable.analyticsMessage(): String? =
         (localizedMessage ?: message)

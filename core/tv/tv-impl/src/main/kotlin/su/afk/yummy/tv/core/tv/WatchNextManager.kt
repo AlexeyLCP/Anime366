@@ -7,6 +7,8 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import su.afk.yummy.tv.core.storage.watchprogress.WatchProgressEntry
 import su.afk.yummy.tv.core.storage.watchprogress.WatchProgressStore
 import su.afk.yummy.tv.core.utils.ResolveKodikThumbnailUrlUseCase
+import su.afk.yummy.tv.core.utils.isKodikSourceUrl
+import su.afk.yummy.tv.core.utils.isLikelyImageUrl
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -72,8 +74,3 @@ internal class WatchNextManager @Inject constructor(
                 ?.let { resolveKodikThumbnailUrl(it) }
     }
 }
-
-private fun String.isKodikSourceUrl(): Boolean = contains("kodik", ignoreCase = true)
-
-private fun String.isLikelyImageUrl(): Boolean =
-    Regex("""\.(webp|avif|jpe?g|png)(\?.*)?$""", RegexOption.IGNORE_CASE).containsMatchIn(this)

@@ -2,6 +2,7 @@ package su.afk.yummy.tv.feature.comments
 
 import su.afk.yummy.tv.core.analytics.AnalyticsTracker
 import su.afk.yummy.tv.core.analytics.analyticsParamsOf
+import su.afk.yummy.tv.core.analytics.analyticsType
 import su.afk.yummy.tv.domain.comments.model.CommentReportReason
 import su.afk.yummy.tv.domain.comments.model.CommentSort
 import su.afk.yummy.tv.domain.comments.model.CommentTarget
@@ -112,8 +113,6 @@ internal class CommentsAnalytics @Inject constructor(
         PARAM_TARGET_ID to id,
     )
 
-    private fun Throwable.analyticsType(): String =
-        this::class.java.simpleName.takeIf { it.isNotBlank() } ?: "unknown"
 
     internal companion object {
         private const val ERROR_LOAD = "comments_load_error"

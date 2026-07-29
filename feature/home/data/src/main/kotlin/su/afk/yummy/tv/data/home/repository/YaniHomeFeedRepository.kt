@@ -14,6 +14,7 @@ import su.afk.yummy.tv.core.storage.home.HomeFeedStore
 import su.afk.yummy.tv.core.storage.home.isFresh
 import su.afk.yummy.tv.core.storage.watchprogress.WatchProgressEntry
 import su.afk.yummy.tv.core.storage.watchprogress.WatchProgressStore
+import su.afk.yummy.tv.core.utils.isLikelyImageUrl
 import su.afk.yummy.tv.data.home.dto.YaniFeedDto
 import su.afk.yummy.tv.data.home.dto.YaniVideoDto
 import su.afk.yummy.tv.data.home.network.YaniHomeApi
@@ -246,9 +247,6 @@ class YaniHomeFeedRepository(
             ?.joinToString(" ")
             ?.take(LOG_TEXT_LIMIT)
             ?: "null"
-
-    private fun String.isLikelyImageUrl(): Boolean =
-        Regex("""\.(webp|avif|jpe?g|png)(\?.*)?$""", RegexOption.IGNORE_CASE).containsMatchIn(this)
 
     private companion object {
         const val LOG_SAMPLE_LIMIT = 8

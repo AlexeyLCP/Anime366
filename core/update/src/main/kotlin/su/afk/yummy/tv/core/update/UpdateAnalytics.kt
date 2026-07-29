@@ -4,6 +4,7 @@ import android.os.Build
 import su.afk.yummy.tv.core.analytics.AnalyticsEvents
 import su.afk.yummy.tv.core.analytics.AnalyticsTracker
 import su.afk.yummy.tv.core.analytics.analyticsParamsOf
+import su.afk.yummy.tv.core.analytics.analyticsType
 import su.afk.yummy.tv.core.update.apk.UpdatePermissionRequiredException
 import javax.inject.Inject
 
@@ -79,9 +80,6 @@ internal class UpdateAnalytics @Inject constructor(
                 }
             }
         }
-
-    private fun Throwable.analyticsType(): String =
-        this::class.java.simpleName.takeIf { it.isNotBlank() } ?: "unknown"
 
     private fun Throwable.analyticsMessage(): String? =
         (localizedMessage ?: message)

@@ -33,4 +33,4 @@ fun resolveContinueWatchingImageModel(
 fun String.isLikelyImageUrl(): Boolean =
     Regex("""\.(webp|avif|jpe?g|png)(\?.*)?$""", RegexOption.IGNORE_CASE).containsMatchIn(this)
 
-private fun String.isKodikSourceUrl(): Boolean = contains("kodik", ignoreCase = true)
+fun String.isKodikSourceUrl(): Boolean = contains("kodik", ignoreCase = true)

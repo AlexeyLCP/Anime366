@@ -2,6 +2,7 @@ package su.afk.yummy.tv.feature.library
 
 import su.afk.yummy.tv.core.analytics.AnalyticsTracker
 import su.afk.yummy.tv.core.analytics.analyticsParamsOf
+import su.afk.yummy.tv.core.analytics.analyticsType
 import su.afk.yummy.tv.domain.account.model.UserAnimeList
 import su.afk.yummy.tv.domain.home.model.HomeContinueWatchingItem
 import javax.inject.Inject
@@ -137,8 +138,6 @@ internal class LibraryAnalytics @Inject constructor(
 
     private fun LibraryRemoveTarget.analyticsValue(): String = name.lowercase()
 
-    private fun Throwable.analyticsType(): String =
-        this::class.java.simpleName.takeIf { it.isNotBlank() } ?: "unknown"
 
     internal companion object {
         private const val PARAM_ANIME_ID = "anime_id"

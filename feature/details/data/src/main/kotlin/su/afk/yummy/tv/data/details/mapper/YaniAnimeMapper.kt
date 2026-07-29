@@ -151,12 +151,3 @@ private fun List<YaniScreenshotDto>.toAnimeScreenshots(): List<AnimeScreenshot> 
 private fun AnimeScreenshot.dedupeImageUrl(): String? =
     full?.takeIf { it.isNotBlank() }
         ?: small?.takeIf { it.isNotBlank() }
-
-private fun String?.knownText(): String? {
-    val value = this?.trim().orEmpty()
-    return value.takeIf {
-        it.isNotBlank() &&
-                !it.equals("unknown", ignoreCase = true) &&
-                !it.equals("unknow", ignoreCase = true)
-    }
-}

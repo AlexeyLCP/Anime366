@@ -3,6 +3,7 @@ package su.afk.yummy.tv.feature.search
 import su.afk.yummy.tv.core.analytics.AnalyticsEvents
 import su.afk.yummy.tv.core.analytics.AnalyticsTracker
 import su.afk.yummy.tv.core.analytics.analyticsParamsOf
+import su.afk.yummy.tv.core.analytics.analyticsType
 import su.afk.yummy.tv.domain.search.model.SearchFilters
 import javax.inject.Inject
 
@@ -146,8 +147,6 @@ internal class SearchAnalytics @Inject constructor(
         )
     }
 
-    private fun Throwable.analyticsType(): String =
-        this::class.java.simpleName.takeIf { it.isNotBlank() } ?: "unknown"
 
     internal companion object {
         private const val ACTION_APPLY = "apply"

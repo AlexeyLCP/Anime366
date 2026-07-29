@@ -2,6 +2,7 @@ package su.afk.yummy.tv.feature.top
 
 import su.afk.yummy.tv.core.analytics.AnalyticsTracker
 import su.afk.yummy.tv.core.analytics.analyticsParamsOf
+import su.afk.yummy.tv.core.analytics.analyticsType
 import su.afk.yummy.tv.domain.top.model.AnimeTopType
 import javax.inject.Inject
 
@@ -51,8 +52,6 @@ internal class TopAnalytics @Inject constructor(
         )
     }
 
-    private fun Throwable.analyticsType(): String =
-        this::class.java.simpleName.takeIf { it.isNotBlank() } ?: "unknown"
 
     internal companion object {
         private const val PARAM_ANIME_ID = "anime_id"
