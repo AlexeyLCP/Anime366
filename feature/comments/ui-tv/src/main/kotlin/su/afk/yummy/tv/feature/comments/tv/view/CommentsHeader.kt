@@ -6,11 +6,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.FilterChipDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -18,6 +13,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import su.afk.yummy.tv.core.designsystem.presenter.components.TvChip
 import su.afk.yummy.tv.domain.comments.model.CommentSort
 import su.afk.yummy.tv.feature.comments.tv.R
 import su.afk.yummy.tv.feature.comments.tv.utils.labelRes
@@ -29,12 +25,6 @@ internal fun CommentsHeader(
     onSortSelected: (CommentSort) -> Unit,
     onRefresh: () -> Unit,
 ) {
-    val colors = FilterChipDefaults.filterChipColors(
-        containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.34f),
-        labelColor = MaterialTheme.colorScheme.onSurfaceVariant,
-        selectedContainerColor = MaterialTheme.colorScheme.primary,
-        selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
-    )
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -43,11 +33,10 @@ internal fun CommentsHeader(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         listOf(CommentSort.NEW, CommentSort.BEST, CommentSort.OLD).forEachIndexed { index, sort ->
-            FilterChip(
+            TvChip(
+                label = stringResource(sort.labelRes()),
                 selected = selectedSort == sort,
                 onClick = { onSortSelected(sort) },
-                label = { Text(stringResource(sort.labelRes())) },
-                colors = colors,
                 modifier = if (index == 0) {
                     Modifier.focusRequester(initialFocusRequester)
                 } else {
@@ -55,14 +44,11 @@ internal fun CommentsHeader(
                 },
             )
         }
-        FilterChip(
+        TvChip(
+            label = stringResource(R.string.comments_refresh),
             selected = false,
             onClick = onRefresh,
-            label = { Text(stringResource(R.string.comments_refresh)) },
-            leadingIcon = {
-                Icon(Icons.Filled.Refresh, contentDescription = null)
-            },
-            colors = colors,
+            leadingIcon = Icons.Filled.Refresh,
         )
     }
 }

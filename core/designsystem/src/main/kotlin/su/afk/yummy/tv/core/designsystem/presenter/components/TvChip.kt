@@ -1,12 +1,15 @@
-package su.afk.yummy.tv.feature.posts.view
+package su.afk.yummy.tv.core.designsystem.presenter.components
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -15,6 +18,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -22,12 +26,18 @@ import su.afk.yummy.tv.core.designsystem.presenter.focus.tvFocusableClick
 
 private val ChipShape = RoundedCornerShape(percent = 50)
 
+/**
+ * Единый ТВ-чип (фильтр/сортировка/категория) в форме pill с видимым фокусом
+ * (масштаб + рамка через [tvFocusableClick]). Выбранный подсвечивается `primary`.
+ * Общий элемент для новостей, рецензий, комментариев и т.д.
+ */
 @Composable
-internal fun PostChip(
+fun TvChip(
     label: String,
     selected: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    leadingIcon: ImageVector? = null,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val focused by interactionSource.collectIsFocusedAsState()
@@ -38,14 +48,14 @@ internal fun PostChip(
             focused -> MaterialTheme.colorScheme.surfaceContainerHighest
             else -> MaterialTheme.colorScheme.surfaceContainerHigh
         },
-        label = "PostChipContainer",
+        label = "TvChipContainer",
     )
     val contentColor = when {
         selected -> MaterialTheme.colorScheme.onPrimary
         else -> MaterialTheme.colorScheme.onSurface
     }
 
-    Box(
+    Row(
         modifier = modifier
             .background(containerColor, ChipShape)
             .tvFocusableClick(
@@ -56,8 +66,17 @@ internal fun PostChip(
                 focusedBorderColor = if (selected) Color.Transparent else MaterialTheme.colorScheme.primary,
             )
             .padding(horizontal = 20.dp, vertical = 10.dp),
-        contentAlignment = Alignment.Center,
+        horizontalArrangement = Arrangement.spacedBy(7.dp),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
+        if (leadingIcon != null) {
+            Icon(
+                imageVector = leadingIcon,
+                contentDescription = null,
+                tint = contentColor,
+                modifier = Modifier.size(18.dp),
+            )
+        }
         Text(
             text = label,
             style = MaterialTheme.typography.labelLarge,

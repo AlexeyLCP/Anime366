@@ -89,7 +89,11 @@ internal fun FullDetailsBody(
 
         if (details.genres.isNotEmpty()) {
             item {
-                FocusableDetailsItem(index = nextIndex(), listState = listState) {
+                FocusableDetailsItem(
+                    index = nextIndex(),
+                    listState = listState,
+                    focusable = false
+                ) {
                     FullDetailsRow(label = stringResource(R.string.details_full_genres)) {
                         FlowRow(
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -137,7 +141,11 @@ internal fun FullDetailsBody(
         }
         if (details.studios.isNotEmpty()) {
             item {
-                FocusableDetailsItem(index = nextIndex(), listState = listState) {
+                FocusableDetailsItem(
+                    index = nextIndex(),
+                    listState = listState,
+                    focusable = false
+                ) {
                     FullDetailsRow(label = stringResource(R.string.details_full_studio)) {
                         FlowRow(
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -158,7 +166,11 @@ internal fun FullDetailsBody(
         }
         if (details.creators.isNotEmpty()) {
             item {
-                FocusableDetailsItem(index = nextIndex(), listState = listState) {
+                FocusableDetailsItem(
+                    index = nextIndex(),
+                    listState = listState,
+                    focusable = false
+                ) {
                     FullDetailsRow(label = stringResource(R.string.details_full_director)) {
                         FlowRow(
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -185,7 +197,10 @@ internal fun FullDetailsBody(
         details.episodes?.nextDateEpochSeconds?.let {
             item {
                 FocusableDetailsItem(index = nextIndex(), listState = listState) {
-                    FullDetailsTextRow(stringResource(R.string.details_full_next_episode), it.formatEpochSeconds())
+                    FullDetailsTextRow(
+                        stringResource(R.string.details_full_next_episode),
+                        it.formatEpochSeconds()
+                    )
                 }
             }
         }

@@ -1,7 +1,8 @@
 package su.afk.yummy.tv.feature.reviews.details
 
 import android.widget.Toast
-import androidx.compose.foundation.focusable
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.gestures.LocalBringIntoViewSpec
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,6 +20,7 @@ import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -31,7 +33,9 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.flow.Flow
 import su.afk.yummy.tv.core.designsystem.presenter.components.loader.TvLoadingScreen
 import su.afk.yummy.tv.core.designsystem.presenter.dimensions.TvScreenPadding
-import su.afk.yummy.tv.core.designsystem.presenter.focus.tvFocusableClick
+import su.afk.yummy.tv.core.designsystem.presenter.focus.TvFocusedGridBringIntoViewSpec
+import su.afk.yummy.tv.core.designsystem.presenter.focus.tvFocusHighlight
+import su.afk.yummy.tv.core.designsystem.presenter.focus.tvFocusIndicator
 import su.afk.yummy.tv.core.designsystem.presenter.theme.YummySemanticColors
 import su.afk.yummy.tv.core.designsystem.presenter.tv.TvStateMessage
 import su.afk.yummy.tv.core.utils.toCompactCount
@@ -46,6 +50,7 @@ import su.afk.yummy.tv.feature.reviews.view.ReviewReactionButton
 import su.afk.yummy.tv.feature.reviews.view.ReviewRemoteImage
 import su.afk.yummy.tv.feature.reviews.view.ReviewRichParagraph
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ReviewDetailsTvScreen(
     state: ReviewDetailsState.State,
@@ -84,6 +89,9 @@ fun ReviewDetailsTvScreen(
             val blocks = remember(details.review.html) { parseReviewBlocks(details.review.html) }
             val topFocus = remember { FocusRequester() }
             LaunchedEffect(details.review.id) { runCatching { topFocus.requestFocus() } }
+            CompositionLocalProvider(
+                LocalBringIntoViewSpec provides TvFocusedGridBringIntoViewSpec,
+            ) {
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(TvScreenPadding.Horizontal),
@@ -97,7 +105,7 @@ fun ReviewDetailsTvScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .focusRequester(topFocus)
-                            .tvFocusableClick(
+                            .tvFocusHighlight(
                                 onClick = {
                                     onEvent(ReviewDetailsState.Event.AuthorSelected(details.review.author.id))
                                 },
@@ -108,12 +116,12 @@ fun ReviewDetailsTvScreen(
                     Text(
                         details.review.status.reviewStatusLabel(),
                         color = details.review.status.reviewStatusColor(),
-                        modifier = Modifier.focusable(),
+                        modifier = Modifier.tvFocusHighlight(),
                     )
                 }
                 details.review.rating?.let { rating ->
                     item {
-                        Box(Modifier.focusable()) {
+                        Box(Modifier.tvFocusHighlight()) {
                             Column {
                                 Text(
                                     "${rating.average ?: 0} / 10",
@@ -135,15 +143,19 @@ fun ReviewDetailsTvScreen(
                         Text(
                             comment,
                             color = MaterialTheme.colorScheme.error,
-                            modifier = Modifier.focusable(),
+                            modifier = Modifier.tvFocusHighlight(),
                         )
                     }
                 }
                 items(blocks, key = { it.id }) { block ->
+                    val focusModifier = when (block) {
+                        is ReviewContentBlock.Image -> Modifier.tvFocusIndicator()
+                        is ReviewContentBlock.Paragraph -> Modifier.tvFocusHighlight()
+                    }
                     Box(
                         Modifier
                             .fillMaxWidth()
-                            .focusable()
+                            .then(focusModifier)
                     ) {
                         when (block) {
                             is ReviewContentBlock.Image -> ReviewRemoteImage(block.url, block.alt)
@@ -193,6 +205,7 @@ fun ReviewDetailsTvScreen(
                         )
                     }
                 }
+            }
             }
         }
     }

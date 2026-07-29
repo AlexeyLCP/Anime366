@@ -3,6 +3,7 @@ package su.afk.yummy.tv.feature.home.mobile
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBarsPadding
@@ -36,6 +37,7 @@ import su.afk.yummy.tv.core.designsystem.presenter.baseScreen.BaseScreen
 import su.afk.yummy.tv.core.designsystem.presenter.mobile.LocalMobileMainActions
 import su.afk.yummy.tv.core.designsystem.presenter.mobile.MobileBottomBarDefaults
 import su.afk.yummy.tv.core.designsystem.presenter.mobile.MobileMessage
+import su.afk.yummy.tv.core.designsystem.presenter.mobile.MobileSectionHeader
 import su.afk.yummy.tv.core.designsystem.presenter.preview.ScreenPreviewTheme
 import su.afk.yummy.tv.core.model.ErrorItem
 import su.afk.yummy.tv.core.utils.openExternalUri
@@ -187,11 +189,17 @@ fun HomeMobileScreen(
 
                 if (feed != null && feed.heroItems.isNotEmpty()) {
                     item(key = "hero") {
-                        HomeHeroCarousel(
-                            items = feed.heroItems,
-                            onItemSelected = onItemSelected,
-                            modifier = Modifier.padding(horizontal = 16.dp),
-                        )
+                        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                            MobileSectionHeader(
+                                title = stringResource(R.string.home_mobile_season_title),
+                                modifier = Modifier.padding(horizontal = 16.dp),
+                            )
+                            HomeHeroCarousel(
+                                items = feed.heroItems,
+                                onItemSelected = onItemSelected,
+                                modifier = Modifier.padding(horizontal = 16.dp),
+                            )
+                        }
                     }
                 }
 

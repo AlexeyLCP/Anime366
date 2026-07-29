@@ -7,18 +7,23 @@ import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
@@ -64,6 +69,76 @@ fun Modifier.tvFocusableClick(
             onClick = onClick,
             onLongClick = onLongClick,
         )
+}
+
+/**
+ * Индикатор фокуса для НЕкликабельных фокус-остановок (текст/картинки, по которым
+ * нужно проходить пультом при прокрутке). Даёт видимую рамку [focusedBorderColor]
+ * (и опционально масштаб), в отличие от голого [Modifier.focusable].
+ */
+@Composable
+fun Modifier.tvFocusIndicator(
+    shape: Shape = RoundedCornerShape(8.dp),
+    focusedBorderColor: Color = MaterialTheme.colorScheme.primary,
+    focusedScale: Float = 1f,
+): Modifier {
+    val interactionSource = remember { MutableInteractionSource() }
+    val focused by interactionSource.collectIsFocusedAsState()
+    val scale by animateFloatAsState(
+        targetValue = if (focused) focusedScale else 1f,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioNoBouncy,
+            stiffness = Spring.StiffnessMediumLow,
+        ),
+        label = "tvFocusIndicatorScale",
+    )
+    val borderColor by animateColorAsState(
+        targetValue = if (focused) focusedBorderColor else Color.Transparent,
+        animationSpec = tween(durationMillis = TV_FOCUS_BORDER_ANIMATION_MILLIS),
+        label = "tvFocusIndicatorBorder",
+    )
+
+    return this
+        .graphicsLayer {
+            scaleX = scale
+            scaleY = scale
+        }
+        .border(
+            border = BorderStroke(width = 3.dp, color = borderColor),
+            shape = shape,
+        )
+        .focusable(interactionSource = interactionSource)
+}
+
+/**
+ * Подсветка фокуса заливкой фона (как в читалке «Новостей»): вместо цветной рамки
+ * рисует фон [focusedColor] на сфокусированном элементе. Годится и для кликабельных
+ * (передать [onClick]), и для некликабельных фокус-стопов (текст/заголовки).
+ */
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun Modifier.tvFocusHighlight(
+    shape: Shape = RoundedCornerShape(12.dp),
+    focusedColor: Color = MaterialTheme.colorScheme.surfaceContainerHigh,
+    contentPadding: PaddingValues = PaddingValues(horizontal = 16.dp, vertical = 10.dp),
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    onClick: (() -> Unit)? = null,
+): Modifier {
+    val focused by interactionSource.collectIsFocusedAsState()
+    val clickOrFocus = if (onClick != null) {
+        Modifier.combinedClickable(
+            interactionSource = interactionSource,
+            indication = null,
+            onClick = onClick,
+        )
+    } else {
+        Modifier.focusable(interactionSource = interactionSource)
+    }
+    return this
+        .clip(shape)
+        .background(if (focused) focusedColor else Color.Transparent)
+        .then(clickOrFocus)
+        .padding(contentPadding)
 }
 
 @Composable

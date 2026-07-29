@@ -1,6 +1,7 @@
 package su.afk.yummy.tv.feature.details.full.view
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -26,6 +27,7 @@ internal fun FocusableDetailsItem(
     index: Int,
     listState: LazyListState,
     firstFocusRequester: FocusRequester? = null,
+    focusable: Boolean = true,
     content: @Composable () -> Unit,
 ) {
     val scope = rememberCoroutineScope()
@@ -37,16 +39,21 @@ internal fun FocusableDetailsItem(
             .fillMaxWidth()
             .then(if (firstFocusRequester != null) Modifier.focusRequester(firstFocusRequester) else Modifier)
             .onFocusChanged { focusState ->
-                isFocused = focusState.isFocused
-                if (focusState.isFocused) {
+                // Терминальный ряд фокусируется сам (isFocused); ряд-контейнер с
+                // фокусируемыми чипами — по hasFocus (фокус у дочернего чипа).
+                val focused = if (focusable) focusState.isFocused else focusState.hasFocus
+                isFocused = focused
+                if (focused) {
                     scope.launch {
                         listState.scrollToItem(index)
                     }
                 }
             }
-            .focusable()
+            .then(if (focusable) Modifier.focusable() else Modifier.focusGroup())
             .background(
-                color = if (isFocused) {
+                // Подсвечиваем только терминальные текстовые ряды; в рядах с чипами
+                // подсветку рисуют сами чипы (tvFocusableClick).
+                color = if (isFocused && focusable) {
                     MaterialTheme.colorScheme.onSurface.copy(alpha = 0.10f)
                 } else {
                     MaterialTheme.colorScheme.surface

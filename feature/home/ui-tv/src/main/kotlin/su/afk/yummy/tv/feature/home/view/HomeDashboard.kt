@@ -6,8 +6,11 @@ import androidx.compose.foundation.gestures.BringIntoViewSpec
 import androidx.compose.foundation.gestures.LocalBringIntoViewSpec
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -30,6 +33,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.first
@@ -43,6 +47,7 @@ import su.afk.yummy.tv.domain.home.model.HomeContinueWatchingItem
 import su.afk.yummy.tv.domain.home.model.HomeFeed
 import su.afk.yummy.tv.domain.home.model.HomeFeedItem
 import su.afk.yummy.tv.domain.home.model.HomeFeedSectionType
+import su.afk.yummy.tv.feature.home.R
 
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalFoundationApi::class)
 @Composable
@@ -291,31 +296,38 @@ internal fun HomeDashboard(
                                 }
                             },
                         ) {
-                            HomeCarousel(
-                                items = feed.heroItems,
-                                onItemSelected = onItemSelected,
-                                sectionKey = SECTION_HERO,
-                                rowFocusRequester = heroFocusRequester,
-                                rowIsFocused = columnHasFocus && lastFocusedRowKey == ROW_HERO,
-                                upFocusRequester = previousRowFocusRequester(heroLazyIdx),
-                                downFocusRequester = nextRowFocusRequester(heroLazyIdx),
-                                onCarouselFocused = {
-                                    lastFocusedRowKey = ROW_HERO
-                                },
-                                onCarouselFocusSettled = {
-                                    scrollHeroToTopWhileFocused()
-                                },
-                                onMoveUp = if (heroLazyIdx > 0) {
-                                    { requestRowFocus(heroLazyIdx - 1) }
-                                } else {
-                                    null
-                                },
-                                onMoveDown = if (heroLazyIdx < totalLazyItems - 1) {
-                                    { requestRowFocus(heroLazyIdx + 1) }
-                                } else {
-                                    null
-                                },
-                            )
+                            Column {
+                                HomeSectionHeader(
+                                    title = stringResource(R.string.home_season_title),
+                                    active = columnHasFocus && lastFocusedRowKey == ROW_HERO,
+                                )
+                                Spacer(Modifier.height(10.dp))
+                                HomeCarousel(
+                                    items = feed.heroItems,
+                                    onItemSelected = onItemSelected,
+                                    sectionKey = SECTION_HERO,
+                                    rowFocusRequester = heroFocusRequester,
+                                    rowIsFocused = columnHasFocus && lastFocusedRowKey == ROW_HERO,
+                                    upFocusRequester = previousRowFocusRequester(heroLazyIdx),
+                                    downFocusRequester = nextRowFocusRequester(heroLazyIdx),
+                                    onCarouselFocused = {
+                                        lastFocusedRowKey = ROW_HERO
+                                    },
+                                    onCarouselFocusSettled = {
+                                        scrollHeroToTopWhileFocused()
+                                    },
+                                    onMoveUp = if (heroLazyIdx > 0) {
+                                        { requestRowFocus(heroLazyIdx - 1) }
+                                    } else {
+                                        null
+                                    },
+                                    onMoveDown = if (heroLazyIdx < totalLazyItems - 1) {
+                                        { requestRowFocus(heroLazyIdx + 1) }
+                                    } else {
+                                        null
+                                    },
+                                )
+                            }
                         }
                     }
                 }

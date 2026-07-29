@@ -40,6 +40,7 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withTimeoutOrNull
+import su.afk.yummy.tv.core.designsystem.presenter.components.TvChip
 import su.afk.yummy.tv.core.designsystem.presenter.components.loader.TvLoadingFooter
 import su.afk.yummy.tv.core.designsystem.presenter.components.loader.TvLoadingScreen
 import su.afk.yummy.tv.core.designsystem.presenter.dimensions.TvScreenPadding
@@ -50,7 +51,6 @@ import su.afk.yummy.tv.core.designsystem.presenter.tv.TvStateMessage
 import su.afk.yummy.tv.domain.posts.model.PostSort
 import su.afk.yummy.tv.feature.posts.tv.R
 import su.afk.yummy.tv.feature.posts.utils.label
-import su.afk.yummy.tv.feature.posts.view.PostChip
 import su.afk.yummy.tv.feature.posts.view.PostTvCard
 
 @Composable
@@ -152,7 +152,7 @@ fun PostsTvScreen(
                 )
                 Spacer(Modifier.weight(1f))
                 PostSort.entries.forEach { sort ->
-                    PostChip(
+                    TvChip(
                         label = sort.label(),
                         selected = state.sort == sort,
                         onClick = { onEvent(PostsListState.Event.SortSelected(sort)) },
@@ -166,14 +166,14 @@ fun PostsTvScreen(
                 contentPadding = PaddingValues(horizontal = 4.dp, vertical = 6.dp),
             ) {
                 item {
-                    PostChip(
+                    TvChip(
                         label = stringResource(R.string.posts_all),
                         selected = state.selectedCategory == null,
                         onClick = { onEvent(PostsListState.Event.CategorySelected(null)) },
                     )
                 }
                 items(state.categories, key = { it.uri }) { category ->
-                    PostChip(
+                    TvChip(
                         label = category.title,
                         selected = state.selectedCategory == category.uri,
                         onClick = { onEvent(PostsListState.Event.CategorySelected(category.uri)) },

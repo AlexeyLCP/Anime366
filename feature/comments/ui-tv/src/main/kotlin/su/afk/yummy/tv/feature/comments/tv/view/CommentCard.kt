@@ -38,6 +38,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
+import su.afk.yummy.tv.core.designsystem.presenter.theme.YummySemanticColors
 import su.afk.yummy.tv.domain.comments.model.CommentVote
 import su.afk.yummy.tv.feature.comments.CommentsState
 import su.afk.yummy.tv.feature.comments.tv.R
@@ -121,6 +122,7 @@ internal fun CommentCard(
                         label = comment.likes.toString(),
                         icon = Icons.Filled.ThumbUp,
                         selected = comment.vote == CommentVote.LIKE,
+                        accentColor = YummySemanticColors.Like,
                         enabled = !isMutating,
                         onClick = { onVote(comment.id, CommentVote.LIKE) },
                     )
@@ -128,7 +130,7 @@ internal fun CommentCard(
                         label = comment.dislikes.toString(),
                         icon = Icons.Filled.ThumbDown,
                         selected = comment.vote == CommentVote.DISLIKE,
-                        selectedColor = MaterialTheme.colorScheme.error,
+                        accentColor = YummySemanticColors.Dislike,
                         enabled = !isMutating,
                         onClick = { onVote(comment.id, CommentVote.DISLIKE) },
                     )

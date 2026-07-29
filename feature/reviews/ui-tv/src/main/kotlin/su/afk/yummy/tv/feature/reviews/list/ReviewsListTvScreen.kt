@@ -1,6 +1,8 @@
 package su.afk.yummy.tv.feature.reviews.list
 
 import android.widget.Toast
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.gestures.LocalBringIntoViewSpec
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,11 +16,10 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.RateReview
 import androidx.compose.material.icons.filled.Warning
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -31,10 +32,12 @@ import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import kotlinx.coroutines.flow.Flow
+import su.afk.yummy.tv.core.designsystem.presenter.components.TvChip
 import su.afk.yummy.tv.core.designsystem.presenter.components.loader.TvLoadingFooter
 import su.afk.yummy.tv.core.designsystem.presenter.components.loader.TvLoadingScreen
 import su.afk.yummy.tv.core.designsystem.presenter.dimensions.TvCardSpacing
 import su.afk.yummy.tv.core.designsystem.presenter.dimensions.TvScreenPadding
+import su.afk.yummy.tv.core.designsystem.presenter.focus.TvFocusedGridBringIntoViewSpec
 import su.afk.yummy.tv.core.designsystem.presenter.focus.tvFocusRestorer
 import su.afk.yummy.tv.core.designsystem.presenter.tv.TvAppendErrorFooter
 import su.afk.yummy.tv.core.designsystem.presenter.tv.TvStateMessage
@@ -42,6 +45,7 @@ import su.afk.yummy.tv.feature.reviews.tv.R
 import su.afk.yummy.tv.feature.reviews.utils.label
 import su.afk.yummy.tv.feature.reviews.view.ReviewTvCard
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ReviewsListTvScreen(
     state: ReviewsListState.State,
@@ -65,12 +69,6 @@ fun ReviewsListTvScreen(
                 vertical = TvScreenPadding.Vertical,
             ),
     ) {
-        val sortChipColors = FilterChipDefaults.filterChipColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.34f),
-            labelColor = MaterialTheme.colorScheme.onSurfaceVariant,
-            selectedContainerColor = MaterialTheme.colorScheme.primary,
-            selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
-        )
         Text(
             stringResource(R.string.reviews_title),
             style = MaterialTheme.typography.headlineLarge,
@@ -81,11 +79,10 @@ fun ReviewsListTvScreen(
             horizontalArrangement = Arrangement.spacedBy(TvCardSpacing.Horizontal),
         ) {
             state.availableSorts.forEach { sort ->
-                FilterChip(
-                    state.sort == sort,
-                    { onEvent(ReviewsListState.Event.SortSelected(sort)) },
-                    label = { Text(sort.label()) },
-                    colors = sortChipColors,
+                TvChip(
+                    label = sort.label(),
+                    selected = state.sort == sort,
+                    onClick = { onEvent(ReviewsListState.Event.SortSelected(sort)) },
                 )
             }
         }
@@ -122,6 +119,9 @@ fun ReviewsListTvScreen(
             else -> {
                 val firstCardFocus = remember { FocusRequester() }
                 LaunchedEffect(Unit) { runCatching { firstCardFocus.requestFocus() } }
+                CompositionLocalProvider(
+                    LocalBringIntoViewSpec provides TvFocusedGridBringIntoViewSpec,
+                ) {
                 LazyVerticalGrid(
                     columns = GridCells.Fixed(2),
                     horizontalArrangement = Arrangement.spacedBy(TvCardSpacing.Horizontal),
@@ -165,6 +165,7 @@ fun ReviewsListTvScreen(
 
                         else -> Unit
                     }
+                }
                 }
             }
         }
