@@ -29,6 +29,7 @@ import su.afk.yummy.tv.core.designsystem.presenter.mobile.MobileTopBar
 import su.afk.yummy.tv.core.designsystem.presenter.preview.ScreenPreviewTheme
 import su.afk.yummy.tv.core.model.ErrorItem
 import su.afk.yummy.tv.feature.collection.CollectionState
+import su.afk.yummy.tv.feature.collection.mobile.view.CollectionEngagementPanel
 import su.afk.yummy.tv.feature.collection.mobile.view.CollectionMobileHeader
 import su.afk.yummy.tv.feature.collection.mobile.view.MobileCollectionEditDialog
 import su.afk.yummy.tv.feature.collection.mobile.view.MobileDeleteCollectionDialog
@@ -125,13 +126,10 @@ fun CollectionMobileScreen(
                 item(span = { GridItemSpan(maxLineSpan) }) {
                     CollectionMobileHeader(
                         collection = collection,
-                        isVoteLoading = state.isVoteLoading,
                         isOwner = state.isOwner,
                         isMutationLoading = state.isUpdating || state.isDeleting,
-                        onVote = { vote -> onEvent(CollectionState.Event.VoteSelected(vote)) },
                         onEdit = { onEvent(CollectionState.Event.EditSelected) },
                         onDelete = { onEvent(CollectionState.Event.DeleteSelected) },
-                        onComments = { onEvent(CollectionState.Event.CommentsSelected) },
                     )
                 }
                 items(collection.animes, key = { it.id }) { item ->
@@ -158,6 +156,15 @@ fun CollectionMobileScreen(
                             }
                         },
                         onClick = { onEvent(CollectionState.Event.AnimeSelected(item.id)) },
+                    )
+                }
+                item(span = { GridItemSpan(maxLineSpan) }) {
+                    CollectionEngagementPanel(
+                        collection = collection,
+                        voting = state.isVoteLoading,
+                        onVote = { vote -> onEvent(CollectionState.Event.VoteSelected(vote)) },
+                        onCommentsClick = { onEvent(CollectionState.Event.CommentsSelected) },
+                        modifier = Modifier.padding(top = 8.dp),
                     )
                 }
             }
