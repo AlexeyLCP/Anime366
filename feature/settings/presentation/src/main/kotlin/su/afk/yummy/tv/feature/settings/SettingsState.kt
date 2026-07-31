@@ -15,6 +15,7 @@ import su.afk.yummy.tv.core.preferences.settings.PreferredVideoQuality
 import su.afk.yummy.tv.core.preferences.settings.PreviewCacheSize
 import su.afk.yummy.tv.core.preferences.settings.SettingsStore
 import su.afk.yummy.tv.core.preferences.settings.YaniContentLanguage
+import su.afk.yummy.tv.core.utils.CacheStorageEntry
 
 enum class DetailsButtonMoveDirection {
     UP,
@@ -49,6 +50,9 @@ class SettingsState {
         val contentLanguage: YaniContentLanguage = YaniContentLanguage.DEFAULT,
         val detailsButtonOrder: List<DetailsButtonAction> = SettingsStore.defaultDetailsButtonOrder,
         val videoExportDirectoryName: String? = null,
+        val cacheStorageEntries: List<CacheStorageEntry> = emptyList(),
+        val cacheStorageTotalBytes: Long = 0L,
+        val isCacheStorageLoading: Boolean = false,
     ) : UiState
 
     /** Пользовательские действия на экране настроек. */
@@ -143,6 +147,9 @@ class SettingsState {
         /** Пользователь переключил автоматическую выгрузку серии после скачивания. */
         data object VideoExportAutoToggled : Event
         data class VideoExportDirectoryGranted(val uri: String) : Event
+
+        /** Пользователь запросил пересчёт размеров папок кэша. */
+        data object CacheStorageRefreshRequested : Event
     }
 
     sealed interface Effect : UiEffect {

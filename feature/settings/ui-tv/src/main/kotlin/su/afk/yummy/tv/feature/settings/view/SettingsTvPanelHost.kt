@@ -18,6 +18,10 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -472,10 +476,12 @@ internal fun SettingsTvPanelHost(
                     }
 
                     SettingsTab.API -> {
+                        var showCacheStorageDialog by remember { mutableStateOf(false) }
                         ApiSettingsPanel(
                             token = state.yaniApplicationToken,
                             upFocusRequester = tabFocusRequester,
                             contentFocusRequester = tabContentFocusRequester,
+                            cacheStorageSize = state.cacheStorageTotalBytes,
                             onTokenChanged = {
                                 onEvent(
                                     SettingsState.Event.YaniApplicationTokenChanged(
@@ -483,7 +489,22 @@ internal fun SettingsTvPanelHost(
                                     )
                                 )
                             },
+                            onShowCacheStorage = {
+                                onEvent(SettingsState.Event.CacheStorageRefreshRequested)
+                                showCacheStorageDialog = true
+                            },
                         )
+                        if (showCacheStorageDialog) {
+                            CacheStorageTvDialog(
+                                entries = state.cacheStorageEntries,
+                                totalBytes = state.cacheStorageTotalBytes,
+                                isLoading = state.isCacheStorageLoading,
+                                onRefresh = {
+                                    onEvent(SettingsState.Event.CacheStorageRefreshRequested)
+                                },
+                                onDismiss = { showCacheStorageDialog = false },
+                            )
+                        }
                     }
 
                     SettingsTab.TV_HOME -> {

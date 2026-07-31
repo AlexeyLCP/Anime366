@@ -13,6 +13,7 @@ import su.afk.yummy.tv.core.preferences.interface_mode.AppInterfaceMode
 import su.afk.yummy.tv.core.preferences.interface_mode.AppInterfaceModePreferences
 import su.afk.yummy.tv.core.preferences.settings.SettingsStore
 import su.afk.yummy.tv.core.tv.api.ITvIntegration
+import su.afk.yummy.tv.core.utils.CacheStorageInspector
 import su.afk.yummy.tv.domain.videodownload.usecase.ObserveVideoExportDestinationUseCase
 import su.afk.yummy.tv.domain.videodownload.usecase.SelectVideoExportDestinationUseCase
 import su.afk.yummy.tv.feature.settings.navigator.SettingsDetailsButtonOrderDestination
@@ -31,6 +32,7 @@ class SettingsViewModel @Inject internal constructor(
     private val analytics: SettingsAnalytics,
     private val observeVideoExportDestination: ObserveVideoExportDestinationUseCase,
     private val selectVideoExportDestination: SelectVideoExportDestinationUseCase,
+    private val cacheStorageInspector: CacheStorageInspector,
 ) : BaseViewModelNew<SettingsState.State, SettingsState.Event, SettingsState.Effect>(
     savedStateHandle
 ) {
@@ -84,6 +86,21 @@ class SettingsViewModel @Inject internal constructor(
                 setState { copy(videoExportDirectoryName = destination?.displayName) }
             }
             .launchIn(viewModelScope)
+        loadCacheStorage()
+    }
+
+    private fun loadCacheStorage() {
+        setState { copy(isCacheStorageLoading = true) }
+        viewModelScope.launch {
+            val report = runCatching { cacheStorageInspector.inspect() }.getOrNull()
+            setState {
+                copy(
+                    isCacheStorageLoading = false,
+                    cacheStorageEntries = report?.entries ?: cacheStorageEntries,
+                    cacheStorageTotalBytes = report?.totalBytes ?: cacheStorageTotalBytes,
+                )
+            }
+        }
     }
 
     override fun onEvent(event: SettingsState.Event) {
@@ -251,6 +268,8 @@ class SettingsViewModel @Inject internal constructor(
                         setEffect(SettingsState.Effect.VideoExportDirectorySelectionFailed)
                     }
             }
+
+            SettingsState.Event.CacheStorageRefreshRequested -> loadCacheStorage()
         }
     }
 }

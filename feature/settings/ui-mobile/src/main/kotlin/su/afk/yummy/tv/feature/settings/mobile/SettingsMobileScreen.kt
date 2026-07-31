@@ -1,5 +1,6 @@
 package su.afk.yummy.tv.feature.settings.mobile
 
+import android.text.format.Formatter
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -47,6 +48,7 @@ import su.afk.yummy.tv.feature.settings.mobile.model.SettingsMobilePicker
 import su.afk.yummy.tv.feature.settings.mobile.model.SettingsMobilePickerOption
 import su.afk.yummy.tv.feature.settings.mobile.utils.hint
 import su.afk.yummy.tv.feature.settings.mobile.utils.label
+import su.afk.yummy.tv.feature.settings.mobile.view.CacheStorageMobileDialog
 import su.afk.yummy.tv.feature.settings.mobile.view.MobileInterfaceModeConfirmationDialog
 import su.afk.yummy.tv.feature.settings.mobile.view.SettingsMobileAboutRow
 import su.afk.yummy.tv.feature.settings.mobile.view.SettingsMobileActionRow
@@ -73,6 +75,7 @@ fun SettingsMobileScreen(
 ) {
     var activePicker by remember { mutableStateOf<SettingsMobilePicker?>(null) }
     var pendingInterfaceMode by remember { mutableStateOf<AppInterfaceMode?>(null) }
+    var showCacheStorageDialog by remember { mutableStateOf(false) }
     val title = stringResource(R.string.settings_mobile_title)
     val context = LocalContext.current
     val repositoryUrl = stringResource(R.string.settings_repository_url)
@@ -351,6 +354,18 @@ fun SettingsMobileScreen(
                         placeholder = { Text(stringResource(R.string.settings_yani_application_token_placeholder)) },
                         supportingText = { Text(stringResource(R.string.settings_yani_application_token_hint)) },
                     )
+                    SettingsMobileOptionRow(
+                        label = stringResource(R.string.settings_cache_storage_title),
+                        value = Formatter.formatShortFileSize(
+                            context,
+                            state.cacheStorageTotalBytes,
+                        ),
+                        hint = stringResource(R.string.settings_cache_storage_button_hint),
+                        onClick = {
+                            onEvent(SettingsState.Event.CacheStorageRefreshRequested)
+                            showCacheStorageDialog = true
+                        },
+                    )
                 }
             }
 
@@ -543,6 +558,16 @@ fun SettingsMobileScreen(
         )
 
         null -> Unit
+    }
+
+    if (showCacheStorageDialog) {
+        CacheStorageMobileDialog(
+            entries = state.cacheStorageEntries,
+            totalBytes = state.cacheStorageTotalBytes,
+            isLoading = state.isCacheStorageLoading,
+            onRefresh = { onEvent(SettingsState.Event.CacheStorageRefreshRequested) },
+            onDismiss = { showCacheStorageDialog = false },
+        )
     }
 
     pendingInterfaceMode?.let { targetMode ->

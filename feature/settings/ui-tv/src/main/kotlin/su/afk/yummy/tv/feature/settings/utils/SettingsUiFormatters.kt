@@ -270,6 +270,20 @@ internal fun YaniContentLanguage.label(): String = stringResource(
     },
 )
 
+/** Дружелюбная подпись папки кэша; неизвестные имена показываются как есть. */
+@Composable
+internal fun cacheStorageFolderLabel(id: String): String = when (id) {
+    "image_cache" -> stringResource(R.string.settings_cache_storage_folder_images)
+    "player_streaming_cache" -> stringResource(R.string.settings_cache_storage_folder_player)
+    "video_download_cache" -> stringResource(R.string.settings_cache_storage_folder_downloads)
+    "video_exports" -> stringResource(R.string.settings_cache_storage_folder_exports)
+    else -> if (id.startsWith("yummy_cache.db")) {
+        stringResource(R.string.settings_cache_storage_folder_database)
+    } else {
+        id
+    }
+}
+
 /**
  * Возврат фокуса из панели контента к списку категорий слева (D-pad влево).
  * Навешивается на первый пункт панели; между строками контента вверх/вниз работает штатно.
