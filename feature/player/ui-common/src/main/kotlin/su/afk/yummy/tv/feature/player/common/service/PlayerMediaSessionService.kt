@@ -46,7 +46,10 @@ class PlayerMediaSessionService : MediaSessionService() {
         }
         val exoPlayer = ExoPlayer.Builder(this)
             .setTrackSelector(trackSelector)
-            .setMediaSourceFactory(DefaultMediaSourceFactory(playbackConfig.dataSourceFactory()))
+            .setMediaSourceFactory(
+                DefaultMediaSourceFactory(playbackConfig.dataSourceFactory())
+                    .setLoadErrorHandlingPolicy(PlayerLoadErrorHandlingPolicy(playbackConfig))
+            )
             .setLoadControl(PlayerLoadControlFactory.create(isLowRamDevice))
             .setHandleAudioBecomingNoisy(true)
             .build()

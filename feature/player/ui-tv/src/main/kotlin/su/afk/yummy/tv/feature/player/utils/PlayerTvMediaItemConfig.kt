@@ -3,6 +3,7 @@ package su.afk.yummy.tv.feature.player.utils
 import su.afk.yummy.tv.feature.player.PlayerState
 import su.afk.yummy.tv.feature.player.common.buildPlayerPlaybackKey
 import su.afk.yummy.tv.feature.player.common.playerAudioTrackPolicyFor
+import su.afk.yummy.tv.feature.player.common.playerSilentReconnectEnabled
 import su.afk.yummy.tv.feature.player.common.playerUseRotatingHlsCacheKeys
 import su.afk.yummy.tv.feature.player.common.service.PlayerMediaItemConfig
 import su.afk.yummy.tv.feature.player.model.PlayerPlaybackUiState
@@ -55,4 +56,9 @@ internal fun buildTvPlayerMediaItemConfig(
     audioTrackPolicy = playerAudioTrackPolicyFor(playback.activeIframeUrl),
     playbackPositionMs = playbackPositionMs,
     resumeFromMs = state.resumeFromMs,
+    silentReconnectEnabled = playerSilentReconnectEnabled(
+        episodeUrl = playback.activeIframeUrl,
+        isOfflinePlayback = state.isOfflinePlayback,
+        isLocalFile = state.isLocalFile,
+    ),
 )

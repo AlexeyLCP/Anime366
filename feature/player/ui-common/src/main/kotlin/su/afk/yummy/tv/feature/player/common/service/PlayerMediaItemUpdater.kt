@@ -26,6 +26,7 @@ data class PlayerMediaItemConfig(
     val audioTrackPolicy: PlayerAudioTrackPolicy,
     val playbackPositionMs: Long,
     val resumeFromMs: Long,
+    val silentReconnectEnabled: Boolean = false,
 )
 
 class PlayerMediaItemUpdater {
@@ -56,6 +57,7 @@ class PlayerMediaItemUpdater {
             audioTrackPolicy = config.audioTrackPolicy,
             isOfflinePlayback = config.isOfflinePlayback,
             isLocalFile = config.isLocalFile,
+            silentReconnectEnabled = config.silentReconnectEnabled,
         )
         val resume = config.playbackPositionMs.takeIf { it > 0L } ?: config.resumeFromMs
         if (player.currentMediaItem?.localConfiguration?.uri?.toString() != config.url || playbackKey != config.playbackKey) {

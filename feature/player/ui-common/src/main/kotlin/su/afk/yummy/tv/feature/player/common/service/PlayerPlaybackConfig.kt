@@ -19,10 +19,18 @@ interface PlayerPlaybackConfig {
         audioTrackPolicy: PlayerAudioTrackPolicy,
         isOfflinePlayback: Boolean,
         isLocalFile: Boolean,
+        silentReconnectEnabled: Boolean,
     )
 
     fun dataSourceFactory(): DataSource.Factory
     fun trackSelectionConfig(): PlayerTrackSelectionConfig
+
+    /**
+     * Включено ли «тихое переподключение под буфер» для текущего источника — продлённое окно
+     * фоновых ретраев загрузчика ([PlayerLoadErrorHandlingPolicy]). Выключено для Alloha
+     * (у неё свой fresh-session recovery) и для офлайна/локальных файлов.
+     */
+    fun silentReconnectEnabled(): Boolean
 }
 
 data class PlayerTrackSelectionConfig(
@@ -54,6 +62,9 @@ class DefaultPlayerPlaybackConfig @Inject constructor(
     @Volatile
     private var trackSelection = PlayerTrackSelectionConfig()
 
+    @Volatile
+    private var silentReconnectEnabled: Boolean = false
+
     override fun updateStream(
         headers: Map<String, String>,
         offlineCacheKey: String?,
@@ -62,9 +73,11 @@ class DefaultPlayerPlaybackConfig @Inject constructor(
         audioTrackPolicy: PlayerAudioTrackPolicy,
         isOfflinePlayback: Boolean,
         isLocalFile: Boolean,
+        silentReconnectEnabled: Boolean,
     ) {
         this.headers = headers.toMap()
         this.isLocalFile = isLocalFile
+        this.silentReconnectEnabled = silentReconnectEnabled
         offlineCacheConfig = offlineCacheKey?.let { cacheKey ->
             OfflineCacheConfig(
                 cacheKey = cacheKey,
@@ -76,6 +89,8 @@ class DefaultPlayerPlaybackConfig @Inject constructor(
     }
 
     override fun trackSelectionConfig(): PlayerTrackSelectionConfig = trackSelection
+
+    override fun silentReconnectEnabled(): Boolean = silentReconnectEnabled
 
     override fun dataSourceFactory(): DataSource.Factory = DataSource.Factory {
         val offline = offlineCacheConfig
