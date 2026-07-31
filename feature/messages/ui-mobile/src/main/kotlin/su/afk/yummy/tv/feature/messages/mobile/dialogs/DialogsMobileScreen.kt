@@ -89,10 +89,15 @@ fun DialogsMobileScreen(
                         }
 
                         dialogs.itemCount == 0 -> item {
-                            StateMessage(
-                                title = stringResource(R.string.messages_empty),
-                                fillMaxSize = false,
-                            )
+                            Box(
+                                Modifier.fillParentMaxHeight(.7f),
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                StateMessage(
+                                    title = stringResource(R.string.messages_empty),
+                                    fillMaxSize = false,
+                                )
+                            }
                         }
 
                         else -> items(

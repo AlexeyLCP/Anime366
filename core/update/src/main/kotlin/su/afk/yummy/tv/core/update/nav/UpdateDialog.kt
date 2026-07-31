@@ -388,7 +388,10 @@ private fun DownloadingContent(status: UpdateState.State.Status.Downloading) {
 
 @Composable
 private fun InstallingContent() {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
         CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
         Spacer(Modifier.height(16.dp))
         Text(

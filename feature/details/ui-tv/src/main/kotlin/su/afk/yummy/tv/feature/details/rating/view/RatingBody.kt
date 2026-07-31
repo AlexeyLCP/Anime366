@@ -53,51 +53,57 @@ internal fun RatingBody(
         Column(
             modifier = Modifier
                 .align(Alignment.TopStart)
-                .fillMaxWidth(0.78f)
+                .fillMaxWidth()
                 .padding(top = 12.dp),
             verticalArrangement = Arrangement.spacedBy(22.dp),
         ) {
-            Text(
-                text = stringResource(R.string.details_rating_screen_title),
-                style = MaterialTheme.typography.displaySmall,
-                fontWeight = FontWeight.ExtraBold,
-                color = MaterialTheme.colorScheme.onBackground,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
-
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                verticalAlignment = Alignment.CenterVertically
+            Column(
+                modifier = Modifier.fillMaxWidth(0.78f),
+                verticalArrangement = Arrangement.spacedBy(22.dp),
             ) {
-                selectedUserRating?.let { rating ->
-                    RatingSummaryPill(stringResource(R.string.details_your_rating, rating))
-                    RatingAction(
-                        label = stringResource(R.string.details_rating_delete),
-                        onClick = onRatingDeleted
-                    )
-                } ?: RatingSummaryPill(stringResource(R.string.details_rating_not_set))
-            }
+                Text(
+                    text = stringResource(R.string.details_rating_screen_title),
+                    style = MaterialTheme.typography.displaySmall,
+                    fontWeight = FontWeight.ExtraBold,
+                    color = MaterialTheme.colorScheme.onBackground,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                (1..10).forEach { rating ->
-                    RatingAction(
-                        label = rating.toString(),
-                        onClick = { onRatingSelected(rating) },
-                        selected = selectedUserRating == rating,
-                        focusRequester = ratingFocusRequesters[rating - 1],
-                        modifier = Modifier.weight(1f),
-                        compact = true,
-                        icon = { Icon(Icons.Filled.Star, contentDescription = null) },
-                    )
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    selectedUserRating?.let { rating ->
+                        RatingSummaryPill(stringResource(R.string.details_your_rating, rating))
+                        RatingAction(
+                            label = stringResource(R.string.details_rating_delete),
+                            onClick = onRatingDeleted
+                        )
+                    } ?: RatingSummaryPill(stringResource(R.string.details_rating_not_set))
                 }
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    (1..10).forEach { rating ->
+                        RatingAction(
+                            label = rating.toString(),
+                            onClick = { onRatingSelected(rating) },
+                            selected = selectedUserRating == rating,
+                            focusRequester = ratingFocusRequesters[rating - 1],
+                            modifier = Modifier.weight(1f),
+                            compact = true,
+                            icon = { Icon(Icons.Filled.Star, contentDescription = null) },
+                        )
+                    }
+                }
+
+                RatingDistribution(ratingSummary.distribution)
             }
 
-            RatingDistribution(ratingSummary.distribution)
             ListStatsRow(listStats)
         }
     }
