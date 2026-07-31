@@ -1,5 +1,6 @@
 package su.afk.yummy.tv.feature.pages.mobile
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -35,6 +36,9 @@ fun SitePagesMobileScreen(
     onEvent: (SitePagesState.Event) -> Unit,
 ) {
     val loadedPage = state.page
+    BackHandler(enabled = state.selectedType != null) {
+        onEvent(SitePagesState.Event.BackSelected)
+    }
     Scaffold(
         topBar = {
             TopAppBar(
