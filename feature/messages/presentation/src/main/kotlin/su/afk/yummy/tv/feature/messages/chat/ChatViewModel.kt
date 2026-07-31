@@ -141,7 +141,7 @@ class ChatViewModel @AssistedInject constructor(
     }
 
     private fun loadInitial() {
-        if (!currentState.isAuthorized || userId <= 0 || currentState.isLoading) return
+        if (!currentState.isAuthorized || userId < 0 || currentState.isLoading) return
         viewModelScope.launch {
             setState { copy(isLoading = true, hasLoadError = false) }
             runCatching {

@@ -24,10 +24,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
+import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import kotlinx.coroutines.flow.Flow
 import su.afk.yummy.tv.core.designsystem.presenter.mobile.MobileAppendError
 import su.afk.yummy.tv.core.designsystem.presenter.mobile.MobileStateContent
+import su.afk.yummy.tv.core.designsystem.presenter.mobile.MobileSwipeableTabsPager
+import su.afk.yummy.tv.core.designsystem.presenter.mobile.rememberMobileSwipeableTabsState
+import su.afk.yummy.tv.domain.bloggers.model.BloggerVideo
+import su.afk.yummy.tv.domain.bloggers.model.BloggerVideoSort
 import su.afk.yummy.tv.feature.bloggers.list.BloggerVideosListState
 import su.afk.yummy.tv.feature.bloggers.mobile.R
 import su.afk.yummy.tv.feature.bloggers.mobile.view.BloggerVideoMobileCard
@@ -41,6 +46,14 @@ fun BloggerVideosListMobileScreen(
     onEvent: (BloggerVideosListState.Event) -> Unit,
 ) {
     val videos = state.videos.collectAsLazyPagingItems()
+    val sorts = BloggerVideoSort.entries
+    val tabsState = rememberMobileSwipeableTabsState(
+        selectedPage = sorts.indexOf(state.sort).coerceAtLeast(0),
+        pageCount = sorts.size,
+        onPageSelected = { page ->
+            sorts.getOrNull(page)?.let { onEvent(BloggerVideosListState.Event.SortSelected(it)) }
+        },
+    )
     BackHandler { onEvent(BloggerVideosListState.Event.BackSelected) }
     Scaffold(
         topBar = {
@@ -71,8 +84,8 @@ fun BloggerVideosListMobileScreen(
                     onBloggerSelected = {
                         onEvent(BloggerVideosListState.Event.BloggerSelected(it))
                     },
-                    onSortSelected = {
-                        onEvent(BloggerVideosListState.Event.SortSelected(it))
+                    onSortSelected = { sort ->
+                        tabsState.selectPage(sorts.indexOf(sort))
                     },
                     onOpenBlogger = {
                         onEvent(BloggerVideosListState.Event.BloggerDetailsSelected(it))
@@ -81,52 +94,68 @@ fun BloggerVideosListMobileScreen(
                         onEvent(BloggerVideosListState.Event.FiltersReset)
                     },
                 )
-            }
-            val refresh = videos.loadState.refresh
-            MobileStateContent(
-                isLoading = refresh is LoadState.Loading,
-                error = (refresh as? LoadState.Error)?.let { stringResource(R.string.blogger_videos_error) },
-                onRetry = { videos.retry() },
-                empty = videos.itemCount == 0,
-                emptyText = stringResource(R.string.blogger_videos_empty),
-            ) {
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(14.dp),
-                ) {
-                    items(
-                        videos.itemCount,
-                        key = { index -> videos[index]?.id ?: index },
-                    ) { index ->
-                        videos[index]?.let { video ->
-                            BloggerVideoMobileCard(
-                                video,
-                                { onEvent(BloggerVideosListState.Event.VideoSelected(video.id)) },
-                                { onEvent(BloggerVideosListState.Event.BloggerDetailsSelected(video.creator.id)) },
-                            )
-                        }
-                    }
-                    when (videos.loadState.append) {
-                        is LoadState.Loading -> item {
-                            Box(
-                                Modifier
-                                    .fillMaxWidth()
-                                    .padding(16.dp),
-                                contentAlignment = Alignment.Center,
-                            ) { CircularProgressIndicator() }
-                        }
-
-                        is LoadState.Error -> item {
-                            MobileAppendError(
-                                message = stringResource(R.string.blogger_videos_error),
-                                onRetry = { videos.retry() },
-                            )
-                        }
-
-                        else -> Unit
-                    }
+                MobileSwipeableTabsPager(
+                    state = tabsState,
+                    modifier = Modifier.weight(1f),
+                    key = { page -> sorts[page].name },
+                ) { _ ->
+                    BloggerVideosListContent(videos, onEvent)
                 }
+            } else {
+                BloggerVideosListContent(videos, onEvent)
+            }
+        }
+    }
+}
+
+@Composable
+private fun BloggerVideosListContent(
+    videos: LazyPagingItems<BloggerVideo>,
+    onEvent: (BloggerVideosListState.Event) -> Unit,
+) {
+    val refresh = videos.loadState.refresh
+    MobileStateContent(
+        isLoading = refresh is LoadState.Loading,
+        error = (refresh as? LoadState.Error)?.let { stringResource(R.string.blogger_videos_error) },
+        onRetry = { videos.retry() },
+        empty = videos.itemCount == 0,
+        emptyText = stringResource(R.string.blogger_videos_empty),
+    ) {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(16.dp),
+            verticalArrangement = Arrangement.spacedBy(14.dp),
+        ) {
+            items(
+                videos.itemCount,
+                key = { index -> videos[index]?.id ?: index },
+            ) { index ->
+                videos[index]?.let { video ->
+                    BloggerVideoMobileCard(
+                        video,
+                        { onEvent(BloggerVideosListState.Event.VideoSelected(video.id)) },
+                        { onEvent(BloggerVideosListState.Event.BloggerDetailsSelected(video.creator.id)) },
+                    )
+                }
+            }
+            when (videos.loadState.append) {
+                is LoadState.Loading -> item {
+                    Box(
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        contentAlignment = Alignment.Center,
+                    ) { CircularProgressIndicator() }
+                }
+
+                is LoadState.Error -> item {
+                    MobileAppendError(
+                        message = stringResource(R.string.blogger_videos_error),
+                        onRetry = { videos.retry() },
+                    )
+                }
+
+                else -> Unit
             }
         }
     }

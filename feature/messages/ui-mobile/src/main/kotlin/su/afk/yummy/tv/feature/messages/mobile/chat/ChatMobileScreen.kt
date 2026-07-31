@@ -105,7 +105,8 @@ fun ChatMobileScreen(
             MobileTopBar(
                 title = state.peer?.nickname?.takeIf { it.isNotBlank() }
                     ?: state.fallbackNickname.takeIf { it.isNotBlank() }
-                    ?: stringResource(R.string.messages_unknown_user, state.userId),
+                    ?: if (state.userId == 0) stringResource(R.string.messages_global_chat)
+                    else stringResource(R.string.messages_unknown_user, state.userId),
                 onBack = { onEvent(ChatState.Event.BackSelected) },
                 actions = {
                     (state.peer?.avatarUrl ?: state.fallbackAvatarUrl)

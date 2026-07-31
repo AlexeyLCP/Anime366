@@ -20,6 +20,9 @@ import androidx.compose.ui.unit.dp
 import su.afk.yummy.tv.domain.comments.model.CommentSort
 import su.afk.yummy.tv.feature.comments.mobile.utils.label
 
+/** Порядок вкладок сортировки комментариев в UI (Новые/Лучшие/Старые). */
+internal val commentSortOrder = listOf(CommentSort.NEW, CommentSort.BEST, CommentSort.OLD)
+
 @Composable
 internal fun CommentSortRow(
     selected: CommentSort,
@@ -34,7 +37,7 @@ internal fun CommentSortRow(
             .padding(2.dp),
         horizontalArrangement = Arrangement.spacedBy(2.dp),
     ) {
-        listOf(CommentSort.NEW, CommentSort.BEST, CommentSort.OLD).forEach { sort ->
+        commentSortOrder.forEach { sort ->
             val isSelected = sort == selected
             Box(
                 modifier = Modifier

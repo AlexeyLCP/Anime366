@@ -53,7 +53,8 @@ internal fun DialogMobileRow(dialog: DialogSummary, onClick: () -> Unit) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         text = dialog.nickname.ifBlank {
-                            stringResource(R.string.messages_unknown_user, dialog.userId)
+                            if (dialog.userId == 0) stringResource(R.string.messages_global_chat)
+                            else stringResource(R.string.messages_unknown_user, dialog.userId)
                         },
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.SemiBold,

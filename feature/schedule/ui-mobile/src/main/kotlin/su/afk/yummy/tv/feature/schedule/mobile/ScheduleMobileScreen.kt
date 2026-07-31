@@ -16,12 +16,17 @@ import kotlinx.coroutines.flow.emptyFlow
 import su.afk.yummy.tv.core.designsystem.presenter.baseScreen.BaseScreen
 import su.afk.yummy.tv.core.designsystem.presenter.mobile.MobileBottomBarDefaults
 import su.afk.yummy.tv.core.designsystem.presenter.mobile.MobileMessage
+import su.afk.yummy.tv.core.designsystem.presenter.mobile.MobileSwipeableTabsPager
 import su.afk.yummy.tv.core.designsystem.presenter.mobile.MobileTopBar
+import su.afk.yummy.tv.core.designsystem.presenter.mobile.rememberMobileSwipeableTabsState
 import su.afk.yummy.tv.core.designsystem.presenter.preview.ScreenPreviewTheme
 import su.afk.yummy.tv.core.model.ErrorItem
 import su.afk.yummy.tv.feature.schedule.ScheduleState
 import su.afk.yummy.tv.feature.schedule.mobile.view.ScheduleMobileDateChips
 import su.afk.yummy.tv.feature.schedule.mobile.view.ScheduleMobileReleaseCard
+import su.afk.yummy.tv.feature.schedule.model.ScheduleDayUi
+import java.time.ZoneId
+import java.time.ZonedDateTime
 
 @Preview(name = "Default", device = "spec:width=412dp,height=915dp,dpi=420", showBackground = true)
 @Composable
@@ -59,7 +64,18 @@ fun ScheduleMobileScreen(
 
     ) {
     val schedule = state.tvSchedule
-    val selectedGroup = schedule.selectedGroup
+    val dayGroups = schedule.dayGroups
+    val tabsState = rememberMobileSwipeableTabsState(
+        selectedPage = dayGroups
+            .indexOfFirst { it.date.toEpochDay() == schedule.selectedEpochDay }
+            .coerceAtLeast(0),
+        pageCount = dayGroups.size.coerceAtLeast(1),
+        onPageSelected = { page ->
+            dayGroups.getOrNull(page)?.let {
+                onEvent(ScheduleState.Event.DateSelected(it.date.toEpochDay()))
+            }
+        },
+    )
 
     BaseScreen(
         isScroll = false,
@@ -84,32 +100,55 @@ fun ScheduleMobileScreen(
         },
     ) {
         ScheduleMobileDateChips(
-            groups = schedule.dayGroups,
+            groups = dayGroups,
             selectedEpochDay = schedule.selectedEpochDay,
-            onSelected = { onEvent(ScheduleState.Event.DateSelected(it)) },
+            onSelected = { epochDay ->
+                tabsState.selectPage(dayGroups.indexOfFirst { it.date.toEpochDay() == epochDay })
+            },
         )
 
-        if (selectedGroup != null) {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(
-                    start = 16.dp,
-                    top = 10.dp,
-                    end = 16.dp,
-                    bottom = MobileBottomBarDefaults.ContentBottomPadding +
-                            MobileBottomBarDefaults.ExtraContentBottomPadding,
-                ),
-                verticalArrangement = Arrangement.spacedBy(10.dp),
-            ) {
-                items(selectedGroup.items, key = { it.focusKey }) { release ->
-                    ScheduleMobileReleaseCard(
-                        release = release,
-                        now = schedule.now,
-                        zone = schedule.zone,
-                        onClick = { onEvent(ScheduleState.Event.AnimeSelected(release.item.animeId)) },
-                    )
-                }
+        if (dayGroups.isNotEmpty()) {
+            MobileSwipeableTabsPager(
+                state = tabsState,
+                modifier = Modifier.weight(1f),
+                key = { page -> dayGroups[page].date.toEpochDay() },
+            ) { page ->
+                ScheduleDayReleases(
+                    group = dayGroups[page],
+                    now = schedule.now,
+                    zone = schedule.zone,
+                    onAnimeSelected = { onEvent(ScheduleState.Event.AnimeSelected(it)) },
+                )
             }
+        }
+    }
+}
+
+@Composable
+private fun ScheduleDayReleases(
+    group: ScheduleDayUi,
+    now: ZonedDateTime,
+    zone: ZoneId,
+    onAnimeSelected: (Int) -> Unit,
+) {
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(
+            start = 16.dp,
+            top = 10.dp,
+            end = 16.dp,
+            bottom = MobileBottomBarDefaults.ContentBottomPadding +
+                    MobileBottomBarDefaults.ExtraContentBottomPadding,
+        ),
+        verticalArrangement = Arrangement.spacedBy(10.dp),
+    ) {
+        items(group.items, key = { it.focusKey }) { release ->
+            ScheduleMobileReleaseCard(
+                release = release,
+                now = now,
+                zone = zone,
+                onClick = { onAnimeSelected(release.item.animeId) },
+            )
         }
     }
 }

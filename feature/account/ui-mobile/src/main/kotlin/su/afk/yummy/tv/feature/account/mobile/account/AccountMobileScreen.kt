@@ -3,6 +3,7 @@ package su.afk.yummy.tv.feature.account.mobile.account
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
@@ -26,6 +27,8 @@ import su.afk.yummy.tv.core.designsystem.presenter.mobile.LocalMobileBottomBarUp
 import su.afk.yummy.tv.core.designsystem.presenter.mobile.LocalMobileMainActions
 import su.afk.yummy.tv.core.designsystem.presenter.mobile.MobileBottomBarDefaults
 import su.afk.yummy.tv.core.designsystem.presenter.mobile.MobileMessage
+import su.afk.yummy.tv.core.designsystem.presenter.mobile.MobileSwipeableTabsPager
+import su.afk.yummy.tv.core.designsystem.presenter.mobile.rememberMobileSwipeableTabsState
 import su.afk.yummy.tv.core.designsystem.presenter.preview.ScreenPreviewTheme
 import su.afk.yummy.tv.feature.account.account.AccountState
 import su.afk.yummy.tv.feature.account.mobile.R
@@ -77,6 +80,14 @@ fun AccountMobileScreen(
     var showLogoutConfirm by remember { mutableStateOf(false) }
     val mainActions = LocalMobileMainActions.current
     val bottomBarUpFocusRequester = LocalMobileBottomBarUpFocusRequester.current
+    val accountTabs = AccountState.AccountTab.entries
+    val tabsState = rememberMobileSwipeableTabsState(
+        selectedPage = accountTabs.indexOf(state.selectedTab).coerceAtLeast(0),
+        pageCount = accountTabs.size,
+        onPageSelected = { page ->
+            accountTabs.getOrNull(page)?.let { onEvent(AccountState.Event.TabSelected(it)) }
+        },
+    )
 
     BaseScreen(
         isScroll = false,
@@ -187,7 +198,7 @@ fun AccountMobileScreen(
                     AccountMobileTabs(
                         selected = state.selectedTab,
                         unreadCount = state.unreadNotificationCount,
-                        onSelected = { onEvent(AccountState.Event.TabSelected(it)) },
+                        onSelected = { tab -> tabsState.selectPage(accountTabs.indexOf(tab)) },
                     )
                 }
                 if (state.hubError != null) {
@@ -203,28 +214,34 @@ fun AccountMobileScreen(
                         }
                     }
                 }
-                item(key = "selected_tab_${state.selectedTab}") {
-                    when (state.selectedTab) {
-                        AccountState.AccountTab.STATS -> {
-                            if (state.isStatsLoading && state.stats == null && state.profileSummary == null) {
-                                AccountMobileLoadingIndicator()
-                            } else {
-                                AccountMobileStatsTab(
-                                    profileSummary = state.profileSummary,
-                                    stats = state.stats,
-                                    isLoading = state.isStatsLoading,
-                                )
+                item(key = "tabs_pager") {
+                    MobileSwipeableTabsPager(
+                        state = tabsState,
+                        modifier = Modifier.fillMaxWidth(),
+                        key = { page -> accountTabs[page].name },
+                    ) { page ->
+                        when (accountTabs[page]) {
+                            AccountState.AccountTab.STATS -> {
+                                if (state.isStatsLoading && state.stats == null && state.profileSummary == null) {
+                                    AccountMobileLoadingIndicator()
+                                } else {
+                                    AccountMobileStatsTab(
+                                        profileSummary = state.profileSummary,
+                                        stats = state.stats,
+                                        isLoading = state.isStatsLoading,
+                                    )
+                                }
                             }
-                        }
 
-                        AccountState.AccountTab.NOTIFICATIONS -> {
-                            if (state.isNotificationsLoading && state.notifications.isEmpty()) {
-                                AccountMobileLoadingIndicator()
-                            } else {
-                                AccountMobileNotificationsTab(
-                                    state = state,
-                                    onEvent = onEvent,
-                                )
+                            AccountState.AccountTab.NOTIFICATIONS -> {
+                                if (state.isNotificationsLoading && state.notifications.isEmpty()) {
+                                    AccountMobileLoadingIndicator()
+                                } else {
+                                    AccountMobileNotificationsTab(
+                                        state = state,
+                                        onEvent = onEvent,
+                                    )
+                                }
                             }
                         }
                     }

@@ -6,6 +6,7 @@
     <string name="messages_auth_required">Sign in to view personal messages</string>
     <string name="messages_sign_in">Sign in</string>
     <string name="messages_unknown_user">User #%1$d</string>
+    <string name="messages_global_chat">Global chat</string>
     <string name="messages_chat_empty">There are no messages yet. Start the conversation.</string>
     <string name="messages_chat_error">Couldn’t load messages</string>
     <string name="messages_composer_hint">Message</string>

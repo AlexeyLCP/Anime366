@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -16,7 +15,10 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import su.afk.yummy.tv.core.designsystem.presenter.baseScreen.BaseScreen
+import su.afk.yummy.tv.core.designsystem.presenter.mobile.MobileSectionLoading
+import su.afk.yummy.tv.core.designsystem.presenter.mobile.MobileSwipeableTabsPager
 import su.afk.yummy.tv.core.designsystem.presenter.mobile.MobileTopBar
+import su.afk.yummy.tv.core.designsystem.presenter.mobile.rememberMobileSwipeableTabsState
 import su.afk.yummy.tv.core.designsystem.presenter.preview.ScreenPreviewTheme
 import su.afk.yummy.tv.feature.account.mobile.R
 import su.afk.yummy.tv.feature.account.mobile.userprofile.view.UserProfileHeader
@@ -61,27 +63,14 @@ fun UserProfileMobileScreen(
     effect: Flow<UserProfileState.Effect>,
     onEvent: (UserProfileState.Event) -> Unit,
 ) {
-    val listState = rememberLazyListState()
-    val collections = if (state.selectedTab == UserProfileState.Tab.COLLECTIONS) {
-        state.collections.collectAsLazyPagingItems()
-    } else {
-        null
-    }
-    val posts = if (state.selectedTab == UserProfileState.Tab.POSTS) {
-        state.posts.collectAsLazyPagingItems()
-    } else {
-        null
-    }
-    val reviews = if (state.selectedTab == UserProfileState.Tab.REVIEWS) {
-        state.reviews.collectAsLazyPagingItems()
-    } else {
-        null
-    }
-    val friends = if (state.selectedTab == UserProfileState.Tab.FRIENDS) {
-        state.friends.collectAsLazyPagingItems()
-    } else {
-        null
-    }
+    val tabs = UserProfileState.Tab.entries
+    val tabsState = rememberMobileSwipeableTabsState(
+        selectedPage = tabs.indexOf(state.selectedTab).coerceAtLeast(0),
+        pageCount = tabs.size,
+        onPageSelected = { page ->
+            tabs.getOrNull(page)?.let { onEvent(UserProfileState.Event.TabSelected(it)) }
+        },
+    )
 
     BaseScreen(
         isScroll = false,
@@ -94,56 +83,95 @@ fun UserProfileMobileScreen(
             )
         },
     ) {
-        LazyColumn(
-            state = listState,
-            modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(bottom = 32.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
-            item(key = "header") {
-                UserProfileHeader(
+        UserProfileHeader(
+            state = state,
+            onEvent = onEvent,
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+        )
+        UserProfileTabs(
+            selected = state.selectedTab,
+            profile = state.profile,
+            onSelected = { tab -> tabsState.selectPage(tabs.indexOf(tab)) },
+        )
+        MobileSwipeableTabsPager(
+            state = tabsState,
+            modifier = Modifier.weight(1f),
+            key = { page -> tabs[page].name },
+        ) { page ->
+            if (tabs[page] == state.selectedTab) {
+                UserProfileTabContent(
+                    tab = tabs[page],
                     state = state,
                     onEvent = onEvent,
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
                 )
+            } else {
+                MobileSectionLoading(modifier = Modifier.fillMaxSize())
             }
-            item(key = "tabs") {
-                UserProfileTabs(
-                    selected = state.selectedTab,
-                    profile = state.profile,
-                    onSelected = { onEvent(UserProfileState.Event.TabSelected(it)) },
-                )
+        }
+    }
+}
+
+@Composable
+private fun UserProfileTabContent(
+    tab: UserProfileState.Tab,
+    state: UserProfileState.State,
+    onEvent: (UserProfileState.Event) -> Unit,
+) {
+    val collections = if (tab == UserProfileState.Tab.COLLECTIONS) {
+        state.collections.collectAsLazyPagingItems()
+    } else {
+        null
+    }
+    val posts = if (tab == UserProfileState.Tab.POSTS) {
+        state.posts.collectAsLazyPagingItems()
+    } else {
+        null
+    }
+    val reviews = if (tab == UserProfileState.Tab.REVIEWS) {
+        state.reviews.collectAsLazyPagingItems()
+    } else {
+        null
+    }
+    val friends = if (tab == UserProfileState.Tab.FRIENDS) {
+        state.friends.collectAsLazyPagingItems()
+    } else {
+        null
+    }
+
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(bottom = 32.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        when (tab) {
+            UserProfileState.Tab.OVERVIEW -> item(key = "overview") {
+                UserProfileOverview(state = state, onEvent = onEvent)
             }
-            when (state.selectedTab) {
-                UserProfileState.Tab.OVERVIEW -> item(key = "overview") {
-                    UserProfileOverview(state = state, onEvent = onEvent)
+
+            UserProfileState.Tab.LISTS -> {
+                item(key = "list_filters") {
+                    UserProfileListFilters(
+                        selected = state.selectedList,
+                        counts = state.profile?.counts,
+                        onSelected = {
+                            onEvent(UserProfileState.Event.ListFilterSelected(it))
+                        },
+                    )
                 }
-
-                UserProfileState.Tab.LISTS -> {
-                    item(key = "list_filters") {
-                        UserProfileListFilters(
-                            selected = state.selectedList,
-                            counts = state.profile?.counts,
-                            onSelected = {
-                                onEvent(UserProfileState.Event.ListFilterSelected(it))
-                            },
-                        )
-                    }
-                    userAnimeListItems(state.lists, onEvent)
-                }
-
-                UserProfileState.Tab.COLLECTIONS ->
-                    collections?.let { collectionItems(it, onEvent) }
-
-                UserProfileState.Tab.POSTS ->
-                    posts?.let { postItems(it, onEvent) }
-
-                UserProfileState.Tab.REVIEWS ->
-                    reviews?.let { reviewItems(it, onEvent) }
-
-                UserProfileState.Tab.FRIENDS ->
-                    friends?.let { friendItems(it, onEvent) }
+                userAnimeListItems(state.lists, onEvent)
             }
+
+            UserProfileState.Tab.COLLECTIONS ->
+                collections?.let { collectionItems(it, onEvent) }
+
+            UserProfileState.Tab.POSTS ->
+                posts?.let { postItems(it, onEvent) }
+
+            UserProfileState.Tab.REVIEWS ->
+                reviews?.let { reviewItems(it, onEvent) }
+
+            UserProfileState.Tab.FRIENDS ->
+                friends?.let { friendItems(it, onEvent) }
         }
     }
 }

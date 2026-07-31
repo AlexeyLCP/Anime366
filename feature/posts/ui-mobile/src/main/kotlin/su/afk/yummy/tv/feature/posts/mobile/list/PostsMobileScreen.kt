@@ -1,6 +1,7 @@
 package su.afk.yummy.tv.feature.posts.mobile.list
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -24,13 +25,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
+import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
 import kotlinx.coroutines.flow.Flow
 import su.afk.yummy.tv.core.designsystem.presenter.components.StateMessage
 import su.afk.yummy.tv.core.designsystem.presenter.mobile.MobileAppendError
 import su.afk.yummy.tv.core.designsystem.presenter.mobile.MobileSectionLoading
+import su.afk.yummy.tv.core.designsystem.presenter.mobile.MobileSwipeableTabsPager
+import su.afk.yummy.tv.core.designsystem.presenter.mobile.rememberMobileSwipeableTabsState
 import su.afk.yummy.tv.domain.posts.model.PostSort
+import su.afk.yummy.tv.domain.posts.model.PostSummary
 import su.afk.yummy.tv.feature.posts.list.PostsListState
 import su.afk.yummy.tv.feature.posts.mobile.R
 import su.afk.yummy.tv.feature.posts.mobile.utils.label
@@ -45,6 +50,14 @@ fun PostsMobileScreen(
     onEvent: (PostsListState.Event) -> Unit,
 ) {
     val posts = state.posts.collectAsLazyPagingItems()
+    val sorts = PostSort.entries
+    val tabsState = rememberMobileSwipeableTabsState(
+        selectedPage = sorts.indexOf(state.sort).coerceAtLeast(0),
+        pageCount = sorts.size,
+        onPageSelected = { page ->
+            sorts.getOrNull(page)?.let { onEvent(PostsListState.Event.SortSelected(it)) }
+        },
+    )
     val categoryChipColors = FilterChipDefaults.filterChipColors(
         containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.34f),
         labelColor = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -60,26 +73,25 @@ fun PostsMobileScreen(
         inactiveBorderColor = MaterialTheme.colorScheme.outlineVariant,
     )
     Scaffold(topBar = { TopAppBar(title = { Text(stringResource(R.string.posts_title)) }) }) { padding ->
-        LazyColumn(
+        Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding),
-            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
-            verticalArrangement = Arrangement.spacedBy(14.dp),
         ) {
-            item {
+            Column(
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+                verticalArrangement = Arrangement.spacedBy(14.dp),
+            ) {
                 SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
-                    PostSort.entries.forEachIndexed { index, sort ->
+                    sorts.forEachIndexed { index, sort ->
                         SegmentedButton(
                             selected = state.sort == sort,
-                            onClick = { onEvent(PostsListState.Event.SortSelected(sort)) },
-                            shape = SegmentedButtonDefaults.itemShape(index, PostSort.entries.size),
+                            onClick = { tabsState.selectPage(index) },
+                            shape = SegmentedButtonDefaults.itemShape(index, sorts.size),
                             colors = sortTabColors,
                         ) { Text(sort.label()) }
                     }
                 }
-            }
-            item {
                 LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     item(key = "all") {
                         FilterChip(
@@ -101,45 +113,65 @@ fun PostsMobileScreen(
                     }
                 }
             }
-            when {
-                posts.loadState.refresh is LoadState.Loading -> item {
-                    PostsLoadingState()
-                }
+            MobileSwipeableTabsPager(
+                state = tabsState,
+                modifier = Modifier.weight(1f),
+                key = { page -> sorts[page].name },
+            ) { _ ->
+                PostsList(posts, onEvent)
+            }
+        }
+    }
+}
 
-                posts.loadState.refresh is LoadState.Error -> item {
-                    StateMessage(
-                        stringResource(R.string.posts_error),
-                        fillMaxSize = false,
-                        actionLabel = stringResource(R.string.posts_retry),
-                        onAction = posts::retry
-                    )
-                }
+@Composable
+private fun PostsList(
+    posts: LazyPagingItems<PostSummary>,
+    onEvent: (PostsListState.Event) -> Unit,
+) {
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
+        verticalArrangement = Arrangement.spacedBy(14.dp),
+    ) {
+        when {
+            posts.loadState.refresh is LoadState.Loading -> item {
+                PostsLoadingState()
+            }
 
-                posts.itemCount == 0 -> item {
-                    StateMessage(
-                        stringResource(R.string.posts_empty),
-                        fillMaxSize = false
-                    )
-                }
+            posts.loadState.refresh is LoadState.Error -> item {
+                StateMessage(
+                    stringResource(R.string.posts_error),
+                    fillMaxSize = false,
+                    actionLabel = stringResource(R.string.posts_retry),
+                    onAction = posts::retry
+                )
+            }
 
-                else -> items(posts.itemCount, key = posts.itemKey { it.id }) { index ->
-                    posts[index]?.let { post ->
-                        PostMobileCard(
-                            post,
-                            { onEvent(PostsListState.Event.PostSelected(post.id)) })
-                    }
+            posts.itemCount == 0 -> item {
+                StateMessage(
+                    stringResource(R.string.posts_empty),
+                    fillMaxSize = false
+                )
+            }
+
+            else -> items(posts.itemCount, key = posts.itemKey { it.id }) { index ->
+                posts[index]?.let { post ->
+                    PostMobileCard(
+                        post,
+                        { onEvent(PostsListState.Event.PostSelected(post.id)) })
                 }
             }
-            if (posts.loadState.append is LoadState.Loading) {
-                item { MobileSectionLoading(minHeight = 72.dp) }
-            }
-            if (posts.loadState.append is LoadState.Error) {
-                item {
-                    MobileAppendError(
-                        message = stringResource(R.string.posts_error),
-                        onRetry = posts::retry,
-                    )
-                }
+        }
+        if (posts.loadState.append is LoadState.Loading) {
+            item { MobileSectionLoading(minHeight = 72.dp) }
+        }
+        if (posts.loadState.append is LoadState.Error) {
+            item {
+                MobileAppendError(
+                    message = stringResource(R.string.posts_error),
+                    onRetry = posts::retry,
+                )
             }
         }
     }

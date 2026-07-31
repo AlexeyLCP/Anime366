@@ -6,6 +6,7 @@
     <string name="messages_auth_required">Войдите, чтобы открыть личные сообщения</string>
     <string name="messages_sign_in">Войти</string>
     <string name="messages_unknown_user">Пользователь #%1$d</string>
+    <string name="messages_global_chat">Общий чат</string>
     <string name="messages_chat_empty">Сообщений пока нет. Начните диалог.</string>
     <string name="messages_chat_error">Не удалось загрузить сообщения</string>
     <string name="messages_composer_hint">Сообщение</string>

@@ -5,7 +5,6 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -33,8 +32,11 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import su.afk.yummy.tv.core.designsystem.presenter.baseScreen.BaseScreen
+import su.afk.yummy.tv.core.designsystem.presenter.mobile.MobileSectionLoading
 import su.afk.yummy.tv.core.designsystem.presenter.mobile.MobileStateContent
+import su.afk.yummy.tv.core.designsystem.presenter.mobile.MobileSwipeableTabsPager
 import su.afk.yummy.tv.core.designsystem.presenter.mobile.MobileTopBar
+import su.afk.yummy.tv.core.designsystem.presenter.mobile.rememberMobileSwipeableTabsState
 import su.afk.yummy.tv.core.designsystem.presenter.preview.ScreenPreviewTheme
 import su.afk.yummy.tv.feature.comments.CommentsState
 import su.afk.yummy.tv.feature.comments.mobile.utils.buildVisibleComments
@@ -43,6 +45,7 @@ import su.afk.yummy.tv.feature.comments.mobile.view.CommentSortRow
 import su.afk.yummy.tv.feature.comments.mobile.view.CommentsComposer
 import su.afk.yummy.tv.feature.comments.mobile.view.CommentsDialogs
 import su.afk.yummy.tv.feature.comments.mobile.view.CommentsList
+import su.afk.yummy.tv.feature.comments.mobile.view.commentSortOrder
 
 @Preview(
     name = "Default",
@@ -83,6 +86,13 @@ fun CommentsMobileScreen(
     var sortRowVisible by remember { mutableStateOf(true) }
     var previousScrollIndex by remember { mutableIntStateOf(0) }
     var previousScrollOffset by remember { mutableIntStateOf(0) }
+    val tabsState = rememberMobileSwipeableTabsState(
+        selectedPage = commentSortOrder.indexOf(state.sort).coerceAtLeast(0),
+        pageCount = commentSortOrder.size,
+        onPageSelected = { page ->
+            commentSortOrder.getOrNull(page)?.let { onEvent(CommentsState.Event.SortSelected(it)) }
+        },
+    )
 
     LaunchedEffect(effect, context) {
         effect.collect { event ->
@@ -139,39 +149,47 @@ fun CommentsMobileScreen(
             ) {
                 CommentSortRow(
                     selected = state.sort,
-                    onSelected = { onEvent(CommentsState.Event.SortSelected(it)) },
+                    onSelected = { tabsState.selectPage(commentSortOrder.indexOf(it)) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .background(MaterialTheme.colorScheme.surface)
                         .padding(horizontal = 12.dp, vertical = 8.dp),
                 )
             }
-            Box(Modifier.weight(1f)) {
-                PullToRefreshBox(
-                    isRefreshing = refreshState is LoadState.Loading && visibleComments.isNotEmpty(),
-                    onRefresh = { onEvent(CommentsState.Event.RefreshSelected) },
-                    modifier = Modifier.fillMaxSize(),
-                ) {
-                    MobileStateContent(
-                        isLoading = refreshState is LoadState.Loading && visibleComments.isEmpty(),
-                        error = initialError,
-                        empty = refreshState !is LoadState.Loading &&
-                                visibleComments.isEmpty() &&
-                                initialError == null,
-                        emptyText = stringResource(R.string.comments_empty),
-                        onRetry = {
-                            onEvent(CommentsState.Event.RetrySelected)
-                            pagingComments.retry()
-                        },
+            MobileSwipeableTabsPager(
+                state = tabsState,
+                modifier = Modifier.weight(1f),
+                key = { page -> commentSortOrder[page].name },
+            ) { page ->
+                if (commentSortOrder.getOrNull(page) == state.sort) {
+                    PullToRefreshBox(
+                        isRefreshing = refreshState is LoadState.Loading && visibleComments.isNotEmpty(),
+                        onRefresh = { onEvent(CommentsState.Event.RefreshSelected) },
+                        modifier = Modifier.fillMaxSize(),
                     ) {
-                        CommentsList(
-                            state = state,
-                            pagingComments = pagingComments,
-                            appendState = appendState,
-                            listState = listState,
-                            onEvent = onEvent,
-                        )
+                        MobileStateContent(
+                            isLoading = refreshState is LoadState.Loading && visibleComments.isEmpty(),
+                            error = initialError,
+                            empty = refreshState !is LoadState.Loading &&
+                                    visibleComments.isEmpty() &&
+                                    initialError == null,
+                            emptyText = stringResource(R.string.comments_empty),
+                            onRetry = {
+                                onEvent(CommentsState.Event.RetrySelected)
+                                pagingComments.retry()
+                            },
+                        ) {
+                            CommentsList(
+                                state = state,
+                                pagingComments = pagingComments,
+                                appendState = appendState,
+                                listState = listState,
+                                onEvent = onEvent,
+                            )
+                        }
                     }
+                } else {
+                    MobileSectionLoading(modifier = Modifier.fillMaxSize())
                 }
             }
             CommentsComposer(
