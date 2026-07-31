@@ -3,15 +3,10 @@ package su.afk.yummy.tv.data.player.repository
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
-import su.afk.yummy.tv.core.model.anime.AnimeScreenshot
-import su.afk.yummy.tv.core.model.anime.AnimeVideo
-import su.afk.yummy.tv.core.model.anime.AnimeVideoSkipSegment
-import su.afk.yummy.tv.core.model.anime.AnimeVideoSkips
+import su.afk.yummy.tv.data.player.mapper.toPlayerSourceVideo
+import su.afk.yummy.tv.data.player.mapper.toScreenshotByEpisode
 import su.afk.yummy.tv.domain.anime.repository.AnimeRepository
 import su.afk.yummy.tv.domain.player.model.PlayerSourceData
-import su.afk.yummy.tv.domain.player.model.PlayerSourceSkipSegment
-import su.afk.yummy.tv.domain.player.model.PlayerSourceSkips
-import su.afk.yummy.tv.domain.player.model.PlayerSourceVideo
 import su.afk.yummy.tv.domain.player.repository.PlayerSourceRepository
 import javax.inject.Inject
 
@@ -47,31 +42,3 @@ class DefaultPlayerSourceRepository @Inject constructor(
         )
     }
 }
-
-private fun AnimeVideo.toPlayerSourceVideo(): PlayerSourceVideo =
-    PlayerSourceVideo(
-        id = id,
-        episode = episode,
-        dubbing = dubbing,
-        player = player,
-        playerId = playerId,
-        iframeUrl = iframeUrl,
-        views = views,
-        skips = skips.toPlayerSourceSkips(),
-    )
-
-private fun AnimeVideoSkips.toPlayerSourceSkips(): PlayerSourceSkips =
-    PlayerSourceSkips(
-        opening = opening.toPlayerSourceSkipSegment(),
-        ending = ending.toPlayerSourceSkipSegment(),
-    )
-
-private fun AnimeVideoSkipSegment?.toPlayerSourceSkipSegment(): PlayerSourceSkipSegment? =
-    this?.let { PlayerSourceSkipSegment(startMs = it.startMs, endMs = it.endMs) }
-
-private fun List<AnimeScreenshot>.toScreenshotByEpisode(): Map<String, String> =
-    mapNotNull { screenshot ->
-        val episode = screenshot.episode ?: return@mapNotNull null
-        val url = screenshot.small ?: screenshot.full ?: return@mapNotNull null
-        episode to url
-    }.toMap()

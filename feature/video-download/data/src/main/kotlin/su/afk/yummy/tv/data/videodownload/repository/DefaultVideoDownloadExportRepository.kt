@@ -20,6 +20,7 @@ import kotlinx.coroutines.sync.withLock
 import su.afk.yummy.tv.core.preferences.settings.SettingsStore
 import su.afk.yummy.tv.core.storage.videodownload.VideoDownloadStore
 import su.afk.yummy.tv.data.videodownload.R
+import su.afk.yummy.tv.data.videodownload.mapper.toDomain
 import su.afk.yummy.tv.data.videodownload.utils.treeDocumentUri
 import su.afk.yummy.tv.data.videodownload.worker.VideoExportAnalytics
 import su.afk.yummy.tv.data.videodownload.worker.VideoExportWorker

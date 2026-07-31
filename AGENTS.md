@@ -9,6 +9,15 @@
   own same-named Kotlin file.
 - Add KDoc to every use case describing the domain operation it performs.
 
+## Data Layer Structure
+
+- Put all DTOs in the feature data module's `.dto` package.
+- Put DTO↔domain and domain↔DTO mappers in the `.mapper` package; cache/entity↔domain mappers in
+  `.storage.mapper`. Do not keep DTO→domain mapping inline in repositories.
+- Serializable cache-envelope types and their `toDomain()` live in a `.mapper` (or `.dto`) package,
+  not inside a repository.
+- Repositories orchestrate (network + cache + storage) and call mappers; they do not define them.
+
 ## Compose UI Feature Structure
 
 - Keep `XxxMobileScreen.kt` and `XxxTvScreen.kt` as public screen entrypoints:

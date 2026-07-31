@@ -22,6 +22,10 @@ import su.afk.yummy.tv.core.storage.videodownload.VideoDownloadStore
 import su.afk.yummy.tv.data.videodownload.R
 import su.afk.yummy.tv.data.videodownload.cache.RotatingHlsCacheKeyFactory
 import su.afk.yummy.tv.data.videodownload.cache.VideoDownloadCacheProvider
+import su.afk.yummy.tv.data.videodownload.mapper.storageName
+import su.afk.yummy.tv.data.videodownload.mapper.toDomain
+import su.afk.yummy.tv.data.videodownload.mapper.toEntry
+import su.afk.yummy.tv.data.videodownload.mapper.toVideoDownloadHeadersJson
 import su.afk.yummy.tv.data.videodownload.notification.VideoDownloadNotificationService
 import su.afk.yummy.tv.data.videodownload.worker.VideoDownloadAnalytics
 import su.afk.yummy.tv.data.videodownload.worker.VideoDownloadWorker

@@ -1,5 +1,6 @@
 package su.afk.yummy.tv.data.details.mapper
 
+import kotlinx.serialization.Serializable
 import su.afk.yummy.tv.core.utils.toHttpsUrl
 import su.afk.yummy.tv.data.details.dto.YaniDirectorResponseDto
 import su.afk.yummy.tv.data.details.dto.YaniGenreResponseDto
@@ -8,6 +9,25 @@ import su.afk.yummy.tv.data.details.dto.YaniStudioResponseDto
 import su.afk.yummy.tv.domain.anime.model.AnimeRelation
 import su.afk.yummy.tv.domain.anime.model.AnimeRelationItem
 import su.afk.yummy.tv.domain.anime.model.AnimeRelationSubGenre
+
+/**
+ * Конверт для кэша relation-данных: хранит одну из метаданных (студия/режиссёр/жанр) вместе со
+ * списком связанных аниме и разворачивается в доменную [AnimeRelation] через соответствующий маппер.
+ */
+@Serializable
+internal data class AnimeRelationCachePayload(
+    val studio: YaniStudioResponseDto? = null,
+    val director: YaniDirectorResponseDto? = null,
+    val genre: YaniGenreResponseDto? = null,
+    val anime: List<YaniRelatedAnimeDto> = emptyList(),
+) {
+    fun toDomain(): AnimeRelation = when {
+        studio != null -> studio.toAnimeRelation(anime)
+        director != null -> director.toAnimeRelation(anime)
+        genre != null -> genre.toAnimeRelation(anime)
+        else -> error("Cached anime relation has no metadata")
+    }
+}
 
 internal fun YaniStudioResponseDto.toAnimeRelation(
     anime: List<YaniRelatedAnimeDto>,

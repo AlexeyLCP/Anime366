@@ -1,22 +1,13 @@
 package su.afk.yummy.tv.data.bloggers.repository
 
 import su.afk.yummy.tv.core.network.UserScopedCache
-import su.afk.yummy.tv.core.utils.toHttpsUrl
-import su.afk.yummy.tv.data.bloggers.dto.BloggerDetailsDto
 import su.afk.yummy.tv.data.bloggers.dto.BloggerDetailsResponseDto
-import su.afk.yummy.tv.data.bloggers.dto.BloggerDto
-import su.afk.yummy.tv.data.bloggers.dto.BloggerVideoCategoryDto
-import su.afk.yummy.tv.data.bloggers.dto.BloggerVideoDto
-import su.afk.yummy.tv.data.bloggers.dto.BloggerVideoReactionDto
 import su.afk.yummy.tv.data.bloggers.dto.BloggerVideoResponseDto
 import su.afk.yummy.tv.data.bloggers.dto.BloggerVideosResponseDto
 import su.afk.yummy.tv.data.bloggers.dto.BloggersResponseDto
+import su.afk.yummy.tv.data.bloggers.mapper.toDomain
 import su.afk.yummy.tv.data.bloggers.network.YaniBloggerVideosApi
-import su.afk.yummy.tv.domain.bloggers.model.Blogger
-import su.afk.yummy.tv.domain.bloggers.model.BloggerDetails
 import su.afk.yummy.tv.domain.bloggers.model.BloggerDirectory
-import su.afk.yummy.tv.domain.bloggers.model.BloggerVideo
-import su.afk.yummy.tv.domain.bloggers.model.BloggerVideoCategory
 import su.afk.yummy.tv.domain.bloggers.model.BloggerVideoReaction
 import su.afk.yummy.tv.domain.bloggers.model.BloggerVideoSort
 import su.afk.yummy.tv.domain.bloggers.model.BloggerVideoVote
@@ -97,42 +88,3 @@ private const val BLOGGER_FEED_TTL_MS = 2 * 60 * 1000L
 private const val BLOGGER_DETAIL_TTL_MS = 5 * 60 * 1000L
 private const val BLOGGER_DIRECTORY_TTL_MS = 6 * 60 * 60 * 1000L
 private const val BLOGGER_CACHE_NAMESPACE = "bloggers"
-
-private fun BloggerVideoDto.toDomain() = BloggerVideo(
-    id = id,
-    title = title,
-    description = descriptions.small.ifBlank { descriptions.big },
-    previewUrl = (previews.big ?: previews.small)?.toHttpsUrl(),
-    iframeUrl = iframeUrl.toHttpsUrl(),
-    publishedAt = publishDate,
-    views = views,
-    hasSpoiler = hasSpoiler,
-    category = category.toDomain(),
-    creator = creator.toDomain(),
-    reaction = likes.toDomain(),
-    commentsCount = commentsCount,
-)
-
-private fun BloggerVideoCategoryDto.toDomain() = BloggerVideoCategory(id, title)
-private fun BloggerDto.toDomain() =
-    Blogger(id, nickname, (avatars.big ?: avatars.small)?.toHttpsUrl())
-
-private fun BloggerDetailsDto.toDomain() = BloggerDetails(
-    id = id,
-    nickname = nickname,
-    avatarUrl = (avatars.full ?: avatars.big ?: avatars.small)?.toHttpsUrl(),
-    subscribers = subscriptions,
-    videosCount = videosCount,
-    isSubscribed = isSubscribed,
-    categories = categories.map { it.toDomain() },
-)
-
-private fun BloggerVideoReactionDto.toDomain() = BloggerVideoReaction(
-    likes = likes,
-    dislikes = dislikes,
-    vote = when (vote) {
-        1 -> BloggerVideoVote.LIKE
-        -1 -> BloggerVideoVote.DISLIKE
-        else -> BloggerVideoVote.NONE
-    },
-)

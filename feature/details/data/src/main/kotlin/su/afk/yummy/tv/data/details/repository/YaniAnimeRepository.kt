@@ -7,7 +7,6 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.Serializable
 import su.afk.yummy.tv.core.model.anime.AnimeDetails
 import su.afk.yummy.tv.core.model.anime.AnimeEpisodeInfo
 import su.afk.yummy.tv.core.model.anime.AnimeRecommendation
@@ -16,7 +15,7 @@ import su.afk.yummy.tv.core.model.anime.AnimeRecommendationVote
 import su.afk.yummy.tv.core.model.anime.AnimeTrailer
 import su.afk.yummy.tv.core.model.anime.AnimeVideo
 import su.afk.yummy.tv.core.model.anime.AnimeWatchProgress
-import su.afk.yummy.tv.core.network.YaniApiJson
+import su.afk.yummy.tv.core.network.getOrFetchJson
 import su.afk.yummy.tv.core.preferences.settings.SettingsStore
 import su.afk.yummy.tv.core.storage.account.AccountStorageStore
 import su.afk.yummy.tv.core.storage.anime.AnimeStorageStore
@@ -24,16 +23,12 @@ import su.afk.yummy.tv.core.storage.anime.isFresh
 import su.afk.yummy.tv.core.storage.document.DocumentCacheStore
 import su.afk.yummy.tv.core.storage.watchprogress.WatchProgressStore
 import su.afk.yummy.tv.data.details.dto.YaniAnimeDetailsDto
-import su.afk.yummy.tv.data.details.dto.YaniDirectorResponseDto
-import su.afk.yummy.tv.data.details.dto.YaniGenreResponseDto
 import su.afk.yummy.tv.data.details.dto.YaniRecommendationItemDto
 import su.afk.yummy.tv.data.details.dto.YaniRecommendationsDto
-import su.afk.yummy.tv.data.details.dto.YaniRelatedAnimeDto
-import su.afk.yummy.tv.data.details.dto.YaniStudioResponseDto
 import su.afk.yummy.tv.data.details.dto.YummyEpisodesDto
+import su.afk.yummy.tv.data.details.mapper.AnimeRelationCachePayload
 import su.afk.yummy.tv.data.details.mapper.toAnimeDetails
 import su.afk.yummy.tv.data.details.mapper.toAnimeEpisodeInfoByNumber
-import su.afk.yummy.tv.data.details.mapper.toAnimeRelation
 import su.afk.yummy.tv.data.details.network.YaniAnimeApi
 import su.afk.yummy.tv.data.details.network.YummyEpisodesApi
 import su.afk.yummy.tv.data.details.storage.mapper.toAccountUserRatingEntry
@@ -143,7 +138,7 @@ class YaniAnimeRepository(
             val stored = animeStorage.getRecommendations(animeId, languageCode, fromAi)
             try {
                 val userId = settingsStore.yaniUserId.first().coerceAtLeast(0)
-                val response = documentCache.getOrFetch(
+                val response = documentCache.getOrFetchJson<YaniRecommendationsDto>(
                     cacheKey = recommendationCacheKey(
                         userId = userId,
                         language = languageCode,
@@ -155,8 +150,6 @@ class YaniAnimeRepository(
                     } else {
                         ANIME_PERSONAL_RECOMMENDATIONS_TTL_MS
                     },
-                    decode = { YaniApiJson.decodeFromString<YaniRecommendationsDto>(it) },
-                    encode = { YaniApiJson.encodeToString(it) },
                     fetch = {
                         api.getAnimeRecommendations(animeId, fromAi).also { dto ->
                             saveRecommendationsContent(
@@ -215,11 +208,9 @@ class YaniAnimeRepository(
         withContext(Dispatchers.IO) {
             try {
                 val malId = getAnimeDetails(animeId).malId ?: return@withContext emptyMap()
-                documentCache.getOrFetch(
+                documentCache.getOrFetchJson<YummyEpisodesDto>(
                     cacheKey = "$ANIME_EPISODE_INFO_CACHE_NAMESPACE:$malId",
                     ttlMs = ANIME_EPISODE_INFO_TTL_MS,
-                    decode = { YaniApiJson.decodeFromString<YummyEpisodesDto>(it) },
-                    encode = { YaniApiJson.encodeToString(it) },
                     fetch = { episodesApi.getEpisodes(malId) },
                 ).toAnimeEpisodeInfoByNumber()
             } catch (error: CancellationException) {
@@ -263,11 +254,9 @@ class YaniAnimeRepository(
 
             else -> reference.id.toString()
         }
-        documentCache.getOrFetch(
+        documentCache.getOrFetchJson<AnimeRelationCachePayload>(
             cacheKey = "anime-relation:$language:${reference.kind.name}:$referenceKey",
             ttlMs = ANIME_RELATION_TTL_MS,
-            decode = { YaniApiJson.decodeFromString<AnimeRelationCachePayload>(it) },
-            encode = { YaniApiJson.encodeToString(it) },
             fetch = { fetchAnimeRelation(reference, referenceKey) },
         ).toDomain()
     }
@@ -434,20 +423,5 @@ class YaniAnimeRepository(
         )
         animeStorage.saveTrailers(cache)
         return cache.toStoredAnimeTrailers()
-    }
-}
-
-@Serializable
-private data class AnimeRelationCachePayload(
-    val studio: YaniStudioResponseDto? = null,
-    val director: YaniDirectorResponseDto? = null,
-    val genre: YaniGenreResponseDto? = null,
-    val anime: List<YaniRelatedAnimeDto> = emptyList(),
-) {
-    fun toDomain(): AnimeRelation = when {
-        studio != null -> studio.toAnimeRelation(anime)
-        director != null -> director.toAnimeRelation(anime)
-        genre != null -> genre.toAnimeRelation(anime)
-        else -> error("Cached anime relation has no metadata")
     }
 }

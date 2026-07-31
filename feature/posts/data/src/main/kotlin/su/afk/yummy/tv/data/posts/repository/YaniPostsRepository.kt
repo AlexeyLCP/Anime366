@@ -1,23 +1,15 @@
 package su.afk.yummy.tv.data.posts.repository
 
 import su.afk.yummy.tv.core.network.UserScopedCache
-import su.afk.yummy.tv.core.utils.toHttpsUrl
-import su.afk.yummy.tv.data.posts.dto.YaniPostAuthorDto
 import su.afk.yummy.tv.data.posts.dto.YaniPostCategoriesResponseDto
 import su.afk.yummy.tv.data.posts.dto.YaniPostCategoryDto
-import su.afk.yummy.tv.data.posts.dto.YaniPostDetailsDto
 import su.afk.yummy.tv.data.posts.dto.YaniPostDetailsResponseDto
 import su.afk.yummy.tv.data.posts.dto.YaniPostSummaryDto
-import su.afk.yummy.tv.data.posts.dto.YaniPostVoteResultDto
 import su.afk.yummy.tv.data.posts.dto.YaniPostsResponseDto
+import su.afk.yummy.tv.data.posts.mapper.domain
 import su.afk.yummy.tv.data.posts.network.YaniPostsApi
-import su.afk.yummy.tv.domain.posts.model.PostAuthor
-import su.afk.yummy.tv.domain.posts.model.PostCategory
-import su.afk.yummy.tv.domain.posts.model.PostDetails
 import su.afk.yummy.tv.domain.posts.model.PostReaction
-import su.afk.yummy.tv.domain.posts.model.PostSummary
 import su.afk.yummy.tv.domain.posts.model.PostVote
-import su.afk.yummy.tv.domain.posts.model.RelatedPostAnime
 import su.afk.yummy.tv.domain.posts.repository.PostsRepository
 import javax.inject.Inject
 
@@ -62,47 +54,3 @@ private const val POST_FEED_TTL_MS = 2 * 60 * 1000L
 private const val POST_DETAIL_TTL_MS = 5 * 60 * 1000L
 private const val POST_CATEGORIES_TTL_MS = 6 * 60 * 60 * 1000L
 private const val POST_CACHE_NAMESPACE = "posts"
-
-private fun YaniPostCategoryDto.domain() = PostCategory(id, title, uri)
-private fun YaniPostAuthorDto.domain() = PostAuthor(
-    id,
-    nickname,
-    (avatars?.full ?: avatars?.big ?: avatars?.small)?.toHttpsUrl(),
-)
-
-private fun YaniPostSummaryDto.domain() = PostSummary(
-    id,
-    title,
-    previewImage?.toHttpsUrl(),
-    contentPreview,
-    user.domain(),
-    category.domain(),
-    createdAt,
-)
-
-private fun YaniPostVoteResultDto.domain(vote: PostVote) = PostReaction(likes, dislikes, vote)
-private fun YaniPostDetailsDto.domain() = PostDetails(
-    id = id,
-    title = title,
-    contentHtml = content,
-    previewImageUrl = previewImage?.toHttpsUrl(),
-    author = user.domain(),
-    category = category.domain(),
-    createdAt = createdAt,
-    editedAt = editedAt,
-    relatedAnime = animes.map {
-        RelatedPostAnime(
-            it.animeId,
-            it.title,
-            it.poster?.run { mega ?: huge ?: big ?: medium ?: small }?.toHttpsUrl(),
-            it.year,
-            it.rating?.average,
-        )
-    },
-    reaction = PostReaction(
-        likes.likes,
-        likes.dislikes,
-        PostVote.entries.firstOrNull { it.action == likes.vote } ?: PostVote.NONE),
-    views = views,
-    comments = comments,
-)

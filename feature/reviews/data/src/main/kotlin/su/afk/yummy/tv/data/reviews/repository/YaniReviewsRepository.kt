@@ -1,8 +1,6 @@
 package su.afk.yummy.tv.data.reviews.repository
 
 import kotlinx.coroutines.flow.first
-import kotlinx.serialization.json.JsonPrimitive
-import kotlinx.serialization.json.doubleOrNull
 import su.afk.yummy.tv.core.network.UserScopedCache
 import su.afk.yummy.tv.core.preferences.settings.SettingsStore
 import su.afk.yummy.tv.core.storage.anime.AnimeStorageStore
@@ -11,16 +9,12 @@ import su.afk.yummy.tv.data.reviews.dto.YaniReviewDto
 import su.afk.yummy.tv.data.reviews.dto.YaniReviewResponseDto
 import su.afk.yummy.tv.data.reviews.dto.YaniReviewsFeedResponseDto
 import su.afk.yummy.tv.data.reviews.dto.YaniReviewsPageResponseDto
+import su.afk.yummy.tv.data.reviews.mapper.toSummaryOrNull
 import su.afk.yummy.tv.data.reviews.network.YaniReviewsApi
 import su.afk.yummy.tv.domain.reviews.model.AnimeReviewDetails
-import su.afk.yummy.tv.domain.reviews.model.AnimeReviewSummary
-import su.afk.yummy.tv.domain.reviews.model.ReviewAuthor
 import su.afk.yummy.tv.domain.reviews.model.ReviewPage
-import su.afk.yummy.tv.domain.reviews.model.ReviewRating
-import su.afk.yummy.tv.domain.reviews.model.ReviewRatingCategory
 import su.afk.yummy.tv.domain.reviews.model.ReviewReactions
 import su.afk.yummy.tv.domain.reviews.model.ReviewSort
-import su.afk.yummy.tv.domain.reviews.model.ReviewStatus
 import su.afk.yummy.tv.domain.reviews.model.ReviewVote
 import su.afk.yummy.tv.domain.reviews.repository.ReviewsRepository
 import java.util.concurrent.ConcurrentHashMap
@@ -115,38 +109,4 @@ class YaniReviewsRepository @Inject constructor(
 private const val REVIEW_FEED_TTL_MS = 2 * 60 * 1000L
 private const val REVIEW_DETAIL_TTL_MS = 5 * 60 * 1000L
 private const val REVIEW_CACHE_NAMESPACE = "reviews"
-
-private fun YaniReviewDto.toSummaryOrNull(): AnimeReviewSummary? {
-    if (reviewId <= 0) return null
-    return AnimeReviewSummary(
-        id = reviewId,
-        animeId = animeId,
-        status = when (type) {
-            "waiting" -> ReviewStatus.WAITING; "declined" -> ReviewStatus.DECLINED; else -> ReviewStatus.APPROVED
-        },
-        author = ReviewAuthor(
-            author.id ?: userId ?: 0,
-            author.nickname ?: nickname.orEmpty(),
-            author.avatars?.run { full ?: big ?: small }.toHttpsUrlOrNull()
-        ),
-        createdAtSeconds = createDate,
-        updatedAtSeconds = updateDate,
-        views = views,
-        rating = rating?.let {
-            ReviewRating(
-                (it.average as? JsonPrimitive)?.doubleOrNull?.toInt(),
-                it.category.orEmpty().map { (name, score) -> ReviewRatingCategory(name, score) })
-        },
-        reactions = ReviewReactions(
-            likes.likes,
-            likes.dislikes,
-            ReviewVote.entries.firstOrNull { it.apiValue == likes.vote } ?: ReviewVote.NONE),
-        html = textHtml.ifBlank { textPreview },
-        checkComment = checkComment,
-        commentable = commentable,
-        animeTitle = anime?.title.orEmpty(),
-        animePosterUrl = anime?.poster?.run { mega ?: huge ?: big ?: medium ?: small ?: fullsize }
-            .toHttpsUrlOrNull(),
-    )
-}
 

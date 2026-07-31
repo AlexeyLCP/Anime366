@@ -31,11 +31,9 @@ class UserScopedCache @Inject constructor(
         key: String,
         ttlMs: Long,
         crossinline fetch: suspend () -> T,
-    ): T = cache.getOrFetch(
+    ): T = cache.getOrFetchJson(
         cacheKey = prefix(namespace) + key,
         ttlMs = ttlMs,
-        decode = { YaniApiJson.decodeFromString<T>(it) },
-        encode = { YaniApiJson.encodeToString(it) },
         fetch = { fetch() },
     )
 

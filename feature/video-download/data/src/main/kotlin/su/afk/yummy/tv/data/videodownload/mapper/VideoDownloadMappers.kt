@@ -1,4 +1,4 @@
-package su.afk.yummy.tv.data.videodownload.repository
+package su.afk.yummy.tv.data.videodownload.mapper
 
 import kotlinx.serialization.json.Json
 import su.afk.yummy.tv.core.storage.videodownload.VideoDownloadEntry
@@ -7,7 +7,7 @@ import su.afk.yummy.tv.domain.videodownload.model.VideoDownloadRequest
 import su.afk.yummy.tv.domain.videodownload.model.VideoDownloadStatus
 import su.afk.yummy.tv.domain.videodownload.model.VideoExportStatus
 
-private val videoDownloadJson = Json { ignoreUnknownKeys = true }
+private val videoDownloadJson = Json
 
 internal fun VideoDownloadEntry.toDomain(): VideoDownloadItem =
     VideoDownloadItem(
