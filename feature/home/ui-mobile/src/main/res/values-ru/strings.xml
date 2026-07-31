@@ -17,4 +17,5 @@
     <string name="home_support_prompt_title">Нравится приложение? Поддержи автора - оцени репозиторий на GitHub</string>
     <string name="home_support_prompt_message">Это бесплатно и займет меньше минуты</string>
     <string name="home_support_prompt_ok">Окей</string>
+    <string name="home_announcement_ok">ОК</string>
 </resources>

@@ -4,6 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -12,6 +13,9 @@ import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.BaseViewModelNe
 import su.afk.yummy.tv.core.error.IErrorHandlerUseCase
 import su.afk.yummy.tv.core.error.StringProvider
 import su.afk.yummy.tv.core.error.storage.RetryStorage
+import su.afk.yummy.tv.core.featuretoggle.FeatureFlags
+import su.afk.yummy.tv.core.featuretoggle.FeatureToggleProvider
+import su.afk.yummy.tv.core.featuretoggle.FeatureToggleUpdateObserver
 import su.afk.yummy.tv.core.navigation.NavigationManager
 import su.afk.yummy.tv.core.preferences.settings.SettingsStore
 import su.afk.yummy.tv.core.preferences.settings.SupportPromptSnapshot
@@ -61,6 +65,8 @@ class HomeViewModel @Inject internal constructor(
     private val resolveContinueWatchingLaunch: ResolveContinueWatchingLaunchUseCase,
     private val playerNavigator: IPlayerNavigator,
     private val settingsStore: SettingsStore,
+    private val featureToggleProvider: FeatureToggleProvider,
+    private val featureToggleUpdateObserver: FeatureToggleUpdateObserver,
     private val analytics: HomeAnalytics,
 ) : BaseViewModelNew<HomeState.State, HomeState.Event, HomeState.Effect>(savedStateHandle) {
 
@@ -86,6 +92,7 @@ class HomeViewModel @Inject internal constructor(
             .launchIn(viewModelScope)
         observeHiddenRecommendations()
         observeSupportPrompt()
+        observeAnnouncement()
         loadBloggerVideos()
         load()
     }
@@ -136,6 +143,8 @@ class HomeViewModel @Inject internal constructor(
                 nav.navigate(bloggerVideosNavigator.video(event.video.id))
 
             HomeState.Event.SupportPromptDismissed -> dismissSupportPrompt()
+
+            HomeState.Event.AnnouncementDismissed -> dismissAnnouncement()
 
             is HomeState.Event.RecommendationHideRequested ->
                 setRecommendationHidden(event.animeId, hidden = true)
@@ -275,6 +284,48 @@ class HomeViewModel @Inject internal constructor(
         setState { copy(supportPromptVisible = false) }
         viewModelScope.launch {
             settingsStore.dismissSupportPrompt()
+        }
+    }
+
+    private fun observeAnnouncement() {
+        checkAnnouncement()
+        val initialActivationId = featureToggleUpdateObserver.currentActivationId
+        featureToggleUpdateObserver.updates
+            .filter { activationId -> activationId > initialActivationId }
+            .onEach { checkAnnouncement() }
+            .launchIn(viewModelScope)
+    }
+
+    private fun checkAnnouncement() {
+        viewModelScope.launch {
+            val id = featureToggleProvider.getString(FeatureFlags.announcementId).trim()
+            val message = featureToggleProvider.getString(FeatureFlags.announcementMessage).trim()
+            // Пустой id/сообщение или id == "0" означают, что объявление выключено.
+            if (id.isBlank() || id == "0" || message.isBlank()) {
+                setState { copy(announcement = null) }
+                return@launch
+            }
+            if (id == settingsStore.lastSeenAnnouncementId.first()) return@launch
+            val title = featureToggleProvider.getString(FeatureFlags.announcementTitle).trim()
+            val button = featureToggleProvider.getString(FeatureFlags.announcementButton).trim()
+            setState {
+                copy(
+                    announcement = HomeAnnouncement(
+                        id = id,
+                        title = title.ifBlank { null },
+                        message = message,
+                        buttonText = button.ifBlank { null },
+                    )
+                )
+            }
+        }
+    }
+
+    private fun dismissAnnouncement() {
+        val id = currentState.announcement?.id ?: return
+        setState { copy(announcement = null) }
+        viewModelScope.launch {
+            settingsStore.markAnnouncementSeen(id)
         }
     }
 

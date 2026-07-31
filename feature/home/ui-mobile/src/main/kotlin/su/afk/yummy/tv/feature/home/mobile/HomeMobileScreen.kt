@@ -46,6 +46,7 @@ import su.afk.yummy.tv.domain.home.model.HomeFeedItemAction
 import su.afk.yummy.tv.domain.home.model.HomeFeedSectionType
 import su.afk.yummy.tv.feature.home.HomeState
 import su.afk.yummy.tv.feature.home.mobile.view.ContinueWatchingSection
+import su.afk.yummy.tv.feature.home.mobile.view.HomeAnnouncementDialog
 import su.afk.yummy.tv.feature.home.mobile.view.HomeFeedSectionRow
 import su.afk.yummy.tv.feature.home.mobile.view.HomeHeroCarousel
 import su.afk.yummy.tv.feature.home.mobile.view.HomeQuickActionsSection
@@ -307,6 +308,15 @@ fun HomeMobileScreen(
     if (state.supportPromptVisible) {
         HomeSupportPromptDialog(
             onDismiss = { onEvent(HomeState.Event.SupportPromptDismissed) },
+        )
+    }
+
+    state.announcement?.let { announcement ->
+        HomeAnnouncementDialog(
+            title = announcement.title,
+            message = announcement.message,
+            buttonText = announcement.buttonText,
+            onDismiss = { onEvent(HomeState.Event.AnnouncementDismissed) },
         )
     }
 }

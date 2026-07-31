@@ -67,6 +67,7 @@ class DataStoreSettingsStore(private val context: Context) : SettingsStore {
     private val supportPromptDismissedKey = booleanPreferencesKey("support_prompt_dismissed")
     private val supportPromptFirstInstallTimeMsKey =
         longPreferencesKey("support_prompt_first_install_time_ms")
+    private val lastSeenAnnouncementIdKey = stringPreferencesKey("last_seen_announcement_id")
     private val legacyStreamingCachePrunedKey =
         booleanPreferencesKey("legacy_streaming_cache_pruned")
     private val videoExportDirectoryUriKey = stringPreferencesKey("video_export_directory_uri")
@@ -291,6 +292,10 @@ class DataStoreSettingsStore(private val context: Context) : SettingsStore {
                     ?: System.currentTimeMillis(),
             )
         }
+
+    override val lastSeenAnnouncementId: Flow<String> = context.dataStore.data.map { prefs ->
+        prefs[lastSeenAnnouncementIdKey].orEmpty()
+    }
 
     override val videoExportDirectoryUri: Flow<String> = context.dataStore.data.map { prefs ->
         prefs[videoExportDirectoryUriKey].orEmpty()
@@ -519,6 +524,12 @@ class DataStoreSettingsStore(private val context: Context) : SettingsStore {
     override suspend fun dismissSupportPrompt() {
         context.dataStore.edit { prefs ->
             prefs[supportPromptDismissedKey] = true
+        }
+    }
+
+    override suspend fun markAnnouncementSeen(id: String) {
+        context.dataStore.edit { prefs ->
+            prefs[lastSeenAnnouncementIdKey] = id
         }
     }
 

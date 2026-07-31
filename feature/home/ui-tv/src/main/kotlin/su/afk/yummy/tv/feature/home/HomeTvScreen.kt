@@ -22,6 +22,7 @@ import su.afk.yummy.tv.core.utils.openExternalUri
 import su.afk.yummy.tv.domain.home.model.HomeFeedItem
 import su.afk.yummy.tv.domain.home.model.HomeFeedItemAction
 import su.afk.yummy.tv.domain.home.model.HomeFeedSectionType
+import su.afk.yummy.tv.feature.home.view.HomeAnnouncementDialog
 import su.afk.yummy.tv.feature.home.view.HomeDashboard
 import su.afk.yummy.tv.feature.home.view.HomeError
 import su.afk.yummy.tv.feature.home.view.HomeSupportPromptDialog
@@ -171,6 +172,15 @@ fun HomeTvScreen(
     if (state.supportPromptVisible) {
         HomeSupportPromptDialog(
             onDismiss = { onEvent(HomeState.Event.SupportPromptDismissed) },
+        )
+    }
+
+    state.announcement?.let { announcement ->
+        HomeAnnouncementDialog(
+            title = announcement.title,
+            message = announcement.message,
+            buttonText = announcement.buttonText,
+            onDismiss = { onEvent(HomeState.Event.AnnouncementDismissed) },
         )
     }
 }

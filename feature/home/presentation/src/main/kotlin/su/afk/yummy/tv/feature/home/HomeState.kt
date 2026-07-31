@@ -7,6 +7,14 @@ import su.afk.yummy.tv.domain.bloggers.model.BloggerVideo
 import su.afk.yummy.tv.domain.home.model.HomeContinueWatchingItem
 import su.afk.yummy.tv.domain.home.model.HomeFeed
 
+/** Разовое объявление, управляемое удалённо через feature flags. */
+data class HomeAnnouncement(
+    val id: String,
+    val title: String?,
+    val message: String,
+    val buttonText: String?,
+)
+
 class HomeState {
     data class State(
         val isLoading: Boolean = true,
@@ -15,6 +23,7 @@ class HomeState {
         val continueWatching: List<HomeContinueWatchingItem> = emptyList(),
         val isContinueWatchingLoaded: Boolean = false,
         val supportPromptVisible: Boolean = false,
+        val announcement: HomeAnnouncement? = null,
         val bloggerVideos: List<BloggerVideo> = emptyList(),
         val isBloggerVideosLoading: Boolean = true,
         val bloggerVideosError: String? = null,
@@ -61,6 +70,9 @@ class HomeState {
 
         /** Пользователь отказался от предложения поддержать проект. */
         data object SupportPromptDismissed : Event
+
+        /** Пользователь закрыл объявление кнопкой ОК. */
+        data object AnnouncementDismissed : Event
 
         /** Пользователь попросил больше не рекомендовать тайтл. */
         data class RecommendationHideRequested(val animeId: Int) : Event

@@ -82,6 +82,9 @@ interface SettingsStore {
     val settingsSnapshot: Flow<SettingsSnapshot>
     val mainSettingsSnapshot: Flow<MainSettingsSnapshot>
     val supportPromptSnapshot: Flow<SupportPromptSnapshot>
+
+    /** Идентификатор последнего объявления, которое пользователь закрыл кнопкой ОК. */
+    val lastSeenAnnouncementId: Flow<String>
     val videoExportDirectoryUri: Flow<String>
     val videoExportDirectoryName: Flow<String>
     val videoExportAutoEnabled: Flow<Boolean>
@@ -153,6 +156,9 @@ interface SettingsStore {
     suspend fun ensureYaniContentLanguageInitialized()
     suspend fun ensureSupportPromptInstallTimeInitialized()
     suspend fun dismissSupportPrompt()
+
+    /** Помечает объявление [id] как просмотренное, чтобы больше его не показывать. */
+    suspend fun markAnnouncementSeen(id: String)
     suspend fun setVideoExportDirectory(uri: String, displayName: String)
     suspend fun setVideoExportAutoEnabled(enabled: Boolean)
 
