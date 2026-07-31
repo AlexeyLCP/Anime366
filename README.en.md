@@ -43,6 +43,10 @@
 separate experiences: a TV-first interface for Android TV / set-top boxes and a mobile interface for
 Android phones.
 
+Beyond streaming, the built-in player, and the library, the app includes community features
+(comments, reviews, news, bloggers), social features (profiles, user search, direct messages), and
+episode downloads for offline viewing.
+
 On TV, the app is designed for remote control, D-pad navigation, and large UI elements. On mobile,
 it supports bottom navigation, player gestures, and Picture-in-Picture.
 
@@ -129,9 +133,9 @@ it supports bottom navigation, player gestures, and Picture-in-Picture.
 - 📺 Separate interfaces for Android TV and Android Mobile.
 - 🎮 Remote, D-pad, and touch navigation.
 - 🏠 Home screen with collections and quick continue watching.
-- 🔎 Catalog search with filters by genre, type, status, year, season, age rating, and sorting.
-- 🏆 Top anime series and movies.
-- 📅 Episode release schedule.
+- 🔎 Catalog search with filters (genre, type, status, year, season, rating, sorting), plus search by
+  studio and director.
+- 🏆 Top anime series and movies, and the episode release schedule.
 - 🖼️ Poster and screenshot viewer inside the app.
 
 ### Library and account
@@ -139,32 +143,39 @@ it supports bottom navigation, player gestures, and Picture-in-Picture.
 - 🔐 YummyAnime account login.
 - 📚 Library sections: continue watching, favorites, watching, planned, completed, postponed, and
   dropped.
-- 🔔 Subscriptions for new episodes from selected voice-over teams.
+- 🔔 Subscriptions for new episodes from selected voice-over teams, with a prompt to subscribe to
+  ongoing titles.
 - ⭐ Favorites, user lists, and ratings.
-- 📄 Detailed title page with description, ratings, episodes, trailers, similar titles, viewing
-  order, screenshots, and collections.
+- 📄 Title page: description, ratings, episodes with titles, trailers, similar titles, viewing order,
+  screenshots, collections, and a countdown to the next episode.
+
+### Community and social
+
+- 💬 Comments with replies, sorting, voting, and spoiler hiding.
+- 📝 Title reviews with ratings, reactions, and moderation status.
+- 📰 Site news and publications, plus blogger videos with subscriptions.
+- 👤 User profiles, search, friends, and direct messages (on mobile).
+
+### Downloads and offline
+
+- ⬇️ Download episodes for offline viewing, a download manager, and MP4 export (on mobile).
 
 ### Player
 
 The built-in player is based on **Media3 / ExoPlayer** and supports:
 
-- quality, voice-over, and video balancer selection;
-- default player source: Kodik, Aksor, Alloha, CVH, VK, or Rutube;
-- playback speed control;
-- video scale and zoom options;
-- automatic opening and ending skip when timestamps are available;
-- previous and next episode navigation;
-- rating suggestion after watching;
-- Picture-in-Picture on mobile devices.
+- quality, voice-over, and balancer selection (Kodik, Aksor, Alloha, CVH, VK, Rutube, Sibnet,
+  Zedfilm);
+- playback speed, scale and zoom, and automatic opening/ending skip;
+- previous/next episode navigation and auto-play of the next episode;
+- mobile gestures (brightness, volume, seeking, zoom) and mouse control on TV;
+- Picture-in-Picture, local file playback, and a rating suggestion after watching.
 
 ### Settings and integrations
 
-- 🎨 App themes: warm amber, sakura, mint, ocean, and graphite.
-- 🧩 Configurable button order on the title details page.
-- 🖼️ Card size, poster quality, and preview cache settings.
-- 🌍 Content language: default, Russian, English, or Ukrainian.
-- 🏡 TV Home: Preview Channel with new releases and Watch Next for continue watching.
-- ⬆️ GitHub Releases update checks and APK installation from inside the app.
+- 🎨 App themes and background mode (light / dark / system).
+- 🧩 Details button order, card sizes, poster quality, and content language.
+- 🏡 TV Home (Preview Channel, Watch Next), FAQ, and GitHub Releases updates.
 
 ---
 
@@ -202,7 +213,8 @@ The project is built with Kotlin and a modular architecture.
 - `core/*` — shared systems: navigation, design system, network, storage, settings, updates, deep
   links, analytics, and TV integrations.
 - `feature/*` — user scenarios: main, home, search, top, library, details, player, settings,
-  account, collection, and schedule.
+  account, collection, schedule, plus comments, reviews, posts, bloggers, messages, video-download,
+  faq, pages, watching, and commonScreen.
 - `ui-tv` and `ui-mobile` — separate UI modules for TV and mobile devices.
 
 ## Limitations
