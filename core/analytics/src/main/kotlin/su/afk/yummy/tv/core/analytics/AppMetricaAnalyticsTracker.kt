@@ -25,6 +25,7 @@ internal class AppMetricaAnalyticsTracker @Inject constructor(
     ) {
         val message = message.trim()
         if (message.isEmpty()) return
+        if (!throwable.isReportableError()) return
         val groupIdentifier = groupIdentifier?.trim().orEmpty()
         if (groupIdentifier.isEmpty()) {
             AppMetrica.reportError(message, throwable)

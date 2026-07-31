@@ -40,7 +40,7 @@ work = "2.11.2"
 
 # Media / Images
 coil = "3.5.0"
-jsoup = "1.22.2"
+jsoup = "1.23.1"
 media3 = "1.10.1"
 
 # TV
