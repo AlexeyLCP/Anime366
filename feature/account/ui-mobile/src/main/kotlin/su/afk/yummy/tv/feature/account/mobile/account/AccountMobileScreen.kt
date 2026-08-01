@@ -191,6 +191,7 @@ fun AccountMobileScreen(
                     AccountMobileHeader(
                         state = state,
                         profileSummary = state.profileSummary,
+                        onEditClick = { onEvent(AccountState.Event.ProfileEditSelected) },
                         onLogoutClick = { showLogoutConfirm = true },
                     )
                 }

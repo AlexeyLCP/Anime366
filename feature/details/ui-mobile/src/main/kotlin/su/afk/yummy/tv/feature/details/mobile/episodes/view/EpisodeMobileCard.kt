@@ -50,6 +50,7 @@ private val DownloadResolvingColor = Color(0xFFFFC107)
 @Composable
 internal fun EpisodeMobileCard(
     video: AnimeVideo,
+    episodeNumber: String = video.episode,
     watchStatus: EpisodeMobileWatchStatus,
     kodikIframeUrl: String?,
     episodeTitle: String?,
@@ -75,7 +76,7 @@ internal fun EpisodeMobileCard(
         else -> MaterialTheme.colorScheme.primary
     }
     DetailsMediaCard(
-        title = stringResource(R.string.details_mobile_episode, video.episode),
+        title = stringResource(R.string.details_mobile_episode, episodeNumber),
         subtitle = watchStatus.durationLabel(video.durationSeconds),
         subtitleColor = if (watchStatus == EpisodeMobileWatchStatus.None) {
             Color.Unspecified
@@ -85,7 +86,7 @@ internal fun EpisodeMobileCard(
         secondaryFooterText = downloadStatusText,
         secondaryFooterTextColor = downloadStatusColor,
         imageModel = kodikIframeUrl?.let(::KodikThumbnail),
-        badge = video.episode,
+        badge = episodeNumber,
         mediaProgress = (watchStatus as? EpisodeMobileWatchStatus.InProgress)?.progress,
         mediaProgressColor = InProgressColor,
         mediaTopEndContent = when (watchStatus) {

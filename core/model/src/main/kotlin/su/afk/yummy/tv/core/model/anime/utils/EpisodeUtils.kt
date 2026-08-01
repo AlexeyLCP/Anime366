@@ -12,4 +12,11 @@ fun String.episodeNumberOrNull(): Double? {
 
 fun String.isPlaceholderEpisode(): Boolean = trim().isEmpty() || trim() == "-"
 
+/**
+ * Нормализованный ключ серии для группировки/дедупа.
+ * Разные озвучки присылают номер по-разному (`"01"` vs `"1"`), схлопываем их в один ключ.
+ */
+fun String.episodeGroupKey(): String =
+    trim().trimStart('0').ifEmpty { trim() }.lowercase()
+
 private val EPISODE_NUMBER_REGEX = Regex("""\d+(?:[.,]\d+)?""")

@@ -50,6 +50,7 @@ internal fun EpisodeCard(
     kodikIframeUrl: String?,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    episodeNumber: String = video.episode,
 ) {
     val durationLabel = watchStatus.durationLabel(video.durationSeconds)
     val shape = RoundedCornerShape(8.dp)
@@ -152,7 +153,7 @@ internal fun EpisodeCard(
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Text(
-                            text = stringResource(R.string.details_episode_number, video.episode),
+                            text = stringResource(R.string.details_episode_number, episodeNumber),
                             style = MaterialTheme.typography.titleSmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             maxLines = 1,

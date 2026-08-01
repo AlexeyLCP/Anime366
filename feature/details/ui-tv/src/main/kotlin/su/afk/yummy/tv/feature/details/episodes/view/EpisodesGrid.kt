@@ -38,6 +38,8 @@ import su.afk.yummy.tv.core.designsystem.presenter.focus.tvFocusRestorer
 import su.afk.yummy.tv.core.model.anime.AnimeEpisodeInfo
 import su.afk.yummy.tv.core.model.anime.AnimeVideo
 import su.afk.yummy.tv.core.model.anime.kodikThumbnailIframeUrl
+import su.afk.yummy.tv.core.model.anime.utils.episodeGroupKey
+import su.afk.yummy.tv.core.model.anime.utils.episodeNumberOrNull
 import su.afk.yummy.tv.feature.details.R
 import su.afk.yummy.tv.feature.details.episodes.utils.watchStatus
 import su.afk.yummy.tv.feature.details.model.DetailsWatchProgressIndex
@@ -64,9 +66,9 @@ internal fun EpisodesGrid(
 
     val episodeGroups = remember(videos) {
         videos
-            .groupBy { it.episode }
+            .groupBy { it.episode.episodeGroupKey() }
             .entries
-            .sortedBy { it.key.toIntOrNull() ?: 0 }
+            .sortedBy { it.key.episodeNumberOrNull() ?: Double.MAX_VALUE }
     }
 
     val episodeKeys = remember(episodeGroups) { episodeGroups.map { it.key } }
@@ -185,6 +187,7 @@ internal fun EpisodesGrid(
                     ?: groupVideos.first()
                 EpisodeCard(
                     video = representative,
+                    episodeNumber = episode,
                     watchStatus = groupVideos.watchStatus(watchProgress),
                     episodeTitle = episodeInfo[episode]?.title,
                     kodikIframeUrl = groupVideos.kodikThumbnailIframeUrl(bestDubbing),

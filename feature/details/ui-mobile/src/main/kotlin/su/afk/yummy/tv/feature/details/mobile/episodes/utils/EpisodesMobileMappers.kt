@@ -4,13 +4,15 @@ import su.afk.yummy.tv.core.model.anime.AnimeVideo
 import su.afk.yummy.tv.core.model.anime.bestKodikDubbing
 import su.afk.yummy.tv.core.model.anime.isKodikSource
 import su.afk.yummy.tv.core.model.anime.kodikThumbnailIframeUrl
+import su.afk.yummy.tv.core.model.anime.utils.episodeGroupKey
+import su.afk.yummy.tv.core.model.anime.utils.episodeNumberOrNull
 import su.afk.yummy.tv.feature.details.mobile.episodes.model.MobileEpisodeGroup
 
 internal fun List<AnimeVideo>.toMobileEpisodeGroups(): List<MobileEpisodeGroup> {
     val bestKodikDubbing = bestKodikDubbing()
-    return groupBy { it.episode }
+    return groupBy { it.episode.episodeGroupKey() }
         .entries
-        .sortedWith(compareBy({ it.key.toIntOrNull() ?: 0 }, { it.key }))
+        .sortedBy { it.key.episodeNumberOrNull() ?: Double.MAX_VALUE }
         .map { (episode, videos) ->
             MobileEpisodeGroup(
                 episode = episode,

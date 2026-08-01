@@ -4,6 +4,7 @@ import su.afk.yummy.tv.core.model.anime.AnimeVideo
 import su.afk.yummy.tv.core.model.anime.AnimeWatchProgress
 import su.afk.yummy.tv.core.model.anime.isContinueWatchingProgress
 import su.afk.yummy.tv.core.model.anime.isMeaningfulProgress
+import su.afk.yummy.tv.core.model.anime.utils.episodeGroupKey
 import su.afk.yummy.tv.feature.player.PlayerVideoSource
 
 data class DetailsWatchProgressIndex(
@@ -39,7 +40,7 @@ data class DetailsWatchProgressIndex(
             entries.firstOrNull { videoId > 0 && it.videoId == videoId },
             entries.firstOrNull { episodeUrl.isNotBlank() && it.episodeUrl == episodeUrl },
             entries.firstOrNull {
-                it.episode.episodeKey() == episode.episodeKey()
+                it.episode.episodeGroupKey() == episode.episodeGroupKey()
             },
         )
 
@@ -100,7 +101,7 @@ data class DetailsWatchProgressIndex(
 
         private fun AnimeWatchProgress.mergeKey(): String =
             when {
-                animeId > 0 && episode.isNotBlank() -> "$animeId:episode:${episode.episodeKey()}"
+                animeId > 0 && episode.isNotBlank() -> "$animeId:episode:${episode.episodeGroupKey()}"
                 videoId > 0 -> "video:$videoId"
                 episodeUrl.isNotBlank() -> "url:$episodeUrl"
                 else -> "entry:${hashCode()}"
@@ -110,9 +111,3 @@ data class DetailsWatchProgressIndex(
 
 private fun AnimeWatchProgress?.resumeFromMs(): Long =
     this?.positionMs?.takeIf { isContinueWatchingProgress() } ?: 0L
-
-private fun String.episodeKey(): String =
-    trim()
-        .trimStart('0')
-        .ifEmpty { trim() }
-        .lowercase()

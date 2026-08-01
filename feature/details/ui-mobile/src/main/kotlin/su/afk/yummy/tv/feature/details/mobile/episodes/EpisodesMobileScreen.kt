@@ -122,6 +122,7 @@ fun EpisodesMobileScreen(
                     val episodeInfo = state.episodeInfo[group.episode]
                     EpisodeMobileCard(
                         video = group.video,
+                        episodeNumber = group.episode,
                         watchStatus = group.videos.mobileWatchStatus(state.watchProgress),
                         kodikIframeUrl = group.kodikIframeUrl,
                         episodeTitle = episodeInfo?.title,
