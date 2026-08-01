@@ -217,7 +217,7 @@ class PlayerViewModel @AssistedInject internal constructor(
                 } else {
                     setState { copy(retryKey = retryKey + 1) }
                     allohaSession.close()
-                    loadStream(refreshSourcesOnFailure = true)
+                    loadStream(refreshSourcesOnFailure = true, forceRefresh = true)
                 }
             }
 
@@ -868,6 +868,7 @@ class PlayerViewModel @AssistedInject internal constructor(
         refreshSourcesOnFailure: Boolean = true,
         forceFreshAllohaSession: Boolean = false,
         selectedQualityOverride: String? = null,
+        forceRefresh: Boolean = false,
     ) {
         if (resumeMode == PlayerStreamResumeMode.SelectedSourceOnly) {
             pendingDestinationResumeMs = null
@@ -908,6 +909,7 @@ class PlayerViewModel @AssistedInject internal constructor(
                 refreshSourcesOnFailure = refreshSourcesOnFailure,
                 reuseAllohaPlaybackSession = !forceFreshAllohaSession,
                 selectedQualityOverride = selectedQualityOverride,
+                forceRefresh = forceRefresh,
             )) {
                 is PlayerStreamLoadResult.RefreshSources -> {
                     refreshSourceGraphThenLoadStream(result.resumeMode)
@@ -1090,7 +1092,8 @@ class PlayerViewModel @AssistedInject internal constructor(
             "Silent playback retry attempt=$attempt/${PlayerPlaybackRetryHandler.MAX_ATTEMPTS}",
         )
         playbackRetryJob = viewModelScope.launch {
-            delay(PLAYBACK_RETRY_DELAY_MS)
+            // Re-resolve starts immediately (no artificial delay) so the visible stall is bounded
+            // by the resolve+rebuild time only, not padded by a fixed wait before it even begins.
             if (
                 destination == activeDest &&
                 activeIframeUrl(currentState) == iframeUrl &&
@@ -1098,7 +1101,11 @@ class PlayerViewModel @AssistedInject internal constructor(
             ) {
                 setState { copy(retryKey = retryKey + 1) }
                 allohaSession.close()
-                loadStream(refreshSourcesOnFailure = true)
+                loadStream(
+                    refreshSourcesOnFailure = true,
+                    selectedQualityOverride = currentState.selectedQuality,
+                    forceRefresh = true,
+                )
             }
         }
     }
@@ -1118,7 +1125,6 @@ class PlayerViewModel @AssistedInject internal constructor(
         private const val ALLOHA_PLAYER_NAME = "alloha"
         private const val LOG_TAG = "PlayerViewModel"
         private const val ALLOHA_PLAYBACK_RECOVERY_DELAY_MS = 1_000L
-        private const val PLAYBACK_RETRY_DELAY_MS = 1_000L
         private const val CHANGE_PLAYER_HINT_DELAY_MS = 10_000L
         private const val ALLOHA_RECOVERY_HINT_DELAY_MS = 15_000L
     }

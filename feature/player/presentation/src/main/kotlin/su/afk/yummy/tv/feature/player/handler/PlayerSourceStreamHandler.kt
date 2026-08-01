@@ -162,6 +162,7 @@ internal class PlayerSourceStreamHandler @Inject constructor(
         refreshSourcesOnFailure: Boolean,
         reuseAllohaPlaybackSession: Boolean = true,
         selectedQualityOverride: String? = null,
+        forceRefresh: Boolean = false,
     ): PlayerStreamLoadResult {
         val result = try {
             streamHandler.resolve(
@@ -169,6 +170,7 @@ internal class PlayerSourceStreamHandler @Inject constructor(
                 pendingResumeMs = pendingResume,
                 reuseAllohaPlaybackSession = reuseAllohaPlaybackSession,
                 selectedQualityOverride = selectedQualityOverride,
+                forceRefresh = forceRefresh,
             )
         } catch (exception: CancellationException) {
             throw exception

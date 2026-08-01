@@ -408,9 +408,13 @@ internal class AllohaStreamProxy(
 
         val initialGeneration = initialState.generation
 
-        // Range requests and playlists are excluded: byte-range semantics must stay exact, and
-        // Media3 polls the media playlist on its own timer, so holding it back helps nothing.
-        val canHoldForRefresh = !allowRange && !isPlaylistUrl(url)
+        // Range requests are excluded: byte-range semantics must stay exact. Playlist requests
+        // ARE held (unlike the segment/range case there's no byte-continuity concern): without
+        // this, a rejected playlist fetch fails immediately and Media3's poll loop just keeps
+        // hitting the same still-invalid session until the *next* scheduled poll happens to land
+        // after the refresh completes - holding gives the in-flight refresh a real chance to land
+        // before this very request gives up.
+        val canHoldForRefresh = !allowRange
 
         // Escalates to one background session refresh and, for plain segment requests, holds this
         // loopback request until the fresh token lands so it can be retried transparently.
@@ -676,12 +680,15 @@ internal class AllohaStreamProxy(
         const val SESSION_REFRESH_WAIT_MS = 20_000L
         const val SESSION_REFRESH_POLL_MS = 150L
 
-        // How long a plain segment request may hang waiting for a session refresh before we give up
-        // and let the caller fail it. Media3 plays out of its own buffer for the whole hold, so this
-        // is affordable against the 15-60s it keeps (see PlayerLoadControlFactory), and it must
-        // outlast the extractor's forced staged-commit timeout - giving up just before the new token
-        // commits would trade a recoverable stall for a full session recovery.
-        const val SEGMENT_HOLD_FOR_REFRESH_MS = 10_000L
+        // How long a plain segment/playlist request may hang waiting for a session refresh before
+        // we give up and let the caller fail it. Media3 plays out of its own buffer for the whole
+        // hold, so this is affordable against the 15-60s it keeps (see PlayerLoadControlFactory).
+        // It must outlast AllohaExtractor's forced staged-commit timeout (8s) with real margin -
+        // not just nominally: IO-to-main-thread marshaling and SESSION_REFRESH_POLL_MS polling
+        // granularity both eat into that budget on the request actually waiting here. 14s leaves
+        // ~6s of margin over the 8s floor, while staying under PlayerDataSourceFactory's 16s HTTP
+        // read timeout so the held loopback request itself never trips a client-side timeout.
+        const val SEGMENT_HOLD_FOR_REFRESH_MS = 14_000L
         const val CACHE_CAPACITY = 4
         const val PREFETCH_COUNT = 2
         const val MIN_SEGMENT_BYTES_HINT = 1000

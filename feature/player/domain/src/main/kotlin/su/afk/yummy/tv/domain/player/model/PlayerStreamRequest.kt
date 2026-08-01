@@ -5,4 +5,6 @@ data class PlayerStreamRequest(
     val autoQualityLabel: String,
     val sessionFallbackTtlSeconds: Int? = null,
     val reusePlaybackSession: Boolean = true,
+    /** Пропускает и перезаписывает закэшированный resolve — предыдущий результат известно плохой. */
+    val forceRefresh: Boolean = false,
 )

@@ -38,7 +38,9 @@ internal class DefaultPlayerStreamRepository @Inject constructor(
         if (extractor is AllohaExtractor) return extractor.extract(request, context)
 
         val cacheKey = "$url|${request.autoQualityLabel}"
-        cachedStream(cacheKey)?.let { return it }
+        if (!request.forceRefresh) {
+            cachedStream(cacheKey)?.let { return it }
+        }
 
         val result = extractor.extract(request, context)
         if (result is PlayerStreamResolveResult.Stream) {

@@ -31,12 +31,14 @@ internal class PlayerStreamHandler @Inject constructor(
         pendingResumeMs: Long?,
         reuseAllohaPlaybackSession: Boolean = true,
         selectedQualityOverride: String? = null,
+        forceRefresh: Boolean = false,
     ): PlayerStreamResult {
         val request = PlayerStreamRequest(
             iframeUrl = activeIframeUrl(state),
             autoQualityLabel = strings.get(R.string.player_quality_auto),
             sessionFallbackTtlSeconds = ALLOHA_PLAYBACK_FALLBACK_SESSION_TTL_SECONDS,
             reusePlaybackSession = reuseAllohaPlaybackSession,
+            forceRefresh = forceRefresh,
         )
         val session = if (request.iframeUrl.isAllohaPlayerUrl()) {
             openAllohaStreamSession(request)
