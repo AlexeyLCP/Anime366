@@ -50,6 +50,7 @@ class PlayerState {
         val playbackPositionMs: Long = 0L,
         val playbackDurationMs: Long = 0L,
         val autoSkipOpeningsEndings: Boolean = false,
+        val showOpeningOnTimeline: Boolean = false,
         val autoPlayNextEpisode: Boolean = false,
         val pictureInPictureEnabled: Boolean = true,
         val mobileGestureTutorialReady: Boolean = false,

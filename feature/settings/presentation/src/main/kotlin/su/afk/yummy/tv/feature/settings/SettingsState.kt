@@ -39,6 +39,7 @@ class SettingsState {
         val watchNextEnabled: Boolean = true,
         val previewCacheSize: PreviewCacheSize = PreviewCacheSize.MB_100,
         val autoSkipOpeningsEndings: Boolean = false,
+        val showOpeningOnTimeline: Boolean = false,
         val autoPlayNextEpisode: Boolean = false,
         val pictureInPictureEnabled: Boolean = true,
         val mobilePlayerGestureTutorialDismissed: Boolean = false,
@@ -104,6 +105,9 @@ class SettingsState {
 
         /** Пользователь переключил автопропуск опенингов и эндингов. */
         data object AutoSkipOpeningsEndingsToggled : Event
+
+        /** Пользователь переключил отображение опенинга на полосе прогресса плеера. */
+        data object ShowOpeningOnTimelineToggled : Event
 
         /** Пользователь переключил автовоспроизведение следующей серии. */
         data object AutoPlayNextEpisodeToggled : Event

@@ -222,6 +222,16 @@ fun SettingsMobileScreen(
                         onClick = { onEvent(SettingsState.Event.AutoSkipOpeningsEndingsToggled) },
                     )
                     SettingsMobileToggleRow(
+                        label = stringResource(R.string.settings_mobile_show_opening_on_timeline_label),
+                        hint = if (state.showOpeningOnTimeline) {
+                            stringResource(R.string.settings_mobile_show_opening_on_timeline_enabled)
+                        } else {
+                            stringResource(R.string.settings_disabled)
+                        },
+                        enabled = state.showOpeningOnTimeline,
+                        onClick = { onEvent(SettingsState.Event.ShowOpeningOnTimelineToggled) },
+                    )
+                    SettingsMobileToggleRow(
                         label = stringResource(R.string.settings_auto_play_next_episode_label),
                         hint = if (state.autoPlayNextEpisode) {
                             stringResource(R.string.settings_auto_play_next_episode_enabled)

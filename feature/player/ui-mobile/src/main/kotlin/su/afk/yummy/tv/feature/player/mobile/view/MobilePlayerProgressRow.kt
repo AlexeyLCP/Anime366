@@ -113,7 +113,7 @@ private fun MobileBufferedSlider(
                     bufferedProgress = buffered,
                     color = Color.White.copy(alpha = 0.45f),
                     openingRange = openingRange,
-                    openingColor = OPENING_MARKER_COLOR,
+                    openingColor = MaterialTheme.colorScheme.primary,
                 ),
             )
         },
@@ -177,6 +177,3 @@ private fun Modifier.bufferedTrackOverlay(
             cap = StrokeCap.Round,
         )
     }
-
-/** Янтарный цвет метки опенинга на таймлайне (одинаковый на TV и мобилке). */
-private val OPENING_MARKER_COLOR = Color(0xFFFFC107)

@@ -14,6 +14,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
@@ -41,6 +42,7 @@ internal fun ProfileMediaSection(
                 model = avatarUrl,
                 contentDescription = null,
                 modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
                     .size(96.dp)
                     .clip(CircleShape)
                     .background(MaterialTheme.colorScheme.surfaceVariant),
@@ -52,6 +54,7 @@ internal fun ProfileMediaSection(
                 enabled = enabled,
                 onPick = onPick,
                 onDelete = onDelete,
+                centered = true,
             )
             AsyncImage(
                 model = bannerUrl,
@@ -69,6 +72,7 @@ internal fun ProfileMediaSection(
                 enabled = enabled,
                 onPick = onPick,
                 onDelete = onDelete,
+                centered = true,
             )
         }
     }
@@ -81,8 +85,15 @@ private fun ProfileImageActions(
     enabled: Boolean,
     onPick: (ProfileImageKind) -> Unit,
     onDelete: (ProfileImageKind) -> Unit,
+    centered: Boolean = false,
 ) {
-    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+    Row(
+        modifier = if (centered) Modifier.fillMaxWidth() else Modifier,
+        horizontalArrangement = Arrangement.spacedBy(
+            8.dp,
+            if (centered) Alignment.CenterHorizontally else Alignment.Start,
+        ),
+    ) {
         Button(onClick = { onPick(kind) }, enabled = enabled) {
             Text(
                 stringResource(

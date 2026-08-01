@@ -567,6 +567,7 @@ internal fun TvExoPlayerView(
             animeTitle = state.animeTitle,
             activeSkip = activeSkip,
             autoSkipOpeningsEndings = state.autoSkipOpeningsEndings,
+            showOpeningOnTimeline = state.showOpeningOnTimeline,
             highlightedSkipKey = skipUi.highlightedSkipKey,
             qualityCount = qualities.size,
             currentQualityLabel = activeQuality.orEmpty(),

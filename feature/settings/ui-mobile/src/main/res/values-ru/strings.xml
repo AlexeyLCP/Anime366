@@ -116,6 +116,8 @@
     <string name="settings_preferred_player_rutube_hint">Rutube</string>
     <string name="settings_auto_skip_label">Автопропуск опенинга и эндинга</string>
     <string name="settings_auto_skip_enabled">Пропускать, если для серии есть таймкоды</string>
+    <string name="settings_mobile_show_opening_on_timeline_label">Показывать опенинг на таймлайне</string>
+    <string name="settings_mobile_show_opening_on_timeline_enabled">Участок опенинга подсвечивается на полосе прогресса</string>
     <string name="settings_suggest_next_episode_on_watched_label">Следующая серия</string>
     <string name="settings_suggest_next_episode_on_watched_enabled">Показывать на главной после завершения текущей</string>
     <string name="settings_auto_play_next_episode_label">Автовоспроизведение следующей серии</string>

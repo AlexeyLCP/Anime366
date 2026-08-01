@@ -340,6 +340,17 @@ internal fun SettingsTvPanelHost(
                         )
                         SettingsDivider()
                         ToggleRow(
+                            label = stringResource(R.string.settings_tv_show_opening_on_timeline_label),
+                            hint = if (state.showOpeningOnTimeline) {
+                                stringResource(R.string.settings_tv_show_opening_on_timeline_enabled)
+                            } else {
+                                stringResource(R.string.settings_disabled)
+                            },
+                            enabled = state.showOpeningOnTimeline,
+                            onClick = { onEvent(SettingsState.Event.ShowOpeningOnTimelineToggled) },
+                        )
+                        SettingsDivider()
+                        ToggleRow(
                             label = stringResource(R.string.settings_auto_play_next_episode_label),
                             hint = if (state.autoPlayNextEpisode) {
                                 stringResource(R.string.settings_auto_play_next_episode_enabled)

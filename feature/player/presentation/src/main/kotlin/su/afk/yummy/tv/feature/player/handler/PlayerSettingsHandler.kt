@@ -14,6 +14,7 @@ internal class PlayerSettingsHandler @Inject constructor(
     private val settingsStore: SettingsStore,
 ) {
     val autoSkipOpeningsEndings: Flow<Boolean> = settingsStore.autoSkipOpeningsEndings
+    val showOpeningOnTimeline: Flow<Boolean> = settingsStore.showOpeningOnTimeline
     val autoPlayNextEpisode: Flow<Boolean> = settingsStore.autoPlayNextEpisode
     val pictureInPictureEnabled: Flow<Boolean> = settingsStore.pictureInPictureEnabled
     val mobilePlayerGestureTutorialDismissed: Flow<Boolean> =

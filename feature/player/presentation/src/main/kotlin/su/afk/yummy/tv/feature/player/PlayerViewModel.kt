@@ -102,6 +102,7 @@ class PlayerViewModel @AssistedInject internal constructor(
                 showMobileGestureTutorial = showMobileGestureTutorial,
                 tvPlayerVolumeKeysEnabled = tvPlayerVolumeKeysEnabled,
                 advancedPlayerVolumeEnabled = advancedPlayerVolumeEnabled,
+                showOpeningOnTimeline = showOpeningOnTimeline,
             )
         }
         loadFinalEpisodeAction(newDest.animeId)
@@ -125,6 +126,9 @@ class PlayerViewModel @AssistedInject internal constructor(
         analytics.eventScreenOpened(dest.animeId)
         settingsHandler.autoSkipOpeningsEndings
             .onEach { enabled -> setState { copy(autoSkipOpeningsEndings = enabled) } }
+            .launchIn(viewModelScope)
+        settingsHandler.showOpeningOnTimeline
+            .onEach { enabled -> setState { copy(showOpeningOnTimeline = enabled) } }
             .launchIn(viewModelScope)
         settingsHandler.autoPlayNextEpisode
             .onEach { enabled -> setState { copy(autoPlayNextEpisode = enabled) } }

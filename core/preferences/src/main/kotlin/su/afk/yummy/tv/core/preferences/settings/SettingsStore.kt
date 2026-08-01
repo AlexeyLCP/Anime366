@@ -14,6 +14,7 @@ data class SettingsSnapshot(
     val watchNextEnabled: Boolean,
     val previewCacheSize: PreviewCacheSize,
     val autoSkipOpeningsEndings: Boolean,
+    val showOpeningOnTimeline: Boolean,
     val autoPlayNextEpisode: Boolean,
     val pictureInPictureEnabled: Boolean,
     val suggestNextEpisodeOnWatched: Boolean,
@@ -55,6 +56,9 @@ interface SettingsStore {
     val watchNextEnabled: Flow<Boolean>
     val previewCacheSize: Flow<PreviewCacheSize>
     val autoSkipOpeningsEndings: Flow<Boolean>
+
+    /** Показывать участок опенинга на полосе прогресса плеера. */
+    val showOpeningOnTimeline: Flow<Boolean>
     val autoPlayNextEpisode: Flow<Boolean>
     val pictureInPictureEnabled: Flow<Boolean>
     val suggestNextEpisodeOnWatched: Flow<Boolean>
@@ -114,6 +118,7 @@ interface SettingsStore {
     suspend fun setWatchNextEnabled(enabled: Boolean)
     suspend fun setPreviewCacheSize(size: PreviewCacheSize)
     suspend fun setAutoSkipOpeningsEndings(enabled: Boolean)
+    suspend fun setShowOpeningOnTimeline(enabled: Boolean)
     suspend fun setAutoPlayNextEpisode(enabled: Boolean)
     suspend fun setPictureInPictureEnabled(enabled: Boolean)
     suspend fun setSuggestNextEpisodeOnWatched(enabled: Boolean)

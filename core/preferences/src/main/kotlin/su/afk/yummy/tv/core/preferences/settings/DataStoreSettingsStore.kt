@@ -34,6 +34,7 @@ class DataStoreSettingsStore(private val context: Context) : SettingsStore {
     private val watchNextEnabledKey = booleanPreferencesKey("watch_next_enabled")
     private val previewCacheSizeKey = intPreferencesKey("preview_cache_size")
     private val autoSkipOpeningsEndingsKey = booleanPreferencesKey("auto_skip_openings_endings")
+    private val showOpeningOnTimelineKey = booleanPreferencesKey("show_opening_on_timeline_enabled")
     private val autoPlayNextEpisodeKey = booleanPreferencesKey("auto_play_next_episode")
     private val pictureInPictureEnabledKey = booleanPreferencesKey("picture_in_picture_enabled")
     private val suggestNextEpisodeOnWatchedKey =
@@ -114,6 +115,10 @@ class DataStoreSettingsStore(private val context: Context) : SettingsStore {
 
     override val autoSkipOpeningsEndings: Flow<Boolean> = context.dataStore.data.map { prefs ->
         prefs[autoSkipOpeningsEndingsKey] ?: false
+    }
+
+    override val showOpeningOnTimeline: Flow<Boolean> = context.dataStore.data.map { prefs ->
+        prefs[showOpeningOnTimelineKey] ?: false
     }
 
     override val autoPlayNextEpisode: Flow<Boolean> = context.dataStore.data.map { prefs ->
@@ -259,6 +264,7 @@ class DataStoreSettingsStore(private val context: Context) : SettingsStore {
                     ?: PreviewCacheSize.MB_100
             },
             autoSkipOpeningsEndings = prefs[autoSkipOpeningsEndingsKey] ?: false,
+            showOpeningOnTimeline = prefs[showOpeningOnTimelineKey] ?: false,
             autoPlayNextEpisode = prefs[autoPlayNextEpisodeKey] ?: false,
             pictureInPictureEnabled = prefs[pictureInPictureEnabledKey] ?: true,
             suggestNextEpisodeOnWatched = prefs[suggestNextEpisodeOnWatchedKey] ?: true,
@@ -353,6 +359,10 @@ class DataStoreSettingsStore(private val context: Context) : SettingsStore {
 
     override suspend fun setAutoSkipOpeningsEndings(enabled: Boolean) {
         context.dataStore.edit { prefs -> prefs[autoSkipOpeningsEndingsKey] = enabled }
+    }
+
+    override suspend fun setShowOpeningOnTimeline(enabled: Boolean) {
+        context.dataStore.edit { prefs -> prefs[showOpeningOnTimelineKey] = enabled }
     }
 
     override suspend fun setAutoPlayNextEpisode(enabled: Boolean) {

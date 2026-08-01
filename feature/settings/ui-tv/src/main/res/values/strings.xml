@@ -137,6 +137,8 @@
     <string name="settings_player_playback_title">Playback</string>
     <string name="settings_auto_skip_label">Auto-skip opening and ending</string>
     <string name="settings_auto_skip_enabled">Skip when episode timings are available</string>
+    <string name="settings_tv_show_opening_on_timeline_label">Show opening on the timeline</string>
+    <string name="settings_tv_show_opening_on_timeline_enabled">The opening segment is highlighted on the progress bar</string>
     <string name="settings_suggest_next_episode_on_watched_label">Next episode</string>
     <string name="settings_suggest_next_episode_on_watched_enabled">Show on Home after finishing the current episode</string>
     <string name="settings_auto_play_next_episode_label">Autoplay next episode</string>
