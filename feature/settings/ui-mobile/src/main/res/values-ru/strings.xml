@@ -125,6 +125,9 @@
     <string name="settings_mobile_advanced_volume_label">Продвинутая громкость в плеере</string>
     <string name="settings_mobile_advanced_volume_enabled">У плеера своя громкость (0–100%, шаг 1%), независимо от системы</string>
     <string name="settings_mobile_advanced_volume_disabled">Громкость меняет системный звук как обычно</string>
+    <string name="settings_mobile_volume_stabilization_label">Стабилизация громкости</string>
+    <string name="settings_mobile_volume_stabilization_enabled">Выравнивает громкие и тихие сцены: тихие диалоги громче, громкие моменты тише</string>
+    <string name="settings_mobile_volume_stabilization_disabled">Звук играет со своим исходным динамическим диапазоном</string>
     <string name="settings_player_gesture_tutorial_reset">Повторить обучение жестам</string>
     <string name="settings_player_gesture_tutorial_reset_hint">Показать обучалку при следующем открытии видео</string>
     <string name="settings_player_gesture_tutorial_reset_done">Обучалка будет показана при следующем открытии видео</string>

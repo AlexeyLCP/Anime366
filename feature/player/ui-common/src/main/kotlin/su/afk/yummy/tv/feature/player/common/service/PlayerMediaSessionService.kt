@@ -18,8 +18,16 @@ import androidx.media3.exoplayer.trackselection.DefaultTrackSelector
 import androidx.media3.session.MediaSession
 import androidx.media3.session.MediaSessionService
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
+import su.afk.yummy.tv.core.preferences.settings.SettingsStore
 import su.afk.yummy.tv.domain.player.session.AllohaPlaybackSessionManager
 import su.afk.yummy.tv.feature.player.common.PlayerLoadControlFactory
+import su.afk.yummy.tv.feature.player.common.PlayerLoudnessNormalizer
 import javax.inject.Inject
 
 @OptIn(UnstableApi::class)
@@ -31,8 +39,19 @@ class PlayerMediaSessionService : MediaSessionService() {
     @Inject
     internal lateinit var allohaSessionManager: AllohaPlaybackSessionManager
 
+    @Inject
+    internal lateinit var settingsStore: SettingsStore
+
     private var mediaSession: MediaSession? = null
     private var player: ExoPlayer? = null
+
+    private val loudnessNormalizer = PlayerLoudnessNormalizer()
+    private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
+
+    // Источник истины для «стабилизации громкости»: эффект пересобирается при смене либо
+    // настройки, либо аудио-сессии (новая серия/переподключение плеера пересоздают session id).
+    private var stabilizationEnabled = false
+    private var currentAudioSessionId = C.AUDIO_SESSION_ID_UNSET
 
     override fun onCreate() {
         super.onCreate()
@@ -55,6 +74,11 @@ class PlayerMediaSessionService : MediaSessionService() {
             .build()
         exoPlayer.addListener(object : Player.Listener {
             private var overriddenAudioGroup: TrackGroup? = null
+
+            override fun onAudioSessionIdChanged(audioSessionId: Int) {
+                currentAudioSessionId = audioSessionId
+                loudnessNormalizer.apply(audioSessionId, stabilizationEnabled)
+            }
 
             override fun onTracksChanged(tracks: Tracks) {
                 val selection = playbackConfig.trackSelectionConfig()
@@ -100,6 +124,15 @@ class PlayerMediaSessionService : MediaSessionService() {
             }
         })
         player = exoPlayer
+        // Начальная сессия: onAudioSessionIdChanged приходит не всегда до старта, поэтому
+        // подхватываем текущее значение сразу.
+        currentAudioSessionId = exoPlayer.audioSessionId
+        settingsStore.volumeStabilizationEnabled
+            .onEach { enabled ->
+                stabilizationEnabled = enabled
+                loudnessNormalizer.apply(currentAudioSessionId, enabled)
+            }
+            .launchIn(serviceScope)
         mediaSession = MediaSession.Builder(this, exoPlayer)
             .setSessionActivity(createSessionActivityPendingIntent())
             .build()
@@ -116,6 +149,8 @@ class PlayerMediaSessionService : MediaSessionService() {
 
     override fun onDestroy() {
         allohaSessionManager.closeActive()
+        serviceScope.cancel()
+        loudnessNormalizer.release()
         mediaSession?.run { player.release(); release() }
         mediaSession = null
         player = null

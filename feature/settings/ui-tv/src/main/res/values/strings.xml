@@ -149,6 +149,9 @@
     <string name="settings_tv_advanced_volume_label">Advanced volume in the player</string>
     <string name="settings_tv_advanced_volume_enabled">The player has its own volume (0–100%, 1% steps), independent of the system</string>
     <string name="settings_tv_advanced_volume_disabled">Volume changes the system volume as usual</string>
+    <string name="settings_tv_volume_stabilization_label">Volume stabilization</string>
+    <string name="settings_tv_volume_stabilization_enabled">Evens out loud and quiet scenes: quiet dialogue is boosted, loud moments are tamed</string>
+    <string name="settings_tv_volume_stabilization_disabled">Audio plays with its original dynamic range</string>
     <string name="settings_cache_size_min">Minimum</string>
     <string name="settings_cache_size_50">50 MB</string>
     <string name="settings_cache_size_standard">Standard</string>

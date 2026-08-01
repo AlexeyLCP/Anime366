@@ -25,6 +25,8 @@ internal fun MobilePlayerProgressRow(
     duration: Long,
     seekProgress: Float,
     bufferedProgress: Float,
+    openingStartMs: Long?,
+    openingEndMs: Long?,
     onSeekChange: (Float) -> Unit,
     onSeekFinished: () -> Unit,
     modifier: Modifier = Modifier,
@@ -42,6 +44,7 @@ internal fun MobilePlayerProgressRow(
         MobileBufferedSlider(
             value = seekProgress.coerceIn(0f, 1f),
             bufferedProgress = bufferedProgress,
+            openingRange = openingRange(openingStartMs, openingEndMs, duration),
             onValueChange = onSeekChange,
             onValueChangeFinished = onSeekFinished,
             enabled = duration > 0,
@@ -55,11 +58,27 @@ internal fun MobilePlayerProgressRow(
     }
 }
 
+/**
+ * Возвращает диапазон опенинга как доли `0f..1f` от длительности, или `null`, если опенинга нет
+ * либо длительность ещё не известна.
+ */
+private fun openingRange(
+    startMs: Long?,
+    endMs: Long?,
+    duration: Long
+): ClosedFloatingPointRange<Float>? {
+    if (startMs == null || endMs == null || duration <= 0L || endMs <= startMs) return null
+    val start = (startMs.toFloat() / duration).coerceIn(0f, 1f)
+    val end = (endMs.toFloat() / duration).coerceIn(0f, 1f)
+    return if (end > start) start..end else null
+}
+
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 private fun MobileBufferedSlider(
     value: Float,
     bufferedProgress: Float,
+    openingRange: ClosedFloatingPointRange<Float>?,
     onValueChange: (Float) -> Unit,
     onValueChangeFinished: () -> Unit,
     enabled: Boolean,
@@ -93,6 +112,8 @@ private fun MobileBufferedSlider(
                     activeProgress = activeProgress,
                     bufferedProgress = buffered,
                     color = Color.White.copy(alpha = 0.45f),
+                    openingRange = openingRange,
+                    openingColor = OPENING_MARKER_COLOR,
                 ),
             )
         },
@@ -104,14 +125,40 @@ private fun Modifier.bufferedTrackOverlay(
     activeProgress: Float,
     bufferedProgress: Float,
     color: Color,
+    openingRange: ClosedFloatingPointRange<Float>?,
+    openingColor: Color,
 ): Modifier =
     drawWithContent {
         drawContent()
+
+        val trackY = size.height / 2f
+        val strokeWidth = 4.dp.toPx()
+
+        // Метка опенинга: рисуем поверх дорожки, чтобы отрезок был виден и под проигранной частью.
+        if (openingRange != null) {
+            val oStartX: Float
+            val oEndX: Float
+            if (layoutDirection == LayoutDirection.Rtl) {
+                oStartX = (size.width * (1f - openingRange.start)).coerceIn(0f, size.width)
+                oEndX = (size.width * (1f - openingRange.endInclusive)).coerceIn(0f, size.width)
+            } else {
+                oStartX = (size.width * openingRange.start).coerceIn(0f, size.width)
+                oEndX = (size.width * openingRange.endInclusive).coerceIn(0f, size.width)
+            }
+            if (oStartX != oEndX) {
+                drawLine(
+                    color = openingColor,
+                    start = Offset(oStartX, trackY),
+                    end = Offset(oEndX, trackY),
+                    strokeWidth = strokeWidth,
+                    cap = StrokeCap.Round,
+                )
+            }
+        }
+
         if (bufferedProgress <= activeProgress) return@drawWithContent
 
         val gapPx = 6.dp.toPx()
-        val strokeWidth = 4.dp.toPx()
-        val trackY = size.height / 2f
         val startX: Float
         val endX: Float
         if (layoutDirection == LayoutDirection.Rtl) {
@@ -130,3 +177,6 @@ private fun Modifier.bufferedTrackOverlay(
             cap = StrokeCap.Round,
         )
     }
+
+/** Янтарный цвет метки опенинга на таймлайне (одинаковый на TV и мобилке). */
+private val OPENING_MARKER_COLOR = Color(0xFFFFC107)

@@ -501,6 +501,8 @@ internal fun MobileNativePlayer(
             duration = duration,
             seekProgress = progress,
             bufferedProgress = bufferedProgress,
+            openingStartMs = ui.activeSkips.opening?.startMs,
+            openingEndMs = ui.activeSkips.opening?.endMs,
             hasPrevEpisode = ui.hasPrevEpisode,
             hasNextEpisode = ui.hasNextEpisode,
             onPlayPause = {

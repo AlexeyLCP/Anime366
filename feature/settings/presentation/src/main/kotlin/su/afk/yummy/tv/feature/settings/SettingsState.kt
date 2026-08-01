@@ -1,5 +1,6 @@
 package su.afk.yummy.tv.feature.settings
 
+import android.os.Build
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiEffect
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiEvent
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiState
@@ -45,6 +46,9 @@ class SettingsState {
         val refreshContinueWatchingProgressOnLaunch: Boolean = false,
         val tvPlayerVolumeKeysEnabled: Boolean = false,
         val advancedPlayerVolumeEnabled: Boolean = false,
+        val volumeStabilizationEnabled: Boolean = false,
+        /** Сжатие динамического диапазона (DynamicsProcessing) доступно только с Android 9 (API 28). */
+        val volumeStabilizationSupported: Boolean = Build.VERSION.SDK_INT >= Build.VERSION_CODES.P,
         val videoExportAutoEnabled: Boolean = false,
         val yaniApplicationToken: String = "",
         val contentLanguage: YaniContentLanguage = YaniContentLanguage.DEFAULT,
@@ -111,6 +115,9 @@ class SettingsState {
         data object TvPlayerVolumeKeysToggled : Event
 
         data object AdvancedPlayerVolumeToggled : Event
+
+        /** Пользователь переключил стабилизацию громкости (сжатие динамического диапазона). */
+        data object VolumeStabilizationToggled : Event
 
         /** Пользователь запросил повторный показ обучения жестам мобильного плеера. */
         data object MobilePlayerGestureTutorialReset : Event

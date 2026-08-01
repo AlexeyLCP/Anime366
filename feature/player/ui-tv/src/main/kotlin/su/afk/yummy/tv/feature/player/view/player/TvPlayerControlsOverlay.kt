@@ -121,6 +121,8 @@ internal fun BoxScope.TvPlayerControlsOverlay(
                     seekProgress = progress.seekProgress,
                     bufferedProgress = bufferedProgress,
                     currentPosition = progress.currentPosition,
+                    openingStartMs = playback.activeSkips.opening?.startMs,
+                    openingEndMs = playback.activeSkips.opening?.endMs,
                     playFocusRequester = focus.play,
                     playUpFocusRequester = focus.skip.takeIf { visibleSkip != null },
                     progressFocusRequester = focus.progress,

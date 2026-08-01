@@ -251,6 +251,18 @@ fun SettingsMobileScreen(
                         enabled = state.advancedPlayerVolumeEnabled,
                         onClick = { onEvent(SettingsState.Event.AdvancedPlayerVolumeToggled) },
                     )
+                    if (state.volumeStabilizationSupported) {
+                        SettingsMobileToggleRow(
+                            label = stringResource(R.string.settings_mobile_volume_stabilization_label),
+                            hint = if (state.volumeStabilizationEnabled) {
+                                stringResource(R.string.settings_mobile_volume_stabilization_enabled)
+                            } else {
+                                stringResource(R.string.settings_mobile_volume_stabilization_disabled)
+                            },
+                            enabled = state.volumeStabilizationEnabled,
+                            onClick = { onEvent(SettingsState.Event.VolumeStabilizationToggled) },
+                        )
+                    }
                     SettingsMobileActionRow(
                         label = stringResource(R.string.settings_player_gesture_tutorial_reset),
                         hint = if (state.mobilePlayerGestureTutorialDismissed) {

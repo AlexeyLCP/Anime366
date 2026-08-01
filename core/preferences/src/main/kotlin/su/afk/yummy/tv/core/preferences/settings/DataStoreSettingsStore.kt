@@ -48,6 +48,8 @@ class DataStoreSettingsStore(private val context: Context) : SettingsStore {
         booleanPreferencesKey("advanced_player_volume_enabled")
     private val advancedPlayerVolumePercentKey =
         intPreferencesKey("advanced_player_volume_percent")
+    private val volumeStabilizationEnabledKey =
+        booleanPreferencesKey("volume_stabilization_enabled")
     private val playerResizeModeKey = stringPreferencesKey("player_resize_mode")
     private val playerZoomLevelKey = stringPreferencesKey("player_zoom_level")
     private val detailsButtonOrderKey = stringPreferencesKey("details_button_order")
@@ -146,6 +148,10 @@ class DataStoreSettingsStore(private val context: Context) : SettingsStore {
 
     override val advancedPlayerVolumePercent: Flow<Int> = context.dataStore.data.map { prefs ->
         (prefs[advancedPlayerVolumePercentKey] ?: 100).coerceIn(0, 100)
+    }
+
+    override val volumeStabilizationEnabled: Flow<Boolean> = context.dataStore.data.map { prefs ->
+        prefs[volumeStabilizationEnabledKey] ?: false
     }
 
     override val playerResizeMode: Flow<PlayerResizeMode> =
@@ -260,6 +266,7 @@ class DataStoreSettingsStore(private val context: Context) : SettingsStore {
                 prefs[refreshContinueWatchingProgressOnLaunchKey] ?: false,
             tvPlayerVolumeKeysEnabled = prefs[tvPlayerVolumeKeysEnabledKey] ?: false,
             advancedPlayerVolumeEnabled = prefs[advancedPlayerVolumeEnabledKey] ?: false,
+            volumeStabilizationEnabled = prefs[volumeStabilizationEnabledKey] ?: false,
             videoExportAutoEnabled = prefs[videoExportAutoEnabledKey] ?: false,
             yaniApplicationToken = prefs.yaniApplicationToken(),
             contentLanguage = YaniContentLanguage.fromPreferenceValue(prefs[yaniContentLanguageKey])
@@ -393,6 +400,12 @@ class DataStoreSettingsStore(private val context: Context) : SettingsStore {
     override suspend fun setAdvancedPlayerVolumePercent(percent: Int) {
         context.dataStore.edit { prefs ->
             prefs[advancedPlayerVolumePercentKey] = percent.coerceIn(0, 100)
+        }
+    }
+
+    override suspend fun setVolumeStabilizationEnabled(enabled: Boolean) {
+        context.dataStore.edit { prefs ->
+            prefs[volumeStabilizationEnabledKey] = enabled
         }
     }
 

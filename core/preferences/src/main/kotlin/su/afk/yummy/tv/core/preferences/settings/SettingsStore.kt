@@ -20,6 +20,7 @@ data class SettingsSnapshot(
     val refreshContinueWatchingProgressOnLaunch: Boolean,
     val tvPlayerVolumeKeysEnabled: Boolean,
     val advancedPlayerVolumeEnabled: Boolean,
+    val volumeStabilizationEnabled: Boolean,
     val videoExportAutoEnabled: Boolean,
     val yaniApplicationToken: String,
     val contentLanguage: YaniContentLanguage,
@@ -62,6 +63,9 @@ interface SettingsStore {
     val tvPlayerVolumeKeysEnabled: Flow<Boolean>
     val advancedPlayerVolumeEnabled: Flow<Boolean>
     val advancedPlayerVolumePercent: Flow<Int>
+
+    /** Стабилизация громкости (сжатие динамического диапазона аудио). */
+    val volumeStabilizationEnabled: Flow<Boolean>
     val playerResizeMode: Flow<PlayerResizeMode>
     val playerZoomLevel: Flow<PlayerZoomLevel>
     val appTheme: Flow<AppTheme>
@@ -119,6 +123,7 @@ interface SettingsStore {
     suspend fun setTvPlayerVolumeKeysEnabled(enabled: Boolean)
     suspend fun setAdvancedPlayerVolumeEnabled(enabled: Boolean)
     suspend fun setAdvancedPlayerVolumePercent(percent: Int)
+    suspend fun setVolumeStabilizationEnabled(enabled: Boolean)
     suspend fun setPlayerResizeMode(mode: PlayerResizeMode)
     suspend fun setPlayerZoomLevel(level: PlayerZoomLevel)
 

@@ -392,6 +392,21 @@ internal fun SettingsTvPanelHost(
                                 onEvent(SettingsState.Event.AdvancedPlayerVolumeToggled)
                             },
                         )
+                        if (state.volumeStabilizationSupported) {
+                            SettingsDivider()
+                            ToggleRow(
+                                label = stringResource(R.string.settings_tv_volume_stabilization_label),
+                                hint = if (state.volumeStabilizationEnabled) {
+                                    stringResource(R.string.settings_tv_volume_stabilization_enabled)
+                                } else {
+                                    stringResource(R.string.settings_tv_volume_stabilization_disabled)
+                                },
+                                enabled = state.volumeStabilizationEnabled,
+                                onClick = {
+                                    onEvent(SettingsState.Event.VolumeStabilizationToggled)
+                                },
+                            )
+                        }
                     }
 
                     SettingsTab.PLAYER_SOURCE -> {

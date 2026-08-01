@@ -33,6 +33,8 @@ internal fun MobilePlayerOverlay(
     duration: Long,
     seekProgress: Float,
     bufferedProgress: Float,
+    openingStartMs: Long?,
+    openingEndMs: Long?,
     hasPrevEpisode: Boolean,
     hasNextEpisode: Boolean,
     onPlayPause: () -> Unit,
@@ -68,6 +70,8 @@ internal fun MobilePlayerOverlay(
             duration = duration,
             seekProgress = seekProgress,
             bufferedProgress = bufferedProgress,
+            openingStartMs = openingStartMs,
+            openingEndMs = openingEndMs,
             onSeekChange = onSeekChange,
             onSeekFinished = onSeekFinished,
         )
