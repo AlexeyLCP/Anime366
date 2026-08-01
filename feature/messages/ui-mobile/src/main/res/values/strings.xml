@@ -17,7 +17,8 @@
     <string name="messages_cancel">Cancel</string>
     <string name="messages_edited">edited</string>
     <string name="messages_deleted">Message deleted</string>
-    <string name="messages_reply">Reply to %1$s</string>
+    <string name="messages_reply">Reply to @%1$s</string>
+    <string name="messages_reply_action">Reply</string>
     <string name="messages_unread_count">%1$d unread</string>
     <string name="messages_send_failed">Couldn’t send the message. Your draft was kept.</string>
     <string name="messages_edit_failed">Couldn’t save the changes.</string>

@@ -5,5 +5,6 @@ import javax.inject.Inject
 
 /** Отправляет сообщение выбранному пользователю. */
 class SendMessageUseCase @Inject constructor(private val repository: MessagesRepository) {
-    suspend operator fun invoke(userId: Int, text: String) = repository.sendMessage(userId, text)
+    suspend operator fun invoke(userId: Int, text: String, answerMessageId: Int = 0) =
+        repository.sendMessage(userId, text, answerMessageId)
 }

@@ -25,6 +25,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
@@ -40,8 +41,10 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import coil3.compose.AsyncImage
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.launch
 import su.afk.yummy.tv.core.designsystem.presenter.components.StateMessage
 import su.afk.yummy.tv.core.designsystem.presenter.mobile.MobileTopBar
+import su.afk.yummy.tv.domain.messages.model.GLOBAL_CHAT_USER_ID
 import su.afk.yummy.tv.feature.messages.chat.ChatState
 import su.afk.yummy.tv.feature.messages.mobile.R
 import su.afk.yummy.tv.feature.messages.mobile.view.ChatManagementMobileDialogs
@@ -60,8 +63,17 @@ fun ChatMobileScreen(
 ) {
     val context = LocalContext.current
     val listState = rememberLazyListState()
+    val coroutineScope = rememberCoroutineScope()
     var previousLastMessageId by remember { mutableIntStateOf(0) }
     ChatMobileLifecycleEffect(onEvent)
+
+    fun scrollToMessage(messageId: Int) {
+        val index = state.messages.indexOfFirst { it.id == messageId }
+        if (index >= 0) {
+            val leadingItems = if (state.isLoadingOlder) 1 else 0
+            coroutineScope.launch { listState.animateScrollToItem(index + leadingItems) }
+        }
+    }
 
     LaunchedEffect(effect, context) {
         effect.collect { item ->
@@ -205,6 +217,9 @@ fun ChatMobileScreen(
                                     onRestore = { onEvent(ChatState.Event.RestoreSelected(message.id)) },
                                     onHistory = { onEvent(ChatState.Event.HistorySelected(message.id)) },
                                     onClaim = { onEvent(ChatState.Event.ClaimSelected(message.id)) },
+                                    showAuthor = state.userId == GLOBAL_CHAT_USER_ID,
+                                    onReply = { onEvent(ChatState.Event.ReplySelected(message.id)) },
+                                    onReplyClick = { id -> scrollToMessage(id) },
                                 )
                             }
                         }
@@ -223,6 +238,9 @@ fun ChatMobileScreen(
                     enabled = !state.isMutating && state.peer?.isBanned != true,
                     onTextChange = { onEvent(ChatState.Event.DraftChanged(it)) },
                     onSend = { onEvent(ChatState.Event.SendSelected) },
+                    replyingToNickname = state.replyingTo?.nickname,
+                    replyingToText = state.replyingTo?.text?.lineSequence()?.firstOrNull(),
+                    onCancelReply = { onEvent(ChatState.Event.ReplyCancelled) },
                 )
             }
         }

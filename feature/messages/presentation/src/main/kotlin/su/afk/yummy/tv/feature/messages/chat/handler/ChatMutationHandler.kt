@@ -20,7 +20,8 @@ class ChatMutationHandler @Inject constructor(
     private val claimMessage: ClaimMessageUseCase,
     private val setDialogUserBanned: SetDialogUserBannedUseCase,
 ) {
-    suspend fun send(userId: Int, text: String) = sendMessage(userId, text)
+    suspend fun send(userId: Int, text: String, answerMessageId: Int = 0) =
+        sendMessage(userId, text, answerMessageId)
     suspend fun markRead(userId: Int) = markMessagesRead(userId)
     suspend fun edit(messageId: Int, text: String) = editMessage(messageId, text)
     suspend fun delete(messageId: Int) = deleteMessage(messageId)

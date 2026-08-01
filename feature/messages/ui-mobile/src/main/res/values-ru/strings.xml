@@ -17,7 +17,8 @@
     <string name="messages_cancel">Отмена</string>
     <string name="messages_edited">изменено</string>
     <string name="messages_deleted">Сообщение удалено</string>
-    <string name="messages_reply">Ответ для %1$s</string>
+    <string name="messages_reply">Ответ для @%1$s</string>
+    <string name="messages_reply_action">Ответить</string>
     <string name="messages_unread_count">Непрочитано: %1$d</string>
     <string name="messages_send_failed">Не удалось отправить сообщение. Черновик сохранён.</string>
     <string name="messages_edit_failed">Не удалось сохранить изменения.</string>

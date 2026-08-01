@@ -21,8 +21,8 @@ class YaniMessagesRepository @Inject constructor(
             .filter { it.id > 0 }
             .map(YaniMessageDto::domain)
 
-    override suspend fun sendMessage(userId: Int, text: String) =
-        api.sendMessage(userId, text).response.domain()
+    override suspend fun sendMessage(userId: Int, text: String, answerMessageId: Int) =
+        api.sendMessage(userId, text, answerMessageId).response.domain()
 
     override suspend fun markRead(userId: Int) = api.markRead(userId).response.ok
 

@@ -40,10 +40,14 @@ class YaniMessagesApi @Inject constructor(
             parameter("start_from", startFrom)
         }.body()
 
-    suspend fun sendMessage(userId: Int, text: String): YaniMessageResponseDto =
+    suspend fun sendMessage(
+        userId: Int,
+        text: String,
+        answerMessageId: Int = 0
+    ): YaniMessageResponseDto =
         clientProvider.get().post("$YANI_BASE_URL/dialogs/$userId/messages") {
             contentType(ContentType.Application.Json)
-            setBody(YaniSendMessageBodyDto(message = text))
+            setBody(YaniSendMessageBodyDto(answerMessageId = answerMessageId, message = text))
         }.body()
 
     suspend fun markRead(userId: Int): YaniReadMessagesResponseDto =

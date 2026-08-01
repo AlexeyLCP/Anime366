@@ -18,6 +18,7 @@ object ChatState {
         val peer: DialogSummary? = null,
         val messages: List<ChatMessage> = emptyList(),
         val draft: String = "",
+        val replyingTo: ChatMessage? = null,
         val editingMessageId: Int? = null,
         val editingText: String = "",
         val pendingDeleteMessageId: Int? = null,
@@ -44,6 +45,8 @@ object ChatState {
         data object LoadOlderSelected : Event
         data class DraftChanged(val text: String) : Event
         data object SendSelected : Event
+        data class ReplySelected(val messageId: Int) : Event
+        data object ReplyCancelled : Event
         data class EditSelected(val messageId: Int) : Event
         data class EditTextChanged(val text: String) : Event
         data object EditCancelled : Event

@@ -109,6 +109,8 @@ class ChatViewModel @AssistedInject constructor(
             ChatState.Event.LoadOlderSelected -> loadOlder()
             is ChatState.Event.DraftChanged -> setState { copy(draft = event.text) }
             ChatState.Event.SendSelected -> send()
+            is ChatState.Event.ReplySelected -> beginReply(event.messageId)
+            ChatState.Event.ReplyCancelled -> setState { copy(replyingTo = null) }
             is ChatState.Event.EditSelected -> beginEdit(event.messageId)
             is ChatState.Event.EditTextChanged -> setState { copy(editingText = event.text) }
             ChatState.Event.EditCancelled -> setState {
@@ -245,20 +247,28 @@ class ChatViewModel @AssistedInject constructor(
         pollingJob = null
     }
 
+    private fun beginReply(messageId: Int) {
+        val message = currentState.messages.firstOrNull { it.id == messageId } ?: return
+        if (message.isDeleted) return
+        setState { copy(replyingTo = message, editingMessageId = null, editingText = "") }
+    }
+
     private fun send() {
         val text = currentState.draft.trim()
         if (
             text.isBlank() || currentState.isMutating || !currentState.isAuthorized ||
             currentState.peer?.isBanned == true
         ) return
+        val answerMessageId = currentState.replyingTo?.id ?: 0
         viewModelScope.launch {
             setState { copy(isMutating = true) }
-            runCatching { mutationHandler.send(userId, text) }.fold(
+            runCatching { mutationHandler.send(userId, text, answerMessageId) }.fold(
                 onSuccess = { saved ->
                     setState {
                         copy(
                             messages = mergeMessages(messages, listOf(saved)),
                             draft = "",
+                            replyingTo = null,
                             isMutating = false,
                         )
                     }
