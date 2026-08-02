@@ -221,6 +221,10 @@ class DefaultVideoDownloadRepository @Inject constructor(
         errorMessage: String?,
     ) {
         val entry = store.dao.getById(id) ?: return
+        val currentStatus = entry.status.toVideoDownloadStatus()
+        if (currentStatus == VideoDownloadStatus.Deleted || currentStatus == VideoDownloadStatus.Paused) {
+            return
+        }
         store.dao.update(
             entry.copy(
                 status = status.storageName(),

@@ -19,7 +19,9 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -63,7 +65,13 @@ class VideoDownloadWorker @AssistedInject internal constructor(
     private val notificationService: VideoDownloadNotificationService,
     private val analytics: VideoDownloadAnalytics,
 ) : CoroutineWorker(appContext, params) {
+    @Volatile
+    private var activeDownloader: Downloader? = null
+
     override suspend fun doWork(): Result {
+        currentCoroutineContext()[Job]?.invokeOnCompletion { cause ->
+            if (cause is CancellationException) activeDownloader?.cancel()
+        }
         val id = inputData.getLong(KEY_DOWNLOAD_ID, 0L).takeIf { it > 0L }
             ?: return Result.failure()
         var item = repository.getDownload(id) ?: return Result.failure()
@@ -460,6 +468,7 @@ class VideoDownloadWorker @AssistedInject internal constructor(
                 var lastProgress = -1
                 var lastLoggedProgress = -1
                 val downloader = createDownloader(mediaItem, cacheDataSource)
+                activeDownloader = downloader
                 logDownloadDebug {
                     "Prepared downloader id=$id kind=$streamKind cacheKeyHash=${item.cacheKey.hashCode()} " +
                             "headers=${downloadHeaders.safeHeaderNames()} retryUsed=$retriedAfterForbidden " +
@@ -522,6 +531,7 @@ class VideoDownloadWorker @AssistedInject internal constructor(
                 }
             }
         } finally {
+            activeDownloader = null
             sessionRefreshTimer?.cancel()
             liveSession?.close()
         }
