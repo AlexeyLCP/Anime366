@@ -22,6 +22,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import okhttp3.OkHttpClient
 import su.afk.yummy.tv.BuildConfig
+import su.afk.yummy.tv.android.lifecycle.FeatureToggleRefreshCoordinator
 import su.afk.yummy.tv.android.lifecycle.OnlineStatusCoordinator
 import su.afk.yummy.tv.android.worker.HomeFeedRefreshScheduler
 import su.afk.yummy.tv.core.analytics.AnalyticsInitializer
@@ -66,6 +67,9 @@ class YummyTvApplication : Application(), Configuration.Provider {
     @Inject
     lateinit var onlineStatusCoordinator: OnlineStatusCoordinator
 
+    @Inject
+    lateinit var featureToggleRefreshCoordinator: FeatureToggleRefreshCoordinator
+
     private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
     override val workManagerConfiguration: Configuration
@@ -91,6 +95,7 @@ class YummyTvApplication : Application(), Configuration.Provider {
         setupFeatureToggles()
         setupCoilImageLoader()
         onlineStatusCoordinator.start()
+        featureToggleRefreshCoordinator.start()
         homeFeedRefreshScheduler.schedule()
         applicationScope.launch {
             settingsStore.ensureYaniContentLanguageInitialized()

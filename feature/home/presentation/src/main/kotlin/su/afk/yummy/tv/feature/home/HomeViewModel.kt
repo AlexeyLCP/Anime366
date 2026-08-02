@@ -16,6 +16,7 @@ import su.afk.yummy.tv.core.error.storage.RetryStorage
 import su.afk.yummy.tv.core.featuretoggle.FeatureFlags
 import su.afk.yummy.tv.core.featuretoggle.FeatureToggleProvider
 import su.afk.yummy.tv.core.featuretoggle.FeatureToggleUpdateObserver
+import su.afk.yummy.tv.core.logger.AppLogger
 import su.afk.yummy.tv.core.navigation.NavigationManager
 import su.afk.yummy.tv.core.preferences.settings.SettingsStore
 import su.afk.yummy.tv.core.preferences.settings.SupportPromptSnapshot
@@ -302,12 +303,22 @@ class HomeViewModel @Inject internal constructor(
             val message = featureToggleProvider.getString(FeatureFlags.announcementMessage).trim()
             // Пустой id/сообщение или id == "0" означают, что объявление выключено.
             if (id.isBlank() || id == "0" || message.isBlank()) {
+                AppLogger.d(TAG_ANNOUNCEMENT) {
+                    "Skipped: id='$id' message.isBlank=${message.isBlank()}"
+                }
                 setState { copy(announcement = null) }
                 return@launch
             }
-            if (id == settingsStore.lastSeenAnnouncementId.first()) return@launch
+            val lastSeenId = settingsStore.lastSeenAnnouncementId.first()
+            if (id == lastSeenId) {
+                AppLogger.d(TAG_ANNOUNCEMENT) { "Skipped: id='$id' already seen" }
+                return@launch
+            }
             val title = featureToggleProvider.getString(FeatureFlags.announcementTitle).trim()
             val button = featureToggleProvider.getString(FeatureFlags.announcementButton).trim()
+            AppLogger.d(TAG_ANNOUNCEMENT) {
+                "Showing: id='$id' lastSeenId='$lastSeenId' title.isBlank=${title.isBlank()} button.isBlank=${button.isBlank()}"
+            }
             setState {
                 copy(
                     announcement = HomeAnnouncement(
@@ -466,5 +477,6 @@ class HomeViewModel @Inject internal constructor(
 
     private companion object {
         val SUPPORT_PROMPT_DELAY_MS: Long = TimeUnit.DAYS.toMillis(7)
+        const val TAG_ANNOUNCEMENT = "HomeAnnouncement"
     }
 }

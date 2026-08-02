@@ -51,6 +51,11 @@ internal class VarioqubFeatureToggleInitializer @Inject constructor(
         }
     }
 
+    override fun refresh() {
+        if (!featureToggleState.isInitialized) return
+        fetchConfig()
+    }
+
     private fun initializeVarioqub(
         settings: VarioqubSettings,
         adapter: VarioqubConfigAdapter,
