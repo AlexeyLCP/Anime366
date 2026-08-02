@@ -42,6 +42,7 @@ import coil3.compose.AsyncImage
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
+import su.afk.yummy.tv.core.designsystem.presenter.baseScreen.BaseScreen
 import su.afk.yummy.tv.core.designsystem.presenter.components.StateMessage
 import su.afk.yummy.tv.core.designsystem.presenter.mobile.MobileTopBar
 import su.afk.yummy.tv.domain.messages.model.GLOBAL_CHAT_USER_ID
@@ -112,8 +113,9 @@ fun ChatMobileScreen(
         previousLastMessageId = lastMessageId
     }
 
-    androidx.compose.material3.Scaffold(
-        topBar = {
+    BaseScreen(
+        isScroll = false,
+        customTopBar = {
             MobileTopBar(
                 title = state.peer?.nickname?.takeIf { it.isNotBlank() }
                     ?: state.fallbackNickname.takeIf { it.isNotBlank() }
@@ -142,7 +144,7 @@ fun ChatMobileScreen(
                 },
             )
         },
-    ) { padding ->
+    ) {
         when {
             !state.isAuthResolved -> Box(
                 Modifier.fillMaxSize(),
@@ -194,7 +196,7 @@ fun ChatMobileScreen(
                             modifier = Modifier.fillMaxSize(),
                             contentPadding = PaddingValues(
                                 start = 12.dp,
-                                top = padding.calculateTopPadding() + 12.dp,
+                                top = 12.dp,
                                 end = 12.dp,
                                 bottom = 12.dp,
                             ),

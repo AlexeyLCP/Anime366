@@ -7,22 +7,16 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
@@ -34,8 +28,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import kotlinx.coroutines.flow.Flow
+import su.afk.yummy.tv.core.designsystem.presenter.baseScreen.BaseScreen
 import su.afk.yummy.tv.core.designsystem.presenter.mobile.MobileMessage
 import su.afk.yummy.tv.core.designsystem.presenter.mobile.MobileSectionLoading
+import su.afk.yummy.tv.core.designsystem.presenter.mobile.MobileTopBar
 import su.afk.yummy.tv.feature.bloggers.details.BloggerDetailsState
 import su.afk.yummy.tv.feature.bloggers.mobile.R
 import su.afk.yummy.tv.feature.bloggers.mobile.view.BloggerVideoMobileCard
@@ -60,34 +56,26 @@ fun BloggerDetailsMobileScreen(
         }
     }
     BackHandler { onEvent(BloggerDetailsState.Event.BackSelected) }
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        blogger?.nickname ?: stringResource(R.string.blogger_details_title)
-                    )
-                },
-                navigationIcon = {
-                    IconButton(onClick = { onEvent(BloggerDetailsState.Event.BackSelected) }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, null)
-                    }
-                },
+    BaseScreen(
+        isScroll = false,
+        customTopBar = {
+            MobileTopBar(
+                title = blogger?.nickname ?: stringResource(R.string.blogger_details_title),
+                onBack = { onEvent(BloggerDetailsState.Event.BackSelected) },
             )
         },
-    ) { padding ->
+    ) {
         when {
             error != null -> MobileMessage(
                 title = error.ifBlank { stringResource(R.string.blogger_videos_error) },
-                modifier = Modifier.padding(padding),
                 actionLabel = stringResource(R.string.blogger_videos_retry),
                 onAction = { onEvent(BloggerDetailsState.Event.RetrySelected) },
             )
 
-            state.loading -> MobileSectionLoading(Modifier.padding(padding))
+            state.loading -> MobileSectionLoading()
 
             blogger != null -> LazyColumn(
-                modifier = Modifier.padding(padding),
+                modifier = Modifier.navigationBarsPadding(),
                 contentPadding = PaddingValues(16.dp),
                 verticalArrangement = Arrangement.spacedBy(14.dp),
             ) {

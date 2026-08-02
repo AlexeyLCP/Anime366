@@ -7,17 +7,11 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -27,9 +21,11 @@ import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import kotlinx.coroutines.flow.Flow
+import su.afk.yummy.tv.core.designsystem.presenter.baseScreen.BaseScreen
 import su.afk.yummy.tv.core.designsystem.presenter.mobile.MobileAppendError
 import su.afk.yummy.tv.core.designsystem.presenter.mobile.MobileStateContent
 import su.afk.yummy.tv.core.designsystem.presenter.mobile.MobileSwipeableTabsPager
+import su.afk.yummy.tv.core.designsystem.presenter.mobile.MobileTopBar
 import su.afk.yummy.tv.core.designsystem.presenter.mobile.rememberMobileSwipeableTabsState
 import su.afk.yummy.tv.domain.bloggers.model.BloggerVideo
 import su.afk.yummy.tv.domain.bloggers.model.BloggerVideoSort
@@ -55,25 +51,19 @@ fun BloggerVideosListMobileScreen(
         },
     )
     BackHandler { onEvent(BloggerVideosListState.Event.BackSelected) }
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(stringResource(if (state.animeId == null) R.string.blogger_videos_title else R.string.blogger_videos_anime_title)) },
-                navigationIcon = {
-                    IconButton(onClick = { onEvent(BloggerVideosListState.Event.BackSelected) }) {
-                        Icon(
-                            Icons.AutoMirrored.Filled.ArrowBack,
-                            null
-                        )
-                    }
-                },
+    BaseScreen(
+        isScroll = false,
+        customTopBar = {
+            MobileTopBar(
+                title = stringResource(if (state.animeId == null) R.string.blogger_videos_title else R.string.blogger_videos_anime_title),
+                onBack = { onEvent(BloggerVideosListState.Event.BackSelected) },
             )
         },
-    ) { padding ->
+    ) {
         Column(
             Modifier
                 .fillMaxSize()
-                .padding(padding)
+                .navigationBarsPadding()
         ) {
             if (state.animeId == null) {
                 BloggerVideosFilters(

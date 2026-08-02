@@ -8,24 +8,21 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ChatBubbleOutline
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
@@ -35,8 +32,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.flow.Flow
+import su.afk.yummy.tv.core.designsystem.presenter.baseScreen.BaseScreen
 import su.afk.yummy.tv.core.designsystem.presenter.mobile.MobileMessage
 import su.afk.yummy.tv.core.designsystem.presenter.mobile.MobileSectionLoading
+import su.afk.yummy.tv.core.designsystem.presenter.mobile.MobileTopBar
 import su.afk.yummy.tv.core.utils.formatFeedDateTime
 import su.afk.yummy.tv.core.utils.openExternalUri
 import su.afk.yummy.tv.core.utils.toCompactCount
@@ -69,32 +68,28 @@ fun BloggerVideoDetailsMobileScreen(
         }
     }
     BackHandler { onEvent(BloggerVideoDetailsState.Event.BackSelected) }
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(stringResource(R.string.blogger_video_details_title)) },
-                navigationIcon = {
-                    IconButton({ onEvent(BloggerVideoDetailsState.Event.BackSelected) }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
-                    }
-                },
+    BaseScreen(
+        isScroll = false,
+        customTopBar = {
+            MobileTopBar(
+                title = stringResource(R.string.blogger_video_details_title),
+                onBack = { onEvent(BloggerVideoDetailsState.Event.BackSelected) },
             )
         },
-    ) { padding ->
+    ) {
         when {
             error != null -> MobileMessage(
                 title = error.ifBlank { stringResource(R.string.blogger_videos_error) },
-                modifier = Modifier.padding(padding),
                 actionLabel = stringResource(R.string.blogger_videos_retry),
                 onAction = { onEvent(BloggerVideoDetailsState.Event.RetrySelected) },
             )
 
-            state.loading -> MobileSectionLoading(Modifier.padding(padding))
+            state.loading -> MobileSectionLoading()
 
             video != null -> Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(padding)
+                    .navigationBarsPadding()
                     .verticalScroll(rememberScrollState())
                     .padding(start = 16.dp, top = 8.dp, end = 16.dp, bottom = 32.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp),

@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -19,6 +20,7 @@ import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
 import kotlinx.coroutines.flow.Flow
+import su.afk.yummy.tv.core.designsystem.presenter.baseScreen.BaseScreen
 import su.afk.yummy.tv.core.designsystem.presenter.components.StateMessage
 import su.afk.yummy.tv.core.designsystem.presenter.mobile.MobileTopBar
 import su.afk.yummy.tv.feature.messages.dialogs.DialogsState
@@ -33,14 +35,15 @@ fun DialogsMobileScreen(
     onEvent: (DialogsState.Event) -> Unit,
 ) {
     val dialogs = state.dialogs.collectAsLazyPagingItems()
-    androidx.compose.material3.Scaffold(
-        topBar = {
+    BaseScreen(
+        isScroll = false,
+        customTopBar = {
             MobileTopBar(
                 title = stringResource(R.string.messages_title),
                 onBack = { onEvent(DialogsState.Event.BackSelected) },
             )
         },
-    ) { padding ->
+    ) {
         when {
             !state.isAuthResolved -> Box(
                 Modifier.fillMaxSize(),
@@ -59,15 +62,17 @@ fun DialogsMobileScreen(
             else -> PullToRefreshBox(
                 isRefreshing = dialogs.loadState.refresh is LoadState.Loading && dialogs.itemCount > 0,
                 onRefresh = dialogs::refresh,
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .navigationBarsPadding(),
             ) {
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
                     contentPadding = PaddingValues(
                         start = 16.dp,
-                        top = padding.calculateTopPadding() + 12.dp,
+                        top = 12.dp,
                         end = 16.dp,
-                        bottom = padding.calculateBottomPadding() + 24.dp,
+                        bottom = 24.dp,
                     ),
                     verticalArrangement = Arrangement.spacedBy(10.dp),
                 ) {
