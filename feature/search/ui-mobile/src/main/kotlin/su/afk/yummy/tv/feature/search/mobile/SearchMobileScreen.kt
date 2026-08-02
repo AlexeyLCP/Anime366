@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridItemSpan
@@ -113,6 +114,7 @@ fun SearchMobileScreen(
     ) {
         MobilePosterGrid(
             contentPadding = PaddingValues(0.dp),
+            modifier = Modifier.imePadding(),
             state = gridState,
         ) {
             item(span = { GridItemSpan(maxLineSpan) }) {
