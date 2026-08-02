@@ -79,7 +79,9 @@ fun DialogsMobileScreen(
                     when {
                         dialogs.loadState.refresh is LoadState.Loading -> item {
                             Box(
-                                Modifier.fillParentMaxHeight(.7f),
+                                Modifier
+                                    .fillMaxWidth()
+                                    .fillParentMaxHeight(.7f),
                                 contentAlignment = Alignment.Center,
                             ) { CircularProgressIndicator() }
                         }
@@ -95,7 +97,9 @@ fun DialogsMobileScreen(
 
                         dialogs.itemCount == 0 -> item {
                             Box(
-                                Modifier.fillParentMaxHeight(.7f),
+                                Modifier
+                                    .fillMaxWidth()
+                                    .fillParentMaxHeight(.7f),
                                 contentAlignment = Alignment.Center,
                             ) {
                                 StateMessage(

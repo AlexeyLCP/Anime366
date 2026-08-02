@@ -24,6 +24,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
@@ -39,6 +40,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import coil3.compose.AsyncImage
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
@@ -66,6 +68,7 @@ fun ChatMobileScreen(
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
     var previousLastMessageId by remember { mutableIntStateOf(0) }
+    var highlightedMessageId by remember { mutableStateOf<Int?>(null) }
     ChatMobileLifecycleEffect(onEvent)
 
     fun scrollToMessage(messageId: Int) {
@@ -73,6 +76,14 @@ fun ChatMobileScreen(
         if (index >= 0) {
             val leadingItems = if (state.isLoadingOlder) 1 else 0
             coroutineScope.launch { listState.animateScrollToItem(index + leadingItems) }
+            highlightedMessageId = messageId
+        }
+    }
+
+    LaunchedEffect(highlightedMessageId) {
+        if (highlightedMessageId != null) {
+            delay(1200)
+            highlightedMessageId = null
         }
     }
 
@@ -222,6 +233,7 @@ fun ChatMobileScreen(
                                     showAuthor = state.userId == GLOBAL_CHAT_USER_ID,
                                     onReply = { onEvent(ChatState.Event.ReplySelected(message.id)) },
                                     onReplyClick = { id -> scrollToMessage(id) },
+                                    isHighlighted = message.id == highlightedMessageId,
                                 )
                             }
                         }

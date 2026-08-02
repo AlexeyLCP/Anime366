@@ -1,12 +1,11 @@
 package su.afk.yummy.tv.feature.messages.mobile.view
 
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.gestures.awaitEachGesture
-import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -44,7 +43,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -75,10 +73,10 @@ internal fun ChatMessageMobileBubble(
     showAuthor: Boolean = false,
     onReply: () -> Unit = {},
     onReplyClick: (Int) -> Unit = {},
+    isHighlighted: Boolean = false,
 ) {
     val context = LocalContext.current
     var menuExpanded by remember { mutableStateOf(false) }
-    var pressOffset by remember { mutableStateOf(Offset.Zero) }
     val showAvatar = showAuthor && !isOwn
     val bubbleShape = RoundedCornerShape(18.dp)
 
@@ -136,17 +134,19 @@ internal fun ChatMessageMobileBubble(
                     Spacer(Modifier.size(8.dp))
                 }
                 Box {
+                    val bubbleColor by animateColorAsState(
+                        targetValue = when {
+                            isHighlighted -> MaterialTheme.colorScheme.tertiaryContainer
+                            isOwn -> MaterialTheme.colorScheme.primaryContainer
+                            else -> MaterialTheme.colorScheme.surfaceVariant
+                        },
+                        label = "bubbleHighlight",
+                    )
                     Surface(
-                        color = if (isOwn) MaterialTheme.colorScheme.primaryContainer
-                        else MaterialTheme.colorScheme.surfaceVariant,
+                        color = bubbleColor,
                         shape = bubbleShape,
                         modifier = Modifier
                             .widthIn(max = 280.dp)
-                            .pointerInput(Unit) {
-                                awaitEachGesture {
-                                    pressOffset = awaitFirstDown(requireUnconsumed = false).position
-                                }
-                            }
                             .clip(bubbleShape)
                             .combinedClickable(
                                 onClick = {},
@@ -231,7 +231,7 @@ internal fun ChatMessageMobileBubble(
                     DropdownMenu(
                         expanded = menuExpanded,
                         onDismissRequest = { menuExpanded = false },
-                        offset = with(density) { DpOffset(pressOffset.x.toDp(), 0.dp) },
+                        offset = DpOffset(0.dp, 4.dp),
                     ) {
                         if (!message.isDeleted) {
                             MessageMenuItem(
