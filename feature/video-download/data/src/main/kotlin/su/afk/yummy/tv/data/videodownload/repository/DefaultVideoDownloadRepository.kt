@@ -20,6 +20,7 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import su.afk.yummy.tv.core.storage.videodownload.VideoDownloadStore
 import su.afk.yummy.tv.data.videodownload.R
+import su.afk.yummy.tv.data.videodownload.cache.LegacyStreamingCachePruner
 import su.afk.yummy.tv.data.videodownload.cache.RotatingHlsCacheKeyFactory
 import su.afk.yummy.tv.data.videodownload.cache.VideoDownloadCacheProvider
 import su.afk.yummy.tv.data.videodownload.mapper.storageName
@@ -44,6 +45,7 @@ class DefaultVideoDownloadRepository @Inject constructor(
     private val cacheProvider: VideoDownloadCacheProvider,
     private val notificationService: VideoDownloadNotificationService,
     private val analytics: VideoDownloadAnalytics,
+    private val cachePruner: LegacyStreamingCachePruner,
 ) : VideoDownloadRepository {
     private val orphanReconciliationMutex = Mutex()
     private val enqueueMutex = Mutex()
@@ -161,6 +163,7 @@ class DefaultVideoDownloadRepository @Inject constructor(
             updatedAt = System.currentTimeMillis(),
         )
         episodeDownloads.forEach { download -> notificationService.cancel(download.id) }
+        runCatching { cachePruner.pruneOrphanedEntries() }
     }
 
     override suspend fun restart(id: Long, stream: VideoDownloadRestartStream?) {
