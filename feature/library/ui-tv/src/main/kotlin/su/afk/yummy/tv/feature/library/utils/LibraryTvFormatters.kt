@@ -18,10 +18,10 @@ internal fun LibraryItem.tvDateText(tab: LibraryTab): String? =
 internal fun LibraryItem.tvUserRating(): Double? =
     userRating?.takeIf { it in 1..10 }?.toDouble()
 
+private val libraryDateFormatter = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
+
 private fun Long.formatLibraryDate(): String? =
-    takeIf { it > 0L }?.let {
-        SimpleDateFormat("dd.MM.yyyy", Locale.getDefault()).format(Date(it))
-    }
+    takeIf { it > 0L }?.let { libraryDateFormatter.format(Date(it)) }
 
 internal fun HomeContinueWatchingItem.timingLabel(): String? =
     if (durationMs > 0L) {

@@ -30,24 +30,18 @@ internal fun Long.toDurationLabel(): String {
     }
 }
 
+private val dateFormatter = SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.getDefault())
+private val profileDateFormatter = SimpleDateFormat("dd.MM.yy", Locale.getDefault())
+private val userListDateFormatter = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
+
 internal fun Long.formatDate(): String =
-    if (this <= 0L) "" else SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.getDefault()).format(
-        Date(
-            this * 1000L
-        )
-    )
+    if (this <= 0L) "" else dateFormatter.format(Date(this * 1000L))
 
 internal fun Long.formatProfileDate(): String =
-    if (this <= 0L) "" else SimpleDateFormat(
-        "dd.MM.yy",
-        Locale.getDefault()
-    ).format(Date(this * 1000L))
+    if (this <= 0L) "" else profileDateFormatter.format(Date(this * 1000L))
 
 internal fun Long.formatUserListDate(): String =
-    if (this <= 0L) "" else SimpleDateFormat(
-        "dd.MM.yyyy",
-        Locale.getDefault()
-    ).format(Date(this * 1000L))
+    if (this <= 0L) "" else userListDateFormatter.format(Date(this * 1000L))
 
 @Composable
 internal fun Long.toProfileHoursLabel(): String {

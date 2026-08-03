@@ -41,10 +41,10 @@ internal fun LibraryItem.mobileDateText(tab: LibraryTab): String? {
 internal fun LibraryItem.mobileUserRating(): Double? =
     userRating?.takeIf { it in 1..10 }?.toDouble()
 
+private val libraryDateFormatter = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
+
 private fun Long.formatLibraryDate(): String? =
-    takeIf { it > 0L }?.let {
-        SimpleDateFormat("dd.MM.yyyy", Locale.getDefault()).format(Date(it))
-    }
+    takeIf { it > 0L }?.let { libraryDateFormatter.format(Date(it)) }
 
 internal fun HomeContinueWatchingItem.watchProgress(): Float =
     if (durationMs <= 0L) 0f else (positionMs.toFloat() / durationMs.toFloat()).coerceIn(0f, 1f)
