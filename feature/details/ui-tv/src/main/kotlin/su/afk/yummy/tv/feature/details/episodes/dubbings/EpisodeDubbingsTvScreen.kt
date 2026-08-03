@@ -15,7 +15,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Mic
@@ -24,11 +24,20 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -67,6 +76,26 @@ fun EpisodeDubbingsTvScreen(
         onEvent(EpisodeDubbingsState.Event.BackSelected)
     }
 
+    var lastFocusedIndex by rememberSaveable(state.episode) { mutableIntStateOf(0) }
+    var isRestoringFocus by remember { mutableStateOf(false) }
+    var restoreFocusRequest by remember { mutableIntStateOf(0) }
+    val focusRequesters =
+        remember(state.dubbings) { List(state.dubbings.size) { FocusRequester() } }
+
+    fun dismissBalancerPicker() {
+        onEvent(EpisodeDubbingsState.Event.BalancerPickerDismissed)
+        restoreFocusRequest += 1
+    }
+
+    LaunchedEffect(restoreFocusRequest) {
+        if (restoreFocusRequest > 0) {
+            isRestoringFocus = true
+            withFrameNanos { }
+            runCatching { focusRequesters.getOrNull(lastFocusedIndex)?.requestFocus() }
+            isRestoringFocus = false
+        }
+    }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -88,7 +117,10 @@ fun EpisodeDubbingsTvScreen(
             else -> LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
-                    .tvFocusRestorer(),
+                    .tvFocusRestorer(
+                        fallback = focusRequesters.getOrNull(lastFocusedIndex)
+                            ?: FocusRequester.Default,
+                    ),
                 contentPadding = PaddingValues(
                     start = TvScreenPadding.Horizontal,
                     top = TvScreenPadding.Vertical,
@@ -108,10 +140,20 @@ fun EpisodeDubbingsTvScreen(
                         modifier = Modifier.padding(bottom = 8.dp),
                     )
                 }
-                items(state.dubbings, key = { it.name }) { dubbing ->
+                itemsIndexed(state.dubbings, key = { _, item -> item.name }) { index, dubbing ->
                     DubbingRow(
                         dubbing = dubbing,
-                        onClick = { onEvent(EpisodeDubbingsState.Event.DubbingSelected(dubbing.name)) },
+                        modifier = Modifier
+                            .focusRequester(focusRequesters[index])
+                            .onFocusChanged {
+                                if (it.hasFocus && !isRestoringFocus) {
+                                    lastFocusedIndex = index
+                                }
+                            },
+                        onClick = {
+                            lastFocusedIndex = index
+                            onEvent(EpisodeDubbingsState.Event.DubbingSelected(dubbing.name))
+                        },
                     )
                 }
             }
@@ -123,7 +165,7 @@ fun EpisodeDubbingsTvScreen(
                 onConfirmed = { option ->
                     onEvent(EpisodeDubbingsState.Event.BalancerConfirmed(option.video))
                 },
-                onDismiss = { onEvent(EpisodeDubbingsState.Event.BalancerPickerDismissed) },
+                onDismiss = ::dismissBalancerPicker,
             )
         }
     }
@@ -133,13 +175,14 @@ fun EpisodeDubbingsTvScreen(
 private fun DubbingRow(
     dubbing: EpisodeDubbingsState.DubbingItem,
     onClick: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val focused by interactionSource.collectIsFocusedAsState()
     val contentColor =
         if (focused) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface
     Row(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
             .background(

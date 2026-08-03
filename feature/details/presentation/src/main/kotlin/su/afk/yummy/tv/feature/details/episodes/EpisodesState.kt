@@ -130,23 +130,14 @@ class EpisodesState {
         /** Пользователь свернул или раскрыл описание серии. */
         data class EpisodeDescriptionToggled(val episode: String) : Event
 
-        /** Пользователь открыл озвучки для указанного эпизода. */
-        data class EpisodeDubbingsSelected(val episode: String) : Event
+        /** Пользователь выбрал серию из списка. */
+        data class EpisodeSelected(val video: AnimeVideo) : Event
 
-        /** Пользователь выбрал серию на ТВ. */
-        data class TvEpisodeSelected(val video: AnimeVideo) : Event
-
-        /** Пользователь подтвердил балансер на ТВ. */
-        data class TvBalancerConfirmed(val video: AnimeVideo) : Event
-
-        /** Пользователь выбрал озвучку в ТВ-диалоге. */
+        /** Пользователь выбрал озвучку в диалоге выбора озвучки. */
         data class EpisodeDubbingSelected(val video: AnimeVideo) : Event
 
-        /** Пользователь закрыл ТВ-диалог выбора озвучки. */
+        /** Пользователь закрыл диалог выбора озвучки. */
         data object EpisodeDubbingPickerDismissed : Event
-
-        /** Пользователь выбрал видео для просмотра. */
-        data class VideoSelected(val video: AnimeVideo) : Event
 
         /** Пользователь нажал скачивание серии. */
         data class EpisodeDownloadSelected(val videos: List<AnimeVideo>) : Event

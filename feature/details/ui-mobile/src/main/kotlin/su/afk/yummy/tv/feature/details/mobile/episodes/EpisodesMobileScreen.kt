@@ -37,6 +37,7 @@ import su.afk.yummy.tv.feature.details.mobile.episodes.view.EpisodeDownloadBalan
 import su.afk.yummy.tv.feature.details.mobile.episodes.view.EpisodeDownloadDubbingSheet
 import su.afk.yummy.tv.feature.details.mobile.episodes.view.EpisodeDownloadQualitySheet
 import su.afk.yummy.tv.feature.details.mobile.episodes.view.EpisodeDownloadedActionSheet
+import su.afk.yummy.tv.feature.details.mobile.episodes.view.EpisodeDubbingDialog
 import su.afk.yummy.tv.feature.details.mobile.episodes.view.EpisodeMobileCard
 
 private val DownloadResolvingColor = Color(0xFFFFC107)
@@ -121,9 +122,6 @@ fun EpisodesMobileScreen(
                         onToggleDescription = {
                             onEvent(EpisodesState.Event.EpisodeDescriptionToggled(group.episode))
                         },
-                        onInfoClick = {
-                            onEvent(EpisodesState.Event.EpisodeDubbingsSelected(group.episode))
-                        },
                         onDownloadClick = {
                             if (downloadStatus?.status == EpisodesState.EpisodeDownloadUiStatus.Downloaded) {
                                 onEvent(
@@ -139,11 +137,19 @@ fun EpisodesMobileScreen(
                         onOpenDownloadsClick = {
                             onEvent(EpisodesState.Event.OpenDownloadsScreenSelected)
                         },
-                        onClick = { onEvent(EpisodesState.Event.VideoSelected(video)) },
+                        onClick = { onEvent(EpisodesState.Event.EpisodeSelected(video)) },
                     )
                 }
             }
         }
+    }
+
+    state.pendingEpisodeDubbingSelection?.let { selection ->
+        EpisodeDubbingDialog(
+            selection = selection,
+            onSelected = { onEvent(EpisodesState.Event.EpisodeDubbingSelected(it)) },
+            onDismiss = { onEvent(EpisodesState.Event.EpisodeDubbingPickerDismissed) },
+        )
     }
 
     state.pendingBalancerSelection?.let { picker ->

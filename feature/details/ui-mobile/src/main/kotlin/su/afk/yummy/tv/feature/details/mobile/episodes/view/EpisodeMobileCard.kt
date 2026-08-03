@@ -15,7 +15,6 @@ import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.HourglassEmpty
-import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.RestartAlt
 import androidx.compose.material.icons.filled.Storage
 import androidx.compose.material.icons.filled.VisibilityOff
@@ -60,7 +59,6 @@ internal fun EpisodeMobileCard(
     downloadResolving: Boolean,
     downloadAwaitingQualitySelection: Boolean,
     onToggleDescription: () -> Unit,
-    onInfoClick: () -> Unit,
     onDownloadClick: () -> Unit,
     onOpenDownloadsClick: () -> Unit,
     onClick: () -> Unit,
@@ -96,21 +94,13 @@ internal fun EpisodeMobileCard(
             }
         },
         trailingAction = {
-            Column {
-                IconButton(onClick = onInfoClick) {
-                    Icon(
-                        imageVector = Icons.Filled.Info,
-                        contentDescription = stringResource(R.string.details_mobile_episode_dubbings_action),
-                    )
-                }
-                EpisodeDownloadButton(
-                    status = downloadStatus,
-                    resolving = downloadResolving,
-                    awaitingQualitySelection = downloadAwaitingQualitySelection,
-                    onClick = onDownloadClick,
-                    onOpenDownloadsClick = onOpenDownloadsClick,
-                )
-            }
+            EpisodeDownloadButton(
+                status = downloadStatus,
+                resolving = downloadResolving,
+                awaitingQualitySelection = downloadAwaitingQualitySelection,
+                onClick = onDownloadClick,
+                onOpenDownloadsClick = onOpenDownloadsClick,
+            )
         },
         bottomContent = if (episodeTitle.isNullOrBlank() && episodeDescription.isNullOrBlank()) {
             null

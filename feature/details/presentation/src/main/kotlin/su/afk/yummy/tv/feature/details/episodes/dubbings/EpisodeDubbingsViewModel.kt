@@ -98,7 +98,8 @@ class EpisodeDubbingsViewModel @AssistedInject internal constructor(
 
     private fun openDubbing(dubbingName: String) {
         viewModelScope.launch {
-            val candidate = loadedVideos.selectEpisodeDubbingLaunchVideo(
+            val dubbingVideos = loadedVideos.filter { it.dubbing.trim() == dubbingName }
+            val candidate = dubbingVideos.selectEpisodeDubbingLaunchVideo(
                 episode = episode,
                 dubbingName = dubbingName,
                 preferredPlayer = PreferredPlayer.NONE,
@@ -106,7 +107,7 @@ class EpisodeDubbingsViewModel @AssistedInject internal constructor(
             when (
                 val selection = playerNavigationHandler.selectPlayer(
                     video = candidate,
-                    allVideos = loadedVideos,
+                    allVideos = dubbingVideos,
                     preferredPlayer = settingsStore.preferredPlayer.first(),
                 )
             ) {

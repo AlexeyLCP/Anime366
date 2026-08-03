@@ -34,7 +34,6 @@ import su.afk.yummy.tv.domain.videodownload.model.VideoDownloadItem
 import su.afk.yummy.tv.domain.videodownload.model.VideoDownloadStatus
 import su.afk.yummy.tv.domain.videodownload.usecase.ObserveVideoDownloadStatusesUseCase
 import su.afk.yummy.tv.feature.details.DetailsAnalytics
-import su.afk.yummy.tv.feature.details.IDetailsNavigator
 import su.afk.yummy.tv.feature.details.details.BalancerPickerState
 import su.afk.yummy.tv.feature.details.details.DetailsPlayerSelection
 import su.afk.yummy.tv.feature.details.details.VideosUiState
@@ -56,7 +55,6 @@ class EpisodesViewModel @AssistedInject internal constructor(
     override val errorHandler: IErrorHandlerUseCase,
     override val retryStorage: RetryStorage,
     private val nav: NavigationManager,
-    private val detailsNavigator: IDetailsNavigator,
     private val videoDownloadNavigator: IVideoDownloadNavigator,
     private val getAnimeDetails: GetAnimeDetailsUseCase,
     private val getAnimeVideos: GetAnimeVideosUseCase,
@@ -146,39 +144,23 @@ class EpisodesViewModel @AssistedInject internal constructor(
                 )
             }
 
-            is EpisodesState.Event.EpisodeDubbingsSelected -> {
-                analytics.eventEpisodesEpisodeDubbingsSelected(animeId)
-                nav.navigate(detailsNavigator.getEpisodeDubbingsDest(animeId, event.episode))
-            }
-
-            is EpisodesState.Event.TvEpisodeSelected -> {
+            is EpisodesState.Event.EpisodeSelected -> {
                 analytics.eventEpisodesVideoSelected(animeId, event.video.id)
-                showTvBalancerPicker(event.video)
+                showEpisodeDubbingPicker(event.video, restrictToBalancer = false)
             }
 
             is EpisodesState.Event.EpisodeDubbingSelected -> {
                 setState { copy(pendingEpisodeDubbingSelection = null) }
-                navigateToPlayer(event.video)
+                showBalancerPickerForDubbing(event.video)
             }
 
             EpisodesState.Event.EpisodeDubbingPickerDismissed ->
                 setState { copy(pendingEpisodeDubbingSelection = null) }
 
-            is EpisodesState.Event.VideoSelected -> {
-                analytics.eventEpisodesVideoSelected(animeId, event.video.id)
-                showBalancerPicker(event.video)
-            }
-
             is EpisodesState.Event.BalancerConfirmed -> {
                 analytics.eventEpisodesBalancerConfirmed(animeId, event.video)
                 setState { copy(pendingBalancerSelection = null) }
                 navigateToPlayer(event.video)
-            }
-
-            is EpisodesState.Event.TvBalancerConfirmed -> {
-                analytics.eventEpisodesBalancerConfirmed(animeId, event.video)
-                setState { copy(pendingBalancerSelection = null) }
-                showEpisodeDubbingPicker(event.video)
             }
 
             is EpisodesState.Event.EpisodeDownloadSelected -> {
@@ -466,31 +448,17 @@ class EpisodesViewModel @AssistedInject internal constructor(
         }
     }
 
-    private fun showBalancerPicker(video: AnimeVideo) {
+    private fun showBalancerPickerForDubbing(video: AnimeVideo) {
         val allVideos = (currentState.videosState as? VideosUiState.Content)?.videos ?: return
+        val dubbingVideos = allVideos.filter {
+            it.episode == video.episode && it.dubbing.trim() == video.dubbing.trim()
+        }
         when (val selection = playerNavigationHandler.selectPlayer(
             video = video,
-            allVideos = allVideos,
+            allVideos = dubbingVideos,
             preferredPlayer = preferredPlayerState.value,
         )) {
             is DetailsPlayerSelection.Navigate -> navigateToPlayer(selection.video)
-            is DetailsPlayerSelection.ShowPicker -> {
-                reportUnsupportedPlayers(selection.picker)
-                setState { copy(pendingBalancerSelection = selection.picker) }
-            }
-        }
-    }
-
-    private fun showTvBalancerPicker(video: AnimeVideo) {
-        val allVideos = (currentState.videosState as? VideosUiState.Content)?.videos ?: return
-        when (val selection = playerNavigationHandler.selectPlayer(
-            video = video,
-            allVideos = allVideos,
-            preferredPlayer = preferredPlayerState.value,
-        )) {
-            is DetailsPlayerSelection.Navigate ->
-                showEpisodeDubbingPicker(selection.video, restrictToBalancer = false)
-
             is DetailsPlayerSelection.ShowPicker -> {
                 reportUnsupportedPlayers(selection.picker)
                 setState { copy(pendingBalancerSelection = selection.picker) }

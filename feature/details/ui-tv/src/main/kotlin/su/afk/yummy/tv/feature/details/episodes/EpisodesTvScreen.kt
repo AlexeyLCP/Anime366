@@ -91,7 +91,7 @@ fun EpisodesTvScreen(
             watchProgress = state.watchProgress,
             restoreFocusRequest = restoreEpisodesFocusRequest,
             episodeInfo = state.episodeInfo,
-            onVideoSelected = { video -> onEvent(EpisodesState.Event.TvEpisodeSelected(video)) },
+            onVideoSelected = { video -> onEvent(EpisodesState.Event.EpisodeSelected(video)) },
             onRetry = { onEvent(EpisodesState.Event.RetryVideosSelected) },
         )
 
@@ -102,7 +102,7 @@ fun EpisodesTvScreen(
             BalancerPickerOverlay(
                 picker = balancerPicker,
                 onConfirmed = { option ->
-                    onEvent(EpisodesState.Event.TvBalancerConfirmed(option.video))
+                    onEvent(EpisodesState.Event.BalancerConfirmed(option.video))
                 },
                 onDismiss = ::dismissBalancerPicker,
             )

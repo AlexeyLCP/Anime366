@@ -68,7 +68,6 @@
     <string name="details_mobile_unknown_count">?</string>
     <string name="details_mobile_views">%1$d views</string>
     <string name="details_mobile_episode">Episode %1$s</string>
-    <string name="details_mobile_episode_dubbings_action">Episode info</string>
     <string name="details_mobile_episode_description_expand">Expand episode description</string>
     <string name="details_mobile_episode_description_collapse">Collapse episode description</string>
     <string name="details_mobile_episode_download_action">Download episode</string>

@@ -299,15 +299,6 @@ internal class DetailsAnalytics @Inject constructor(
     }
 
     /**
-     * Пользователь открыл озвучки конкретного эпизода.
-     *
-     * Параметры: anime_id.
-     */
-    fun eventEpisodesEpisodeDubbingsSelected(animeId: Int) {
-        eventWithAnime(EVENT_EPISODES_EPISODE_DUBBINGS_SELECTED, animeId)
-    }
-
-    /**
      * Пользователь выбрал видео на экране эпизодов.
      *
      * Параметры: anime_id, video_id.
@@ -565,9 +556,6 @@ internal class DetailsAnalytics @Inject constructor(
         const val EVENT_EPISODES_SCREEN_OPENED = "details_episodes_screen"
 
         const val EVENT_EPISODE_DUBBINGS_SCREEN_OPENED = "details_episode_dubbings_screen"
-
-        const val EVENT_EPISODES_EPISODE_DUBBINGS_SELECTED =
-            "details_episodes_episode_dubbings_selected"
 
         const val EVENT_EPISODES_VIDEO_SELECTED = "details_episodes_video_selected"
 
