@@ -168,6 +168,14 @@ internal class SettingsAnalytics @Inject constructor(
         )
     }
 
+    /** Пользователь включил или выключил запрос выбора озвучки при нажатии "Смотреть". */
+    fun eventAskDubbingOnWatchToggled(enabled: Boolean) {
+        tracker.track(
+            EVENT_ASK_DUBBING_ON_WATCH_TOGGLED,
+            analyticsParamsOf(PARAM_TARGET_STATE to enabled),
+        )
+    }
+
     /** Пользователь включил или выключил плавающий режим мобильного плеера. */
     fun eventPictureInPictureToggled(enabled: Boolean) {
         tracker.track(
@@ -316,6 +324,8 @@ internal class SettingsAnalytics @Inject constructor(
             "settings_suggest_next_episode_on_watched_toggled"
         const val EVENT_AUTO_PLAY_NEXT_EPISODE_TOGGLED =
             "settings_auto_play_next_episode_toggled"
+        const val EVENT_ASK_DUBBING_ON_WATCH_TOGGLED =
+            "settings_ask_dubbing_on_watch_toggled"
         const val EVENT_PICTURE_IN_PICTURE_TOGGLED =
             "settings_picture_in_picture_toggled"
         const val EVENT_VIDEO_EXPORT_AUTO_TOGGLED = "settings_video_export_auto_toggled"

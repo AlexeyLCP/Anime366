@@ -3,6 +3,8 @@ package su.afk.yummy.tv.feature.details.episodes.dubbings
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiEffect
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiEvent
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiState
+import su.afk.yummy.tv.core.model.anime.AnimeVideo
+import su.afk.yummy.tv.feature.details.details.BalancerPickerState
 
 class EpisodeDubbingsState {
     data class State(
@@ -10,6 +12,7 @@ class EpisodeDubbingsState {
         val isLoading: Boolean = true,
         val error: String? = null,
         val dubbings: List<DubbingItem> = emptyList(),
+        val pendingBalancerSelection: BalancerPickerState? = null,
     ) : UiState
 
     data class DubbingItem(
@@ -29,6 +32,12 @@ class EpisodeDubbingsState {
 
         /** Пользователь запросил повторную загрузку озвучек. */
         data object RetrySelected : Event
+
+        /** Пользователь подтвердил видео для запуска после выбора балансера. */
+        data class BalancerConfirmed(val video: AnimeVideo) : Event
+
+        /** Пользователь закрыл выбор балансера. */
+        data object BalancerPickerDismissed : Event
     }
 
     sealed interface Effect : UiEffect

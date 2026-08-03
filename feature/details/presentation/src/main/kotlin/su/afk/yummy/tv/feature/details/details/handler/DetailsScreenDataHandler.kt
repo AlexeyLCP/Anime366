@@ -30,6 +30,9 @@ class DetailsScreenDataHandler @Inject constructor(
     val yaniUserId: Flow<Int> = settingsStore.yaniUserId
     val detailsButtonOrder: Flow<List<DetailsButtonAction>> = settingsStore.detailsButtonOrder
 
+    /** Спрашивать озвучку при нажатии "Смотреть", вместо автовыбора самой популярной. */
+    val askDubbingOnWatch: Flow<Boolean> = settingsStore.askDubbingOnWatch
+
     fun observeLibraryState(animeId: Int): Flow<AnimeLibraryState> =
         observeAnimeLibraryState(animeId)
 

@@ -78,6 +78,11 @@ class DetailsViewModel @AssistedInject internal constructor(
         started = SharingStarted.Eagerly,
         initialValue = 0,
     )
+    private val askDubbingOnWatchState = screenDataHandler.askDubbingOnWatch.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.Eagerly,
+        initialValue = false,
+    )
     private var libraryMutationVersion = 0
     private var favoriteMutationVersion = 0
     private var localWatchProgress: List<AnimeWatchProgress> = emptyList()
@@ -485,7 +490,16 @@ class DetailsViewModel @AssistedInject internal constructor(
 
             is DetailsWatchTarget.Initial -> {
                 setState { copy(isWatchLaunchPending = false) }
-                showBalancerPicker(target.video)
+                if (askDubbingOnWatchState.value) {
+                    nav.navigate(
+                        detailsNavigator.getEpisodeDubbingsDest(
+                            animeId,
+                            target.video.episode
+                        )
+                    )
+                } else {
+                    showBalancerPicker(target.video)
+                }
             }
 
             null -> setState { copy(isWatchLaunchPending = false) }

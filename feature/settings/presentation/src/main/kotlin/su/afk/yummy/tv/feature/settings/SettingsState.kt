@@ -41,6 +41,7 @@ class SettingsState {
         val autoSkipOpeningsEndings: Boolean = false,
         val showOpeningOnTimeline: Boolean = false,
         val autoPlayNextEpisode: Boolean = false,
+        val askDubbingOnWatch: Boolean = false,
         val pictureInPictureEnabled: Boolean = true,
         val mobilePlayerGestureTutorialDismissed: Boolean = false,
         val suggestNextEpisodeOnWatched: Boolean = true,
@@ -111,6 +112,9 @@ class SettingsState {
 
         /** Пользователь переключил автовоспроизведение следующей серии. */
         data object AutoPlayNextEpisodeToggled : Event
+
+        /** Пользователь переключил запрос выбора озвучки при нажатии "Смотреть". */
+        data object AskDubbingOnWatchToggled : Event
 
         /** Пользователь включил или выключил плавающий режим мобильного плеера. */
         data object PictureInPictureToggled : Event

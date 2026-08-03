@@ -29,6 +29,7 @@
     <string name="details_episodes_empty">Серий пока нет</string>
     <string name="details_episodes_count_title">Серии %1$d</string>
     <string name="details_episode_dubbings_title">Серия %1$s · Озвучка</string>
+    <string name="details_episode_dubbings_empty">Озвучки не найдены</string>
     <string name="details_count_thousands">%1$sK</string>
     <string name="details_count_millions">%1$sM</string>
     <string name="details_frames">Кадры</string>

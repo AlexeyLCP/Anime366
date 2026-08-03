@@ -244,6 +244,16 @@ fun SettingsMobileScreen(
                         onClick = { onEvent(SettingsState.Event.AutoPlayNextEpisodeToggled) },
                     )
                     SettingsMobileToggleRow(
+                        label = stringResource(R.string.settings_ask_dubbing_on_watch_label),
+                        hint = if (state.askDubbingOnWatch) {
+                            stringResource(R.string.settings_ask_dubbing_on_watch_enabled)
+                        } else {
+                            stringResource(R.string.settings_disabled)
+                        },
+                        enabled = state.askDubbingOnWatch,
+                        onClick = { onEvent(SettingsState.Event.AskDubbingOnWatchToggled) },
+                    )
+                    SettingsMobileToggleRow(
                         label = stringResource(R.string.settings_picture_in_picture_label),
                         hint = if (state.pictureInPictureEnabled) {
                             stringResource(R.string.settings_picture_in_picture_enabled)

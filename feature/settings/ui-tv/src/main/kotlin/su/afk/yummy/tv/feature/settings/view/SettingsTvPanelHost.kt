@@ -364,6 +364,19 @@ internal fun SettingsTvPanelHost(
                         )
                         SettingsDivider()
                         ToggleRow(
+                            label = stringResource(R.string.settings_ask_dubbing_on_watch_label),
+                            hint = if (state.askDubbingOnWatch) {
+                                stringResource(R.string.settings_ask_dubbing_on_watch_enabled)
+                            } else {
+                                stringResource(R.string.settings_disabled)
+                            },
+                            enabled = state.askDubbingOnWatch,
+                            onClick = {
+                                onEvent(SettingsState.Event.AskDubbingOnWatchToggled)
+                            },
+                        )
+                        SettingsDivider()
+                        ToggleRow(
                             label = stringResource(R.string.settings_suggest_next_episode_on_watched_label),
                             hint = if (state.suggestNextEpisodeOnWatched) {
                                 stringResource(R.string.settings_suggest_next_episode_on_watched_enabled)

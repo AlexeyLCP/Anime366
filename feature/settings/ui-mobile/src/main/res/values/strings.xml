@@ -134,6 +134,8 @@
     <string name="settings_suggest_next_episode_on_watched_enabled">Show on Home after finishing the current episode</string>
     <string name="settings_auto_play_next_episode_label">Autoplay next episode</string>
     <string name="settings_auto_play_next_episode_enabled">Start the next episode after a 10-second countdown</string>
+    <string name="settings_ask_dubbing_on_watch_label">Choose voice-over on Watch</string>
+    <string name="settings_ask_dubbing_on_watch_enabled">Show the voice-over list instead of auto-picking the most popular one</string>
     <string name="settings_picture_in_picture_label">Picture-in-Picture (PiP)</string>
     <string name="settings_picture_in_picture_enabled">Automatically open when leaving the app during playback</string>
     <string name="settings_mobile_advanced_volume_label">Advanced volume in the player</string>

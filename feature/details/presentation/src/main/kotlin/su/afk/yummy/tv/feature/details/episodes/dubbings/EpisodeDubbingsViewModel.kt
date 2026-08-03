@@ -14,10 +14,12 @@ import su.afk.yummy.tv.core.error.IErrorHandlerUseCase
 import su.afk.yummy.tv.core.error.storage.RetryStorage
 import su.afk.yummy.tv.core.model.anime.AnimeVideo
 import su.afk.yummy.tv.core.navigation.NavigationManager
+import su.afk.yummy.tv.core.preferences.settings.PreferredPlayer
 import su.afk.yummy.tv.core.preferences.settings.SettingsStore
 import su.afk.yummy.tv.domain.anime.usecase.GetAnimeDetailsUseCase
 import su.afk.yummy.tv.domain.anime.usecase.GetAnimeVideosUseCase
 import su.afk.yummy.tv.feature.details.DetailsAnalytics
+import su.afk.yummy.tv.feature.details.details.DetailsPlayerSelection
 import su.afk.yummy.tv.feature.details.details.handler.DetailsPlayerNavigationHandler
 
 @HiltViewModel(assistedFactory = EpisodeDubbingsViewModel.Factory::class)
@@ -60,6 +62,13 @@ class EpisodeDubbingsViewModel @AssistedInject internal constructor(
             EpisodeDubbingsState.Event.BackSelected -> nav.back()
             is EpisodeDubbingsState.Event.DubbingSelected -> openDubbing(event.name)
             EpisodeDubbingsState.Event.RetrySelected -> viewModelScope.launch { load() }
+            is EpisodeDubbingsState.Event.BalancerConfirmed -> {
+                setState { copy(pendingBalancerSelection = null) }
+                navigateToPlayer(event.video)
+            }
+
+            EpisodeDubbingsState.Event.BalancerPickerDismissed ->
+                setState { copy(pendingBalancerSelection = null) }
         }
     }
 
@@ -89,11 +98,27 @@ class EpisodeDubbingsViewModel @AssistedInject internal constructor(
 
     private fun openDubbing(dubbingName: String) {
         viewModelScope.launch {
-            val video = loadedVideos.selectEpisodeDubbingLaunchVideo(
+            val candidate = loadedVideos.selectEpisodeDubbingLaunchVideo(
                 episode = episode,
                 dubbingName = dubbingName,
-                preferredPlayer = settingsStore.preferredPlayer.first(),
+                preferredPlayer = PreferredPlayer.NONE,
             ) ?: return@launch
+            when (
+                val selection = playerNavigationHandler.selectPlayer(
+                    video = candidate,
+                    allVideos = loadedVideos,
+                    preferredPlayer = settingsStore.preferredPlayer.first(),
+                )
+            ) {
+                is DetailsPlayerSelection.Navigate -> navigateToPlayer(selection.video)
+                is DetailsPlayerSelection.ShowPicker ->
+                    setState { copy(pendingBalancerSelection = selection.picker) }
+            }
+        }
+    }
+
+    private fun navigateToPlayer(video: AnimeVideo) {
+        viewModelScope.launch {
             val destination = withContext(Dispatchers.Default) {
                 playerNavigationHandler.getPlayerDestination(
                     video = video,

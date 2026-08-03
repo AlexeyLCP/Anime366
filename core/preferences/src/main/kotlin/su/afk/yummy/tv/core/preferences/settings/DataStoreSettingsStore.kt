@@ -36,6 +36,7 @@ class DataStoreSettingsStore(private val context: Context) : SettingsStore {
     private val autoSkipOpeningsEndingsKey = booleanPreferencesKey("auto_skip_openings_endings")
     private val showOpeningOnTimelineKey = booleanPreferencesKey("show_opening_on_timeline_enabled")
     private val autoPlayNextEpisodeKey = booleanPreferencesKey("auto_play_next_episode")
+    private val askDubbingOnWatchKey = booleanPreferencesKey("ask_dubbing_on_watch")
     private val pictureInPictureEnabledKey = booleanPreferencesKey("picture_in_picture_enabled")
     private val suggestNextEpisodeOnWatchedKey =
         booleanPreferencesKey("suggest_next_episode_on_watched")
@@ -123,6 +124,10 @@ class DataStoreSettingsStore(private val context: Context) : SettingsStore {
 
     override val autoPlayNextEpisode: Flow<Boolean> = context.dataStore.data.map { prefs ->
         prefs[autoPlayNextEpisodeKey] ?: false
+    }
+
+    override val askDubbingOnWatch: Flow<Boolean> = context.dataStore.data.map { prefs ->
+        prefs[askDubbingOnWatchKey] ?: false
     }
 
     override val pictureInPictureEnabled: Flow<Boolean> = context.dataStore.data.map { prefs ->
@@ -266,6 +271,7 @@ class DataStoreSettingsStore(private val context: Context) : SettingsStore {
             autoSkipOpeningsEndings = prefs[autoSkipOpeningsEndingsKey] ?: false,
             showOpeningOnTimeline = prefs[showOpeningOnTimelineKey] ?: false,
             autoPlayNextEpisode = prefs[autoPlayNextEpisodeKey] ?: false,
+            askDubbingOnWatch = prefs[askDubbingOnWatchKey] ?: false,
             pictureInPictureEnabled = prefs[pictureInPictureEnabledKey] ?: true,
             suggestNextEpisodeOnWatched = prefs[suggestNextEpisodeOnWatchedKey] ?: true,
             refreshContinueWatchingProgressOnLaunch =
@@ -367,6 +373,10 @@ class DataStoreSettingsStore(private val context: Context) : SettingsStore {
 
     override suspend fun setAutoPlayNextEpisode(enabled: Boolean) {
         context.dataStore.edit { prefs -> prefs[autoPlayNextEpisodeKey] = enabled }
+    }
+
+    override suspend fun setAskDubbingOnWatch(enabled: Boolean) {
+        context.dataStore.edit { prefs -> prefs[askDubbingOnWatchKey] = enabled }
     }
 
     override suspend fun setPictureInPictureEnabled(enabled: Boolean) {

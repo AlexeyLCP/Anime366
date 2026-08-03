@@ -33,6 +33,7 @@ import su.afk.yummy.tv.core.designsystem.presenter.mobile.MobileMessage
 import su.afk.yummy.tv.core.designsystem.presenter.preview.ScreenPreviewTheme
 import su.afk.yummy.tv.feature.details.episodes.dubbings.EpisodeDubbingsState
 import su.afk.yummy.tv.feature.details.mobile.R
+import su.afk.yummy.tv.feature.details.mobile.details.view.BalancerDialog
 import su.afk.yummy.tv.feature.details.mobile.episodes.dubbings.view.EpisodeDubbingMobileRow
 import su.afk.yummy.tv.core.designsystem.R as CoreR
 
@@ -134,5 +135,13 @@ fun EpisodeDubbingsMobileScreen(
 
             Spacer(Modifier.height(16.dp))
         }
+    }
+
+    state.pendingBalancerSelection?.let { picker ->
+        BalancerDialog(
+            picker = picker,
+            onConfirmed = { onEvent(EpisodeDubbingsState.Event.BalancerConfirmed(it)) },
+            onDismiss = { onEvent(EpisodeDubbingsState.Event.BalancerPickerDismissed) },
+        )
     }
 }

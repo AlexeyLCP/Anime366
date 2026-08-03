@@ -16,6 +16,7 @@ data class SettingsSnapshot(
     val autoSkipOpeningsEndings: Boolean,
     val showOpeningOnTimeline: Boolean,
     val autoPlayNextEpisode: Boolean,
+    val askDubbingOnWatch: Boolean,
     val pictureInPictureEnabled: Boolean,
     val suggestNextEpisodeOnWatched: Boolean,
     val refreshContinueWatchingProgressOnLaunch: Boolean,
@@ -60,6 +61,9 @@ interface SettingsStore {
     /** Показывать участок опенинга на полосе прогресса плеера. */
     val showOpeningOnTimeline: Flow<Boolean>
     val autoPlayNextEpisode: Flow<Boolean>
+
+    /** Спрашивать озвучку при нажатии "Смотреть", вместо автовыбора самой популярной. */
+    val askDubbingOnWatch: Flow<Boolean>
     val pictureInPictureEnabled: Flow<Boolean>
     val suggestNextEpisodeOnWatched: Flow<Boolean>
     val refreshContinueWatchingProgressOnLaunch: Flow<Boolean>
@@ -120,6 +124,7 @@ interface SettingsStore {
     suspend fun setAutoSkipOpeningsEndings(enabled: Boolean)
     suspend fun setShowOpeningOnTimeline(enabled: Boolean)
     suspend fun setAutoPlayNextEpisode(enabled: Boolean)
+    suspend fun setAskDubbingOnWatch(enabled: Boolean)
     suspend fun setPictureInPictureEnabled(enabled: Boolean)
     suspend fun setSuggestNextEpisodeOnWatched(enabled: Boolean)
     suspend fun setRefreshContinueWatchingProgressOnLaunch(enabled: Boolean)
