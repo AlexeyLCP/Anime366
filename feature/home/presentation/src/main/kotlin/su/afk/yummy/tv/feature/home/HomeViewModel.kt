@@ -37,6 +37,7 @@ import su.afk.yummy.tv.feature.home.presentation.R
 import su.afk.yummy.tv.feature.home.utils.hasPlayableTarget
 import su.afk.yummy.tv.feature.home.utils.toToastTimeString
 import su.afk.yummy.tv.feature.home.utils.withoutHiddenRecommendations
+import su.afk.yummy.tv.feature.home.utils.withoutScheduleSection
 import su.afk.yummy.tv.feature.player.IPlayerNavigator
 import su.afk.yummy.tv.feature.player.getPlayerDest
 import su.afk.yummy.tv.feature.reviews.IReviewsNavigator
@@ -239,7 +240,11 @@ class HomeViewModel @Inject internal constructor(
     private fun applyHiddenRecommendations() {
         val feed = rawFeed ?: return
         val hiddenIds = currentState.hiddenRecommendationIds
-        setState { copy(feed = feed.withoutHiddenRecommendations(hiddenIds)) }
+        setState {
+            copy(
+                feed = feed.withoutHiddenRecommendations(hiddenIds).withoutScheduleSection()
+            )
+        }
     }
 
     private fun observeSupportPrompt() {
@@ -470,7 +475,8 @@ class HomeViewModel @Inject internal constructor(
         setState {
             copy(
                 isLoading = isLoading,
-                feed = feed.withoutHiddenRecommendations(hiddenRecommendationIds),
+                feed = feed.withoutHiddenRecommendations(hiddenRecommendationIds)
+                    .withoutScheduleSection(),
             )
         }
     }

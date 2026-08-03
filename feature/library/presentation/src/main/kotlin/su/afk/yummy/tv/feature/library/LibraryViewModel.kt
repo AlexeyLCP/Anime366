@@ -28,6 +28,7 @@ import su.afk.yummy.tv.feature.details.IDetailsNavigator
 import su.afk.yummy.tv.feature.library.handler.HistoryLaunchHandler
 import su.afk.yummy.tv.feature.library.handler.RemoteLibrarySyncHandler
 import su.afk.yummy.tv.feature.library.presentation.R
+import su.afk.yummy.tv.feature.library.utils.buildLibraryTabItems
 import su.afk.yummy.tv.feature.library.utils.toToastTimeString
 import su.afk.yummy.tv.feature.library.utils.userAnimeList
 import su.afk.yummy.tv.feature.player.IPlayerNavigator
@@ -79,7 +80,9 @@ class LibraryViewModel @Inject internal constructor(
     init {
         analytics.eventScreenOpened()
         observeLibraryItems()
-            .onEach { entries -> setState { copy(items = entries) } }
+            .onEach { entries ->
+                setState { copy(items = entries, tabItems = buildLibraryTabItems(entries)) }
+            }
             .launchIn(viewModelScope)
 
         observeContinueWatching()

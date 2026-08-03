@@ -28,7 +28,6 @@ import su.afk.yummy.tv.feature.library.mobile.utils.mobileTitle
 import su.afk.yummy.tv.feature.library.mobile.utils.mobileUserRating
 import su.afk.yummy.tv.feature.library.mobile.utils.posterUrl
 import su.afk.yummy.tv.feature.library.mobile.utils.shouldShowRemoteLoader
-import su.afk.yummy.tv.feature.library.mobile.utils.userAnimeList
 
 @Composable
 internal fun LibraryMobilePage(
@@ -78,13 +77,7 @@ internal fun LibraryMobilePage(
         return
     }
 
-    val libraryItems = when (tab) {
-        LibraryTab.FAVORITES -> state.items.filter { it.isFavorite }
-        else -> {
-            val localList = tab.userAnimeList()
-            state.items.filter { it.listId == localList?.id }
-        }
-    }
+    val libraryItems = state.tabItems[tab].orEmpty()
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),

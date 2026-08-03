@@ -31,6 +31,8 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import su.afk.yummy.tv.core.designsystem.presenter.components.loader.TvLoadingScreen
 import su.afk.yummy.tv.core.designsystem.presenter.locals.LocalMainMenuFocusRequester
+import su.afk.yummy.tv.domain.account.model.ratingsByValue
+import su.afk.yummy.tv.domain.account.model.topGenres
 import su.afk.yummy.tv.feature.account.R
 import su.afk.yummy.tv.feature.account.account.AccountState
 import su.afk.yummy.tv.feature.account.utils.accountErrorMessage
@@ -199,8 +201,8 @@ internal fun StatsTab(
         if (stats == null || stats.isEmpty()) {
             return@LazyColumn
         }
-        if (profileSummary == null && stats.genres.isNotEmpty()) item { GenreStats(stats.genres) }
-        if (profileSummary == null && stats.ratings.isNotEmpty()) item { RatingStats(stats.ratings) }
+        if (profileSummary == null && stats.genres.isNotEmpty()) item { GenreStats(stats.topGenres) }
+        if (profileSummary == null && stats.ratings.isNotEmpty()) item { RatingStats(stats.ratingsByValue) }
     }
 }
 

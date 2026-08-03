@@ -4,7 +4,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import su.afk.yummy.tv.core.preferences.settings.PosterQuality
-import su.afk.yummy.tv.domain.account.model.UserAnimeList
 import su.afk.yummy.tv.domain.home.model.HomeContinueWatchingItem
 import su.afk.yummy.tv.domain.home.model.HomePoster
 import su.afk.yummy.tv.domain.library.model.LibraryItem
@@ -15,27 +14,7 @@ import su.afk.yummy.tv.feature.library.LibraryTab
 internal fun LibraryState.State.tvTabItemCount(tab: LibraryTab): Int = when (tab) {
     LibraryTab.CONTINUE_WATCHING -> continueWatching.size
     LibraryTab.HISTORY -> 0
-    LibraryTab.FAVORITES -> items.count { it.isFavorite }
-
-    LibraryTab.WATCHING,
-    LibraryTab.PLANNED,
-    LibraryTab.COMPLETED,
-    LibraryTab.POSTPONED,
-    LibraryTab.DROPPED -> {
-        val localListId = tab.userAnimeListId()
-        items.count { it.listId == localListId }
-    }
-}
-
-internal fun LibraryTab.userAnimeListId(): Int? = when (this) {
-    LibraryTab.CONTINUE_WATCHING -> null
-    LibraryTab.HISTORY -> null
-    LibraryTab.FAVORITES -> null
-    LibraryTab.WATCHING -> UserAnimeList.WATCHING.id
-    LibraryTab.PLANNED -> UserAnimeList.PLANNED.id
-    LibraryTab.COMPLETED -> UserAnimeList.COMPLETED.id
-    LibraryTab.POSTPONED -> UserAnimeList.POSTPONED.id
-    LibraryTab.DROPPED -> UserAnimeList.DROPPED.id
+    else -> tabItems[tab]?.size ?: 0
 }
 
 internal fun LibraryTab.focusStateKey(source: String): String = "${name}_$source"

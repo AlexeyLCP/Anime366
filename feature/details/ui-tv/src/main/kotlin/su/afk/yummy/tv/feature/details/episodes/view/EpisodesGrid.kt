@@ -38,9 +38,8 @@ import su.afk.yummy.tv.core.designsystem.presenter.focus.tvFocusRestorer
 import su.afk.yummy.tv.core.model.anime.AnimeEpisodeInfo
 import su.afk.yummy.tv.core.model.anime.AnimeVideo
 import su.afk.yummy.tv.core.model.anime.kodikThumbnailIframeUrl
-import su.afk.yummy.tv.core.model.anime.utils.episodeGroupKey
-import su.afk.yummy.tv.core.model.anime.utils.episodeNumberOrNull
 import su.afk.yummy.tv.feature.details.R
+import su.afk.yummy.tv.feature.details.episodes.EpisodesState
 import su.afk.yummy.tv.feature.details.episodes.utils.watchStatus
 import su.afk.yummy.tv.feature.details.model.DetailsWatchProgressIndex
 import su.afk.yummy.tv.feature.details.utils.isAlloha
@@ -48,30 +47,15 @@ import su.afk.yummy.tv.feature.player.isKodikPlayerUrl
 
 @Composable
 internal fun EpisodesGrid(
-    videos: List<AnimeVideo>,
+    episodeGroups: List<EpisodesState.EpisodeGroup>,
+    bestDubbing: String,
     watchProgress: DetailsWatchProgressIndex,
     restoreFocusRequest: Int,
     episodeInfo: Map<String, AnimeEpisodeInfo>,
     onVideoSelected: (AnimeVideo) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    // Best dubbing by total views among kodik sources
-    val bestDubbing = remember(videos) {
-        val source =
-            videos.filter { it.iframeUrl.isKodikPlayerUrl() }.ifEmpty { videos }
-        source.groupBy { it.dubbing }
-            .maxByOrNull { (_, list) -> list.sumOf { it.views ?: 0 } }
-            ?.key ?: source.firstOrNull()?.dubbing ?: ""
-    }
-
-    val episodeGroups = remember(videos) {
-        videos
-            .groupBy { it.episode.episodeGroupKey() }
-            .entries
-            .sortedBy { it.key.episodeNumberOrNull() ?: Double.MAX_VALUE }
-    }
-
-    val episodeKeys = remember(episodeGroups) { episodeGroups.map { it.key } }
+    val episodeKeys = remember(episodeGroups) { episodeGroups.map { it.episode } }
     var lastFocusedIndex by rememberSaveable { mutableIntStateOf(0) }
     val gridState =
         rememberLazyGridState(initialFirstVisibleItemIndex = (lastFocusedIndex + 1).coerceAtLeast(0))
@@ -117,7 +101,7 @@ internal fun EpisodesGrid(
 
     Column(modifier = modifier) {
         if (showEpisodeInfoPanel) {
-            val focusedEpisode = episodeGroups.getOrNull(lastFocusedIndex)?.key
+            val focusedEpisode = episodeGroups.getOrNull(lastFocusedIndex)?.episode
             EpisodeInfoPanel(
                 episode = focusedEpisode.orEmpty(),
                 info = focusedEpisode?.let(episodeInfo::get),
@@ -180,7 +164,7 @@ internal fun EpisodesGrid(
 
             itemsIndexed(
                 episodeGroups,
-                key = { _, entry -> entry.key },
+                key = { _, entry -> entry.episode },
                 contentType = { _, _ -> "item" },
             ) { index, (episode, groupVideos) ->
                 val representative = groupVideos.firstOrNull { it.dubbing == bestDubbing }

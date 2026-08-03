@@ -21,8 +21,6 @@ import su.afk.yummy.tv.core.designsystem.presenter.components.loader.TvLoadingSc
 import su.afk.yummy.tv.core.designsystem.presenter.preview.ScreenPreviewTheme
 import su.afk.yummy.tv.core.utils.openExternalUri
 import su.afk.yummy.tv.domain.home.model.HomeFeedItem
-import su.afk.yummy.tv.domain.home.model.HomeFeedItemAction
-import su.afk.yummy.tv.domain.home.model.HomeFeedSectionType
 import su.afk.yummy.tv.feature.home.view.HomeAnnouncementDialog
 import su.afk.yummy.tv.feature.home.view.HomeDashboard
 import su.afk.yummy.tv.feature.home.view.HomeError
@@ -115,32 +113,11 @@ fun HomeTvScreen(
     }
 
     val onItemSelected: (String, HomeFeedItem) -> Unit = remember(onEvent) {
-        { _, item ->
-            when (val action = item.action) {
-                is HomeFeedItemAction.OpenSeries -> onEvent(
-                    HomeState.Event.AnimeSelected(seriesId = action.seriesId),
-                )
-
-                is HomeFeedItemAction.OpenVideo -> Unit
-                is HomeFeedItemAction.OpenCollection -> onEvent(
-                    HomeState.Event.CollectionSelected(collectionId = action.collectionId),
-                )
-            }
-        }
+        { _, item -> item.action.toHomeEventOrNull()?.let(onEvent) }
     }
 
     val error = state.error
-    // Расписание вынесено в отдельную вкладку бокового меню, поэтому его секция
-    // не показывается в ленте главной на ТВ.
-    val feed = remember(state.feed) {
-        state.feed?.let { home ->
-            home.copy(
-                sections = home.sections.filterNot {
-                    it.type == HomeFeedSectionType.SCHEDULE
-                },
-            )
-        }
-    }
+    val feed = state.feed
     val isInitialContentReady = feed != null && state.isContinueWatchingLoaded
     when {
         error != null -> HomeError(

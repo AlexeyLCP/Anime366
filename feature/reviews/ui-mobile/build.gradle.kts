@@ -15,6 +15,7 @@ dependencies {
     implementation(project(":feature:reviews:presentation"))
     implementation(libs.bundles.compose.screen)
     implementation(libs.bundles.navigation.serialization)
+    implementation(libs.androidx.lifecycle.runtimeCompose)
     implementation(libs.androidx.paging.compose)
     implementation(libs.androidx.material.icons.extended)
     implementation(libs.coil.compose)

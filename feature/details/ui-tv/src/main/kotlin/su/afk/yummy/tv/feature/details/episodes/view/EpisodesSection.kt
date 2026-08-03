@@ -13,11 +13,14 @@ import su.afk.yummy.tv.core.model.anime.AnimeEpisodeInfo
 import su.afk.yummy.tv.core.model.anime.AnimeVideo
 import su.afk.yummy.tv.feature.details.R
 import su.afk.yummy.tv.feature.details.details.VideosUiState
+import su.afk.yummy.tv.feature.details.episodes.EpisodesState
 import su.afk.yummy.tv.feature.details.model.DetailsWatchProgressIndex
 
 @Composable
 internal fun EpisodesSection(
     state: VideosUiState,
+    episodeGroups: List<EpisodesState.EpisodeGroup>,
+    bestDubbing: String,
     watchProgress: DetailsWatchProgressIndex,
     restoreFocusRequest: Int,
     onVideoSelected: (AnimeVideo) -> Unit,
@@ -40,7 +43,8 @@ internal fun EpisodesSection(
         )
 
         is VideosUiState.Content -> EpisodesGrid(
-            videos = state.videos,
+            episodeGroups = episodeGroups,
+            bestDubbing = bestDubbing,
             watchProgress = watchProgress,
             restoreFocusRequest = restoreFocusRequest,
             episodeInfo = episodeInfo,

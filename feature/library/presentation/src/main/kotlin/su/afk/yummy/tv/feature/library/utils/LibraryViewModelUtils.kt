@@ -1,6 +1,7 @@
 package su.afk.yummy.tv.feature.library.utils
 
 import su.afk.yummy.tv.domain.account.model.UserAnimeList
+import su.afk.yummy.tv.domain.library.model.LibraryItem
 import su.afk.yummy.tv.feature.library.LibraryTab
 
 internal fun LibraryTab.userAnimeList(): UserAnimeList? = when (this) {
@@ -13,6 +14,23 @@ internal fun LibraryTab.userAnimeList(): UserAnimeList? = when (this) {
     LibraryTab.HISTORY,
     LibraryTab.FAVORITES -> null
 }
+
+/** Раскладывает элементы библиотеки по вкладкам, чтобы UI не занимался фильтрацией. */
+internal fun buildLibraryTabItems(items: List<LibraryItem>): Map<LibraryTab, List<LibraryItem>> =
+    LibraryTab.visibleEntries.associateWith { tab ->
+        when (tab) {
+            LibraryTab.CONTINUE_WATCHING, LibraryTab.HISTORY -> emptyList()
+            LibraryTab.FAVORITES -> items.filter { it.isFavorite }
+            LibraryTab.WATCHING,
+            LibraryTab.PLANNED,
+            LibraryTab.COMPLETED,
+            LibraryTab.POSTPONED,
+            LibraryTab.DROPPED -> {
+                val localListId = tab.userAnimeList()?.id
+                items.filter { it.listId == localListId }
+            }
+        }
+    }
 
 internal fun Long.toToastTimeString(): String {
     val totalSeconds = coerceAtLeast(0L) / 1_000L

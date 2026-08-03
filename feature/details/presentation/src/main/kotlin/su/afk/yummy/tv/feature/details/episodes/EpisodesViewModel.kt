@@ -19,6 +19,8 @@ import su.afk.yummy.tv.core.error.StringProvider
 import su.afk.yummy.tv.core.error.storage.RetryStorage
 import su.afk.yummy.tv.core.model.anime.AnimeVideo
 import su.afk.yummy.tv.core.model.anime.AnimeWatchProgress
+import su.afk.yummy.tv.core.model.anime.utils.episodeGroupKey
+import su.afk.yummy.tv.core.model.anime.utils.episodeNumberOrNull
 import su.afk.yummy.tv.core.navigation.NavigationManager
 import su.afk.yummy.tv.core.preferences.settings.PreferredPlayer
 import su.afk.yummy.tv.core.preferences.settings.SettingsStore
@@ -44,6 +46,7 @@ import su.afk.yummy.tv.feature.details.episodes.handler.EpisodeDownloadHandler
 import su.afk.yummy.tv.feature.details.episodes.handler.EpisodeDownloadPrepareResult
 import su.afk.yummy.tv.feature.details.model.DetailsWatchProgressIndex
 import su.afk.yummy.tv.feature.details.presentation.R
+import su.afk.yummy.tv.feature.player.isKodikPlayerUrl
 import su.afk.yummy.tv.feature.videodownload.IVideoDownloadNavigator
 
 @HiltViewModel(assistedFactory = EpisodesViewModel.Factory::class)
@@ -98,10 +101,13 @@ class EpisodesViewModel @AssistedInject internal constructor(
         observeVideoDownloadStatuses(animeId)
             .onEach { statuses ->
                 setState {
+                    val uiStatuses = statuses.values.associate { it.uiStatusKey to it.toUiState() }
                     copy(
-                        downloadStatuses = statuses.values.associate {
-                            it.uiStatusKey to it.toUiState()
-                        }
+                        downloadStatuses = uiStatuses,
+                        resolvedDownloadStatuses = resolveDownloadStatuses(
+                            episodeGroups,
+                            uiStatuses
+                        ),
                     )
                 }
             }
@@ -307,14 +313,54 @@ class EpisodesViewModel @AssistedInject internal constructor(
 
     private fun setVideos(videos: List<AnimeVideo>) {
         setState {
+            val groups = buildEpisodeGroups(videos)
             copy(
                 videosState = if (videos.isEmpty()) VideosUiState.Empty else VideosUiState.Content(
                     videos
                 ),
                 watchProgress = buildWatchProgressIndex(videos),
+                episodeGroups = groups,
+                bestDubbing = resolveBestDubbing(videos),
+                resolvedDownloadStatuses = resolveDownloadStatuses(groups, downloadStatuses),
             )
         }
     }
+
+    private fun buildEpisodeGroups(videos: List<AnimeVideo>): List<EpisodesState.EpisodeGroup> =
+        videos
+            .groupBy { it.episode.episodeGroupKey() }
+            .entries
+            .sortedBy { it.key.episodeNumberOrNull() ?: Double.MAX_VALUE }
+            .map { (episode, groupVideos) -> EpisodesState.EpisodeGroup(episode, groupVideos) }
+
+    /** Озвучка с наибольшим числом просмотров среди kodik-источников. */
+    private fun resolveBestDubbing(videos: List<AnimeVideo>): String {
+        val source = videos.filter { it.iframeUrl.isKodikPlayerUrl() }.ifEmpty { videos }
+        return source.groupBy { it.dubbing }
+            .maxByOrNull { (_, list) -> list.sumOf { it.views ?: 0 } }
+            ?.key ?: source.firstOrNull()?.dubbing ?: ""
+    }
+
+    /** Приоритет статуса загрузки серии: busy > paused > downloaded > failed. */
+    private fun resolveDownloadStatuses(
+        episodeGroups: List<EpisodesState.EpisodeGroup>,
+        downloadStatuses: Map<String, EpisodesState.EpisodeDownloadUiState>,
+    ): Map<String, EpisodesState.EpisodeDownloadUiState?> =
+        episodeGroups.associate { group ->
+            val statuses = group.videos.mapNotNull { downloadStatuses[it.downloadStatusKey()] }
+            group.episode to (
+                    statuses.firstOrNull {
+                        it.status == EpisodesState.EpisodeDownloadUiStatus.Queued ||
+                                it.status == EpisodesState.EpisodeDownloadUiStatus.Downloading
+                    }
+                        ?: statuses.firstOrNull { it.status == EpisodesState.EpisodeDownloadUiStatus.Paused }
+                        ?: statuses.firstOrNull { it.status == EpisodesState.EpisodeDownloadUiStatus.Downloaded }
+                        ?: statuses.firstOrNull { it.status == EpisodesState.EpisodeDownloadUiStatus.Failed }
+                    )
+        }
+
+    private fun AnimeVideo.downloadStatusKey(): String =
+        listOf(id.toString(), iframeUrl).joinToString("|")
 
     private fun updateMergedWatchProgress(
         serverVideos: List<AnimeVideo> = (currentState.videosState as? VideosUiState.Content)?.videos.orEmpty(),

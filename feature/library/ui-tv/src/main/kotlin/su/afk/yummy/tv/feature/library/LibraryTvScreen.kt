@@ -36,7 +36,6 @@ import su.afk.yummy.tv.core.designsystem.presenter.preview.ScreenPreviewTheme
 import su.afk.yummy.tv.feature.library.utils.focusStateKey
 import su.afk.yummy.tv.feature.library.utils.libraryTabsDisplayOrder
 import su.afk.yummy.tv.feature.library.utils.tvTabItemCount
-import su.afk.yummy.tv.feature.library.utils.userAnimeListId
 import su.afk.yummy.tv.feature.library.view.ContinueWatchingGrid
 import su.afk.yummy.tv.feature.library.view.LibraryGrid
 import su.afk.yummy.tv.feature.library.view.LibraryRemoteErrorBanner
@@ -82,16 +81,7 @@ fun LibraryTvScreen(
     val hasFocusableGridContent = when (state.selectedTab) {
         LibraryTab.CONTINUE_WATCHING -> state.continueWatching.isNotEmpty()
         LibraryTab.HISTORY -> state.isSignedIn
-        LibraryTab.FAVORITES -> state.items.any { it.isFavorite }
-
-        LibraryTab.PLANNED,
-        LibraryTab.COMPLETED,
-        LibraryTab.DROPPED,
-        LibraryTab.POSTPONED,
-        LibraryTab.WATCHING -> {
-            val localListId = state.selectedTab.userAnimeListId()
-            localListId != null && state.items.any { it.listId == localListId }
-        }
+        else -> state.tabItems[state.selectedTab]?.isNotEmpty() == true
     }
 
     val preferredContentFocusRequester =
@@ -204,8 +194,7 @@ fun LibraryTvScreen(
                 )
 
                 LibraryTab.FAVORITES -> {
-                    val favoriteItems =
-                        remember(state.items) { state.items.filter { it.isFavorite } }
+                    val favoriteItems = state.tabItems[LibraryTab.FAVORITES].orEmpty()
                     LibraryGrid(
                         tab = LibraryTab.FAVORITES,
                         items = favoriteItems,
@@ -234,10 +223,7 @@ fun LibraryTvScreen(
                 LibraryTab.COMPLETED,
                 LibraryTab.POSTPONED,
                 LibraryTab.DROPPED -> {
-                    val localListId = state.selectedTab.userAnimeListId()
-                    val localItems = remember(state.items, localListId) {
-                        state.items.filter { it.listId == localListId }
-                    }
+                    val localItems = state.tabItems[state.selectedTab].orEmpty()
                     LibraryGrid(
                         tab = state.selectedTab,
                         items = localItems,

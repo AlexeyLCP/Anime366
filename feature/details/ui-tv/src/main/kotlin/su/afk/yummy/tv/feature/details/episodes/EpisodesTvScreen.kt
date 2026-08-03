@@ -86,6 +86,8 @@ fun EpisodesTvScreen(
     ) {
         EpisodesSection(
             state = state.videosState,
+            episodeGroups = state.episodeGroups,
+            bestDubbing = state.bestDubbing,
             watchProgress = state.watchProgress,
             restoreFocusRequest = restoreEpisodesFocusRequest,
             episodeInfo = state.episodeInfo,

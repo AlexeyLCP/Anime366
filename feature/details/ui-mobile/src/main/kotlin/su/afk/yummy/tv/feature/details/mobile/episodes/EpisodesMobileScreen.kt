@@ -26,13 +26,13 @@ import su.afk.yummy.tv.core.designsystem.presenter.mobile.MobileTopBar
 import su.afk.yummy.tv.core.designsystem.presenter.mobile.NotificationPermissionGateHost
 import su.afk.yummy.tv.core.designsystem.presenter.mobile.rememberNotificationPermissionGate
 import su.afk.yummy.tv.core.designsystem.presenter.preview.ScreenPreviewTheme
+import su.afk.yummy.tv.core.model.anime.kodikThumbnailIframeUrl
 import su.afk.yummy.tv.feature.details.details.VideosUiState
 import su.afk.yummy.tv.feature.details.episodes.EpisodesState
 import su.afk.yummy.tv.feature.details.mobile.R
 import su.afk.yummy.tv.feature.details.mobile.details.view.BalancerDialog
-import su.afk.yummy.tv.feature.details.mobile.episodes.utils.isDownloadBusy
 import su.afk.yummy.tv.feature.details.mobile.episodes.utils.mobileWatchStatus
-import su.afk.yummy.tv.feature.details.mobile.episodes.utils.toMobileEpisodeGroups
+import su.afk.yummy.tv.feature.details.mobile.episodes.utils.representativeVideo
 import su.afk.yummy.tv.feature.details.mobile.episodes.view.EpisodeDownloadBalancerSheet
 import su.afk.yummy.tv.feature.details.mobile.episodes.view.EpisodeDownloadDubbingSheet
 import su.afk.yummy.tv.feature.details.mobile.episodes.view.EpisodeDownloadQualitySheet
@@ -75,10 +75,6 @@ fun EpisodesMobileScreen(
             )
         },
     ) {
-        val content = state.videosState as? VideosUiState.Content
-        val episodeGroups = remember(content?.videos) {
-            content?.videos.orEmpty().toMobileEpisodeGroups()
-        }
         MobileStateContent(
             isLoading = state.videosState is VideosUiState.Loading,
             error = (state.videosState as? VideosUiState.Error)?.message,
@@ -97,34 +93,25 @@ fun EpisodesMobileScreen(
                 ),
                 verticalArrangement = Arrangement.spacedBy(10.dp),
             ) {
-                items(episodeGroups, key = { it.episode }) { group ->
+                items(state.episodeGroups, key = { it.episode }) { group ->
+                    val video = group.videos.representativeVideo(state.bestDubbing)
+                    val kodikIframeUrl = group.videos.kodikThumbnailIframeUrl(state.bestDubbing)
+                    val downloadStatus = state.resolvedDownloadStatuses[group.episode]
                     val downloadKeys = remember(group.videos) {
                         group.videos.map { video ->
                             listOf(video.id.toString(), video.iframeUrl).joinToString("|")
                         }
                     }
-                    val downloadStatus = downloadKeys
-                        .mapNotNull { state.downloadStatuses[it] }
-                        .firstOrNull { it.isDownloadBusy() }
-                        ?: downloadKeys
-                            .mapNotNull { state.downloadStatuses[it] }
-                            .firstOrNull { it.status == EpisodesState.EpisodeDownloadUiStatus.Paused }
-                        ?: downloadKeys
-                            .mapNotNull { state.downloadStatuses[it] }
-                            .firstOrNull { it.status == EpisodesState.EpisodeDownloadUiStatus.Downloaded }
-                        ?: downloadKeys
-                            .mapNotNull { state.downloadStatuses[it] }
-                            .firstOrNull { it.status == EpisodesState.EpisodeDownloadUiStatus.Failed }
                     val downloadResolving = downloadKeys.any { it in state.resolvingDownloadKeys }
                     val downloadAwaitingQualitySelection = state.pendingDownloadQualitySelection
                         ?.let { selection -> group.videos.any { it.id == selection.videoId } }
                         ?: false
                     val episodeInfo = state.episodeInfo[group.episode]
                     EpisodeMobileCard(
-                        video = group.video,
+                        video = video,
                         episodeNumber = group.episode,
                         watchStatus = group.videos.mobileWatchStatus(state.watchProgress),
-                        kodikIframeUrl = group.kodikIframeUrl,
+                        kodikIframeUrl = kodikIframeUrl,
                         episodeTitle = episodeInfo?.title,
                         episodeDescription = episodeInfo?.description,
                         descriptionExpanded = group.episode in state.expandedEpisodeDescriptions,
@@ -152,7 +139,7 @@ fun EpisodesMobileScreen(
                         onOpenDownloadsClick = {
                             onEvent(EpisodesState.Event.OpenDownloadsScreenSelected)
                         },
-                        onClick = { onEvent(EpisodesState.Event.VideoSelected(group.video)) },
+                        onClick = { onEvent(EpisodesState.Event.VideoSelected(video)) },
                     )
                 }
             }

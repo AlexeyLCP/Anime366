@@ -18,6 +18,10 @@ internal fun HomeFeed.withoutHiddenRecommendations(hiddenIds: Set<Int>): HomeFee
     )
 }
 
+/** Расписание вынесено в отдельную вкладку бокового меню, поэтому его секция не показывается в ленте главной. */
+internal fun HomeFeed.withoutScheduleSection(): HomeFeed =
+    copy(sections = sections.filterNot { it.type == HomeFeedSectionType.SCHEDULE })
+
 internal fun HomeContinueWatchingItem.hasPlayableTarget(): Boolean =
     videoId > 0 || episode.isNotBlank() || episodeUrl.isNotBlank()
 

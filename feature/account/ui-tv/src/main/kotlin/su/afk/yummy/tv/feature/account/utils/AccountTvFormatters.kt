@@ -10,6 +10,7 @@ import su.afk.yummy.tv.domain.account.model.UserProfileSummary
 import su.afk.yummy.tv.domain.account.model.UserSocialCounts
 import su.afk.yummy.tv.domain.account.model.UserStats
 import su.afk.yummy.tv.domain.account.model.UserWatchTypeStat
+import su.afk.yummy.tv.domain.account.model.ratingsByValue
 import su.afk.yummy.tv.feature.account.R
 import su.afk.yummy.tv.feature.account.account.model.ProfileStatSlice
 import su.afk.yummy.tv.feature.account.account.model.ProfileWatchSlice
@@ -115,7 +116,7 @@ internal fun UserStats.genreCountSlices(): List<ProfileStatSlice> =
         }
 
 internal fun UserStats.ratingCountSlices(): List<ProfileStatSlice> {
-    val byRating = ratings.associateBy { it.rating }
+    val byRating = ratingsByValue
     return (10 downTo 1).map { rating ->
         ProfileStatSlice(
             title = rating.toString(),

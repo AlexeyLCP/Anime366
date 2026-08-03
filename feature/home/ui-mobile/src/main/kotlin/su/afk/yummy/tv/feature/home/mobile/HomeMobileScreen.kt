@@ -43,7 +43,6 @@ import su.afk.yummy.tv.core.designsystem.presenter.preview.ScreenPreviewTheme
 import su.afk.yummy.tv.core.model.ErrorItem
 import su.afk.yummy.tv.core.utils.openExternalUri
 import su.afk.yummy.tv.domain.home.model.HomeFeedItem
-import su.afk.yummy.tv.domain.home.model.HomeFeedItemAction
 import su.afk.yummy.tv.domain.home.model.HomeFeedSectionType
 import su.afk.yummy.tv.feature.home.HomeState
 import su.afk.yummy.tv.feature.home.mobile.view.ContinueWatchingSection
@@ -55,6 +54,7 @@ import su.afk.yummy.tv.feature.home.mobile.view.HomeRecommendationActionsSheet
 import su.afk.yummy.tv.feature.home.mobile.view.HomeSearchEntry
 import su.afk.yummy.tv.feature.home.mobile.view.HomeSupportPromptDialog
 import su.afk.yummy.tv.feature.home.mobile.view.MobileHomeBloggerVideosSection
+import su.afk.yummy.tv.feature.home.toHomeEventOrNull
 
 @Preview(name = "Default", device = "spec:width=412dp,height=915dp,dpi=420", showBackground = true)
 @Composable
@@ -140,17 +140,7 @@ fun HomeMobileScreen(
 
     val mainActions = LocalMobileMainActions.current
     val onItemSelected: (HomeFeedItem) -> Unit = remember(onEvent) {
-        { item ->
-            when (val action = item.action) {
-                is HomeFeedItemAction.OpenSeries -> onEvent(HomeState.Event.AnimeSelected(action.seriesId))
-                is HomeFeedItemAction.OpenVideo -> Unit
-                is HomeFeedItemAction.OpenCollection -> onEvent(
-                    HomeState.Event.CollectionSelected(
-                        action.collectionId
-                    )
-                )
-            }
-        }
+        { item -> item.action.toHomeEventOrNull()?.let(onEvent) }
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -219,9 +209,7 @@ fun HomeMobileScreen(
 
                 feed?.sections
                     .orEmpty()
-                    // Расписание на мобилке живёт в блоке быстрых действий, отдельным рядом
-                    // его не показываем. Остальные секции, включая рекомендации, — рядами.
-                    .filter { it.items.isNotEmpty() && it.type != HomeFeedSectionType.SCHEDULE }
+                    .filter { it.items.isNotEmpty() }
                     .forEach { section ->
                         item(key = "section_${section.type.name}") {
                             val isCollections = section.type == HomeFeedSectionType.COLLECTIONS

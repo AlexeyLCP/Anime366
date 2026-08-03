@@ -6,6 +6,7 @@ import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiState
 import su.afk.yummy.tv.domain.bloggers.model.BloggerVideo
 import su.afk.yummy.tv.domain.home.model.HomeContinueWatchingItem
 import su.afk.yummy.tv.domain.home.model.HomeFeed
+import su.afk.yummy.tv.domain.home.model.HomeFeedItemAction
 
 /** Разовое объявление, управляемое удалённо через feature flags. */
 data class HomeAnnouncement(
@@ -88,4 +89,11 @@ class HomeState {
         /** Тайтл скрыт из рекомендаций, действие можно откатить. */
         data class ShowRecommendationUndo(val message: String, val animeId: Int) : Effect
     }
+}
+
+/** Видео пока не имеет собственного экрана — событие не отправляется. */
+fun HomeFeedItemAction.toHomeEventOrNull(): HomeState.Event? = when (this) {
+    is HomeFeedItemAction.OpenSeries -> HomeState.Event.AnimeSelected(seriesId)
+    is HomeFeedItemAction.OpenCollection -> HomeState.Event.CollectionSelected(collectionId)
+    is HomeFeedItemAction.OpenVideo -> null
 }

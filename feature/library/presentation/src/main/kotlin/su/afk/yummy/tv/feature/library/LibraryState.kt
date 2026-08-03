@@ -36,6 +36,7 @@ enum class LibraryRemoveTarget {
 class LibraryState {
     data class State(
         val items: List<LibraryItem> = emptyList(),
+        val tabItems: Map<LibraryTab, List<LibraryItem>> = emptyMap(),
         val continueWatching: List<HomeContinueWatchingItem> = emptyList(),
         val watchHistory: Flow<PagingData<WatchHistoryEntry>> = flowOf(PagingData.empty()),
         val isSignedIn: Boolean = false,

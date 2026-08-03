@@ -26,7 +26,18 @@ class EpisodesState {
         val episodeInfo: Map<String, AnimeEpisodeInfo> = emptyMap(),
         /** Серии с раскрытым описанием (мобильная карточка). */
         val expandedEpisodeDescriptions: Set<String> = emptySet(),
+        /** Видео, сгруппированные по серии и отсортированные по номеру. */
+        val episodeGroups: List<EpisodeGroup> = emptyList(),
+        /** Озвучка с наибольшим числом просмотров среди kodik-источников. */
+        val bestDubbing: String = "",
+        /** Приоритетный статус загрузки на серию: busy > paused > downloaded > failed. */
+        val resolvedDownloadStatuses: Map<String, EpisodeDownloadUiState?> = emptyMap(),
     ) : UiState
+
+    data class EpisodeGroup(
+        val episode: String,
+        val videos: List<AnimeVideo>,
+    )
 
     data class EpisodeDubbingSelection(
         val episode: String,
