@@ -45,7 +45,7 @@ fun BloggerDetailsTvScreen(
     val context = LocalContext.current
     val blogger = state.blogger
     val error = state.error
-    LaunchedEffect(effect) {
+    LaunchedEffect(Unit) {
         effect.collect {
             if (it is BloggerDetailsState.Effect.ShowToast) Toast.makeText(
                 context,

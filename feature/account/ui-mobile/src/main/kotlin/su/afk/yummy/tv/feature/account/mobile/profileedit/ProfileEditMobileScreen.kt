@@ -84,7 +84,7 @@ fun ProfileEditMobileScreen(
             }
         }
 
-    LaunchedEffect(effect) {
+    LaunchedEffect(Unit) {
         effect.collect { event ->
             if (event is ProfileEditState.Effect.Message) {
                 Toast.makeText(context, event.type.messageRes(), Toast.LENGTH_SHORT).show()

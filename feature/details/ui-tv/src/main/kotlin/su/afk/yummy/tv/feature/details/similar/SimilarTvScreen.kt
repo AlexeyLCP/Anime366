@@ -36,7 +36,7 @@ fun SimilarTvScreen(
     val context = LocalContext.current
     BackHandler { onEvent(SimilarState.Event.BackSelected) }
 
-    LaunchedEffect(effect, context) {
+    LaunchedEffect(Unit) {
         effect.collect { event ->
             when (event) {
                 is SimilarState.Effect.ShowToast ->

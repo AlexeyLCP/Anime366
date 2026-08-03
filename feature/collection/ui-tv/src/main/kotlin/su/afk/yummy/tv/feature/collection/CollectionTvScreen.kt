@@ -122,7 +122,7 @@ fun CollectionTvScreen(
 
     BackHandler { handleBack() }
 
-    LaunchedEffect(effect, context) {
+    LaunchedEffect(Unit) {
         effect.collect { event ->
             when (event) {
                 is CollectionState.Effect.ShowToast ->

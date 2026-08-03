@@ -95,7 +95,7 @@ fun CommentsMobileScreen(
         },
     )
 
-    LaunchedEffect(effect, context) {
+    LaunchedEffect(Unit) {
         effect.collect { event ->
             when (event) {
                 is CommentsState.Effect.ShowToast ->

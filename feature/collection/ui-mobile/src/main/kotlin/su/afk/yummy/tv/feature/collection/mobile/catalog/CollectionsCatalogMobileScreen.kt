@@ -62,7 +62,7 @@ fun CollectionsCatalogMobileScreen(
         ?.uiMessage()
     val gridState = rememberLazyGridState()
 
-    LaunchedEffect(effect, context) {
+    LaunchedEffect(Unit) {
         effect.collect { event ->
             when (event) {
                 is CollectionsCatalogState.Effect.ShowToast ->

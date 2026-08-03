@@ -11,7 +11,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateListOf
@@ -28,6 +27,7 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.ui.compose.ContentFrame
 import androidx.media3.ui.compose.SURFACE_TYPE_TEXTURE_VIEW
@@ -127,7 +127,7 @@ internal fun MobileNativePlayer(
     val systemVolume = rememberPlayerSystemVolumeController()
     val volumeController = rememberPlayerVolumeController()
     val advancedVolumeEnabled = state.advancedPlayerVolumeEnabled
-    val playerVolumeLevel by volumeController.volume.collectAsState()
+    val playerVolumeLevel by volumeController.volume.collectAsStateWithLifecycle()
     val playerVolumePercent = (playerVolumeLevel * 100f).roundToInt()
     val playbackConfig = rememberPlayerPlaybackConfig()
 

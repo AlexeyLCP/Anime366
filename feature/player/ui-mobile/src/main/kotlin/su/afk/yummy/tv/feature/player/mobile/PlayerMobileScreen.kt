@@ -65,7 +65,7 @@ fun PlayerMobileScreen(
     var showErrorDubbingSheet by rememberSaveable { mutableStateOf(false) }
     val context = LocalContext.current
 
-    LaunchedEffect(effect, context) {
+    LaunchedEffect(Unit) {
         effect.collect { playerEffect ->
             when (playerEffect) {
                 is PlayerState.Effect.ShowMessage ->

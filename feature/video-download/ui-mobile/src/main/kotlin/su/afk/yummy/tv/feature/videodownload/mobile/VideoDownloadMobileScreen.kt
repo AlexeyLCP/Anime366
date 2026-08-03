@@ -63,7 +63,7 @@ fun VideoDownloadMobileScreen(
             onEvent(VideoDownloadState.Event.ExportDirectoryGranted(it.toString()))
         }
     }
-    LaunchedEffect(effect) {
+    LaunchedEffect(Unit) {
         effect.collect { exportEffect ->
             when (exportEffect) {
                 VideoDownloadState.Effect.OpenExportDirectoryPicker ->

@@ -64,7 +64,7 @@ fun RatingTvScreen(
     val context = LocalContext.current
     BackHandler { onEvent(RatingState.Event.BackSelected) }
 
-    LaunchedEffect(effect, context) {
+    LaunchedEffect(Unit) {
         effect.collect { event ->
             when (event) {
                 is RatingState.Effect.ShowToast ->

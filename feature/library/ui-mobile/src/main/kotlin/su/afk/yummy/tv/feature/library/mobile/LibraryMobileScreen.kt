@@ -74,7 +74,7 @@ fun LibraryMobileScreen(
         libraryMobileTabs.associateWith { tab -> state.mobileTabItemCount(tab) }
     }
 
-    LaunchedEffect(effect, context, itemRemovedText) {
+    LaunchedEffect(Unit) {
         effect.collect { event ->
             when (event) {
                 LibraryState.Effect.ItemRemoved -> {

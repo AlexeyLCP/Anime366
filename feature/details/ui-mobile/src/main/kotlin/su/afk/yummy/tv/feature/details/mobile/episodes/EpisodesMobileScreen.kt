@@ -57,7 +57,7 @@ fun EpisodesMobileScreen(
 ) {
     val context = LocalContext.current
     val notificationPermissionGate = rememberNotificationPermissionGate()
-    LaunchedEffect(effect, context) {
+    LaunchedEffect(Unit) {
         effect.collect { event ->
             when (event) {
                 is EpisodesState.Effect.ShowToast ->

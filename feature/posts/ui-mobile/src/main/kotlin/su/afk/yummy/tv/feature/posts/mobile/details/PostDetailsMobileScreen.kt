@@ -39,7 +39,7 @@ fun PostDetailsMobileScreen(
     }
 
     val context = LocalContext.current
-    LaunchedEffect(effect) {
+    LaunchedEffect(Unit) {
         effect.collect {
             if (it is PostDetailsState.Effect.ShowToast) Toast.makeText(
                 context,

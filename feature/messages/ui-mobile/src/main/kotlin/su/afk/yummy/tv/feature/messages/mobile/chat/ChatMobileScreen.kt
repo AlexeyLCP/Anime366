@@ -87,7 +87,7 @@ fun ChatMobileScreen(
         }
     }
 
-    LaunchedEffect(effect, context) {
+    LaunchedEffect(Unit) {
         effect.collect { item ->
             if (item is ChatState.Effect.ShowMessage) {
                 val message = when (item.type) {

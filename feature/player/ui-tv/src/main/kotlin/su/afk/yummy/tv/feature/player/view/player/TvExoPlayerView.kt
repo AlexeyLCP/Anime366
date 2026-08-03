@@ -12,7 +12,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableLongStateOf
@@ -30,6 +29,7 @@ import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.ui.compose.ContentFrame
 import androidx.media3.ui.compose.SURFACE_TYPE_SURFACE_VIEW
@@ -122,7 +122,7 @@ internal fun TvExoPlayerView(
     val systemVolume = rememberPlayerSystemVolumeController()
     val volumeController = rememberPlayerVolumeController()
     val advancedVolumeEnabled = state.advancedPlayerVolumeEnabled
-    val playerVolumeLevel by volumeController.volume.collectAsState()
+    val playerVolumeLevel by volumeController.volume.collectAsStateWithLifecycle()
     val playerVolumePercent = (playerVolumeLevel * 100f).roundToInt()
     val volumeKeys = rememberTvPlayerVolumeKeysState(
         indicatorDuration = TV_PLAYER_INLINE_TOAST_DURATION,

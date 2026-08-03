@@ -98,7 +98,7 @@ fun SettingsMobileScreen(
         }
     }
 
-    LaunchedEffect(effect) {
+    LaunchedEffect(Unit) {
         effect.collect { settingsEffect ->
             when (settingsEffect) {
                 SettingsState.Effect.RestartApplication -> {

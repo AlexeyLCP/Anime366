@@ -55,7 +55,7 @@ fun SimilarMobileScreen(
     )
     val coroutineScope = rememberCoroutineScope()
 
-    LaunchedEffect(effect, context) {
+    LaunchedEffect(Unit) {
         effect.collect { event ->
             when (event) {
                 is SimilarState.Effect.ShowToast ->

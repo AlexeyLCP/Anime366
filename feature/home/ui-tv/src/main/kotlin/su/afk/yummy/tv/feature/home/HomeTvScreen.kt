@@ -8,6 +8,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
@@ -84,7 +85,7 @@ fun HomeTvScreen(
         onEvent(HomeState.Event.ScreenResumed)
     }
 
-    LaunchedEffect(effect, context) {
+    LaunchedEffect(Unit) {
         effect.collect { event ->
             when (event) {
                 is HomeState.Effect.ShowToast -> {
@@ -101,11 +102,12 @@ fun HomeTvScreen(
         }
     }
 
+    val currentOnEvent = rememberUpdatedState(onEvent)
     val lifecycleOwner = LocalLifecycleOwner.current
-    DisposableEffect(lifecycleOwner, onEvent) {
+    DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
-                onEvent(HomeState.Event.ScreenResumed)
+                currentOnEvent.value(HomeState.Event.ScreenResumed)
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)

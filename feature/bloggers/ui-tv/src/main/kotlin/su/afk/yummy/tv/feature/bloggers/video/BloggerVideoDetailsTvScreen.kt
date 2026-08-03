@@ -59,7 +59,7 @@ fun BloggerVideoDetailsTvScreen(
     val context = LocalContext.current
     val video = state.video
     val error = state.error
-    LaunchedEffect(effect) {
+    LaunchedEffect(Unit) {
         effect.collect {
             when (it) {
                 is BloggerVideoDetailsState.Effect.OpenVideo -> context.openExternalUri(it.url)

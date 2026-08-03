@@ -23,6 +23,7 @@ dependencies {
     implementation(libs.media3.ui.compose)
 
     implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.lifecycle.runtimeCompose)
     implementation(libs.androidx.material.icons.core)
     implementation(libs.androidx.material.icons.extended)
     implementation(libs.androidx.activity.compose)

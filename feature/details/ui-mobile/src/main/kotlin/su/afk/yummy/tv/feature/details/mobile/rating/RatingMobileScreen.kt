@@ -60,7 +60,7 @@ fun RatingMobileScreen(
 ) {
     val context = LocalContext.current
 
-    LaunchedEffect(effect, context) {
+    LaunchedEffect(Unit) {
         effect.collect { event ->
             when (event) {
                 is RatingState.Effect.ShowToast ->

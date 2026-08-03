@@ -60,7 +60,7 @@ fun FaqMobileScreen(
     )
     var expandedItems by remember(state) { mutableStateOf(emptySet<Int>()) }
 
-    LaunchedEffect(effect) {
+    LaunchedEffect(Unit) {
         effect.collect { }
     }
 

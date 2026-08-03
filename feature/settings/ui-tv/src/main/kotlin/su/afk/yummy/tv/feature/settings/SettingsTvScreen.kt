@@ -65,7 +65,7 @@ fun SettingsTvScreen(
     val registerPreferredContentFocusRequester = LocalPreferredContentFocusRequester.current
     val mainMenuFocusRequester = LocalMainMenuFocusRequester.current
 
-    LaunchedEffect(effect) {
+    LaunchedEffect(Unit) {
         effect.collect { settingsEffect ->
             if (settingsEffect is SettingsState.Effect.RestartApplication &&
                 !context.restartApplication()

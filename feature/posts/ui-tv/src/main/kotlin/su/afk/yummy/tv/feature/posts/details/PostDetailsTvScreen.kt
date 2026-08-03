@@ -19,7 +19,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.relocation.BringIntoViewRequester
@@ -82,7 +81,7 @@ fun PostDetailsTvScreen(
     onEvent: (PostDetailsState.Event) -> Unit
 ) {
     val context = LocalContext.current
-    LaunchedEffect(effect) {
+    LaunchedEffect(Unit) {
         effect.collect {
             if (it is PostDetailsState.Effect.ShowToast) Toast.makeText(
                 context,
@@ -206,7 +205,7 @@ fun PostDetailsTvScreen(
                         )
                     }
                 }
-                items(contentBlocks) { block ->
+                itemsIndexed(contentBlocks, key = { index, block -> index to block }) { _, block ->
                     when (block) {
                         is PostContentBlock.Text -> {
                             val interactionSource = remember { MutableInteractionSource() }

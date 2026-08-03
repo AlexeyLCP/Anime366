@@ -54,7 +54,7 @@ fun ReviewDetailsMobileScreen(
 ) {
     val context = LocalContext.current
     var confirmDelete by remember { mutableStateOf(false) }
-    LaunchedEffect(effect) {
+    LaunchedEffect(Unit) {
         effect.collect {
             if (it is ReviewDetailsState.Effect.ShowToast) {
                 Toast.makeText(context, it.message, Toast.LENGTH_SHORT).show()

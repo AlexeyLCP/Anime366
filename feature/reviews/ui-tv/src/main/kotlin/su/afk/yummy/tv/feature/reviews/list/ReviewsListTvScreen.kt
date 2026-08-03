@@ -54,7 +54,7 @@ fun ReviewsListTvScreen(
 ) {
     val context = LocalContext.current
     val reviews = state.reviews.collectAsLazyPagingItems()
-    LaunchedEffect(effect) {
+    LaunchedEffect(Unit) {
         effect.collect {
             if (it is ReviewsListState.Effect.ShowToast) {
                 Toast.makeText(context, it.message, Toast.LENGTH_SHORT).show()

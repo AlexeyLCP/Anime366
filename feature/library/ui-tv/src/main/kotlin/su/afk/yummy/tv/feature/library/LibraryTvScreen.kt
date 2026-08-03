@@ -105,7 +105,7 @@ fun LibraryTvScreen(
         onDispose { registerPreferredContentFocusRequester?.invoke(null) }
     }
 
-    LaunchedEffect(effect, context, itemRemovedText) {
+    LaunchedEffect(Unit) {
         effect.collect { event ->
             when (event) {
                 LibraryState.Effect.ItemRemoved -> {
