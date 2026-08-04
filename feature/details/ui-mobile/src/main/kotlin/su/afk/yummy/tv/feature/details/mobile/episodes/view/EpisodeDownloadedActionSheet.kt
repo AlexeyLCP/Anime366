@@ -1,10 +1,9 @@
 package su.afk.yummy.tv.feature.details.mobile.episodes.view
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DeleteOutline
@@ -14,7 +13,6 @@ import androidx.compose.material.icons.filled.Storage
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -30,6 +28,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import su.afk.yummy.tv.core.designsystem.presenter.baseScreen.BaseBottomSheet
 import su.afk.yummy.tv.feature.details.episodes.EpisodesState
 import su.afk.yummy.tv.feature.details.mobile.R
 import su.afk.yummy.tv.feature.details.mobile.episodes.utils.formatMegabytesOrNull
@@ -47,78 +46,70 @@ internal fun EpisodeDownloadedActionSheet(
 ) {
     var showDeleteConfirmation by rememberSaveable(action.downloadId) { mutableStateOf(false) }
 
-    ModalBottomSheet(onDismissRequest = onDismiss) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .navigationBarsPadding()
-                .padding(start = 16.dp, end = 16.dp, bottom = 18.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
+    BaseBottomSheet(
+        onDismissRequest = onDismiss,
+        title = stringResource(
+            R.string.details_mobile_downloaded_episode_actions_title,
+            action.episode,
+        ),
+        contentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 18.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        Text(
+            text = action.downloadedDubbing,
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.82f),
+        )
+        Text(
+            text = stringResource(
+                R.string.details_mobile_downloaded_episode_player_quality,
+                action.playerName.playerLabel(),
+                action.qualityLabel,
+            ),
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.82f),
+        )
+        action.bytesDownloaded.formatMegabytesOrNull()?.let { size ->
             Text(
                 text = stringResource(
-                    R.string.details_mobile_downloaded_episode_actions_title,
-                    action.episode,
-                ),
-                style = MaterialTheme.typography.titleLarge,
-                modifier = Modifier.padding(bottom = 4.dp),
-            )
-            Text(
-                text = action.downloadedDubbing,
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.82f),
-            )
-            Text(
-                text = stringResource(
-                    R.string.details_mobile_downloaded_episode_player_quality,
-                    action.playerName.playerLabel(),
-                    action.qualityLabel,
+                    R.string.details_mobile_downloaded_episode_disk_size,
+                    size
                 ),
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.82f),
-            )
-            action.bytesDownloaded.formatMegabytesOrNull()?.let { size ->
-                Text(
-                    text = stringResource(
-                        R.string.details_mobile_downloaded_episode_disk_size,
-                        size
-                    ),
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.82f),
-                )
-            }
-            EpisodeSheetActionButton(
-                text = stringResource(R.string.details_mobile_play_downloaded_episode),
-                icon = Icons.Filled.PlayArrow,
-                onClick = onPlay,
-                color = MaterialTheme.colorScheme.primary,
-            )
-            EpisodeSheetActionButton(
-                text = stringResource(R.string.details_mobile_episode_open_downloads_action),
-                icon = Icons.Filled.Storage,
-                onClick = onOpenDownloads,
-            )
-            if (action.hasAlternativeDubbings) {
-                EpisodeSheetActionButton(
-                    text = stringResource(R.string.details_mobile_redownload_dubbing),
-                    icon = Icons.Filled.Refresh,
-                    onClick = onRedownloadDubbing,
-                )
-            } else {
-                Text(
-                    text = stringResource(R.string.details_mobile_download_other_dubbing_empty),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(vertical = 8.dp),
-                )
-            }
-            EpisodeSheetActionButton(
-                text = stringResource(R.string.details_mobile_delete_downloaded_episode),
-                icon = Icons.Filled.DeleteOutline,
-                onClick = { showDeleteConfirmation = true },
-                color = MaterialTheme.colorScheme.error,
             )
         }
+        EpisodeSheetActionButton(
+            text = stringResource(R.string.details_mobile_play_downloaded_episode),
+            icon = Icons.Filled.PlayArrow,
+            onClick = onPlay,
+            color = MaterialTheme.colorScheme.primary,
+        )
+        EpisodeSheetActionButton(
+            text = stringResource(R.string.details_mobile_episode_open_downloads_action),
+            icon = Icons.Filled.Storage,
+            onClick = onOpenDownloads,
+        )
+        if (action.hasAlternativeDubbings) {
+            EpisodeSheetActionButton(
+                text = stringResource(R.string.details_mobile_redownload_dubbing),
+                icon = Icons.Filled.Refresh,
+                onClick = onRedownloadDubbing,
+            )
+        } else {
+            Text(
+                text = stringResource(R.string.details_mobile_download_other_dubbing_empty),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(vertical = 8.dp),
+            )
+        }
+        EpisodeSheetActionButton(
+            text = stringResource(R.string.details_mobile_delete_downloaded_episode),
+            icon = Icons.Filled.DeleteOutline,
+            onClick = { showDeleteConfirmation = true },
+            color = MaterialTheme.colorScheme.error,
+        )
     }
 
     if (showDeleteConfirmation) {

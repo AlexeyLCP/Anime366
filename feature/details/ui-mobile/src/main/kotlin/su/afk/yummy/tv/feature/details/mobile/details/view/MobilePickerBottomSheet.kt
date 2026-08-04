@@ -4,13 +4,12 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -21,9 +20,7 @@ import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -31,6 +28,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import su.afk.yummy.tv.core.designsystem.presenter.baseScreen.BaseBottomSheet
 import su.afk.yummy.tv.feature.details.mobile.details.model.MobilePickerItem
 import su.afk.yummy.tv.feature.details.mobile.utils.formatCompactCount
 
@@ -39,41 +37,24 @@ import su.afk.yummy.tv.feature.details.mobile.utils.formatCompactCount
 internal fun MobilePickerBottomSheet(
     title: String,
     onDismiss: () -> Unit,
-    content: @Composable () -> Unit,
+    content: @Composable ColumnScope.() -> Unit,
 ) {
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-
-    ModalBottomSheet(
-        sheetState = sheetState,
+    BaseBottomSheet(
         onDismissRequest = onDismiss,
+        title = title,
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .navigationBarsPadding()
-                .padding(horizontal = 16.dp),
-        ) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.SemiBold,
-                modifier = Modifier.padding(bottom = 14.dp),
-            )
-            content()
-            Spacer(Modifier.height(16.dp))
-        }
+        content()
+        Spacer(Modifier.height(16.dp))
     }
 }
 
 @Composable
-internal fun MobilePickerItems(
+internal fun ColumnScope.MobilePickerItems(
     items: List<MobilePickerItem>,
     modifier: Modifier = Modifier,
 ) {
     LazyColumn(
-        modifier = modifier
-            .fillMaxWidth()
-            .heightIn(max = 420.dp),
+        modifier = modifier.fillMaxWidth(),
         contentPadding = PaddingValues(bottom = 4.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {

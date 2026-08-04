@@ -4,9 +4,9 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -22,7 +22,6 @@ import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
@@ -39,6 +38,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import su.afk.yummy.tv.core.designsystem.presenter.baseScreen.BaseBottomSheet
 import su.afk.yummy.tv.domain.bloggers.model.BloggerVideoSort
 import su.afk.yummy.tv.feature.bloggers.list.BloggerVideosListState
 import su.afk.yummy.tv.feature.bloggers.mobile.R
@@ -139,12 +139,13 @@ private fun BloggerVideosFiltersSheet(
         selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
     )
 
-    ModalBottomSheet(onDismissRequest = onDismiss) {
+    BaseBottomSheet(
+        onDismissRequest = onDismiss,
+        contentPadding = PaddingValues(horizontal = 20.dp, vertical = 0.dp),
+    ) {
         Column(
             modifier = Modifier
                 .verticalScroll(rememberScrollState())
-                .navigationBarsPadding()
-                .padding(horizontal = 20.dp)
                 .padding(bottom = 20.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {

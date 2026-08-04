@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.windowInsetsPadding
@@ -13,7 +14,6 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
@@ -23,6 +23,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
+import su.afk.yummy.tv.core.designsystem.presenter.baseScreen.BaseBottomSheetCustom
 import su.afk.yummy.tv.feature.player.mobile.model.MobilePlayerSettingsMode
 import su.afk.yummy.tv.feature.player.mobile.model.MobilePlayerTrackSettingsTab
 import su.afk.yummy.tv.feature.player.mobile.R as UiR
@@ -59,10 +60,11 @@ internal fun MobilePlayerSettingsSheet(
     )
     val scope = rememberCoroutineScope()
 
-    ModalBottomSheet(onDismissRequest = onDismiss) {
+    BaseBottomSheetCustom(onDismissRequest = onDismiss) { maxHeight ->
         LazyColumn(
             modifier = Modifier
                 .fillMaxWidth()
+                .heightIn(max = maxHeight)
                 .windowInsetsPadding(WindowInsets.navigationBars),
             contentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 18.dp),
             verticalArrangement = Arrangement.spacedBy(14.dp),
