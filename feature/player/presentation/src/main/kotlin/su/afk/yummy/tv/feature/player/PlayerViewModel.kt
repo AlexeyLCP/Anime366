@@ -80,6 +80,8 @@ class PlayerViewModel @AssistedInject internal constructor(
     private var finalEpisodeActionJob: Job? = null
     private var mobileGestureTutorialReady = false
     private var showMobileGestureTutorial = false
+    private var tvControlsTutorialReady = false
+    private var showTvControlsTutorial = false
     private var isNavigatingToChildScreen = false
 
     fun loadDestination(newDest: PlayerDestination) {
@@ -100,6 +102,8 @@ class PlayerViewModel @AssistedInject internal constructor(
             ).copy(
                 mobileGestureTutorialReady = mobileGestureTutorialReady,
                 showMobileGestureTutorial = showMobileGestureTutorial,
+                tvControlsTutorialReady = tvControlsTutorialReady,
+                showTvControlsTutorial = showTvControlsTutorial,
                 tvPlayerVolumeKeysEnabled = tvPlayerVolumeKeysEnabled,
                 advancedPlayerVolumeEnabled = advancedPlayerVolumeEnabled,
                 showOpeningOnTimeline = showOpeningOnTimeline,
@@ -148,6 +152,18 @@ class PlayerViewModel @AssistedInject internal constructor(
                 }
             }
             .launchIn(viewModelScope)
+        settingsHandler.tvPlayerControlsTutorialDismissed
+            .onEach { dismissed ->
+                tvControlsTutorialReady = true
+                showTvControlsTutorial = !dismissed
+                setState {
+                    copy(
+                        tvControlsTutorialReady = true,
+                        showTvControlsTutorial = !dismissed,
+                    )
+                }
+            }
+            .launchIn(viewModelScope)
         settingsHandler.tvPlayerVolumeKeysEnabled
             .onEach { enabled -> setState { copy(tvPlayerVolumeKeysEnabled = enabled) } }
             .launchIn(viewModelScope)
@@ -181,6 +197,14 @@ class PlayerViewModel @AssistedInject internal constructor(
                 setState { copy(showMobileGestureTutorial = false) }
                 viewModelScope.launch {
                     settingsHandler.dismissMobilePlayerGestureTutorial()
+                }
+            }
+
+            PlayerState.Event.TvControlsTutorialDismissed -> {
+                showTvControlsTutorial = false
+                setState { copy(showTvControlsTutorial = false) }
+                viewModelScope.launch {
+                    settingsHandler.dismissTvPlayerControlsTutorial()
                 }
             }
 

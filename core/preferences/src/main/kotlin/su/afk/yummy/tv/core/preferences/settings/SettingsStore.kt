@@ -68,6 +68,7 @@ interface SettingsStore {
     val suggestNextEpisodeOnWatched: Flow<Boolean>
     val refreshContinueWatchingProgressOnLaunch: Flow<Boolean>
     val mobilePlayerGestureTutorialDismissed: Flow<Boolean>
+    val tvPlayerControlsTutorialDismissed: Flow<Boolean>
     val tvPlayerVolumeKeysEnabled: Flow<Boolean>
     val advancedPlayerVolumeEnabled: Flow<Boolean>
     val advancedPlayerVolumePercent: Flow<Int>
@@ -130,6 +131,8 @@ interface SettingsStore {
     suspend fun setRefreshContinueWatchingProgressOnLaunch(enabled: Boolean)
     suspend fun dismissMobilePlayerGestureTutorial()
     suspend fun resetMobilePlayerGestureTutorial()
+    suspend fun dismissTvPlayerControlsTutorial()
+    suspend fun resetTvPlayerControlsTutorial()
     suspend fun setTvPlayerVolumeKeysEnabled(enabled: Boolean)
     suspend fun setAdvancedPlayerVolumeEnabled(enabled: Boolean)
     suspend fun setAdvancedPlayerVolumePercent(percent: Int)

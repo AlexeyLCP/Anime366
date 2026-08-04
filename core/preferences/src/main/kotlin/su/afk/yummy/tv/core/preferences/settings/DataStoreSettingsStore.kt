@@ -44,6 +44,8 @@ class DataStoreSettingsStore(private val context: Context) : SettingsStore {
         booleanPreferencesKey("refresh_continue_watching_progress_on_launch")
     private val mobilePlayerGestureTutorialDismissedKey =
         booleanPreferencesKey("player_mobile_gesture_tutorial_dismissed")
+    private val tvPlayerControlsTutorialDismissedKey =
+        booleanPreferencesKey("player_tv_controls_tutorial_dismissed")
     private val tvPlayerVolumeKeysEnabledKey =
         booleanPreferencesKey("tv_player_volume_keys_enabled")
     private val advancedPlayerVolumeEnabledKey =
@@ -146,6 +148,11 @@ class DataStoreSettingsStore(private val context: Context) : SettingsStore {
     override val mobilePlayerGestureTutorialDismissed: Flow<Boolean> =
         context.dataStore.data.map { prefs ->
             prefs[mobilePlayerGestureTutorialDismissedKey] ?: false
+        }
+
+    override val tvPlayerControlsTutorialDismissed: Flow<Boolean> =
+        context.dataStore.data.map { prefs ->
+            prefs[tvPlayerControlsTutorialDismissedKey] ?: false
         }
 
     override val tvPlayerVolumeKeysEnabled: Flow<Boolean> = context.dataStore.data.map { prefs ->
@@ -402,6 +409,18 @@ class DataStoreSettingsStore(private val context: Context) : SettingsStore {
     override suspend fun resetMobilePlayerGestureTutorial() {
         context.dataStore.edit { prefs ->
             prefs[mobilePlayerGestureTutorialDismissedKey] = false
+        }
+    }
+
+    override suspend fun dismissTvPlayerControlsTutorial() {
+        context.dataStore.edit { prefs ->
+            prefs[tvPlayerControlsTutorialDismissedKey] = true
+        }
+    }
+
+    override suspend fun resetTvPlayerControlsTutorial() {
+        context.dataStore.edit { prefs ->
+            prefs[tvPlayerControlsTutorialDismissedKey] = false
         }
     }
 

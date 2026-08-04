@@ -59,4 +59,21 @@
     <string name="player_notifications_prompt">Get notified about new episodes?</string>
     <string name="player_watch_next">Watch</string>
     <string name="player_stay">Stay</string>
+    <string name="player_tv_controls_tutorial_heading">Control the player with your remote</string>
+    <string name="player_tv_controls_tutorial_step">Step %1$d of %2$d</string>
+    <string name="player_tv_controls_tutorial_next">Next</string>
+    <string name="player_tv_controls_tutorial_got_it">Got it</string>
+    <string name="player_tv_controls_tutorial_show_controls_title">Bring up the controls</string>
+    <string name="player_tv_controls_tutorial_show_controls_description">Press any remote button (except Back) to show the playback controls</string>
+    <string name="player_tv_controls_tutorial_seek_title">Seek</string>
+    <string name="player_tv_controls_tutorial_seek_description">Press Left or Right to seek backward or forward — you don\'t need to bring up the controls first</string>
+    <string name="player_tv_controls_tutorial_navigate_title">Move around</string>
+    <string name="player_tv_controls_tutorial_navigate_description">Press Up or Down to switch focus between the progress bar and the row below it</string>
+    <string name="player_tv_controls_tutorial_play_pause_title">Play or pause</string>
+    <string name="player_tv_controls_tutorial_play_pause_description">Press OK on the progress bar to play or pause playback</string>
+    <string name="player_tv_controls_tutorial_panels_title">Dubbing, quality and more</string>
+    <string name="player_tv_controls_tutorial_panels_description">Press OK on a button in the row to open its selection panel</string>
+    <string name="player_tv_controls_tutorial_exit_title">Exit</string>
+    <string name="player_tv_controls_tutorial_exit_description">Press Back twice to exit the player</string>
+    <string name="player_tv_controls_tutorial_illustration">Remote control hint</string>
 </resources>

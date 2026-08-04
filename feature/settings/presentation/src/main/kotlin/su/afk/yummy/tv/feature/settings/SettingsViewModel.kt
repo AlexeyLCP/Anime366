@@ -81,6 +81,11 @@ class SettingsViewModel @Inject internal constructor(
                 setState { copy(mobilePlayerGestureTutorialDismissed = dismissed) }
             }
             .launchIn(viewModelScope)
+        settingsStore.tvPlayerControlsTutorialDismissed
+            .onEach { dismissed ->
+                setState { copy(tvPlayerControlsTutorialDismissed = dismissed) }
+            }
+            .launchIn(viewModelScope)
         tvIntegration.previewChannelBrowsable
             .onEach { setState { copy(isPreviewChannelBrowsable = it) } }
             .launchIn(viewModelScope)
@@ -222,6 +227,11 @@ class SettingsViewModel @Inject internal constructor(
             SettingsState.Event.MobilePlayerGestureTutorialReset -> viewModelScope.launch {
                 analytics.eventMobilePlayerGestureTutorialReset()
                 settingsStore.resetMobilePlayerGestureTutorial()
+            }
+
+            SettingsState.Event.TvPlayerControlsTutorialReset -> viewModelScope.launch {
+                analytics.eventTvPlayerControlsTutorialReset()
+                settingsStore.resetTvPlayerControlsTutorial()
             }
 
             SettingsState.Event.SuggestNextEpisodeOnWatchedToggled -> viewModelScope.launch {

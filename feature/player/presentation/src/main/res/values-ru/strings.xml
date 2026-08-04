@@ -59,4 +59,21 @@
     <string name="player_notifications_prompt">Подписаться на уведомления о новых сериях?</string>
     <string name="player_watch_next">Смотреть</string>
     <string name="player_stay">Остаться</string>
+    <string name="player_tv_controls_tutorial_heading">Управление плеером с пульта</string>
+    <string name="player_tv_controls_tutorial_step">Шаг %1$d из %2$d</string>
+    <string name="player_tv_controls_tutorial_next">Далее</string>
+    <string name="player_tv_controls_tutorial_got_it">Понятно</string>
+    <string name="player_tv_controls_tutorial_show_controls_title">Показать панель управления</string>
+    <string name="player_tv_controls_tutorial_show_controls_description">Нажмите любую кнопку пульта (кроме «Назад»), чтобы показать панель управления</string>
+    <string name="player_tv_controls_tutorial_seek_title">Перемотка</string>
+    <string name="player_tv_controls_tutorial_seek_description">Нажимайте «Влево» или «Вправо», чтобы перемотать назад или вперёд — для этого не обязательно вызывать панель управления</string>
+    <string name="player_tv_controls_tutorial_navigate_title">Навигация</string>
+    <string name="player_tv_controls_tutorial_navigate_description">Нажимайте «Вверх» или «Вниз», чтобы переключаться между полосой прогресса и рядом ниже</string>
+    <string name="player_tv_controls_tutorial_play_pause_title">Пауза и воспроизведение</string>
+    <string name="player_tv_controls_tutorial_play_pause_description">Нажмите ОК на полосе прогресса, чтобы поставить на паузу или продолжить</string>
+    <string name="player_tv_controls_tutorial_panels_title">Озвучка, качество и другое</string>
+    <string name="player_tv_controls_tutorial_panels_description">Нажмите ОК на кнопке в ряду, чтобы открыть панель выбора</string>
+    <string name="player_tv_controls_tutorial_exit_title">Выход</string>
+    <string name="player_tv_controls_tutorial_exit_description">Для выхода из плеера дважды нажмите «Назад»</string>
+    <string name="player_tv_controls_tutorial_illustration">Подсказка по пульту</string>
 </resources>

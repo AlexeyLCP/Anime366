@@ -90,6 +90,7 @@ internal fun TvExoPlayerView(
     streamUrl: String,
     restoreControlFocusTarget: PlayerControlFocusTarget?,
     exitState: TvPlayerExitState,
+    pausedForTutorial: Boolean = false,
     onControlFocusRestored: () -> Unit,
     onDubbingSelected: (dubbingIndex: Int, currentPositionMs: Long) -> Unit,
     onBalancerSelected: (balancerIndex: Int, currentPositionMs: Long) -> Unit,
@@ -237,6 +238,10 @@ internal fun TvExoPlayerView(
     }
 
     PlayerKeepScreenOnEffect()
+
+    LaunchedEffect(pausedForTutorial) {
+        if (pausedForTutorial) player.pause()
+    }
 
     LaunchedEffect(exitState.requested) {
         if (exitState.requested) {
@@ -409,6 +414,7 @@ internal fun TvExoPlayerView(
         prompts = prompts,
         controllerVisible = controllerVisible,
         recoveryHintVisible = recoveryHintVisible,
+        tutorialActive = pausedForTutorial,
         restoreControlFocusTarget = restoreControlFocusTarget,
         onControlFocusRestored = onControlFocusRestored,
     )

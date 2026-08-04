@@ -431,6 +431,16 @@ internal fun SettingsTvPanelHost(
                                 },
                             )
                         }
+                        if (state.tvPlayerControlsTutorialDismissed) {
+                            SettingsDivider()
+                            DetailsButtonOrderResetRow(
+                                label = stringResource(R.string.settings_tv_controls_tutorial_reset),
+                                hint = stringResource(R.string.settings_tv_controls_tutorial_reset_hint),
+                                onReset = {
+                                    onEvent(SettingsState.Event.TvPlayerControlsTutorialReset)
+                                },
+                            )
+                        }
                     }
 
                     SettingsTab.PLAYER_SOURCE -> {

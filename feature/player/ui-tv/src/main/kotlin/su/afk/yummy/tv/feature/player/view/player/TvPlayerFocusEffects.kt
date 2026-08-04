@@ -25,6 +25,7 @@ internal fun TvPlayerFocusEffects(
     prompts: TvPlayerPromptsState,
     controllerVisible: Boolean,
     recoveryHintVisible: Boolean,
+    tutorialActive: Boolean = false,
     restoreControlFocusTarget: PlayerControlFocusTarget?,
     onControlFocusRestored: () -> Unit,
 ) {
@@ -43,9 +44,15 @@ internal fun TvPlayerFocusEffects(
         prompts.nextEpisodePrompt.isVisible,
         prompts.finalEpisodeActionPrompt,
         recoveryHintVisible,
+        tutorialActive,
         restoreControlFocusTarget,
     ) {
-        if (prompts.nextEpisodePrompt.isVisible) {
+        // Пока открыто обучение, фокус целиком принадлежит его собственной кнопке —
+        // не перехватываем его обратно на плеер, иначе DPAD в оверлее обучения
+        // случайно уводит фокус на панель управления под ним.
+        if (tutorialActive) {
+            // no-op
+        } else if (prompts.nextEpisodePrompt.isVisible) {
             withFrameNanos { }
             try {
                 focus.nextEpisode.requestFocus()

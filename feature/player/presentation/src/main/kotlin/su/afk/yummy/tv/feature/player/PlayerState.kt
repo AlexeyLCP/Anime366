@@ -55,6 +55,8 @@ class PlayerState {
         val pictureInPictureEnabled: Boolean = true,
         val mobileGestureTutorialReady: Boolean = false,
         val showMobileGestureTutorial: Boolean = false,
+        val tvControlsTutorialReady: Boolean = false,
+        val showTvControlsTutorial: Boolean = false,
         val tvPlayerVolumeKeysEnabled: Boolean = false,
         val advancedPlayerVolumeEnabled: Boolean = false,
         val mobileVideoScale: Float = 1f,
@@ -146,6 +148,9 @@ class PlayerState {
 
         /** Пользователь завершил одноразовое обучение жестам мобильного плеера. */
         data object MobileGestureTutorialDismissed : Event
+
+        /** Пользователь завершил одноразовое обучение управлению ТВ-плеером. */
+        data object TvControlsTutorialDismissed : Event
 
         /** Пользователь запросил повторное получение потока. */
         data object RetryStream : Event

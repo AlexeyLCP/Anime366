@@ -213,6 +213,11 @@ internal class SettingsAnalytics @Inject constructor(
         tracker.track(EVENT_MOBILE_PLAYER_GESTURE_TUTORIAL_RESET)
     }
 
+    /** Пользователь включил повторный показ обучения управлению ТВ-плеером. */
+    fun eventTvPlayerControlsTutorialReset() {
+        tracker.track(EVENT_TV_PLAYER_CONTROLS_TUTORIAL_RESET)
+    }
+
     /** Пользователь включил или выключил отображение года у тайтлов в топе. */
     fun eventShowTopTitleYearToggled(enabled: Boolean) {
         tracker.track(
@@ -335,6 +340,8 @@ internal class SettingsAnalytics @Inject constructor(
             "settings_advanced_player_volume_toggled"
         const val EVENT_MOBILE_PLAYER_GESTURE_TUTORIAL_RESET =
             "settings_mobile_player_gesture_tutorial_reset"
+        const val EVENT_TV_PLAYER_CONTROLS_TUTORIAL_RESET =
+            "settings_tv_player_controls_tutorial_reset"
         const val EVENT_WATCH_NEXT_TOGGLED = "settings_watch_next_toggled"
     }
 }

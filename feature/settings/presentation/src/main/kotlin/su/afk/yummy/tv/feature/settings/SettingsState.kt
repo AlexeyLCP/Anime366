@@ -44,6 +44,7 @@ class SettingsState {
         val askDubbingOnWatch: Boolean = false,
         val pictureInPictureEnabled: Boolean = true,
         val mobilePlayerGestureTutorialDismissed: Boolean = false,
+        val tvPlayerControlsTutorialDismissed: Boolean = false,
         val suggestNextEpisodeOnWatched: Boolean = true,
         val refreshContinueWatchingProgressOnLaunch: Boolean = false,
         val tvPlayerVolumeKeysEnabled: Boolean = false,
@@ -129,6 +130,9 @@ class SettingsState {
 
         /** Пользователь запросил повторный показ обучения жестам мобильного плеера. */
         data object MobilePlayerGestureTutorialReset : Event
+
+        /** Пользователь запросил повторный показ обучения управлению ТВ-плеером. */
+        data object TvPlayerControlsTutorialReset : Event
 
         /** Пользователь переключил предложение следующей серии после завершения текущей. */
         data object SuggestNextEpisodeOnWatchedToggled : Event

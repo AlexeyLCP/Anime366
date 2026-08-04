@@ -32,6 +32,8 @@ import su.afk.yummy.tv.feature.settings.R
 internal fun DetailsButtonOrderResetRow(
     onReset: () -> Unit,
     modifier: Modifier = Modifier,
+    label: String = stringResource(R.string.settings_details_buttons_reset),
+    hint: String = stringResource(R.string.settings_details_buttons_reset_hint),
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val focused by interactionSource.collectIsFocusedAsState()
@@ -62,13 +64,13 @@ internal fun DetailsButtonOrderResetRow(
         )
         Column(modifier = Modifier.weight(1f)) {
             Text(
-                text = stringResource(R.string.settings_details_buttons_reset),
+                text = label,
                 style = MaterialTheme.typography.bodyLarge,
                 fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.onBackground,
             )
             Text(
-                text = stringResource(R.string.settings_details_buttons_reset_hint),
+                text = hint,
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )

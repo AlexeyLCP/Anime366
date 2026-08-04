@@ -42,6 +42,7 @@ import su.afk.yummy.tv.feature.player.view.player.TV_PLAYER_INLINE_TOAST_DURATIO
 import su.afk.yummy.tv.feature.player.view.player.TvExoPlayerView
 import su.afk.yummy.tv.feature.player.view.player.TvPlayerInlineToast
 import su.afk.yummy.tv.feature.player.view.player.TvPlayerSelectionPanel
+import su.afk.yummy.tv.feature.player.view.tutorial.TvPlayerControlsTutorial
 import kotlin.time.Duration.Companion.seconds
 
 @Preview(
@@ -180,6 +181,7 @@ fun PlayerTvScreen(
                 streamUrl = streamUrl,
                 restoreControlFocusTarget = pendingControlFocusTarget,
                 exitState = exitState,
+                pausedForTutorial = state.tvControlsTutorialReady && state.showTvControlsTutorial,
                 onControlFocusRestored = { pendingControlFocusTarget = null },
                 onDubbingSelected = { newIdx, currentPosMs ->
                     pendingControlFocusTarget = PlayerControlFocusTarget.Dubbing
@@ -259,5 +261,10 @@ fun PlayerTvScreen(
                 .align(Alignment.BottomCenter)
                 .padding(bottom = 36.dp),
         )
+        if (state.tvControlsTutorialReady && state.showTvControlsTutorial) {
+            TvPlayerControlsTutorial(
+                onDismiss = { onEvent(PlayerState.Event.TvControlsTutorialDismissed) },
+            )
+        }
     }
 }
