@@ -1,7 +1,6 @@
 package su.afk.yummy.tv.feature.details.mobile.details
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
@@ -11,7 +10,6 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
-import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Button
@@ -75,120 +73,116 @@ fun DetailsMobileScreen(
     val error = state.error.takeIf { details == null }
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
-    if (details == null) {
-        BaseScreen(
-            isScroll = false,
-            customTopBar = {
+    BaseScreen(
+        isScroll = false,
+        contentWindowInsets = WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal),
+        customTopBar = {
+            if (details == null) {
                 MobileTopBar(
                     title = "",
                     onBack = { onEvent(DetailsState.Event.BackSelected) },
                 )
-            },
-            isLoading = state.isLoading,
-            error = error?.let { ErrorItem(title = it, message = it) },
-            onRetry = { onEvent(DetailsState.Event.RetrySelected) },
-            isEmpty = true,
-            emptyContent = { MobileMessage(title = emptyText) },
-            errorContent = error?.let { message ->
-                { _, retry ->
-                    MobileMessage(
-                        title = message,
-                        actionLabel = stringResource(R.string.details_mobile_retry),
-                        onAction = retry,
-                    )
-                }
-            },
-        ) {}
-    } else {
-        Box(
-            Modifier
-                .fillMaxSize()
-                .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal)),
-        ) {
-            LazyColumn(
-                state = listState,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .navigationBarsPadding(),
-                contentPadding = PaddingValues(bottom = 24.dp),
-                verticalArrangement = Arrangement.spacedBy(20.dp),
-            ) {
-                item(key = "hero") {
-                    DetailsMobileHero(
-                        state = state,
-                        details = details,
-                        onBack = { onEvent(DetailsState.Event.BackSelected) },
-                        onPosterClick = { onEvent(DetailsState.Event.PosterClicked) },
-                        onTitleClick = {
-                            coroutineScope.launch {
-                                listState.animateScrollToItem(2)
-                            }
-                        },
-                        onWatchSelected = { onEvent(DetailsState.Event.WatchSelected) },
-                        onLibraryToggle = { onEvent(DetailsState.Event.LibraryToggled) },
-                        onFavoriteToggle = { onEvent(DetailsState.Event.FavoriteToggled) },
-                    )
-                }
-                item(key = "actions") {
-                    DetailsSecondaryActions(
-                        state = state,
-                        details = details,
-                        onSubscriptionsSelected = { onEvent(DetailsState.Event.SubscriptionsRouteSelected) },
-                        onFullDetailsSelected = { onEvent(DetailsState.Event.FullDetailsSelected) },
-                        onEpisodesSelected = { onEvent(DetailsState.Event.EpisodesSelected) },
-                        onTrailersSelected = { onEvent(DetailsState.Event.TrailersSelected) },
-                        onSimilarSelected = { onEvent(DetailsState.Event.SimilarSelected) },
-                        onViewingOrderSelected = { onEvent(DetailsState.Event.ViewingOrderSelected) },
-                        onScreenshotsSelected = { onEvent(DetailsState.Event.ScreenshotsSelected) },
-                        onRatingScreenSelected = { onEvent(DetailsState.Event.RatingScreenSelected) },
-                        onCollectionsSelected = { onEvent(DetailsState.Event.CollectionsSelected) },
-                        onReviewsSelected = { onEvent(DetailsState.Event.ReviewsSelected) },
-                        onBloggerVideosSelected = { onEvent(DetailsState.Event.BloggerVideosSelected) },
-                        modifier = Modifier.padding(horizontal = 16.dp),
-                    )
-                }
-                item(key = "description") {
-                    DetailsDescriptionSection(
-                        description = details.description,
-                        modifier = Modifier.padding(horizontal = 16.dp),
-                    )
-                }
-                item(key = "comments") {
-                    Button(
-                        onClick = { onEvent(DetailsState.Event.CommentsSelected) },
-                        modifier = Modifier
-                            .padding(horizontal = 16.dp)
-                            .fillMaxWidth(),
-                    ) {
-                        Text(stringResource(R.string.details_mobile_show_comments))
-                    }
-                }
-                state.error?.let { error ->
-                    item(key = "soft_error") {
-                        MobileMessage(
-                            title = error,
-                            actionLabel = stringResource(R.string.details_mobile_retry),
-                            onAction = { onEvent(DetailsState.Event.RetrySelected) },
-                        )
-                    }
-                }
             }
-            DetailsPickerSheets(
-                state = state,
-                onLibraryListSelected = { onEvent(DetailsState.Event.LibraryListSelected(it)) },
-                onLibraryDismiss = { onEvent(DetailsState.Event.LibraryListPickerDismissed) },
-                onSubscriptionToggle = { onEvent(DetailsState.Event.SubscriptionToggled(it)) },
-                onSubscriptionsDismiss = { onEvent(DetailsState.Event.SubscriptionsDismissed) },
-                onBalancerConfirmed = { onEvent(DetailsState.Event.BalancerConfirmed(it)) },
-                onBalancerDismiss = { onEvent(DetailsState.Event.BalancerPickerDismissed) },
-            )
-
-            if (state.showPosterFullscreen) {
-                PosterDialog(
-                    details = details,
-                    onDismiss = { onEvent(DetailsState.Event.PosterDismissed) },
+        },
+        isLoading = state.isLoading && details == null,
+        error = error?.let { ErrorItem(title = it, message = it) },
+        onRetry = { onEvent(DetailsState.Event.RetrySelected) },
+        isEmpty = details == null,
+        emptyContent = { MobileMessage(title = emptyText) },
+        errorContent = error?.let { message ->
+            { _, retry ->
+                MobileMessage(
+                    title = message,
+                    actionLabel = stringResource(R.string.details_mobile_retry),
+                    onAction = retry,
                 )
             }
+        },
+    ) {
+        val details = requireNotNull(state.details)
+        LazyColumn(
+            state = listState,
+            modifier = Modifier
+                .fillMaxSize()
+                .navigationBarsPadding(),
+            contentPadding = PaddingValues(bottom = 24.dp),
+            verticalArrangement = Arrangement.spacedBy(20.dp),
+        ) {
+            item(key = "hero") {
+                DetailsMobileHero(
+                    state = state,
+                    details = details,
+                    onBack = { onEvent(DetailsState.Event.BackSelected) },
+                    onPosterClick = { onEvent(DetailsState.Event.PosterClicked) },
+                    onTitleClick = {
+                        coroutineScope.launch {
+                            listState.animateScrollToItem(2)
+                        }
+                    },
+                    onWatchSelected = { onEvent(DetailsState.Event.WatchSelected) },
+                    onLibraryToggle = { onEvent(DetailsState.Event.LibraryToggled) },
+                    onFavoriteToggle = { onEvent(DetailsState.Event.FavoriteToggled) },
+                )
+            }
+            item(key = "actions") {
+                DetailsSecondaryActions(
+                    state = state,
+                    details = details,
+                    onSubscriptionsSelected = { onEvent(DetailsState.Event.SubscriptionsRouteSelected) },
+                    onFullDetailsSelected = { onEvent(DetailsState.Event.FullDetailsSelected) },
+                    onEpisodesSelected = { onEvent(DetailsState.Event.EpisodesSelected) },
+                    onTrailersSelected = { onEvent(DetailsState.Event.TrailersSelected) },
+                    onSimilarSelected = { onEvent(DetailsState.Event.SimilarSelected) },
+                    onViewingOrderSelected = { onEvent(DetailsState.Event.ViewingOrderSelected) },
+                    onScreenshotsSelected = { onEvent(DetailsState.Event.ScreenshotsSelected) },
+                    onRatingScreenSelected = { onEvent(DetailsState.Event.RatingScreenSelected) },
+                    onCollectionsSelected = { onEvent(DetailsState.Event.CollectionsSelected) },
+                    onReviewsSelected = { onEvent(DetailsState.Event.ReviewsSelected) },
+                    onBloggerVideosSelected = { onEvent(DetailsState.Event.BloggerVideosSelected) },
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                )
+            }
+            item(key = "description") {
+                DetailsDescriptionSection(
+                    description = details.description,
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                )
+            }
+            item(key = "comments") {
+                Button(
+                    onClick = { onEvent(DetailsState.Event.CommentsSelected) },
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp)
+                        .fillMaxWidth(),
+                ) {
+                    Text(stringResource(R.string.details_mobile_show_comments))
+                }
+            }
+            state.error?.let { error ->
+                item(key = "soft_error") {
+                    MobileMessage(
+                        title = error,
+                        actionLabel = stringResource(R.string.details_mobile_retry),
+                        onAction = { onEvent(DetailsState.Event.RetrySelected) },
+                    )
+                }
+            }
+        }
+        DetailsPickerSheets(
+            state = state,
+            onLibraryListSelected = { onEvent(DetailsState.Event.LibraryListSelected(it)) },
+            onLibraryDismiss = { onEvent(DetailsState.Event.LibraryListPickerDismissed) },
+            onSubscriptionToggle = { onEvent(DetailsState.Event.SubscriptionToggled(it)) },
+            onSubscriptionsDismiss = { onEvent(DetailsState.Event.SubscriptionsDismissed) },
+            onBalancerConfirmed = { onEvent(DetailsState.Event.BalancerConfirmed(it)) },
+            onBalancerDismiss = { onEvent(DetailsState.Event.BalancerPickerDismissed) },
+        )
+
+        if (state.showPosterFullscreen) {
+            PosterDialog(
+                details = details,
+                onDismiss = { onEvent(DetailsState.Event.PosterDismissed) },
+            )
         }
     }
 }

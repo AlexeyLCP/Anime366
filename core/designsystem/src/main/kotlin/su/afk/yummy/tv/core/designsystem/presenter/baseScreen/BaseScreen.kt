@@ -50,6 +50,9 @@ fun BaseScreen(
     contentAlignment: Alignment = Alignment.TopStart,
     contentModifier: Modifier = Modifier,
     containerColor: Color = MaterialTheme.colorScheme.background,
+    contentWindowInsets: WindowInsets = WindowInsets.safeDrawing.only(
+        WindowInsetsSides.Top + WindowInsetsSides.Horizontal
+    ),
 
     isScroll: Boolean = true,
     contentPadding: PaddingValues = PaddingValues(0.dp),
@@ -91,9 +94,7 @@ fun BaseScreen(
         }
 
         Scaffold(
-            contentWindowInsets = WindowInsets.safeDrawing.only(
-                WindowInsetsSides.Top + WindowInsetsSides.Horizontal
-            ),
+            contentWindowInsets = contentWindowInsets,
             modifier = Modifier
                 .fillMaxSize()
                 .let {
