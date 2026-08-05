@@ -70,10 +70,10 @@ import su.afk.yummy.tv.core.preferences.settings.DetailsButtonAction
 import su.afk.yummy.tv.core.preferences.settings.SettingsStore
 import su.afk.yummy.tv.domain.account.model.UserAnimeList
 import su.afk.yummy.tv.feature.details.R
-import su.afk.yummy.tv.feature.details.details.VideosUiState
 import su.afk.yummy.tv.feature.details.details.model.ButtonData
 import su.afk.yummy.tv.feature.details.details.model.ButtonRowData
 import su.afk.yummy.tv.feature.details.details.model.ButtonStyle
+import su.afk.yummy.tv.feature.details.details.model.VideosUiState
 import su.afk.yummy.tv.feature.details.details.utils.label
 import su.afk.yummy.tv.feature.details.model.DetailsWatchProgressIndex
 import su.afk.yummy.tv.feature.details.utils.resolveDetailsContinueTarget

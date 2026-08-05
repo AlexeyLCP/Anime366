@@ -33,10 +33,10 @@ import su.afk.yummy.tv.domain.anime.usecase.ObserveAnimeWatchProgressUseCase
 import su.afk.yummy.tv.domain.anime.usecase.RefreshAnimeVideosUseCase
 import su.afk.yummy.tv.domain.videodownload.usecase.ObserveVideoDownloadStatusesUseCase
 import su.afk.yummy.tv.feature.details.DetailsAnalytics
-import su.afk.yummy.tv.feature.details.details.BalancerPickerState
 import su.afk.yummy.tv.feature.details.details.DetailsPlayerSelection
-import su.afk.yummy.tv.feature.details.details.VideosUiState
 import su.afk.yummy.tv.feature.details.details.handler.DetailsPlayerNavigationHandler
+import su.afk.yummy.tv.feature.details.details.model.BalancerPickerState
+import su.afk.yummy.tv.feature.details.details.model.VideosUiState
 import su.afk.yummy.tv.feature.details.episodes.dubbings.episodeDubbingItems
 import su.afk.yummy.tv.feature.details.episodes.dubbings.selectEpisodeDubbingLaunchVideo
 import su.afk.yummy.tv.feature.details.episodes.handler.EpisodeDownloadEnqueueResult

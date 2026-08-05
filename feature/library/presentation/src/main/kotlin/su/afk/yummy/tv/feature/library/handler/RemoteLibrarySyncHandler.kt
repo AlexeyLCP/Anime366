@@ -5,7 +5,7 @@ import su.afk.yummy.tv.domain.account.usecase.RemoveAnimeListUseCase
 import su.afk.yummy.tv.domain.account.usecase.SetAnimeFavoriteUseCase
 import su.afk.yummy.tv.domain.library.usecase.RemoteLibrarySyncResult
 import su.afk.yummy.tv.domain.library.usecase.SyncRemoteLibraryUseCase
-import su.afk.yummy.tv.feature.library.LibraryRemoveTarget
+import su.afk.yummy.tv.feature.library.model.LibraryRemoveTarget
 import javax.inject.Inject
 
 /** Adapts domain library synchronization and remote mutations to presentation events. */

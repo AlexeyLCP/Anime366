@@ -2,8 +2,8 @@ package su.afk.yummy.tv.feature.details.utils
 
 import kotlinx.collections.immutable.toImmutableList
 import su.afk.yummy.tv.core.model.anime.AnimeVideo
-import su.afk.yummy.tv.feature.details.details.VideosUiState
 import su.afk.yummy.tv.feature.details.details.handler.DetailsVideosResult
+import su.afk.yummy.tv.feature.details.details.model.VideosUiState
 
 internal fun List<AnimeVideo>.toDetailsVideosResult(
     optimisticSubscriptionKeys: Set<String>,

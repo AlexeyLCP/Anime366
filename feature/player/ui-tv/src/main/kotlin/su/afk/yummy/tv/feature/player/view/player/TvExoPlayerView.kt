@@ -34,7 +34,6 @@ import androidx.media3.common.util.UnstableApi
 import androidx.media3.ui.compose.ContentFrame
 import androidx.media3.ui.compose.SURFACE_TYPE_SURFACE_VIEW
 import su.afk.yummy.tv.core.preferences.settings.PlayerResizeMode
-import su.afk.yummy.tv.feature.player.PlayerNextEpisodeSource
 import su.afk.yummy.tv.feature.player.PlayerState
 import su.afk.yummy.tv.feature.player.common.PlayerBlackBackdrop
 import su.afk.yummy.tv.feature.player.common.PlayerBufferingIndicator
@@ -60,6 +59,7 @@ import su.afk.yummy.tv.feature.player.common.view.PlayerEndPromptCountdownEffect
 import su.afk.yummy.tv.feature.player.model.PanelReturnFocusTarget
 import su.afk.yummy.tv.feature.player.model.PlayerControlFocusTarget
 import su.afk.yummy.tv.feature.player.model.PlayerFinalEpisodeAction
+import su.afk.yummy.tv.feature.player.model.PlayerNextEpisodeSource
 import su.afk.yummy.tv.feature.player.model.PlayerPlaybackUiState
 import su.afk.yummy.tv.feature.player.model.TvPlayerExitState
 import su.afk.yummy.tv.feature.player.model.TvPlayerPanel

@@ -5,6 +5,8 @@ import su.afk.yummy.tv.core.analytics.analyticsParamsOf
 import su.afk.yummy.tv.core.analytics.analyticsType
 import su.afk.yummy.tv.domain.account.model.UserAnimeList
 import su.afk.yummy.tv.domain.home.model.HomeContinueWatchingItem
+import su.afk.yummy.tv.feature.library.model.LibraryRemoveTarget
+import su.afk.yummy.tv.feature.library.model.LibraryTab
 import javax.inject.Inject
 
 internal class LibraryAnalytics @Inject constructor(

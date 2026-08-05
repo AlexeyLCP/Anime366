@@ -28,6 +28,8 @@ import su.afk.yummy.tv.domain.watching.usecase.ResolveContinueWatchingLaunchUseC
 import su.afk.yummy.tv.feature.details.IDetailsNavigator
 import su.afk.yummy.tv.feature.library.handler.HistoryLaunchHandler
 import su.afk.yummy.tv.feature.library.handler.RemoteLibrarySyncHandler
+import su.afk.yummy.tv.feature.library.model.LibraryRemoveTarget
+import su.afk.yummy.tv.feature.library.model.LibraryTab
 import su.afk.yummy.tv.feature.library.presentation.R
 import su.afk.yummy.tv.feature.library.utils.buildLibraryTabItems
 import su.afk.yummy.tv.feature.library.utils.toToastTimeString

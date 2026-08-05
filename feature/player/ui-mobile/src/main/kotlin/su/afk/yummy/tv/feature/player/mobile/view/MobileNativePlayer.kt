@@ -33,7 +33,6 @@ import androidx.media3.ui.compose.SURFACE_TYPE_TEXTURE_VIEW
 import su.afk.yummy.tv.core.designsystem.presenter.locals.LocalResolveKodikThumbnailUrl
 import su.afk.yummy.tv.core.preferences.settings.PlayerResizeMode
 import su.afk.yummy.tv.core.utils.resolveContinueWatchingImage
-import su.afk.yummy.tv.feature.player.PlayerNextEpisodeSource
 import su.afk.yummy.tv.feature.player.PlayerState
 import su.afk.yummy.tv.feature.player.common.PlayerBlackBackdrop
 import su.afk.yummy.tv.feature.player.common.PlayerBufferingIndicator
@@ -71,6 +70,7 @@ import su.afk.yummy.tv.feature.player.mobile.utils.gestureIcon
 import su.afk.yummy.tv.feature.player.mobile.utils.mobilePlayerNotificationMeta
 import su.afk.yummy.tv.feature.player.mobile.utils.toGesturePercentText
 import su.afk.yummy.tv.feature.player.mobile.view.tutorial.MobilePlayerGestureTutorial
+import su.afk.yummy.tv.feature.player.model.PlayerNextEpisodeSource
 import su.afk.yummy.tv.feature.player.presentation.R
 import su.afk.yummy.tv.feature.player.view.deriveQualityUrls
 import kotlin.math.roundToInt

@@ -6,7 +6,7 @@ import kotlinx.collections.immutable.toImmutableList
 import kotlinx.collections.immutable.toImmutableMap
 import su.afk.yummy.tv.domain.account.model.UserAnimeList
 import su.afk.yummy.tv.domain.library.model.LibraryItem
-import su.afk.yummy.tv.feature.library.LibraryTab
+import su.afk.yummy.tv.feature.library.model.LibraryTab
 
 internal fun LibraryTab.userAnimeList(): UserAnimeList? = when (this) {
     LibraryTab.WATCHING -> UserAnimeList.WATCHING

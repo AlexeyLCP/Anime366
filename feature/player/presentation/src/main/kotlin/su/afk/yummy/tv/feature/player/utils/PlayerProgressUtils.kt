@@ -1,10 +1,10 @@
 package su.afk.yummy.tv.feature.player.utils
 
 import su.afk.yummy.tv.core.storage.watchprogress.WatchProgressStore
-import su.afk.yummy.tv.feature.player.PlayerProgressSnapshot
 import su.afk.yummy.tv.feature.player.PlayerState
 import su.afk.yummy.tv.feature.player.handler.PlayerProgressContext
 import su.afk.yummy.tv.feature.player.model.PlayerCompletionAnalyticsKey
+import su.afk.yummy.tv.feature.player.model.PlayerProgressSnapshot
 
 internal fun PlayerProgressSnapshot.withFullTimingIfWatched(): PlayerProgressSnapshot =
     if (WatchProgressStore.isWatchedProgress(positionMs, durationMs)) {

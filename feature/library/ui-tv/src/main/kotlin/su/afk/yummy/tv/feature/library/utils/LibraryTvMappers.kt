@@ -9,7 +9,7 @@ import su.afk.yummy.tv.domain.home.model.HomePoster
 import su.afk.yummy.tv.domain.library.model.LibraryItem
 import su.afk.yummy.tv.domain.library.model.LibraryPoster
 import su.afk.yummy.tv.feature.library.LibraryState
-import su.afk.yummy.tv.feature.library.LibraryTab
+import su.afk.yummy.tv.feature.library.model.LibraryTab
 
 internal fun LibraryState.State.tvTabItemCount(tab: LibraryTab): Int = when (tab) {
     LibraryTab.CONTINUE_WATCHING -> continueWatching.size

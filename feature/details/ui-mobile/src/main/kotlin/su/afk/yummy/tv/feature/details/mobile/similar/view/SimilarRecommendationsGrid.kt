@@ -27,7 +27,7 @@ import su.afk.yummy.tv.core.designsystem.presenter.mobile.MobileMessage
 import su.afk.yummy.tv.core.designsystem.presenter.mobile.MobilePosterCard
 import su.afk.yummy.tv.core.designsystem.presenter.mobile.MobilePosterGrid
 import su.afk.yummy.tv.core.model.anime.AnimeRecommendationVote
-import su.afk.yummy.tv.feature.details.details.SimilarUiState
+import su.afk.yummy.tv.feature.details.details.model.SimilarUiState
 import su.afk.yummy.tv.feature.details.mobile.R
 import su.afk.yummy.tv.feature.details.mobile.similar.utils.bestUrl
 import su.afk.yummy.tv.core.designsystem.R as CoreR

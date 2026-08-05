@@ -1,8 +1,8 @@
 package su.afk.yummy.tv.feature.library.mobile.model
 
 import su.afk.yummy.tv.domain.home.model.HomeContinueWatchingItem
-import su.afk.yummy.tv.feature.library.LibraryRemoveTarget
 import su.afk.yummy.tv.feature.library.LibraryState
+import su.afk.yummy.tv.feature.library.model.LibraryRemoveTarget
 
 internal sealed interface PendingLibraryMobileRemoval {
     val title: String

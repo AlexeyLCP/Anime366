@@ -22,7 +22,7 @@ import kotlinx.coroutines.launch
 import su.afk.yummy.tv.core.designsystem.presenter.baseScreen.BaseScreen
 import su.afk.yummy.tv.core.designsystem.presenter.mobile.MobileTopBar
 import su.afk.yummy.tv.core.designsystem.presenter.preview.ScreenPreviewTheme
-import su.afk.yummy.tv.feature.details.details.SimilarUiState
+import su.afk.yummy.tv.feature.details.details.model.SimilarUiState
 import su.afk.yummy.tv.feature.details.mobile.R
 import su.afk.yummy.tv.feature.details.mobile.similar.utils.SIMILAR_SOURCE_PAGE_COUNT
 import su.afk.yummy.tv.feature.details.mobile.similar.utils.toSimilarSourceFromAi

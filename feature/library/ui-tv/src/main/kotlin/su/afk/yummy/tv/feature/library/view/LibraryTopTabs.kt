@@ -16,7 +16,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.unit.dp
 import su.afk.yummy.tv.core.designsystem.presenter.dimensions.TvScreenPadding
-import su.afk.yummy.tv.feature.library.LibraryTab
+import su.afk.yummy.tv.feature.library.model.LibraryTab
 import su.afk.yummy.tv.feature.library.utils.label
 import su.afk.yummy.tv.feature.library.utils.libraryTabsDisplayOrder
 import su.afk.yummy.tv.feature.library.utils.tabColor

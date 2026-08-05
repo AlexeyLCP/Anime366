@@ -27,7 +27,7 @@ import su.afk.yummy.tv.core.designsystem.presenter.mobile.NotificationPermission
 import su.afk.yummy.tv.core.designsystem.presenter.mobile.rememberNotificationPermissionGate
 import su.afk.yummy.tv.core.designsystem.presenter.preview.ScreenPreviewTheme
 import su.afk.yummy.tv.core.model.anime.kodikThumbnailIframeUrl
-import su.afk.yummy.tv.feature.details.details.VideosUiState
+import su.afk.yummy.tv.feature.details.details.model.VideosUiState
 import su.afk.yummy.tv.feature.details.episodes.EpisodesState
 import su.afk.yummy.tv.feature.details.mobile.R
 import su.afk.yummy.tv.feature.details.mobile.details.view.BalancerDialog

@@ -40,7 +40,7 @@ import su.afk.yummy.tv.core.designsystem.presenter.focus.tvFocusableClick
 import su.afk.yummy.tv.core.designsystem.presenter.tv.TvStateMessage
 import su.afk.yummy.tv.core.model.anime.AnimeRecommendationVote
 import su.afk.yummy.tv.feature.details.R
-import su.afk.yummy.tv.feature.details.details.SimilarUiState
+import su.afk.yummy.tv.feature.details.details.model.SimilarUiState
 import su.afk.yummy.tv.feature.details.view.common.RelatedTitleCard
 
 private val RelatedCardWidth = 188.dp

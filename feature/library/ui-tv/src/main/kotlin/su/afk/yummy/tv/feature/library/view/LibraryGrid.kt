@@ -45,8 +45,8 @@ import su.afk.yummy.tv.core.designsystem.presenter.focus.tvFocusRestorer
 import su.afk.yummy.tv.core.designsystem.presenter.locals.LocalMainMenuFocusRequester
 import su.afk.yummy.tv.core.designsystem.presenter.locals.LocalPosterQuality
 import su.afk.yummy.tv.domain.library.model.LibraryItem
-import su.afk.yummy.tv.feature.library.LibraryTab
 import su.afk.yummy.tv.feature.library.R
+import su.afk.yummy.tv.feature.library.model.LibraryTab
 import su.afk.yummy.tv.feature.library.utils.posterUrl
 import su.afk.yummy.tv.feature.library.utils.tvDateText
 import su.afk.yummy.tv.feature.library.utils.tvUserRating

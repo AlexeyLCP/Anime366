@@ -33,6 +33,8 @@ import su.afk.yummy.tv.core.designsystem.presenter.components.loader.TvLoadingSc
 import su.afk.yummy.tv.core.designsystem.presenter.locals.LocalMainMenuFocusRequester
 import su.afk.yummy.tv.core.designsystem.presenter.locals.LocalPreferredContentFocusRequester
 import su.afk.yummy.tv.core.designsystem.presenter.preview.ScreenPreviewTheme
+import su.afk.yummy.tv.feature.library.model.LibraryRemoveTarget
+import su.afk.yummy.tv.feature.library.model.LibraryTab
 import su.afk.yummy.tv.feature.library.utils.focusStateKey
 import su.afk.yummy.tv.feature.library.utils.libraryTabsDisplayOrder
 import su.afk.yummy.tv.feature.library.utils.tvTabItemCount

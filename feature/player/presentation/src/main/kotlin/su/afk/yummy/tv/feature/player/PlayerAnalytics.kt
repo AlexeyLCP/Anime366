@@ -6,6 +6,8 @@ import su.afk.yummy.tv.core.analytics.analyticsType
 import su.afk.yummy.tv.core.preferences.settings.PlayerResizeMode
 import su.afk.yummy.tv.core.preferences.settings.PlayerZoomLevel
 import su.afk.yummy.tv.feature.player.handler.PlayerStreamResult
+import su.afk.yummy.tv.feature.player.model.PlayerNextEpisodeSource
+import su.afk.yummy.tv.feature.player.model.PlayerSkipType
 import su.afk.yummy.tv.feature.player.utils.activeBalancerName
 import su.afk.yummy.tv.feature.player.utils.activeDubbingEpisodes
 import su.afk.yummy.tv.feature.player.utils.activeDubbingName

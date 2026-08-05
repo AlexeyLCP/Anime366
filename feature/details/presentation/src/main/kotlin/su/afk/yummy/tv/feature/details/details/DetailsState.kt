@@ -8,48 +8,15 @@ import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiEffect
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiEvent
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiState
 import su.afk.yummy.tv.core.model.anime.AnimeDetails
-import su.afk.yummy.tv.core.model.anime.AnimeRecommendation
 import su.afk.yummy.tv.core.model.anime.AnimeVideo
 import su.afk.yummy.tv.core.preferences.settings.DetailsButtonAction
 import su.afk.yummy.tv.core.preferences.settings.SettingsStore
 import su.afk.yummy.tv.domain.account.model.UserAnimeList
-import su.afk.yummy.tv.feature.details.episodes.dubbings.EpisodeDubbingsState
+import su.afk.yummy.tv.feature.details.details.model.BalancerPickerState
+import su.afk.yummy.tv.feature.details.details.model.DubbingPickerState
+import su.afk.yummy.tv.feature.details.details.model.SubscriptionOption
+import su.afk.yummy.tv.feature.details.details.model.VideosUiState
 import su.afk.yummy.tv.feature.details.model.DetailsWatchProgressIndex
-
-data class BalancerOption(
-    val playerName: String,
-    val video: AnimeVideo,
-    val isSupported: Boolean = true
-)
-
-@Immutable
-data class BalancerPickerState(
-    val episodeNumber: String,
-    val options: ImmutableList<BalancerOption>,
-    val preferredPlayerUnavailable: Boolean = false,
-)
-
-data class DubbingOption(
-    val video: AnimeVideo,
-    val item: EpisodeDubbingsState.DubbingItem,
-)
-
-@Immutable
-data class DubbingPickerState(
-    val episode: String,
-    val options: ImmutableList<DubbingOption>,
-    val episodeTitle: String? = null,
-)
-
-data class SubscriptionOption(
-    val key: String,
-    val playerId: Int?,
-    val player: String,
-    val dubbing: String,
-    val episodesCount: Int,
-    val representativeVideoId: Int,
-    val isSubscribed: Boolean,
-)
 
 class DetailsState {
     @Immutable
@@ -164,19 +131,4 @@ class DetailsState {
     }
 
     sealed interface Effect : UiEffect
-}
-
-sealed interface VideosUiState {
-    data object NotLoaded : VideosUiState
-    data object Loading : VideosUiState
-    data object Empty : VideosUiState
-    data class Error(val message: String?) : VideosUiState
-    data class Content(val videos: ImmutableList<AnimeVideo>) : VideosUiState
-}
-
-sealed interface SimilarUiState {
-    data object Loading : SimilarUiState
-    data object Empty : SimilarUiState
-    data class Error(val message: String?) : SimilarUiState
-    data class Content(val items: ImmutableList<AnimeRecommendation>) : SimilarUiState
 }

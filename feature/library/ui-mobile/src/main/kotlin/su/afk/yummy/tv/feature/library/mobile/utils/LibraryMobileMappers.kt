@@ -7,7 +7,7 @@ import su.afk.yummy.tv.domain.home.model.HomePoster
 import su.afk.yummy.tv.domain.library.model.LibraryItem
 import su.afk.yummy.tv.domain.library.model.LibraryPoster
 import su.afk.yummy.tv.feature.library.LibraryState
-import su.afk.yummy.tv.feature.library.LibraryTab
+import su.afk.yummy.tv.feature.library.model.LibraryTab
 import su.afk.yummy.tv.feature.library.utils.semanticColorOrNull
 
 internal val libraryMobileTabs: List<LibraryTab>

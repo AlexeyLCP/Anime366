@@ -8,7 +8,7 @@ import su.afk.yummy.tv.domain.account.usecase.GetVideoSubscriptionsUseCase
 import su.afk.yummy.tv.domain.account.usecase.SetVideoSubscriptionUseCase
 import su.afk.yummy.tv.domain.anime.usecase.GetAnimeDetailsUseCase
 import su.afk.yummy.tv.domain.anime.usecase.GetAnimeVideosUseCase
-import su.afk.yummy.tv.feature.details.details.SubscriptionOption
+import su.afk.yummy.tv.feature.details.details.model.SubscriptionOption
 import su.afk.yummy.tv.feature.details.utils.SUBSCRIPTION_REFRESH_DELAY
 import su.afk.yummy.tv.feature.details.utils.matchesCurrentAnime
 import su.afk.yummy.tv.feature.details.utils.subscriptionMatchKeys

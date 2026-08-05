@@ -55,8 +55,8 @@ import androidx.compose.ui.window.DialogProperties
 import su.afk.yummy.tv.core.designsystem.presenter.components.TvOverlayAppear
 import su.afk.yummy.tv.core.designsystem.presenter.theme.YummySemanticColors
 import su.afk.yummy.tv.feature.details.R
-import su.afk.yummy.tv.feature.details.details.DubbingOption
-import su.afk.yummy.tv.feature.details.details.DubbingPickerState
+import su.afk.yummy.tv.feature.details.details.model.DubbingOption
+import su.afk.yummy.tv.feature.details.details.model.DubbingPickerState
 import su.afk.yummy.tv.feature.details.utils.formatCompactCount
 
 @Composable

@@ -54,8 +54,8 @@ import androidx.compose.ui.window.DialogProperties
 import su.afk.yummy.tv.core.designsystem.presenter.components.TvOverlayAppear
 import su.afk.yummy.tv.core.designsystem.presenter.theme.YummySemanticColors
 import su.afk.yummy.tv.feature.details.R
-import su.afk.yummy.tv.feature.details.details.BalancerOption
-import su.afk.yummy.tv.feature.details.details.BalancerPickerState
+import su.afk.yummy.tv.feature.details.details.model.BalancerOption
+import su.afk.yummy.tv.feature.details.details.model.BalancerPickerState
 import su.afk.yummy.tv.feature.details.utils.formatCompactCount
 
 @Composable

@@ -21,11 +21,7 @@ import su.afk.yummy.tv.core.preferences.settings.PreviewCacheSize
 import su.afk.yummy.tv.core.preferences.settings.SettingsStore
 import su.afk.yummy.tv.core.preferences.settings.YaniContentLanguage
 import su.afk.yummy.tv.core.utils.CacheStorageEntry
-
-enum class DetailsButtonMoveDirection {
-    UP,
-    DOWN,
-}
+import su.afk.yummy.tv.feature.settings.model.DetailsButtonMoveDirection
 
 class SettingsState {
     @Immutable

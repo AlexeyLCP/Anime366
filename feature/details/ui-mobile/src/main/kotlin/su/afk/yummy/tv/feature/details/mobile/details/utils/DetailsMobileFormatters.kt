@@ -11,7 +11,7 @@ import su.afk.yummy.tv.core.model.anime.AnimeEpisodes
 import su.afk.yummy.tv.core.model.anime.AnimePoster
 import su.afk.yummy.tv.domain.account.model.UserAnimeList
 import su.afk.yummy.tv.feature.details.details.DetailsState
-import su.afk.yummy.tv.feature.details.details.VideosUiState
+import su.afk.yummy.tv.feature.details.details.model.VideosUiState
 import su.afk.yummy.tv.feature.details.mobile.R
 import su.afk.yummy.tv.feature.details.utils.EpisodeReleaseCountdown
 import su.afk.yummy.tv.feature.details.utils.isReleasedAnimeStatus

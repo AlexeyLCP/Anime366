@@ -15,28 +15,8 @@ import su.afk.yummy.tv.core.preferences.settings.LibraryContinueWatchingCardSize
 import su.afk.yummy.tv.domain.home.model.HomeContinueWatchingItem
 import su.afk.yummy.tv.domain.library.model.LibraryItem
 import su.afk.yummy.tv.domain.library.model.WatchHistoryEntry
-
-enum class LibraryTab {
-    CONTINUE_WATCHING,
-    HISTORY,
-    FAVORITES,
-    WATCHING,
-    PLANNED,
-    COMPLETED,
-    POSTPONED,
-    DROPPED,
-
-    ;
-
-    companion object {
-        val visibleEntries: List<LibraryTab> = entries.filterNot { it == HISTORY }
-    }
-}
-
-enum class LibraryRemoveTarget {
-    LIST,
-    FAVORITE,
-}
+import su.afk.yummy.tv.feature.library.model.LibraryRemoveTarget
+import su.afk.yummy.tv.feature.library.model.LibraryTab
 
 class LibraryState {
     @Immutable

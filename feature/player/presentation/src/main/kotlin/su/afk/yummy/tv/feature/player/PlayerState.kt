@@ -6,27 +6,9 @@ import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiState
 import su.afk.yummy.tv.core.preferences.settings.PlayerResizeMode
 import su.afk.yummy.tv.core.preferences.settings.PlayerZoomLevel
 import su.afk.yummy.tv.feature.player.model.PlayerFinalEpisodeAction
-
-data class PlayerProgressSnapshot(
-    val episode: String,
-    val episodeUrl: String,
-    val videoId: Int,
-    val playerName: String,
-    val dubbing: String,
-    val screenshotUrl: String,
-    val positionMs: Long,
-    val durationMs: Long,
-)
-
-enum class PlayerSkipType {
-    Opening,
-    Ending,
-}
-
-enum class PlayerNextEpisodeSource {
-    Controls,
-    EndPrompt,
-}
+import su.afk.yummy.tv.feature.player.model.PlayerNextEpisodeSource
+import su.afk.yummy.tv.feature.player.model.PlayerProgressSnapshot
+import su.afk.yummy.tv.feature.player.model.PlayerSkipType
 
 class PlayerState {
     data class State(

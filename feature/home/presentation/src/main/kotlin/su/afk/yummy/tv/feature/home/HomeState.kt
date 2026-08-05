@@ -12,14 +12,7 @@ import su.afk.yummy.tv.domain.bloggers.model.BloggerVideo
 import su.afk.yummy.tv.domain.home.model.HomeContinueWatchingItem
 import su.afk.yummy.tv.domain.home.model.HomeFeed
 import su.afk.yummy.tv.domain.home.model.HomeFeedItemAction
-
-/** Разовое объявление, управляемое удалённо через feature flags. */
-data class HomeAnnouncement(
-    val id: String,
-    val title: String?,
-    val message: String,
-    val buttonText: String?,
-)
+import su.afk.yummy.tv.feature.home.model.HomeAnnouncement
 
 class HomeState {
     @Immutable

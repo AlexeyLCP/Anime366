@@ -45,9 +45,9 @@ import su.afk.yummy.tv.core.preferences.settings.PreviewCacheSize
 import su.afk.yummy.tv.core.preferences.settings.YaniContentLanguage
 import su.afk.yummy.tv.core.utils.openExternalUri
 import su.afk.yummy.tv.feature.settings.BuildConfig
-import su.afk.yummy.tv.feature.settings.DetailsButtonMoveDirection
 import su.afk.yummy.tv.feature.settings.R
 import su.afk.yummy.tv.feature.settings.SettingsState
+import su.afk.yummy.tv.feature.settings.model.DetailsButtonMoveDirection
 import su.afk.yummy.tv.feature.settings.model.SettingsTab
 import su.afk.yummy.tv.feature.settings.utils.hint
 import su.afk.yummy.tv.feature.settings.utils.label

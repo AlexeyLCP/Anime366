@@ -30,6 +30,11 @@
 - Prefer one significant composable component per file in `.view`; small local lambdas inside a
   component are fine.
 - Put Handler classes next to the ViewModel in the feature module's `.handler` package.
+- `XxxState.kt` must contain only the `State`/`Event`/`Effect` declarations (plus types nested
+  strictly inside `State`, e.g. an enum that only makes sense as part of one screen's state). Any
+  other top-level `data class`/`enum class`/`sealed interface` declared alongside them — anything
+  referenced from a handler, the ViewModel, or UI — belongs in `.model` instead, one file per type,
+  file name matching the type name.
 - Put UI-only models in `.model`.
 - Put UI mappers, formatters, and extension helpers in `.utils`.
 - Keep reusable formatting and error extensions out of Screen and `.view` files; place them in a

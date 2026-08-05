@@ -12,7 +12,7 @@ import su.afk.yummy.tv.core.designsystem.presenter.tv.TvStateMessage
 import su.afk.yummy.tv.core.model.anime.AnimeEpisodeInfo
 import su.afk.yummy.tv.core.model.anime.AnimeVideo
 import su.afk.yummy.tv.feature.details.R
-import su.afk.yummy.tv.feature.details.details.VideosUiState
+import su.afk.yummy.tv.feature.details.details.model.VideosUiState
 import su.afk.yummy.tv.feature.details.episodes.EpisodesState
 import su.afk.yummy.tv.feature.details.model.DetailsWatchProgressIndex
 

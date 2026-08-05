@@ -1,7 +1,7 @@
 package su.afk.yummy.tv.feature.player.common.utils
 
-import su.afk.yummy.tv.feature.player.PlayerProgressSnapshot
 import su.afk.yummy.tv.feature.player.common.model.PlayerProgressSource
+import su.afk.yummy.tv.feature.player.model.PlayerProgressSnapshot
 
 fun PlayerProgressSource.buildProgressSnapshot(
     positionMs: Long,

@@ -1,11 +1,11 @@
 package su.afk.yummy.tv.feature.player.utils
 
-import su.afk.yummy.tv.feature.player.PlayerSkipType
 import su.afk.yummy.tv.feature.player.PlayerSkips
 import su.afk.yummy.tv.feature.player.model.ActiveSkip
 import su.afk.yummy.tv.feature.player.model.ActiveSkipType
 import su.afk.yummy.tv.feature.player.model.PanelReturnFocusTarget
 import su.afk.yummy.tv.feature.player.model.PlayerControlFocusTarget
+import su.afk.yummy.tv.feature.player.model.PlayerSkipType
 
 internal fun String.withoutDubbingTitlePrefix(title: String): String {
     val trimmed = trim()

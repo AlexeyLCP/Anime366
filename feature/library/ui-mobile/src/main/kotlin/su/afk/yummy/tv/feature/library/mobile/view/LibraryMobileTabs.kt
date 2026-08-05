@@ -23,10 +23,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import su.afk.yummy.tv.feature.library.LibraryTab
 import su.afk.yummy.tv.feature.library.mobile.utils.libraryMobileTabs
 import su.afk.yummy.tv.feature.library.mobile.utils.mobileTitle
 import su.afk.yummy.tv.feature.library.mobile.utils.tabColor
+import su.afk.yummy.tv.feature.library.model.LibraryTab
 
 @Composable
 internal fun LibraryMobileTabs(

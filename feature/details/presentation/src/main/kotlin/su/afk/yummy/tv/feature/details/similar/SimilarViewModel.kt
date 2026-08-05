@@ -24,7 +24,7 @@ import su.afk.yummy.tv.domain.anime.usecase.SetAnimeRecommendationIgnoredUseCase
 import su.afk.yummy.tv.domain.anime.usecase.VoteAnimeRecommendationUseCase
 import su.afk.yummy.tv.feature.details.DetailsAnalytics
 import su.afk.yummy.tv.feature.details.IDetailsNavigator
-import su.afk.yummy.tv.feature.details.details.SimilarUiState
+import su.afk.yummy.tv.feature.details.details.model.SimilarUiState
 import su.afk.yummy.tv.feature.details.presentation.R
 import su.afk.yummy.tv.feature.details.similar.utils.updateItem
 

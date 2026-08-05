@@ -4,8 +4,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import su.afk.yummy.tv.domain.home.model.HomeContinueWatchingItem
 import su.afk.yummy.tv.domain.library.model.LibraryItem
-import su.afk.yummy.tv.feature.library.LibraryTab
 import su.afk.yummy.tv.feature.library.mobile.R
+import su.afk.yummy.tv.feature.library.model.LibraryTab
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale

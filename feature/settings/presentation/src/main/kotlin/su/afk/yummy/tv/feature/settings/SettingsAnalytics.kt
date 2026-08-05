@@ -13,6 +13,7 @@ import su.afk.yummy.tv.core.preferences.settings.PreferredPlayer
 import su.afk.yummy.tv.core.preferences.settings.PreferredVideoQuality
 import su.afk.yummy.tv.core.preferences.settings.PreviewCacheSize
 import su.afk.yummy.tv.core.preferences.settings.YaniContentLanguage
+import su.afk.yummy.tv.feature.settings.model.DetailsButtonMoveDirection
 import javax.inject.Inject
 
 internal class SettingsAnalytics @Inject constructor(
