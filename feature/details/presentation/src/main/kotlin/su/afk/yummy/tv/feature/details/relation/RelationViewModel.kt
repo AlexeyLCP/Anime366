@@ -1,6 +1,5 @@
 package su.afk.yummy.tv.feature.details.relation
 
-import androidx.lifecycle.SavedStateHandle
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -23,16 +22,13 @@ class RelationViewModel @AssistedInject internal constructor(
     @Assisted private val kind: DetailsRelationKind,
     @Assisted private val id: Int,
     @Assisted private val url: String?,
-    savedStateHandle: SavedStateHandle,
     override val errorHandler: IErrorHandlerUseCase,
     override val retryStorage: RetryStorage,
     private val nav: NavigationManager,
     private val detailsNavigator: IDetailsNavigator,
     private val getAnimeRelation: GetAnimeRelationUseCase,
     private val stringProvider: StringProvider,
-) : BaseViewModelNew<RelationState.State, RelationState.Event, RelationState.Effect>(
-    savedStateHandle
-) {
+) : BaseViewModelNew<RelationState.State, RelationState.Event, RelationState.Effect>() {
 
     @AssistedFactory
     interface Factory {

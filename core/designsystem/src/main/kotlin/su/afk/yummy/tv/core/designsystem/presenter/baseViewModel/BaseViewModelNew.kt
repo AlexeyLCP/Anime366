@@ -1,6 +1,5 @@
 package su.afk.yummy.tv.core.designsystem.presenter.baseViewModel
 
-import androidx.lifecycle.SavedStateHandle
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -16,9 +15,7 @@ interface UiState
 interface UiEvent
 interface UiEffect
 
-abstract class BaseViewModelNew<S : UiState, E : UiEvent, F : UiEffect>(
-    protected val savedStateHandle: SavedStateHandle
-) : CoroutineVieModel() {
+abstract class BaseViewModelNew<S : UiState, E : UiEvent, F : UiEffect> : CoroutineVieModel() {
 
     protected abstract fun createInitialState(): S
 
@@ -28,14 +25,8 @@ abstract class BaseViewModelNew<S : UiState, E : UiEvent, F : UiEffect>(
     val currentState: S get() = _state.value
 
     protected fun setState(reducer: S.() -> S) {
-        _state.update {
-            val newState = it.reducer()
-            saveToSavedState(newState)
-            newState
-        }
+        _state.update { it.reducer() }
     }
-
-    protected open fun saveToSavedState(state: S) {}
 
     private val _effect = MutableSharedFlow<F>()
     val effect: SharedFlow<F> = _effect.asSharedFlow()

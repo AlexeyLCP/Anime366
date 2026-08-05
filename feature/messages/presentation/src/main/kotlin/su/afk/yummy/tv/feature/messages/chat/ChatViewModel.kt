@@ -36,7 +36,7 @@ class ChatViewModel @AssistedInject constructor(
     @Assisted private val userId: Int,
     @Assisted("nickname") private val nickname: String,
     @Assisted("avatarUrl") private val avatarUrl: String?,
-    savedStateHandle: SavedStateHandle,
+    private val savedStateHandle: SavedStateHandle,
     override val errorHandler: IErrorHandlerUseCase,
     override val retryStorage: RetryStorage,
     private val nav: NavigationManager,
@@ -47,7 +47,7 @@ class ChatViewModel @AssistedInject constructor(
     private val pollingHandler: ChatPollingHandler,
     private val mutationHandler: ChatMutationHandler,
     private val mutationNotifier: MessagesMutationNotifier,
-) : BaseViewModelNew<ChatState.State, ChatState.Event, ChatState.Effect>(savedStateHandle) {
+) : BaseViewModelNew<ChatState.State, ChatState.Event, ChatState.Effect>() {
     @AssistedFactory
     interface Factory {
         fun create(
@@ -69,9 +69,6 @@ class ChatViewModel @AssistedInject constructor(
         draft = savedStateHandle[draftKey] ?: "",
     )
 
-    override fun saveToSavedState(state: ChatState.State) {
-        savedStateHandle[draftKey] = state.draft
-    }
 
     init {
         observeAccountSession()
@@ -110,7 +107,10 @@ class ChatViewModel @AssistedInject constructor(
 
             ChatState.Event.RefreshSelected -> refresh()
             ChatState.Event.LoadOlderSelected -> loadOlder()
-            is ChatState.Event.DraftChanged -> setState { copy(draft = event.text) }
+            is ChatState.Event.DraftChanged -> {
+                setState { copy(draft = event.text) }
+                savedStateHandle[draftKey] = event.text
+            }
             ChatState.Event.SendSelected -> send()
             is ChatState.Event.ReplySelected -> beginReply(event.messageId)
             ChatState.Event.ReplyCancelled -> setState { copy(replyingTo = null) }
@@ -275,6 +275,7 @@ class ChatViewModel @AssistedInject constructor(
                             isMutating = false,
                         )
                     }
+                    savedStateHandle[draftKey] = ""
                     mutationNotifier.notifyChanged()
                 },
                 onFailure = {

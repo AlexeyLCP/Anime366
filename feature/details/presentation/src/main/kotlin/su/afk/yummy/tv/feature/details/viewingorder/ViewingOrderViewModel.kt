@@ -1,6 +1,5 @@
 package su.afk.yummy.tv.feature.details.viewingorder
 
-import androidx.lifecycle.SavedStateHandle
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -18,14 +17,13 @@ import su.afk.yummy.tv.feature.details.IDetailsNavigator
 @HiltViewModel(assistedFactory = ViewingOrderViewModel.Factory::class)
 class ViewingOrderViewModel @AssistedInject internal constructor(
     @Assisted private val animeId: Int,
-    savedStateHandle: SavedStateHandle,
     override val errorHandler: IErrorHandlerUseCase,
     override val retryStorage: RetryStorage,
     private val nav: NavigationManager,
     private val detailsNavigator: IDetailsNavigator,
     private val getAnimeDetails: GetAnimeDetailsUseCase,
     private val analytics: DetailsAnalytics,
-) : BaseViewModelNew<ViewingOrderState.State, ViewingOrderState.Event, ViewingOrderState.Effect>(savedStateHandle) {
+) : BaseViewModelNew<ViewingOrderState.State, ViewingOrderState.Event, ViewingOrderState.Effect>() {
 
     @AssistedFactory
     interface Factory {

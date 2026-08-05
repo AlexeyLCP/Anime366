@@ -1,6 +1,5 @@
 package su.afk.yummy.tv.feature.top
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.cachedIn
@@ -22,7 +21,6 @@ import javax.inject.Inject
 
 @HiltViewModel
 class TopViewModel @Inject internal constructor(
-    savedStateHandle: SavedStateHandle,
     override val errorHandler: IErrorHandlerUseCase,
     override val retryStorage: RetryStorage,
     private val nav: NavigationManager,
@@ -30,7 +28,7 @@ class TopViewModel @Inject internal constructor(
     private val getAnimeTop: GetAnimeTopUseCase,
     settingsStore: SettingsStore,
     private val analytics: TopAnalytics,
-) : BaseViewModelNew<TopState.State, TopState.Event, TopState.Effect>(savedStateHandle) {
+) : BaseViewModelNew<TopState.State, TopState.Event, TopState.Effect>() {
 
     override fun createInitialState() = TopState.State(items = createPagingFlow(AnimeTopType.TV))
 

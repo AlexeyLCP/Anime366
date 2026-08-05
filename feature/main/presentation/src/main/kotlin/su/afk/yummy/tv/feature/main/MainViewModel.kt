@@ -1,6 +1,5 @@
 package su.afk.yummy.tv.feature.main
 
-import androidx.lifecycle.SavedStateHandle
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -40,7 +39,6 @@ import kotlin.time.Duration.Companion.seconds
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle,
     override val errorHandler: IErrorHandlerUseCase,
     override val retryStorage: RetryStorage,
     private val analyticsTracker: AnalyticsTracker,
@@ -56,7 +54,7 @@ class MainViewModel @Inject constructor(
     private val accountMutationErrorNotifier: AccountMutationErrorNotifier,
     private val stringProvider: StringProvider,
     @param:Named("appVersionName") private val versionName: String,
-) : BaseViewModelNew<MainState.State, MainState.Event, MainState.Effect>(savedStateHandle) {
+) : BaseViewModelNew<MainState.State, MainState.Event, MainState.Effect>() {
 
     override fun createInitialState() = MainState.State()
 

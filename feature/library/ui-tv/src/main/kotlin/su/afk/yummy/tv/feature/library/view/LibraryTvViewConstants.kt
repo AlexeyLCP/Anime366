@@ -1,5 +1,5 @@
 package su.afk.yummy.tv.feature.library.view
 
-import androidx.compose.ui.graphics.Color
+import su.afk.yummy.tv.core.designsystem.presenter.theme.YummySemanticColors
 
-internal val InProgressColor = Color(0xFF4CAF50)
+internal val InProgressColor = YummySemanticColors.InProgress

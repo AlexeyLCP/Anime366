@@ -1,6 +1,5 @@
 package su.afk.yummy.tv.feature.reviews.details
 
-import androidx.lifecycle.SavedStateHandle
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -27,7 +26,6 @@ import su.afk.yummy.tv.feature.reviews.presentation.R
 @HiltViewModel(assistedFactory = ReviewDetailsViewModel.Factory::class)
 class ReviewDetailsViewModel @AssistedInject constructor(
     @Assisted private val reviewId: Int,
-    savedStateHandle: SavedStateHandle,
     override val errorHandler: IErrorHandlerUseCase,
     override val retryStorage: RetryStorage,
     private val nav: NavigationManager,
@@ -39,9 +37,7 @@ class ReviewDetailsViewModel @AssistedInject constructor(
     private val deleteReview: DeleteReviewUseCase,
     private val strings: StringProvider,
     settingsStore: SettingsStore,
-) : BaseViewModelNew<ReviewDetailsState.State, ReviewDetailsState.Event, ReviewDetailsState.Effect>(
-    savedStateHandle
-) {
+) : BaseViewModelNew<ReviewDetailsState.State, ReviewDetailsState.Event, ReviewDetailsState.Effect>() {
     @AssistedFactory
     interface Factory {
         fun create(reviewId: Int): ReviewDetailsViewModel

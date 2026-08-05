@@ -18,11 +18,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import su.afk.yummy.tv.core.designsystem.presenter.theme.YummySemanticColors
 import su.afk.yummy.tv.domain.account.model.UserProfileCounts
 import su.afk.yummy.tv.feature.account.mobile.R
 import su.afk.yummy.tv.feature.account.mobile.account.model.AccountMobileProfileCounterItem
@@ -36,32 +36,32 @@ internal fun AccountMobileProfileListCounters(
         AccountMobileProfileCounterItem(
             stringResource(R.string.account_profile_list_watching),
             counts.watching,
-            Color(0xFFFF6B6B)
+            YummySemanticColors.StatusWatching
         ),
         AccountMobileProfileCounterItem(
             stringResource(R.string.account_profile_list_planned),
             counts.planned,
-            Color(0xFFA678E8)
+            YummySemanticColors.StatusPlanned
         ),
         AccountMobileProfileCounterItem(
             stringResource(R.string.account_profile_list_completed),
             counts.completed,
-            Color(0xFF69D38B)
+            YummySemanticColors.StatusCompleted
         ),
         AccountMobileProfileCounterItem(
             stringResource(R.string.account_profile_list_dropped),
             counts.dropped,
-            Color(0xFF9CA3AF)
+            YummySemanticColors.StatusDropped
         ),
         AccountMobileProfileCounterItem(
             stringResource(R.string.account_profile_list_postponed),
             counts.postponed,
-            Color(0xFFFFC857)
+            YummySemanticColors.StatusPostponed
         ),
         AccountMobileProfileCounterItem(
             stringResource(R.string.account_profile_list_favorite),
             counts.favorite,
-            Color(0xFFD86BFF)
+            YummySemanticColors.StatusFavorite
         ),
     )
     FlowRow(

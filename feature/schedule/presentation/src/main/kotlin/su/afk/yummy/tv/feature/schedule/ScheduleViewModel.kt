@@ -1,6 +1,5 @@
 package su.afk.yummy.tv.feature.schedule
 
-import androidx.lifecycle.SavedStateHandle
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.launch
@@ -16,16 +15,13 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ScheduleViewModel @Inject internal constructor(
-    savedStateHandle: SavedStateHandle,
     override val errorHandler: IErrorHandlerUseCase,
     override val retryStorage: RetryStorage,
     private val getSchedule: GetAnimeScheduleUseCase,
     private val nav: NavigationManager,
     private val detailsNavigator: IDetailsNavigator,
     private val analytics: ScheduleAnalytics,
-) : BaseViewModelNew<ScheduleState.State, ScheduleState.Event, ScheduleState.Effect>(
-    savedStateHandle
-) {
+) : BaseViewModelNew<ScheduleState.State, ScheduleState.Event, ScheduleState.Effect>() {
 
     override fun createInitialState() = ScheduleState.State()
 

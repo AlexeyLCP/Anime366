@@ -1,6 +1,5 @@
 package su.afk.yummy.tv.feature.account.account
 
-import androidx.lifecycle.SavedStateHandle
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
@@ -32,7 +31,6 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AccountViewModel @Inject internal constructor(
-    savedStateHandle: SavedStateHandle,
     override val errorHandler: IErrorHandlerUseCase,
     override val retryStorage: RetryStorage,
     private val nav: NavigationManager,
@@ -47,7 +45,7 @@ class AccountViewModel @Inject internal constructor(
     private val notificationHandler: AccountNotificationHandler,
     private val notificationMutationHandler: AccountNotificationMutationHandler,
     private val analytics: AccountAnalytics,
-) : BaseViewModelNew<AccountState.State, AccountState.Event, AccountState.Effect>(savedStateHandle) {
+) : BaseViewModelNew<AccountState.State, AccountState.Event, AccountState.Effect>() {
 
     override fun createInitialState() = AccountState.State()
 

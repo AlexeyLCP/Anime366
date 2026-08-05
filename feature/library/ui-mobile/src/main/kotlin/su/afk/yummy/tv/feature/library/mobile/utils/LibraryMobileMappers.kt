@@ -8,6 +8,7 @@ import su.afk.yummy.tv.domain.library.model.LibraryItem
 import su.afk.yummy.tv.domain.library.model.LibraryPoster
 import su.afk.yummy.tv.feature.library.LibraryState
 import su.afk.yummy.tv.feature.library.LibraryTab
+import su.afk.yummy.tv.feature.library.utils.semanticColorOrNull
 
 internal val libraryMobileTabs: List<LibraryTab>
     get() = LibraryTab.visibleEntries
@@ -48,13 +49,8 @@ internal fun HomePoster?.posterUrl(): String? =
     this?.mega ?: this?.fullsize ?: this?.big ?: this?.medium ?: this?.small
 
 @Composable
-internal fun LibraryTab.mobileTabColor(): Color = when (this) {
+internal fun LibraryTab.tabColor(): Color = when (this) {
     LibraryTab.CONTINUE_WATCHING -> MaterialTheme.colorScheme.primary
     LibraryTab.HISTORY -> MaterialTheme.colorScheme.tertiary
-    LibraryTab.WATCHING -> Color(0xFFFF6B6B)
-    LibraryTab.PLANNED -> Color(0xFFA678E8)
-    LibraryTab.COMPLETED -> Color(0xFF69D38B)
-    LibraryTab.POSTPONED -> Color(0xFFFFC857)
-    LibraryTab.DROPPED -> Color(0xFF9CA3AF)
-    LibraryTab.FAVORITES -> Color(0xFFD86BFF)
+    else -> requireNotNull(semanticColorOrNull())
 }

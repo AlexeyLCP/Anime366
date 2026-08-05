@@ -17,12 +17,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import su.afk.yummy.tv.core.designsystem.presenter.theme.YummySemanticColors
 import java.util.Locale
 
 fun Double.toRatingColor(): Color = when {
-    this < 6.0 -> Color(0xFFE53935)
-    this < 8.0 -> Color(0xFFFFC857)
-    else -> Color(0xFF69F0AE)
+    this < 6.0 -> YummySemanticColors.RatingBadgeLow
+    this < 8.0 -> YummySemanticColors.StatusPostponed
+    else -> YummySemanticColors.RatingBadgeHigh
 }
 
 @Composable

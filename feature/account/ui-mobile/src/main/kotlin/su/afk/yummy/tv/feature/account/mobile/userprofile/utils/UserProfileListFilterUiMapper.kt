@@ -3,6 +3,7 @@ package su.afk.yummy.tv.feature.account.mobile.userprofile.utils
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import su.afk.yummy.tv.core.designsystem.presenter.theme.YummySemanticColors
 import su.afk.yummy.tv.domain.account.model.UserProfileCounts
 import su.afk.yummy.tv.feature.account.mobile.R
 import su.afk.yummy.tv.feature.account.mobile.userprofile.model.UserProfileListFilterUi
@@ -41,10 +42,10 @@ private fun UserProfileState.ListFilter.count(counts: UserProfileCounts?): Int? 
     }
 
 private fun UserProfileState.ListFilter.color(): Color = when (this) {
-    UserProfileState.ListFilter.WATCHING -> Color(0xFFFF6B6B)
-    UserProfileState.ListFilter.PLANNED -> Color(0xFFA678E8)
-    UserProfileState.ListFilter.COMPLETED -> Color(0xFF69D38B)
-    UserProfileState.ListFilter.DROPPED -> Color(0xFF9CA3AF)
-    UserProfileState.ListFilter.POSTPONED -> Color(0xFFFFC857)
-    UserProfileState.ListFilter.FAVORITES -> Color(0xFFD86BFF)
+    UserProfileState.ListFilter.WATCHING -> YummySemanticColors.StatusWatching
+    UserProfileState.ListFilter.PLANNED -> YummySemanticColors.StatusPlanned
+    UserProfileState.ListFilter.COMPLETED -> YummySemanticColors.StatusCompleted
+    UserProfileState.ListFilter.DROPPED -> YummySemanticColors.StatusDropped
+    UserProfileState.ListFilter.POSTPONED -> YummySemanticColors.StatusPostponed
+    UserProfileState.ListFilter.FAVORITES -> YummySemanticColors.StatusFavorite
 }

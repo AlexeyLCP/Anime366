@@ -1,6 +1,5 @@
 package su.afk.yummy.tv.feature.pages
 
-import androidx.lifecycle.SavedStateHandle
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.BaseViewModelNew
@@ -13,14 +12,11 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SitePagesViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle,
     override val errorHandler: IErrorHandlerUseCase,
     override val retryStorage: RetryStorage,
     private val nav: NavigationManager,
     private val getSitePage: GetSitePageUseCase,
-) : BaseViewModelNew<SitePagesState.State, SitePagesState.Event, SitePagesState.Effect>(
-    savedStateHandle
-) {
+) : BaseViewModelNew<SitePagesState.State, SitePagesState.Event, SitePagesState.Effect>() {
     override fun createInitialState() = SitePagesState.State()
 
     override fun onEvent(event: SitePagesState.Event) {

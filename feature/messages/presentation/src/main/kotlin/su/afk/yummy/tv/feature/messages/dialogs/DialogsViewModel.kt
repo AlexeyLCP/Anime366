@@ -1,6 +1,5 @@
 package su.afk.yummy.tv.feature.messages.dialogs
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.paging.insertHeaderItem
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.drop
@@ -26,7 +25,6 @@ private const val DIALOGS_PAGE_SIZE = 20
 
 @HiltViewModel
 class DialogsViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle,
     override val errorHandler: IErrorHandlerUseCase,
     override val retryStorage: RetryStorage,
     private val nav: NavigationManager,
@@ -35,7 +33,7 @@ class DialogsViewModel @Inject constructor(
     private val observeAccountSession: ObserveAccountSessionUseCase,
     private val getDialogs: GetDialogsUseCase,
     mutationNotifier: MessagesMutationNotifier,
-) : BaseViewModelNew<DialogsState.State, DialogsState.Event, DialogsState.Effect>(savedStateHandle) {
+) : BaseViewModelNew<DialogsState.State, DialogsState.Event, DialogsState.Effect>() {
     private var pagedSource: PagedSource<DialogSummary>? = null
 
     override fun createInitialState() = DialogsState.State()

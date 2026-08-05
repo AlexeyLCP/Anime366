@@ -25,8 +25,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import su.afk.yummy.tv.feature.library.LibraryTab
 import su.afk.yummy.tv.feature.library.mobile.utils.libraryMobileTabs
-import su.afk.yummy.tv.feature.library.mobile.utils.mobileTabColor
 import su.afk.yummy.tv.feature.library.mobile.utils.mobileTitle
+import su.afk.yummy.tv.feature.library.mobile.utils.tabColor
 
 @Composable
 internal fun LibraryMobileTabs(
@@ -56,7 +56,7 @@ internal fun LibraryMobileTabs(
                 LibraryMobileTabChip(
                     title = tab.mobileTitle(),
                     count = tabCounts[tab] ?: 0,
-                    color = tab.mobileTabColor(),
+                    color = tab.tabColor(),
                     selected = tab == selectedTab,
                     onClick = { onSelected(tab) },
                 )

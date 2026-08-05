@@ -1,6 +1,5 @@
 package su.afk.yummy.tv.feature.details.details
 
-import androidx.lifecycle.SavedStateHandle
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -46,7 +45,6 @@ import su.afk.yummy.tv.feature.reviews.IReviewsNavigator
 @HiltViewModel(assistedFactory = DetailsViewModel.Factory::class)
 class DetailsViewModel @AssistedInject internal constructor(
     @Assisted private val animeId: Int,
-    savedStateHandle: SavedStateHandle,
     override val errorHandler: IErrorHandlerUseCase,
     override val retryStorage: RetryStorage,
     private val nav: NavigationManager,
@@ -61,7 +59,7 @@ class DetailsViewModel @AssistedInject internal constructor(
     private val subscriptionHandler: DetailsSubscriptionHandler,
     private val playerNavigationHandler: DetailsPlayerNavigationHandler,
     private val analytics: DetailsAnalytics,
-) : BaseViewModelNew<DetailsState.State, DetailsState.Event, DetailsState.Effect>(savedStateHandle) {
+) : BaseViewModelNew<DetailsState.State, DetailsState.Event, DetailsState.Effect>() {
 
     @AssistedFactory
     interface Factory {

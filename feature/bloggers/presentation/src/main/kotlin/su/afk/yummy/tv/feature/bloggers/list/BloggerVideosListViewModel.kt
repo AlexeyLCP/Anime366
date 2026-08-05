@@ -1,6 +1,5 @@
 package su.afk.yummy.tv.feature.bloggers.list
 
-import androidx.lifecycle.SavedStateHandle
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -24,7 +23,6 @@ private const val ALL_CATEGORY_ID = "all"
 
 @HiltViewModel(assistedFactory = BloggerVideosListViewModel.Factory::class)
 class BloggerVideosListViewModel @AssistedInject constructor(
-    savedStateHandle: SavedStateHandle,
     override val errorHandler: IErrorHandlerUseCase,
     override val retryStorage: RetryStorage,
     private val nav: NavigationManager,
@@ -33,9 +31,7 @@ class BloggerVideosListViewModel @AssistedInject constructor(
     private val getDirectory: GetBloggersDirectoryUseCase,
     private val bloggerNavigator: IBloggerVideosNavigator,
     @Assisted private val animeId: Int?,
-) : BaseViewModelNew<BloggerVideosListState.State, BloggerVideosListState.Event, BloggerVideosListState.Effect>(
-    savedStateHandle
-) {
+) : BaseViewModelNew<BloggerVideosListState.State, BloggerVideosListState.Event, BloggerVideosListState.Effect>() {
     override fun createInitialState() = BloggerVideosListState.State(
         animeId = animeId,
         videos = createFlow(ALL_CATEGORY_ID, bloggerId = null, sort = BloggerVideoSort.NEW),

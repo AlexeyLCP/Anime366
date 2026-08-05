@@ -1,6 +1,5 @@
 package su.afk.yummy.tv.feature.collection.catalog
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.cachedIn
@@ -29,7 +28,6 @@ private const val COLLECTIONS_PAGE_SIZE = 20
 
 @HiltViewModel
 class CollectionsCatalogViewModel @Inject internal constructor(
-    savedStateHandle: SavedStateHandle,
     override val errorHandler: IErrorHandlerUseCase,
     override val retryStorage: RetryStorage,
     private val nav: NavigationManager,
@@ -39,9 +37,7 @@ class CollectionsCatalogViewModel @Inject internal constructor(
     private val createCollection: CreateCollectionUseCase,
     private val getAccountSession: GetAccountSessionUseCase,
     private val stringProvider: StringProvider,
-) : BaseViewModelNew<CollectionsCatalogState.State, CollectionsCatalogState.Event, CollectionsCatalogState.Effect>(
-    savedStateHandle
-) {
+) : BaseViewModelNew<CollectionsCatalogState.State, CollectionsCatalogState.Event, CollectionsCatalogState.Effect>() {
 
     override fun createInitialState() =
         CollectionsCatalogState.State(items = createPagingFlow())

@@ -1,5 +1,5 @@
 package su.afk.yummy.tv.feature.schedule.view
 
-import androidx.compose.ui.graphics.Color
+import su.afk.yummy.tv.core.designsystem.presenter.theme.YummySemanticColors
 
-internal val AiredColor = Color(0xFF4CAF50)
+internal val AiredColor = YummySemanticColors.InProgress

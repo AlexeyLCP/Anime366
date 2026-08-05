@@ -3,6 +3,7 @@ package su.afk.yummy.tv.feature.account.mobile.account.utils
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import su.afk.yummy.tv.core.designsystem.presenter.theme.YummySemanticColors
 import su.afk.yummy.tv.domain.account.model.UserListWatchStat
 import su.afk.yummy.tv.domain.account.model.UserProfileCounts
 import su.afk.yummy.tv.domain.account.model.UserProfileSex
@@ -167,12 +168,12 @@ private fun UserWatchTypeStat.profileShortName(movieLabel: String): String =
 
 private fun UserListWatchStat.listProfileColor(index: Int): Color =
     when (id) {
-        0 -> Color(0xFFFF6B6B)
-        1 -> Color(0xFFA678E8)
-        2 -> Color(0xFF69D38B)
-        3 -> Color(0xFF9CA3AF)
-        4 -> Color(0xFFFFC857)
-        5 -> Color(0xFFD86BFF)
+        0 -> YummySemanticColors.StatusWatching
+        1 -> YummySemanticColors.StatusPlanned
+        2 -> YummySemanticColors.StatusCompleted
+        3 -> YummySemanticColors.StatusDropped
+        4 -> YummySemanticColors.StatusPostponed
+        5 -> YummySemanticColors.StatusFavorite
         else -> fallbackProfileColors[index % fallbackProfileColors.size]
     }
 

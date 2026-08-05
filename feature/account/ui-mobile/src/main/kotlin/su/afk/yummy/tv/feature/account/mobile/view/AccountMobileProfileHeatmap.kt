@@ -9,8 +9,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import su.afk.yummy.tv.core.designsystem.presenter.theme.YummySemanticColors
 import su.afk.yummy.tv.domain.account.model.UserWatchHistoryDay
 import kotlin.math.ceil
 import kotlin.math.min
@@ -23,7 +23,7 @@ internal fun AccountMobileProfileHeatmap(
 ) {
     val days = history.takeLast(maxDays)
     val maxDuration = days.maxOfOrNull { it.durationSeconds }?.coerceAtLeast(1L) ?: 1L
-    val activeColor = Color(0xFFFF6B6B)
+    val activeColor = YummySemanticColors.Dislike
     val emptyColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.09f)
 
     Canvas(

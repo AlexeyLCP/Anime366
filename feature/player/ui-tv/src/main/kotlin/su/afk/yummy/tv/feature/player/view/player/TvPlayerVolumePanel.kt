@@ -39,6 +39,7 @@ import androidx.compose.ui.input.key.type
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import su.afk.yummy.tv.core.designsystem.presenter.theme.YummySemanticColors
 import su.afk.yummy.tv.feature.player.common.PlayerVolumeController
 import su.afk.yummy.tv.feature.player.presentation.R
 
@@ -76,7 +77,7 @@ internal fun TvPlayerVolumePanel(
             modifier = Modifier
                 .width(336.dp)
                 .clip(shape)
-                .background(Color(0xE6121214))
+                .background(YummySemanticColors.PanelScrim)
                 .border(2.dp, border, shape)
                 .focusRequester(focusRequester)
                 .focusProperties { canFocus = true }

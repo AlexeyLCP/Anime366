@@ -1,6 +1,5 @@
 package su.afk.yummy.tv.feature.commonscreen.imageView
 
-import androidx.lifecycle.SavedStateHandle
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -14,20 +13,16 @@ import su.afk.yummy.tv.feature.commonscreen.navigator.CommonScreenDestination
 
 internal class ImageViewViewModel @AssistedInject constructor(
     @Assisted private val dest: CommonScreenDestination.ImageViewDest,
-    @Assisted savedStateHandle: SavedStateHandle,
     override val errorHandler: IErrorHandlerUseCase,
     override val retryStorage: RetryStorage,
     private val navManager: NavigationManager,
     private val analytics: CommonScreenAnalytics,
-) : BaseViewModelNew<ImageViewState.State, ImageViewState.Event, ImageViewState.Effect>(
-    savedStateHandle
-) {
+) : BaseViewModelNew<ImageViewState.State, ImageViewState.Event, ImageViewState.Effect>() {
 
     @AssistedFactory
     interface Factory {
         fun create(
             dest: CommonScreenDestination.ImageViewDest,
-            savedStateHandle: SavedStateHandle,
         ): ImageViewViewModel
     }
 

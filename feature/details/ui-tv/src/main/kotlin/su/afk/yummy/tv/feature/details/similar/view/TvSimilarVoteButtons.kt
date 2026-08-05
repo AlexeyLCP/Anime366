@@ -23,6 +23,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import su.afk.yummy.tv.core.designsystem.presenter.focus.tvFocusableClick
+import su.afk.yummy.tv.core.designsystem.presenter.theme.YummySemanticColors
 import su.afk.yummy.tv.core.model.anime.AnimeRecommendation
 import su.afk.yummy.tv.core.model.anime.AnimeRecommendationVote
 import su.afk.yummy.tv.feature.details.R
@@ -108,5 +109,5 @@ private fun VoteButton(
     }
 }
 
-private val LikeColor = Color(0xFF69F0AE)
-private val DislikeColor = Color(0xFFE53935)
+private val LikeColor = YummySemanticColors.RatingBadgeHigh
+private val DislikeColor = YummySemanticColors.RatingBadgeLow

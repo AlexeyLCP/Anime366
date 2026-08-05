@@ -1,6 +1,5 @@
 package su.afk.yummy.tv.feature.search
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
@@ -28,7 +27,6 @@ import kotlin.time.Duration.Companion.seconds
 
 @HiltViewModel
 class SearchViewModel @Inject internal constructor(
-    savedStateHandle: SavedStateHandle,
     override val errorHandler: IErrorHandlerUseCase,
     override val retryStorage: RetryStorage,
     private val nav: NavigationManager,
@@ -37,7 +35,7 @@ class SearchViewModel @Inject internal constructor(
     private val getRandomAnime: GetRandomAnimeUseCase,
     private val search: SearchUseCase,
     private val analytics: SearchAnalytics,
-) : BaseViewModelNew<SearchState.State, SearchState.Event, SearchState.Effect>(savedStateHandle) {
+) : BaseViewModelNew<SearchState.State, SearchState.Event, SearchState.Effect>() {
 
     override fun createInitialState() = SearchState.State()
 

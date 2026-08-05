@@ -32,13 +32,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
+import su.afk.yummy.tv.core.designsystem.presenter.theme.YummySemanticColors
 import su.afk.yummy.tv.domain.videodownload.model.VideoDownloadItem
 import su.afk.yummy.tv.domain.videodownload.model.VideoDownloadStatus
 import su.afk.yummy.tv.domain.videodownload.model.VideoExportStatus
@@ -52,7 +52,7 @@ import su.afk.yummy.tv.feature.videodownload.mobile.utils.isActive
 import su.afk.yummy.tv.feature.videodownload.mobile.utils.statusText
 import su.afk.yummy.tv.feature.videodownload.mobile.utils.visibleProgress
 
-private val DownloadActiveColor = Color(0xFF4CAF50)
+private val DownloadActiveColor = YummySemanticColors.InProgress
 
 @Composable
 internal fun VideoDownloadMobileCard(

@@ -9,7 +9,7 @@ import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiState
 import su.afk.yummy.tv.domain.bloggers.model.BloggerDetails
 import su.afk.yummy.tv.domain.bloggers.model.BloggerVideo
 
-object BloggerDetailsState {
+class BloggerDetailsState {
     @Immutable
     data class State(
         val blogger: BloggerDetails? = null,

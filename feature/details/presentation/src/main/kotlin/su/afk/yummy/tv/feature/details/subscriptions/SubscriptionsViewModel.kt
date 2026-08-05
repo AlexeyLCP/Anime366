@@ -1,6 +1,5 @@
 package su.afk.yummy.tv.feature.details.subscriptions
 
-import androidx.lifecycle.SavedStateHandle
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -20,15 +19,12 @@ import su.afk.yummy.tv.feature.details.utils.subscribedKeys
 @HiltViewModel(assistedFactory = SubscriptionsViewModel.Factory::class)
 class SubscriptionsViewModel @AssistedInject internal constructor(
     @Assisted private val animeId: Int,
-    savedStateHandle: SavedStateHandle,
     override val errorHandler: IErrorHandlerUseCase,
     override val retryStorage: RetryStorage,
     private val nav: NavigationManager,
     private val subscriptionHandler: DetailsSubscriptionHandler,
     private val analytics: DetailsAnalytics,
-) : BaseViewModelNew<SubscriptionsState.State, SubscriptionsState.Event, SubscriptionsState.Effect>(
-    savedStateHandle
-) {
+) : BaseViewModelNew<SubscriptionsState.State, SubscriptionsState.Event, SubscriptionsState.Effect>() {
 
     @AssistedFactory
     interface Factory {

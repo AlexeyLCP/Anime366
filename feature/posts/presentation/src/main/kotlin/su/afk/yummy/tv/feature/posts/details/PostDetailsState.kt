@@ -6,7 +6,7 @@ import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiState
 import su.afk.yummy.tv.domain.posts.model.PostDetails
 import su.afk.yummy.tv.domain.posts.model.PostVote
 
-object PostDetailsState {
+class PostDetailsState {
     data class State(
         val loading: Boolean = true,
         val details: PostDetails? = null,

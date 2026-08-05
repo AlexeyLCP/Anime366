@@ -1,6 +1,5 @@
 package su.afk.yummy.tv.feature.bloggers.details
 
-import androidx.lifecycle.SavedStateHandle
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -27,7 +26,6 @@ import su.afk.yummy.tv.feature.bloggers.presentation.R
 @HiltViewModel(assistedFactory = BloggerDetailsViewModel.Factory::class)
 class BloggerDetailsViewModel @AssistedInject constructor(
     @Assisted private val bloggerId: Int,
-    savedStateHandle: SavedStateHandle,
     override val errorHandler: IErrorHandlerUseCase,
     override val retryStorage: RetryStorage,
     private val nav: NavigationManager,
@@ -37,9 +35,7 @@ class BloggerDetailsViewModel @AssistedInject constructor(
     private val setSubscribed: SetBloggerSubscribedUseCase,
     private val strings: StringProvider,
     settingsStore: SettingsStore,
-) : BaseViewModelNew<BloggerDetailsState.State, BloggerDetailsState.Event, BloggerDetailsState.Effect>(
-    savedStateHandle
-) {
+) : BaseViewModelNew<BloggerDetailsState.State, BloggerDetailsState.Event, BloggerDetailsState.Effect>() {
     override fun createInitialState() = BloggerDetailsState.State()
 
     init {

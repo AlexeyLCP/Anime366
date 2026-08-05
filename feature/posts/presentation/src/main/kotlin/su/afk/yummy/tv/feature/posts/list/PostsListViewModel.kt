@@ -1,6 +1,5 @@
 package su.afk.yummy.tv.feature.posts.list
 
-import androidx.lifecycle.SavedStateHandle
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.launch
@@ -17,16 +16,13 @@ import javax.inject.Inject
 
 @HiltViewModel
 class PostsListViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle,
     override val errorHandler: IErrorHandlerUseCase,
     override val retryStorage: RetryStorage,
     private val nav: NavigationManager,
     private val navigator: IPostsNavigator,
     private val getPostCategories: GetPostCategoriesUseCase,
     private val getPosts: GetPostsUseCase,
-) : BaseViewModelNew<PostsListState.State, PostsListState.Event, PostsListState.Effect>(
-    savedStateHandle
-) {
+) : BaseViewModelNew<PostsListState.State, PostsListState.Event, PostsListState.Effect>() {
     override fun createInitialState() = PostsListState.State(posts = createFlow(null, PostSort.NEW))
 
     init {

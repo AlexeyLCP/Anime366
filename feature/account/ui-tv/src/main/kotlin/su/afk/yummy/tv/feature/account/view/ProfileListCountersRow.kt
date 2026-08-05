@@ -40,6 +40,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import su.afk.yummy.tv.core.designsystem.presenter.theme.YummySemanticColors
 import su.afk.yummy.tv.domain.account.model.UserProfileCounts
 import su.afk.yummy.tv.feature.account.R
 import su.afk.yummy.tv.feature.account.account.model.ProfileCounterItem
@@ -55,32 +56,32 @@ internal fun ProfileListCountersRow(
         ProfileCounterItem(
             stringResource(R.string.account_profile_list_watching),
             counts.watching,
-            Color(0xFFFF6B6B)
+            YummySemanticColors.StatusWatching
         ),
         ProfileCounterItem(
             stringResource(R.string.account_profile_list_planned),
             counts.planned,
-            Color(0xFFA678E8)
+            YummySemanticColors.StatusPlanned
         ),
         ProfileCounterItem(
             stringResource(R.string.account_profile_list_completed),
             counts.completed,
-            Color(0xFF69D38B)
+            YummySemanticColors.StatusCompleted
         ),
         ProfileCounterItem(
             stringResource(R.string.account_profile_list_dropped),
             counts.dropped,
-            Color(0xFF9CA3AF)
+            YummySemanticColors.StatusDropped
         ),
         ProfileCounterItem(
             stringResource(R.string.account_profile_list_postponed),
             counts.postponed,
-            Color(0xFFFFC857)
+            YummySemanticColors.StatusPostponed
         ),
         ProfileCounterItem(
             stringResource(R.string.account_profile_list_favorite),
             counts.favorite,
-            Color(0xFFD86BFF)
+            YummySemanticColors.StatusFavorite
         ),
     )
     val internalFocusRequesters = remember(items.size) {

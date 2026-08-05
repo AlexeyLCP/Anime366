@@ -1,7 +1,6 @@
 package su.afk.yummy.tv.feature.player
 
 import android.util.Log
-import androidx.lifecycle.SavedStateHandle
 import androidx.navigation3.runtime.NavKey
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
@@ -46,7 +45,6 @@ import su.afk.yummy.tv.feature.player.utils.activeIframeUrl
 @HiltViewModel(assistedFactory = PlayerViewModel.Factory::class)
 class PlayerViewModel @AssistedInject internal constructor(
     @Assisted private val dest: PlayerDestination,
-    savedStateHandle: SavedStateHandle,
     override val errorHandler: IErrorHandlerUseCase,
     override val retryStorage: RetryStorage,
     private val nav: NavigationManager,
@@ -64,7 +62,7 @@ class PlayerViewModel @AssistedInject internal constructor(
     private val allohaRecovery: PlayerAllohaRecoveryHandler,
     private val playbackRetry: PlayerPlaybackRetryHandler,
     private val allohaSession: PlayerAllohaSessionHandler,
-) : BaseViewModelNew<PlayerState.State, PlayerState.Event, PlayerState.Effect>(savedStateHandle) {
+) : BaseViewModelNew<PlayerState.State, PlayerState.Event, PlayerState.Effect>() {
 
     @AssistedFactory
     interface Factory {

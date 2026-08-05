@@ -6,7 +6,7 @@ import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiState
 import su.afk.yummy.tv.domain.bloggers.model.BloggerVideo
 import su.afk.yummy.tv.domain.bloggers.model.BloggerVideoVote
 
-object BloggerVideoDetailsState {
+class BloggerVideoDetailsState {
     data class State(
         val video: BloggerVideo? = null,
         val currentUserId: Int = 0,

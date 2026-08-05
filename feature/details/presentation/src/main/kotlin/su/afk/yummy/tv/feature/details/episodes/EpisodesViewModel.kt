@@ -1,12 +1,9 @@
 package su.afk.yummy.tv.feature.details.episodes
 
-import androidx.lifecycle.SavedStateHandle
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.collections.immutable.ImmutableList
-import kotlinx.collections.immutable.ImmutableMap
 import kotlinx.collections.immutable.minus
 import kotlinx.collections.immutable.plus
 import kotlinx.collections.immutable.toImmutableList
@@ -25,8 +22,6 @@ import su.afk.yummy.tv.core.error.StringProvider
 import su.afk.yummy.tv.core.error.storage.RetryStorage
 import su.afk.yummy.tv.core.model.anime.AnimeVideo
 import su.afk.yummy.tv.core.model.anime.AnimeWatchProgress
-import su.afk.yummy.tv.core.model.anime.utils.episodeGroupKey
-import su.afk.yummy.tv.core.model.anime.utils.episodeNumberOrNull
 import su.afk.yummy.tv.core.navigation.NavigationManager
 import su.afk.yummy.tv.core.preferences.settings.PreferredPlayer
 import su.afk.yummy.tv.core.preferences.settings.SettingsStore
@@ -36,8 +31,6 @@ import su.afk.yummy.tv.domain.anime.usecase.GetAnimeEpisodeInfoUseCase
 import su.afk.yummy.tv.domain.anime.usecase.GetAnimeVideosUseCase
 import su.afk.yummy.tv.domain.anime.usecase.ObserveAnimeWatchProgressUseCase
 import su.afk.yummy.tv.domain.anime.usecase.RefreshAnimeVideosUseCase
-import su.afk.yummy.tv.domain.videodownload.model.VideoDownloadItem
-import su.afk.yummy.tv.domain.videodownload.model.VideoDownloadStatus
 import su.afk.yummy.tv.domain.videodownload.usecase.ObserveVideoDownloadStatusesUseCase
 import su.afk.yummy.tv.feature.details.DetailsAnalytics
 import su.afk.yummy.tv.feature.details.details.BalancerPickerState
@@ -49,6 +42,11 @@ import su.afk.yummy.tv.feature.details.episodes.dubbings.selectEpisodeDubbingLau
 import su.afk.yummy.tv.feature.details.episodes.handler.EpisodeDownloadEnqueueResult
 import su.afk.yummy.tv.feature.details.episodes.handler.EpisodeDownloadHandler
 import su.afk.yummy.tv.feature.details.episodes.handler.EpisodeDownloadPrepareResult
+import su.afk.yummy.tv.feature.details.episodes.utils.buildEpisodeGroups
+import su.afk.yummy.tv.feature.details.episodes.utils.isActive
+import su.afk.yummy.tv.feature.details.episodes.utils.resolveDownloadStatuses
+import su.afk.yummy.tv.feature.details.episodes.utils.toUiState
+import su.afk.yummy.tv.feature.details.episodes.utils.uiStatusKey
 import su.afk.yummy.tv.feature.details.model.DetailsWatchProgressIndex
 import su.afk.yummy.tv.feature.details.presentation.R
 import su.afk.yummy.tv.feature.player.isKodikPlayerUrl
@@ -57,7 +55,6 @@ import su.afk.yummy.tv.feature.videodownload.IVideoDownloadNavigator
 @HiltViewModel(assistedFactory = EpisodesViewModel.Factory::class)
 class EpisodesViewModel @AssistedInject internal constructor(
     @Assisted private val animeId: Int,
-    savedStateHandle: SavedStateHandle,
     override val errorHandler: IErrorHandlerUseCase,
     override val retryStorage: RetryStorage,
     private val nav: NavigationManager,
@@ -74,9 +71,7 @@ class EpisodesViewModel @AssistedInject internal constructor(
     private val observeVideoDownloadStatuses: ObserveVideoDownloadStatusesUseCase,
     private val stringProvider: StringProvider,
     private val analytics: DetailsAnalytics,
-) : BaseViewModelNew<EpisodesState.State, EpisodesState.Event, EpisodesState.Effect>(
-    savedStateHandle
-) {
+) : BaseViewModelNew<EpisodesState.State, EpisodesState.Event, EpisodesState.Effect>() {
 
     @AssistedFactory
     interface Factory {
@@ -316,16 +311,6 @@ class EpisodesViewModel @AssistedInject internal constructor(
         }
     }
 
-    private fun buildEpisodeGroups(videos: List<AnimeVideo>): ImmutableList<EpisodesState.EpisodeGroup> =
-        videos
-            .groupBy { it.episode.episodeGroupKey() }
-            .entries
-            .sortedBy { it.key.episodeNumberOrNull() ?: Double.MAX_VALUE }
-            .map { (episode, groupVideos) ->
-                EpisodesState.EpisodeGroup(episode, groupVideos.toImmutableList())
-            }
-            .toImmutableList()
-
     /** Озвучка с наибольшим числом просмотров среди kodik-источников. */
     private fun resolveBestDubbing(videos: List<AnimeVideo>): String {
         val source = videos.filter { it.iframeUrl.isKodikPlayerUrl() }.ifEmpty { videos }
@@ -333,27 +318,6 @@ class EpisodesViewModel @AssistedInject internal constructor(
             .maxByOrNull { (_, list) -> list.sumOf { it.views ?: 0 } }
             ?.key ?: source.firstOrNull()?.dubbing ?: ""
     }
-
-    /** Приоритет статуса загрузки серии: busy > paused > downloaded > failed. */
-    private fun resolveDownloadStatuses(
-        episodeGroups: List<EpisodesState.EpisodeGroup>,
-        downloadStatuses: Map<String, EpisodesState.EpisodeDownloadUiState>,
-    ): ImmutableMap<String, EpisodesState.EpisodeDownloadUiState?> =
-        episodeGroups.associate { group ->
-            val statuses = group.videos.mapNotNull { downloadStatuses[it.downloadStatusKey()] }
-            group.episode to (
-                    statuses.firstOrNull {
-                        it.status == EpisodesState.EpisodeDownloadUiStatus.Queued ||
-                                it.status == EpisodesState.EpisodeDownloadUiStatus.Downloading
-                    }
-                        ?: statuses.firstOrNull { it.status == EpisodesState.EpisodeDownloadUiStatus.Paused }
-                        ?: statuses.firstOrNull { it.status == EpisodesState.EpisodeDownloadUiStatus.Downloaded }
-                        ?: statuses.firstOrNull { it.status == EpisodesState.EpisodeDownloadUiStatus.Failed }
-                    )
-        }.toImmutableMap()
-
-    private fun AnimeVideo.downloadStatusKey(): String =
-        listOf(id.toString(), iframeUrl).joinToString("|")
 
     private fun updateMergedWatchProgress(
         serverVideos: List<AnimeVideo> = (currentState.videosState as? VideosUiState.Content)?.videos.orEmpty(),
@@ -545,38 +509,6 @@ class EpisodesViewModel @AssistedInject internal constructor(
             )
             withContext(Dispatchers.Main) { nav.navigate(destination) }
         }
-    }
-
-    private companion object {
-        val VideoDownloadItem.uiStatusKey: String
-            get() = listOf(videoId.toString(), iframeUrl).joinToString("|")
-
-        fun VideoDownloadItem.toUiState(): EpisodesState.EpisodeDownloadUiState =
-            EpisodesState.EpisodeDownloadUiState(
-                downloadId = id,
-                dubbing = dubbing.ifBlank { playerName },
-                playerName = playerName,
-                qualityLabel = qualityLabel,
-                bytesDownloaded = bytesDownloaded,
-                status = when (status) {
-                    VideoDownloadStatus.Queued,
-                    VideoDownloadStatus.Resolving -> EpisodesState.EpisodeDownloadUiStatus.Queued
-
-                    VideoDownloadStatus.Downloading,
-                    VideoDownloadStatus.Deleting -> EpisodesState.EpisodeDownloadUiStatus.Downloading
-
-                    VideoDownloadStatus.Paused -> EpisodesState.EpisodeDownloadUiStatus.Paused
-                    VideoDownloadStatus.Downloaded -> EpisodesState.EpisodeDownloadUiStatus.Downloaded
-                    VideoDownloadStatus.Failed -> EpisodesState.EpisodeDownloadUiStatus.Failed
-                    VideoDownloadStatus.Idle,
-                    VideoDownloadStatus.Deleted -> EpisodesState.EpisodeDownloadUiStatus.Failed
-                },
-                progress = progress.coerceIn(0f, 1f),
-                errorMessage = errorMessage?.takeIf { it.isNotBlank() },
-            )
-
-        val EpisodesState.EpisodeDownloadUiStatus.isActive: Boolean
-            get() = this != EpisodesState.EpisodeDownloadUiStatus.Failed
     }
 
 }

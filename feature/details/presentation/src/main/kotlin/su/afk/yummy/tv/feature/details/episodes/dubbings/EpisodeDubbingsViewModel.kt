@@ -1,6 +1,5 @@
 package su.afk.yummy.tv.feature.details.episodes.dubbings
 
-import androidx.lifecycle.SavedStateHandle
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -27,7 +26,6 @@ import su.afk.yummy.tv.feature.details.details.handler.DetailsPlayerNavigationHa
 class EpisodeDubbingsViewModel @AssistedInject internal constructor(
     @Assisted private val animeId: Int,
     @Assisted private val episode: String,
-    savedStateHandle: SavedStateHandle,
     override val errorHandler: IErrorHandlerUseCase,
     override val retryStorage: RetryStorage,
     private val nav: NavigationManager,
@@ -36,9 +34,7 @@ class EpisodeDubbingsViewModel @AssistedInject internal constructor(
     private val settingsStore: SettingsStore,
     private val playerNavigationHandler: DetailsPlayerNavigationHandler,
     private val analytics: DetailsAnalytics,
-) : BaseViewModelNew<EpisodeDubbingsState.State, EpisodeDubbingsState.Event, EpisodeDubbingsState.Effect>(
-    savedStateHandle
-) {
+) : BaseViewModelNew<EpisodeDubbingsState.State, EpisodeDubbingsState.Event, EpisodeDubbingsState.Effect>() {
 
     @AssistedFactory
     interface Factory {

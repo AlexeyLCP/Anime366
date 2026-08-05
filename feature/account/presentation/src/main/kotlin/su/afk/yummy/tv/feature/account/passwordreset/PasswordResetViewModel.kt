@@ -1,7 +1,6 @@
 package su.afk.yummy.tv.feature.account.passwordreset
 
 import android.util.Patterns
-import androidx.lifecycle.SavedStateHandle
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.BaseViewModelNew
@@ -14,14 +13,11 @@ import javax.inject.Inject
 
 @HiltViewModel
 class PasswordResetViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle,
     override val errorHandler: IErrorHandlerUseCase,
     override val retryStorage: RetryStorage,
     private val nav: NavigationManager,
     private val handler: PasswordResetHandler,
-) : BaseViewModelNew<PasswordResetState.State, PasswordResetState.Event, PasswordResetState.Effect>(
-    savedStateHandle
-) {
+) : BaseViewModelNew<PasswordResetState.State, PasswordResetState.Event, PasswordResetState.Effect>() {
     override fun createInitialState() = PasswordResetState.State()
 
     override fun onEvent(event: PasswordResetState.Event) {

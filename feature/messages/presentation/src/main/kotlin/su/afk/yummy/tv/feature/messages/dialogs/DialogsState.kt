@@ -8,7 +8,7 @@ import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiEvent
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiState
 import su.afk.yummy.tv.domain.messages.model.DialogSummary
 
-object DialogsState {
+class DialogsState {
     data class State(
         val isAuthResolved: Boolean = false,
         val isAuthorized: Boolean = false,

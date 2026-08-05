@@ -9,7 +9,7 @@ import su.afk.yummy.tv.core.preferences.settings.BackgroundStyle
 import su.afk.yummy.tv.core.preferences.settings.PosterCardSize
 import su.afk.yummy.tv.core.preferences.settings.PosterQuality
 
-object MainState {
+class MainState {
 
     data class State(
         val appTheme: AppTheme = AppTheme.WARM_AMBER,

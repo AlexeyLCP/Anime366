@@ -10,7 +10,7 @@ import su.afk.yummy.tv.domain.messages.model.ChatMessage
 import su.afk.yummy.tv.domain.messages.model.DialogSummary
 import su.afk.yummy.tv.domain.messages.model.MessageHistoryEntry
 
-object ChatState {
+class ChatState {
     @Immutable
     data class State(
         val userId: Int = 0,

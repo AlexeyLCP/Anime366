@@ -1,6 +1,5 @@
 package su.afk.yummy.tv.feature.details.rating
 
-import androidx.lifecycle.SavedStateHandle
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -27,7 +26,6 @@ import su.afk.yummy.tv.feature.details.presentation.R
 @HiltViewModel(assistedFactory = RatingViewModel.Factory::class)
 class RatingViewModel @AssistedInject internal constructor(
     @Assisted private val animeId: Int,
-    savedStateHandle: SavedStateHandle,
     override val errorHandler: IErrorHandlerUseCase,
     override val retryStorage: RetryStorage,
     private val nav: NavigationManager,
@@ -39,7 +37,7 @@ class RatingViewModel @AssistedInject internal constructor(
     private val settingsStore: SettingsStore,
     private val stringProvider: StringProvider,
     private val analytics: DetailsAnalytics,
-) : BaseViewModelNew<RatingState.State, RatingState.Event, RatingState.Effect>(savedStateHandle) {
+) : BaseViewModelNew<RatingState.State, RatingState.Event, RatingState.Effect>() {
 
     @AssistedFactory
     interface Factory {

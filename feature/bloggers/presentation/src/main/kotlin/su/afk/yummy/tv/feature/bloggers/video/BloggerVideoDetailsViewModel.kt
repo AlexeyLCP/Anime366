@@ -1,6 +1,5 @@
 package su.afk.yummy.tv.feature.bloggers.video
 
-import androidx.lifecycle.SavedStateHandle
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -28,7 +27,6 @@ import su.afk.yummy.tv.feature.comments.ICommentsNavigator
 @HiltViewModel(assistedFactory = BloggerVideoDetailsViewModel.Factory::class)
 class BloggerVideoDetailsViewModel @AssistedInject constructor(
     @Assisted private val videoId: Int,
-    savedStateHandle: SavedStateHandle,
     override val errorHandler: IErrorHandlerUseCase,
     override val retryStorage: RetryStorage,
     private val nav: NavigationManager,
@@ -38,9 +36,7 @@ class BloggerVideoDetailsViewModel @AssistedInject constructor(
     private val setVote: SetBloggerVideoVoteUseCase,
     private val strings: StringProvider,
     settingsStore: SettingsStore,
-) : BaseViewModelNew<BloggerVideoDetailsState.State, BloggerVideoDetailsState.Event, BloggerVideoDetailsState.Effect>(
-    savedStateHandle
-) {
+) : BaseViewModelNew<BloggerVideoDetailsState.State, BloggerVideoDetailsState.Event, BloggerVideoDetailsState.Effect>() {
     override fun createInitialState() = BloggerVideoDetailsState.State()
 
     private var confirmedReaction: BloggerVideoReaction? = null

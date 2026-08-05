@@ -14,7 +14,7 @@ import su.afk.yummy.tv.domain.bloggers.model.BloggerVideo
 import su.afk.yummy.tv.domain.bloggers.model.BloggerVideoCategory
 import su.afk.yummy.tv.domain.bloggers.model.BloggerVideoSort
 
-object BloggerVideosListState {
+class BloggerVideosListState {
     @Immutable
     data class State(
         val animeId: Int? = null,

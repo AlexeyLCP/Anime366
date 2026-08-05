@@ -19,7 +19,7 @@ import su.afk.yummy.tv.core.designsystem.presenter.dimensions.TvScreenPadding
 import su.afk.yummy.tv.feature.library.LibraryTab
 import su.afk.yummy.tv.feature.library.utils.label
 import su.afk.yummy.tv.feature.library.utils.libraryTabsDisplayOrder
-import su.afk.yummy.tv.feature.library.utils.tvTabColor
+import su.afk.yummy.tv.feature.library.utils.tabColor
 
 @Composable
 internal fun LibraryTopTabs(
@@ -64,7 +64,7 @@ internal fun LibraryTopTabs(
             LibraryTopTabItem(
                 label = tab.label(),
                 count = tabCounts[tab] ?: 0,
-                color = tab.tvTabColor(),
+                color = tab.tabColor(),
                 selected = selected,
                 onActivated = {
                     onTabSelected(tab)

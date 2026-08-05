@@ -45,6 +45,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import su.afk.yummy.tv.core.designsystem.presenter.theme.YummySemanticColors
 import su.afk.yummy.tv.core.preferences.settings.PlayerResizeMode
 import su.afk.yummy.tv.core.preferences.settings.PlayerZoomLevel
 import su.afk.yummy.tv.feature.player.presentation.R
@@ -94,7 +95,7 @@ internal fun TvPlayerResizeSettingsPanel(
             modifier = Modifier
                 .width(336.dp)
                 .clip(RoundedCornerShape(12.dp))
-                .background(Color(0xE6121214))
+                .background(YummySemanticColors.PanelScrim)
                 .border(1.dp, Color.White.copy(alpha = 0.12f), RoundedCornerShape(12.dp))
                 .heightIn(max = maxPanelHeight)
                 .padding(10.dp),

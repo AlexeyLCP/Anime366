@@ -39,6 +39,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import su.afk.yummy.tv.core.designsystem.presenter.theme.YummySemanticColors
 import su.afk.yummy.tv.feature.player.presentation.R
 import su.afk.yummy.tv.feature.player.view.player.TvControlButton
 
@@ -103,7 +104,7 @@ internal fun TvPlayerControlsTutorial(
             modifier = Modifier
                 .widthIn(max = 960.dp)
                 .clip(cardShape)
-                .background(Color(0xE6121214))
+                .background(YummySemanticColors.PanelScrim)
                 .border(1.dp, Color.White.copy(alpha = 0.10f), cardShape)
                 .padding(horizontal = 56.dp, vertical = 48.dp),
             verticalAlignment = Alignment.CenterVertically,

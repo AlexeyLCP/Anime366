@@ -1,6 +1,5 @@
 package su.afk.yummy.tv.feature.comments
 
-import androidx.lifecycle.SavedStateHandle
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -44,7 +43,6 @@ private const val COMMENTS_PAGE_SIZE = 20
 class CommentsViewModel @AssistedInject internal constructor(
     @Assisted private val targetType: CommentTargetType,
     @Assisted private val targetId: Int,
-    savedStateHandle: SavedStateHandle,
     override val errorHandler: IErrorHandlerUseCase,
     override val retryStorage: RetryStorage,
     private val nav: NavigationManager,
@@ -55,9 +53,7 @@ class CommentsViewModel @AssistedInject internal constructor(
     private val getCommentChildren: GetCommentChildrenUseCase,
     private val mutationHandler: CommentsMutationHandler,
     private val analytics: CommentsAnalytics,
-) : BaseViewModelNew<CommentsState.State, CommentsState.Event, CommentsState.Effect>(
-    savedStateHandle
-) {
+) : BaseViewModelNew<CommentsState.State, CommentsState.Event, CommentsState.Effect>() {
 
     @AssistedFactory
     interface Factory {

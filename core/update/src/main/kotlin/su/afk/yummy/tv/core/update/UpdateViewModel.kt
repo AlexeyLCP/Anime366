@@ -1,6 +1,5 @@
 package su.afk.yummy.tv.core.update
 
-import androidx.lifecycle.SavedStateHandle
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.BaseViewModelNew
@@ -14,14 +13,13 @@ import javax.inject.Inject
 
 @HiltViewModel
 class UpdateViewModel @Inject internal constructor(
-    savedStateHandle: SavedStateHandle,
     override val errorHandler: IErrorHandlerUseCase,
     override val retryStorage: RetryStorage,
     private val apkDownloader: ApkDownloader,
     private val apkInstaller: ApkInstaller,
     private val stringProvider: StringProvider,
     private val analytics: UpdateAnalytics,
-) : BaseViewModelNew<UpdateState.State, UpdateState.Event, UpdateState.Effect>(savedStateHandle) {
+) : BaseViewModelNew<UpdateState.State, UpdateState.Event, UpdateState.Effect>() {
 
     private var downloadedApk: File? = null
     private var updateVersion: String? = null

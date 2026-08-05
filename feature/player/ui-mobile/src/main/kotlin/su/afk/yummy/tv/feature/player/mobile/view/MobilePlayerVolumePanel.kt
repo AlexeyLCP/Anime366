@@ -21,6 +21,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import su.afk.yummy.tv.core.designsystem.presenter.theme.YummySemanticColors
 import su.afk.yummy.tv.feature.player.common.PlayerVolumeController
 import kotlin.math.roundToInt
 
@@ -42,7 +43,7 @@ internal fun MobilePlayerVolumePanel(
     Row(
         modifier = modifier
             .widthIn(max = 360.dp)
-            .background(Color(0xE6121214), RoundedCornerShape(14.dp))
+            .background(YummySemanticColors.PanelScrim, RoundedCornerShape(14.dp))
             .padding(horizontal = 16.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp),

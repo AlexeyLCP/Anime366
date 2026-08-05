@@ -4,7 +4,7 @@ import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiEffect
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiEvent
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiState
 
-object UpdateState {
+class UpdateState {
 
     data class State(
         val status: Status = Status.Idle,

@@ -1,12 +1,78 @@
 package su.afk.yummy.tv.feature.details.episodes.utils
 
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.ImmutableMap
+import kotlinx.collections.immutable.toImmutableList
+import kotlinx.collections.immutable.toImmutableMap
 import su.afk.yummy.tv.core.model.anime.AnimeVideo
+import su.afk.yummy.tv.core.model.anime.utils.episodeGroupKey
+import su.afk.yummy.tv.core.model.anime.utils.episodeNumberOrNull
+import su.afk.yummy.tv.domain.videodownload.model.VideoDownloadItem
+import su.afk.yummy.tv.domain.videodownload.model.VideoDownloadStatus
 import su.afk.yummy.tv.feature.details.episodes.EpisodesState
 
 internal fun AnimeVideo.toDownloadStatusKey(): String =
     listOf(id.toString(), iframeUrl).joinToString("|")
 
 internal fun AnimeVideo.toDownloadDubbingName(): String = dubbing.ifBlank { player }
+
+internal fun buildEpisodeGroups(videos: List<AnimeVideo>): ImmutableList<EpisodesState.EpisodeGroup> =
+    videos
+        .groupBy { it.episode.episodeGroupKey() }
+        .entries
+        .sortedBy { it.key.episodeNumberOrNull() ?: Double.MAX_VALUE }
+        .map { (episode, groupVideos) ->
+            EpisodesState.EpisodeGroup(episode, groupVideos.toImmutableList())
+        }
+        .toImmutableList()
+
+/** Приоритет статуса загрузки серии: busy > paused > downloaded > failed. */
+internal fun resolveDownloadStatuses(
+    episodeGroups: List<EpisodesState.EpisodeGroup>,
+    downloadStatuses: Map<String, EpisodesState.EpisodeDownloadUiState>,
+): ImmutableMap<String, EpisodesState.EpisodeDownloadUiState?> =
+    episodeGroups.associate { group ->
+        val statuses = group.videos.mapNotNull { downloadStatuses[it.toDownloadStatusKey()] }
+        group.episode to (
+                statuses.firstOrNull {
+                    it.status == EpisodesState.EpisodeDownloadUiStatus.Queued ||
+                            it.status == EpisodesState.EpisodeDownloadUiStatus.Downloading
+                }
+                    ?: statuses.firstOrNull { it.status == EpisodesState.EpisodeDownloadUiStatus.Paused }
+                    ?: statuses.firstOrNull { it.status == EpisodesState.EpisodeDownloadUiStatus.Downloaded }
+                    ?: statuses.firstOrNull { it.status == EpisodesState.EpisodeDownloadUiStatus.Failed }
+                )
+    }.toImmutableMap()
+
+internal val VideoDownloadItem.uiStatusKey: String
+    get() = listOf(videoId.toString(), iframeUrl).joinToString("|")
+
+internal fun VideoDownloadItem.toUiState(): EpisodesState.EpisodeDownloadUiState =
+    EpisodesState.EpisodeDownloadUiState(
+        downloadId = id,
+        dubbing = dubbing.ifBlank { playerName },
+        playerName = playerName,
+        qualityLabel = qualityLabel,
+        bytesDownloaded = bytesDownloaded,
+        status = when (status) {
+            VideoDownloadStatus.Queued,
+            VideoDownloadStatus.Resolving -> EpisodesState.EpisodeDownloadUiStatus.Queued
+
+            VideoDownloadStatus.Downloading,
+            VideoDownloadStatus.Deleting -> EpisodesState.EpisodeDownloadUiStatus.Downloading
+
+            VideoDownloadStatus.Paused -> EpisodesState.EpisodeDownloadUiStatus.Paused
+            VideoDownloadStatus.Downloaded -> EpisodesState.EpisodeDownloadUiStatus.Downloaded
+            VideoDownloadStatus.Failed -> EpisodesState.EpisodeDownloadUiStatus.Failed
+            VideoDownloadStatus.Idle,
+            VideoDownloadStatus.Deleted -> EpisodesState.EpisodeDownloadUiStatus.Failed
+        },
+        progress = progress.coerceIn(0f, 1f),
+        errorMessage = errorMessage?.takeIf { it.isNotBlank() },
+    )
+
+internal val EpisodesState.EpisodeDownloadUiStatus.isActive: Boolean
+    get() = this != EpisodesState.EpisodeDownloadUiStatus.Failed
 
 internal fun List<AnimeVideo>.aggregateDubbingDownloadStatus(
     statuses: Map<String, EpisodesState.EpisodeDownloadUiState>,

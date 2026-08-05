@@ -1,6 +1,5 @@
 package su.afk.yummy.tv.feature.details.collections
 
-import androidx.lifecycle.SavedStateHandle
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -19,16 +18,13 @@ import su.afk.yummy.tv.feature.details.DetailsAnalytics
 @HiltViewModel(assistedFactory = CollectionsViewModel.Factory::class)
 class CollectionsViewModel @AssistedInject internal constructor(
     @Assisted private val animeId: Int,
-    savedStateHandle: SavedStateHandle,
     override val errorHandler: IErrorHandlerUseCase,
     override val retryStorage: RetryStorage,
     private val nav: NavigationManager,
     private val collectionNavigator: ICollectionNavigator,
     private val getAnimeCollections: GetAnimeCollectionsUseCase,
     private val analytics: DetailsAnalytics,
-) : BaseViewModelNew<CollectionsState.State, CollectionsState.Event, CollectionsState.Effect>(
-    savedStateHandle
-) {
+) : BaseViewModelNew<CollectionsState.State, CollectionsState.Event, CollectionsState.Effect>() {
 
     @AssistedFactory
     interface Factory {

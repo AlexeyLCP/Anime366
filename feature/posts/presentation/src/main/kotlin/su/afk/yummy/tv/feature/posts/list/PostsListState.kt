@@ -13,7 +13,7 @@ import su.afk.yummy.tv.domain.posts.model.PostCategory
 import su.afk.yummy.tv.domain.posts.model.PostSort
 import su.afk.yummy.tv.domain.posts.model.PostSummary
 
-object PostsListState {
+class PostsListState {
     @Immutable
     data class State(
         val posts: Flow<PagingData<PostSummary>> = flowOf(PagingData.empty()),

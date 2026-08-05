@@ -1,6 +1,5 @@
 package su.afk.yummy.tv.feature.account.usersearch
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.paging.PagingData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
@@ -19,15 +18,12 @@ import kotlin.time.Duration.Companion.milliseconds
 
 @HiltViewModel
 class UserSearchViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle,
     override val errorHandler: IErrorHandlerUseCase,
     override val retryStorage: RetryStorage,
     private val nav: NavigationManager,
     private val accountNavigator: IAccountNavigator,
     private val searchUsers: SearchUsersUseCase,
-) : BaseViewModelNew<UserSearchState.State, UserSearchState.Event, UserSearchState.Effect>(
-    savedStateHandle
-) {
+) : BaseViewModelNew<UserSearchState.State, UserSearchState.Event, UserSearchState.Effect>() {
     override fun createInitialState() = UserSearchState.State()
 
     private var searchJob: Job? = null

@@ -1,6 +1,5 @@
 package su.afk.yummy.tv.feature.details.similar
 
-import androidx.lifecycle.SavedStateHandle
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -27,11 +26,11 @@ import su.afk.yummy.tv.feature.details.DetailsAnalytics
 import su.afk.yummy.tv.feature.details.IDetailsNavigator
 import su.afk.yummy.tv.feature.details.details.SimilarUiState
 import su.afk.yummy.tv.feature.details.presentation.R
+import su.afk.yummy.tv.feature.details.similar.utils.updateItem
 
 @HiltViewModel(assistedFactory = SimilarViewModel.Factory::class)
 class SimilarViewModel @AssistedInject internal constructor(
     @Assisted private val animeId: Int,
-    savedStateHandle: SavedStateHandle,
     override val errorHandler: IErrorHandlerUseCase,
     override val retryStorage: RetryStorage,
     private val nav: NavigationManager,
@@ -42,7 +41,7 @@ class SimilarViewModel @AssistedInject internal constructor(
     private val settingsStore: SettingsStore,
     private val stringProvider: StringProvider,
     private val analytics: DetailsAnalytics,
-) : BaseViewModelNew<SimilarState.State, SimilarState.Event, SimilarState.Effect>(savedStateHandle) {
+) : BaseViewModelNew<SimilarState.State, SimilarState.Event, SimilarState.Effect>() {
 
     @AssistedFactory
     interface Factory {
@@ -224,14 +223,5 @@ class SimilarViewModel @AssistedInject internal constructor(
 
     private fun SimilarState.State.contentItems(): List<AnimeRecommendation> =
         (similarState as? SimilarUiState.Content)?.items.orEmpty()
-
-    private fun SimilarUiState.updateItem(item: AnimeRecommendation): SimilarUiState =
-        if (this is SimilarUiState.Content) {
-            copy(items = items.map { current ->
-                if (current.animeId == item.animeId) item else current
-            }.toImmutableList())
-        } else {
-            this
-        }
 
 }

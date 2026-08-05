@@ -1,6 +1,5 @@
 package su.afk.yummy.tv.feature.settings
 
-import androidx.lifecycle.SavedStateHandle
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.launchIn
@@ -23,7 +22,6 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SettingsViewModel @Inject internal constructor(
-    savedStateHandle: SavedStateHandle,
     override val errorHandler: IErrorHandlerUseCase,
     override val retryStorage: RetryStorage,
     private val settingsStore: SettingsStore,
@@ -34,9 +32,7 @@ class SettingsViewModel @Inject internal constructor(
     private val observeVideoExportDestination: ObserveVideoExportDestinationUseCase,
     private val selectVideoExportDestination: SelectVideoExportDestinationUseCase,
     private val cacheStorageInspector: CacheStorageInspector,
-) : BaseViewModelNew<SettingsState.State, SettingsState.Event, SettingsState.Effect>(
-    savedStateHandle
-) {
+) : BaseViewModelNew<SettingsState.State, SettingsState.Event, SettingsState.Effect>() {
 
     override fun createInitialState() = SettingsState.State(
         interfaceMode = interfaceModePreferences.selectedMode ?: AppInterfaceMode.MOBILE,

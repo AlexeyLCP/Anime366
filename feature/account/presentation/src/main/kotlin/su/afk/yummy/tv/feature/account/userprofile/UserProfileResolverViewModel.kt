@@ -1,6 +1,5 @@
 package su.afk.yummy.tv.feature.account.userprofile
 
-import androidx.lifecycle.SavedStateHandle
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -16,15 +15,12 @@ import su.afk.yummy.tv.feature.account.IAccountNavigator
 @HiltViewModel(assistedFactory = UserProfileResolverViewModel.Factory::class)
 class UserProfileResolverViewModel @AssistedInject constructor(
     @Assisted private val nickname: String,
-    savedStateHandle: SavedStateHandle,
     override val errorHandler: IErrorHandlerUseCase,
     override val retryStorage: RetryStorage,
     private val nav: NavigationManager,
     private val accountNavigator: IAccountNavigator,
     private val getProfile: GetUserProfileByNicknameUseCase,
-) : BaseViewModelNew<UserProfileResolverState.State, UserProfileResolverState.Event, UserProfileResolverState.Effect>(
-    savedStateHandle
-) {
+) : BaseViewModelNew<UserProfileResolverState.State, UserProfileResolverState.Event, UserProfileResolverState.Effect>() {
     @AssistedFactory
     interface Factory {
         fun create(nickname: String): UserProfileResolverViewModel

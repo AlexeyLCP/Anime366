@@ -19,6 +19,13 @@ internal fun LibraryState.State.tvTabItemCount(tab: LibraryTab): Int = when (tab
 
 internal fun LibraryTab.focusStateKey(source: String): String = "${name}_$source"
 
+@Composable
+internal fun LibraryTab.tabColor(): Color = when (this) {
+    LibraryTab.CONTINUE_WATCHING -> MaterialTheme.colorScheme.primary
+    LibraryTab.HISTORY -> MaterialTheme.colorScheme.tertiary
+    else -> requireNotNull(semanticColorOrNull())
+}
+
 internal fun HomeContinueWatchingItem.continueWatchingFocusKey(): String =
     "$animeId:$videoId:$episode:$episodeUrl"
 
@@ -32,16 +39,4 @@ private fun LibraryPoster?.posterUrl(quality: PosterQuality): String? = when (qu
     PosterQuality.STANDARD -> this?.big ?: this?.medium ?: this?.fullsize ?: this?.small
     PosterQuality.MEGA -> this?.mega ?: this?.big ?: this?.medium ?: this?.fullsize ?: this?.small
     PosterQuality.HIGH -> this?.fullsize ?: this?.mega ?: this?.big ?: this?.medium ?: this?.small
-}
-
-@Composable
-internal fun LibraryTab.tvTabColor(): Color = when (this) {
-    LibraryTab.CONTINUE_WATCHING -> MaterialTheme.colorScheme.primary
-    LibraryTab.HISTORY -> MaterialTheme.colorScheme.tertiary
-    LibraryTab.WATCHING -> Color(0xFFFF6B6B)
-    LibraryTab.PLANNED -> Color(0xFFA678E8)
-    LibraryTab.COMPLETED -> Color(0xFF69D38B)
-    LibraryTab.POSTPONED -> Color(0xFFFFC857)
-    LibraryTab.DROPPED -> Color(0xFF9CA3AF)
-    LibraryTab.FAVORITES -> Color(0xFFD86BFF)
 }

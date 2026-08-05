@@ -38,7 +38,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class LibraryViewModel @Inject internal constructor(
-    savedStateHandle: SavedStateHandle,
+    private val savedStateHandle: SavedStateHandle,
     override val errorHandler: IErrorHandlerUseCase,
     override val retryStorage: RetryStorage,
     private val observeLibraryItems: ObserveLibraryItemsUseCase,
@@ -57,7 +57,7 @@ class LibraryViewModel @Inject internal constructor(
     private val historyLaunchHandler: HistoryLaunchHandler,
     private val stringProvider: StringProvider,
     private val analytics: LibraryAnalytics,
-) : BaseViewModelNew<LibraryState.State, LibraryState.Event, LibraryState.Effect>(savedStateHandle) {
+) : BaseViewModelNew<LibraryState.State, LibraryState.Event, LibraryState.Effect>() {
 
     override fun createInitialState() = LibraryState.State(
         watchHistory = createWatchHistoryFlow(),
@@ -66,10 +66,6 @@ class LibraryViewModel @Inject internal constructor(
             ?.takeIf { it in LibraryTab.visibleEntries }
             ?: LibraryTab.CONTINUE_WATCHING
     )
-
-    override fun saveToSavedState(state: LibraryState.State) {
-        savedStateHandle[KEY_SELECTED_TAB] = state.selectedTab.name
-    }
 
     private companion object {
         const val KEY_SELECTED_TAB = "selectedTab"
@@ -150,6 +146,7 @@ class LibraryViewModel @Inject internal constructor(
                 ) {
                     analytics.eventTabSelected(event.tab)
                     setState { copy(selectedTab = event.tab) }
+                    savedStateHandle[KEY_SELECTED_TAB] = event.tab.name
                 }
             }
 

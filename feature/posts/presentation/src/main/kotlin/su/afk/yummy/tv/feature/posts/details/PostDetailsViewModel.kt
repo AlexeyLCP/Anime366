@@ -1,6 +1,5 @@
 package su.afk.yummy.tv.feature.posts.details
 
-import androidx.lifecycle.SavedStateHandle
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -27,7 +26,6 @@ import su.afk.yummy.tv.feature.posts.presentation.R
 @HiltViewModel(assistedFactory = PostDetailsViewModel.Factory::class)
 class PostDetailsViewModel @AssistedInject constructor(
     @Assisted private val postId: Int,
-    savedStateHandle: SavedStateHandle,
     override val errorHandler: IErrorHandlerUseCase,
     override val retryStorage: RetryStorage,
     private val nav: NavigationManager,
@@ -39,9 +37,7 @@ class PostDetailsViewModel @AssistedInject constructor(
     private val commentsNavigator: ICommentsNavigator,
     private val strings: StringProvider,
     settingsStore: SettingsStore,
-) : BaseViewModelNew<PostDetailsState.State, PostDetailsState.Event, PostDetailsState.Effect>(
-    savedStateHandle
-) {
+) : BaseViewModelNew<PostDetailsState.State, PostDetailsState.Event, PostDetailsState.Effect>() {
     @AssistedFactory
     interface Factory {
         fun create(postId: Int): PostDetailsViewModel

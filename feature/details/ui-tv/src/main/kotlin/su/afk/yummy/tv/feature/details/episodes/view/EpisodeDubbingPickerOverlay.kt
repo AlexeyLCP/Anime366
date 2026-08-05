@@ -51,6 +51,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import su.afk.yummy.tv.core.designsystem.presenter.theme.YummySemanticColors
 import su.afk.yummy.tv.feature.details.R
 import su.afk.yummy.tv.feature.details.episodes.EpisodesState
 import su.afk.yummy.tv.feature.details.utils.formatCompactCount
@@ -94,7 +95,7 @@ internal fun EpisodeDubbingPickerOverlay(
                 modifier = Modifier
                     .width(440.dp)
                     .clip(RoundedCornerShape(16.dp))
-                    .background(Color(0xF21B1B1F))
+                    .background(YummySemanticColors.OverlayScrim)
                     .border(1.dp, Color.White.copy(alpha = 0.10f), RoundedCornerShape(16.dp))
                     .focusGroup()
                     .onPreviewKeyEvent { event ->

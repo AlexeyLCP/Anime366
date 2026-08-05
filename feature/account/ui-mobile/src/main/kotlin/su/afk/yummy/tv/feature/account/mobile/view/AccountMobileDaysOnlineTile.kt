@@ -14,6 +14,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import su.afk.yummy.tv.core.designsystem.presenter.theme.YummySemanticColors
 import su.afk.yummy.tv.feature.account.mobile.R
 
 @Composable
@@ -28,7 +29,7 @@ internal fun AccountMobileDaysOnlineTile(daysOnline: Int) {
             text = daysOnline.coerceAtLeast(0).toString(),
             style = MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.ExtraBold,
-            color = androidx.compose.ui.graphics.Color(0xFFFF6B6B),
+            color = YummySemanticColors.Dislike,
         )
         Text(
             text = stringResource(R.string.account_profile_days_online),

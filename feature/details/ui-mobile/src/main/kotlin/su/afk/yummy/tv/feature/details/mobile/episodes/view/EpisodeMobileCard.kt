@@ -31,6 +31,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import su.afk.yummy.tv.core.designsystem.presenter.theme.YummySemanticColors
 import su.afk.yummy.tv.core.model.anime.AnimeVideo
 import su.afk.yummy.tv.core.utils.KodikThumbnail
 import su.afk.yummy.tv.feature.details.episodes.EpisodesState
@@ -42,8 +43,8 @@ import su.afk.yummy.tv.feature.details.mobile.episodes.utils.isPaused
 import su.afk.yummy.tv.feature.details.mobile.view.DetailsMediaCard
 import kotlin.math.roundToInt
 
-private val InProgressColor = Color(0xFF4CAF50)
-private val DownloadErrorColor = Color(0xFFE53935)
+private val InProgressColor = YummySemanticColors.InProgress
+private val DownloadErrorColor = YummySemanticColors.RatingBadgeLow
 private val DownloadResolvingColor = Color(0xFFFFC107)
 
 @Composable

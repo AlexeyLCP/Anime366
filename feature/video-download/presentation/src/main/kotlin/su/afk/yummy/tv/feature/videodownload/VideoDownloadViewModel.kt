@@ -1,6 +1,5 @@
 package su.afk.yummy.tv.feature.videodownload
 
-import androidx.lifecycle.SavedStateHandle
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.launchIn
@@ -28,7 +27,6 @@ import javax.inject.Inject
 
 @HiltViewModel
 class VideoDownloadViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle,
     override val errorHandler: IErrorHandlerUseCase,
     override val retryStorage: RetryStorage,
     private val nav: NavigationManager,
@@ -43,9 +41,7 @@ class VideoDownloadViewModel @Inject constructor(
     private val checkExportedFileExists: CheckExportedFileExistsUseCase,
     private val playerNavigator: IPlayerNavigator,
     private val detailsNavigator: IDetailsNavigator,
-) : BaseViewModelNew<VideoDownloadState.State, VideoDownloadState.Event, VideoDownloadState.Effect>(
-    savedStateHandle
-) {
+) : BaseViewModelNew<VideoDownloadState.State, VideoDownloadState.Event, VideoDownloadState.Effect>() {
     private var pendingExportIds: List<Long> = emptyList()
 
     init {

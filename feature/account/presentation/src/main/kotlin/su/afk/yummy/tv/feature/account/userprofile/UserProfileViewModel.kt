@@ -1,6 +1,5 @@
 package su.afk.yummy.tv.feature.account.userprofile
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.cachedIn
@@ -48,7 +47,6 @@ private const val USER_PROFILE_PAGE_SIZE = 20
 @HiltViewModel(assistedFactory = UserProfileViewModel.Factory::class)
 class UserProfileViewModel @AssistedInject internal constructor(
     @Assisted private val userId: Int,
-    savedStateHandle: SavedStateHandle,
     override val errorHandler: IErrorHandlerUseCase,
     override val retryStorage: RetryStorage,
     private val nav: NavigationManager,
@@ -73,9 +71,7 @@ class UserProfileViewModel @AssistedInject internal constructor(
     private val addFriend: AddFriendUseCase,
     private val removeFriend: RemoveFriendUseCase,
     private val analytics: UserProfileAnalytics,
-) : BaseViewModelNew<UserProfileState.State, UserProfileState.Event, UserProfileState.Effect>(
-    savedStateHandle
-) {
+) : BaseViewModelNew<UserProfileState.State, UserProfileState.Event, UserProfileState.Effect>() {
 
     @AssistedFactory
     interface Factory {

@@ -1,6 +1,5 @@
 package su.afk.yummy.tv.feature.commonscreen.errorScreen
 
-import androidx.lifecycle.SavedStateHandle
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -13,12 +12,11 @@ import su.afk.yummy.tv.feature.commonscreen.navigator.CommonScreenDestination
 
 internal class ErrorViewModel @AssistedInject constructor(
     @Assisted private val dest: CommonScreenDestination.ErrorNavigatorDest,
-    @Assisted savedStateHandle: SavedStateHandle,
     override val errorHandler: IErrorHandlerUseCase,
     override val retryStorage: RetryStorage,
     private val navManager: NavigationManager,
     private val analytics: CommonScreenAnalytics,
-) : BaseViewModelNew<ErrorScreenState.State, ErrorScreenState.Event, ErrorScreenState.Effect>(savedStateHandle) {
+) : BaseViewModelNew<ErrorScreenState.State, ErrorScreenState.Event, ErrorScreenState.Effect>() {
 
     override fun createInitialState(): ErrorScreenState.State = ErrorScreenState.State()
 
@@ -26,7 +24,6 @@ internal class ErrorViewModel @AssistedInject constructor(
     interface Factory {
         fun create(
             dest: CommonScreenDestination.ErrorNavigatorDest,
-            savedStateHandle: SavedStateHandle
         ): ErrorViewModel
     }
 

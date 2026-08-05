@@ -1,6 +1,5 @@
 package su.afk.yummy.tv.feature.account.profileedit
 
-import androidx.lifecycle.SavedStateHandle
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.toImmutableSet
 import kotlinx.coroutines.launch
@@ -11,21 +10,16 @@ import su.afk.yummy.tv.core.navigation.NavigationManager
 import su.afk.yummy.tv.domain.account.model.EditableProfile
 import su.afk.yummy.tv.domain.account.model.ProfileUpdate
 import su.afk.yummy.tv.feature.account.profileedit.handler.ProfileEditHandler
-import java.time.Instant
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
+import su.afk.yummy.tv.feature.account.profileedit.utils.toIsoDate
 import javax.inject.Inject
 
 @HiltViewModel
 class ProfileEditViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle,
     override val errorHandler: IErrorHandlerUseCase,
     override val retryStorage: RetryStorage,
     private val nav: NavigationManager,
     private val handler: ProfileEditHandler,
-) : BaseViewModelNew<ProfileEditState.State, ProfileEditState.Event, ProfileEditState.Effect>(
-    savedStateHandle
-) {
+) : BaseViewModelNew<ProfileEditState.State, ProfileEditState.Event, ProfileEditState.Effect>() {
     override fun createInitialState() = ProfileEditState.State()
 
     init {
@@ -225,7 +219,4 @@ class ProfileEditViewModel @Inject constructor(
         }
     }
 
-    private fun Long.toIsoDate(): String = if (this <= 0L) "" else
-        Instant.ofEpochSecond(this).atZone(ZoneId.systemDefault()).toLocalDate()
-            .format(DateTimeFormatter.ISO_LOCAL_DATE)
 }

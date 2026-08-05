@@ -18,6 +18,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import su.afk.yummy.tv.core.designsystem.presenter.theme.YummySemanticColors
 
 @Composable
 internal fun CollectionLikesBadge(
@@ -47,4 +48,4 @@ internal fun CollectionLikesBadge(
     }
 }
 
-private val collectionLikeGreen = Color(0xFF4CAF50)
+private val collectionLikeGreen = YummySemanticColors.InProgress

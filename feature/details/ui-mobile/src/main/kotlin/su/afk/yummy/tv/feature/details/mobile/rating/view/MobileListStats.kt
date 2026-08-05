@@ -22,7 +22,7 @@ import su.afk.yummy.tv.domain.account.model.AnimeListStats
 import su.afk.yummy.tv.domain.account.model.UserAnimeList
 import su.afk.yummy.tv.feature.details.mobile.R
 import su.afk.yummy.tv.feature.details.mobile.rating.utils.count
-import su.afk.yummy.tv.feature.details.mobile.rating.utils.statusColor
+import su.afk.yummy.tv.feature.details.utils.statusColor
 import java.text.NumberFormat
 
 @Composable

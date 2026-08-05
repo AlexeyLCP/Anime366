@@ -1,6 +1,5 @@
 package su.afk.yummy.tv.feature.home
 
-import androidx.lifecycle.SavedStateHandle
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.minus
 import kotlinx.collections.immutable.plus
@@ -52,7 +51,6 @@ import kotlin.time.Duration.Companion.milliseconds
 
 @HiltViewModel
 class HomeViewModel @Inject internal constructor(
-    savedStateHandle: SavedStateHandle,
     override val errorHandler: IErrorHandlerUseCase,
     override val retryStorage: RetryStorage,
     private val nav: NavigationManager,
@@ -74,7 +72,7 @@ class HomeViewModel @Inject internal constructor(
     private val featureToggleProvider: FeatureToggleProvider,
     private val featureToggleUpdateObserver: FeatureToggleUpdateObserver,
     private val analytics: HomeAnalytics,
-) : BaseViewModelNew<HomeState.State, HomeState.Event, HomeState.Effect>(savedStateHandle) {
+) : BaseViewModelNew<HomeState.State, HomeState.Event, HomeState.Effect>() {
 
     override fun createInitialState() = HomeState.State()
 

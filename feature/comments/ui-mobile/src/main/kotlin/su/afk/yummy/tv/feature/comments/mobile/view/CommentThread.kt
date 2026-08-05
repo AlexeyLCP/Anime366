@@ -12,9 +12,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import su.afk.yummy.tv.core.designsystem.presenter.theme.YummySemanticColors
 import su.afk.yummy.tv.domain.comments.model.CommentVote
 import su.afk.yummy.tv.feature.comments.CommentsState
 import su.afk.yummy.tv.feature.comments.mobile.R
@@ -105,5 +105,5 @@ internal fun CommentThread(
     }
 }
 
-internal val LikeColor = Color(0xFF69D38B)
-internal val DislikeColor = Color(0xFFFF6B6B)
+internal val LikeColor = YummySemanticColors.Like
+internal val DislikeColor = YummySemanticColors.Dislike

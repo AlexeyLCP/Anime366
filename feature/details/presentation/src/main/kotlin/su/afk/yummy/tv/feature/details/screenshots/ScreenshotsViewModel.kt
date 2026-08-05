@@ -1,6 +1,5 @@
 package su.afk.yummy.tv.feature.details.screenshots
 
-import androidx.lifecycle.SavedStateHandle
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -17,15 +16,12 @@ import su.afk.yummy.tv.feature.details.DetailsAnalytics
 @HiltViewModel(assistedFactory = ScreenshotsViewModel.Factory::class)
 class ScreenshotsViewModel @AssistedInject internal constructor(
     @Assisted private val animeId: Int,
-    savedStateHandle: SavedStateHandle,
     override val errorHandler: IErrorHandlerUseCase,
     override val retryStorage: RetryStorage,
     private val nav: NavigationManager,
     private val getAnimeDetails: GetAnimeDetailsUseCase,
     private val analytics: DetailsAnalytics,
-) : BaseViewModelNew<ScreenshotsState.State, ScreenshotsState.Event, ScreenshotsState.Effect>(
-    savedStateHandle
-) {
+) : BaseViewModelNew<ScreenshotsState.State, ScreenshotsState.Event, ScreenshotsState.Effect>() {
 
     @AssistedFactory
     interface Factory {

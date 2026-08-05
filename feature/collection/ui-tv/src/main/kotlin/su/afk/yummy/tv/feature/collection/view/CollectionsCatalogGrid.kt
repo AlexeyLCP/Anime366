@@ -42,6 +42,7 @@ import su.afk.yummy.tv.core.designsystem.presenter.dimensions.TvCardSpacing
 import su.afk.yummy.tv.core.designsystem.presenter.dimensions.TvScreenPadding
 import su.afk.yummy.tv.core.designsystem.presenter.dimensions.currentTvTitleCardDimensions
 import su.afk.yummy.tv.core.designsystem.presenter.locals.LocalMainMenuFocusRequester
+import su.afk.yummy.tv.core.designsystem.presenter.theme.YummySemanticColors
 import su.afk.yummy.tv.domain.collection.model.CollectionSummary
 import su.afk.yummy.tv.feature.collection.R
 
@@ -156,5 +157,5 @@ private fun CollectionCatalogLikesBadge(
     }
 }
 
-private val CollectionLikeGreen = Color(0xFF4CAF50)
+private val CollectionLikeGreen = YummySemanticColors.InProgress
 private val CollectionLikeBadgeBackground = Color.Black.copy(alpha = 0.62f)
