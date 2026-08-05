@@ -28,6 +28,7 @@ import su.afk.yummy.tv.domain.anime.usecase.SetAnimeRecommendationIgnoredUseCase
 import su.afk.yummy.tv.domain.bloggers.usecase.GetBloggerVideosUseCase
 import su.afk.yummy.tv.domain.home.model.HomeContinueWatchingItem
 import su.afk.yummy.tv.domain.home.model.HomeFeed
+import su.afk.yummy.tv.domain.home.model.HomeFeedSectionType
 import su.afk.yummy.tv.domain.home.usecase.GetCachedHomeFeedUseCase
 import su.afk.yummy.tv.domain.home.usecase.GetHomeFeedUseCase
 import su.afk.yummy.tv.domain.home.usecase.ObserveContinueWatchingUseCase
@@ -244,7 +245,8 @@ class HomeViewModel @Inject internal constructor(
         val hiddenIds = currentState.hiddenRecommendationIds
         setState {
             copy(
-                feed = feed.withoutHiddenRecommendations(hiddenIds).withoutScheduleSection()
+                feed = feed.withoutHiddenRecommendations(hiddenIds).withoutScheduleSection(),
+                hasSchedule = feed.sections.any { it.type == HomeFeedSectionType.SCHEDULE },
             )
         }
     }
@@ -479,6 +481,7 @@ class HomeViewModel @Inject internal constructor(
                 isLoading = isLoading,
                 feed = feed.withoutHiddenRecommendations(hiddenRecommendationIds)
                     .withoutScheduleSection(),
+                hasSchedule = feed.sections.any { it.type == HomeFeedSectionType.SCHEDULE },
             )
         }
     }
