@@ -43,6 +43,10 @@
     <string name="player_resize_zoom">Зум</string>
     <string name="player_resize_fit_meta">Показывать всё видео</string>
     <string name="player_resize_zoom_meta">Увеличить кадр</string>
+    <string name="player_resize_stretch">Растянуть</string>
+    <string name="player_resize_stretch_meta">Растянуть на весь экран без пропорций</string>
+    <string name="player_resize_crop">Заполнить экран</string>
+    <string name="player_resize_crop_meta">Обрезать чёрные полосы</string>
     <string name="player_zoom_level_title">Сила зума %</string>
     <string name="player_zoom_level_percent">%1$d</string>
     <string name="player_count_thousands">%1$sк</string>

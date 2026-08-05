@@ -24,10 +24,18 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import su.afk.yummy.tv.core.designsystem.presenter.baseScreen.BaseBottomSheetCustom
+import su.afk.yummy.tv.core.preferences.settings.PlayerResizeMode
 import su.afk.yummy.tv.feature.player.mobile.model.MobilePlayerSettingsMode
 import su.afk.yummy.tv.feature.player.mobile.model.MobilePlayerTrackSettingsTab
 import su.afk.yummy.tv.feature.player.mobile.R as UiR
 import su.afk.yummy.tv.feature.player.presentation.R as PresentationR
+
+private fun PlayerResizeMode.mobileResizeLabelRes(): Int = when (this) {
+    PlayerResizeMode.FIT -> PresentationR.string.player_resize_fit
+    PlayerResizeMode.ZOOM -> PresentationR.string.player_resize_zoom
+    PlayerResizeMode.STRETCH -> PresentationR.string.player_resize_stretch
+    PlayerResizeMode.CROP -> PresentationR.string.player_resize_crop
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -39,6 +47,9 @@ internal fun MobilePlayerSettingsSheet(
     speeds: List<Float>,
     selectedSpeed: Float,
     onSpeedSelected: (Float) -> Unit,
+    resizeModes: List<PlayerResizeMode>,
+    selectedResizeMode: PlayerResizeMode,
+    onResizeModeSelected: (PlayerResizeMode) -> Unit,
     dubbingNames: List<String>,
     dubbingEpisodeCounts: List<Int>,
     dubbingViews: List<Int>,
@@ -112,6 +123,17 @@ internal fun MobilePlayerSettingsSheet(
                                     onClick = { onSpeedSelected(speed) },
                                 )
                             }
+                        }
+                    }
+                }
+                item {
+                    MobilePlayerSettingsSection(title = stringResource(PresentationR.string.player_resize_title)) {
+                        resizeModes.forEach { resizeMode ->
+                            MobilePlayerSelectionRow(
+                                label = stringResource(resizeMode.mobileResizeLabelRes()),
+                                selected = resizeMode == selectedResizeMode,
+                                onClick = { onResizeModeSelected(resizeMode) },
+                            )
                         }
                     }
                 }

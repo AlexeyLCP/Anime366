@@ -51,12 +51,10 @@ private fun LibraryMobileScreenDefaultPreview() =
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 fun LibraryMobileScreen(
-
     state: LibraryState.State,
     effect: Flow<LibraryState.Effect>,
     onEvent: (LibraryState.Event) -> Unit,
-
-    ) {
+) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     val currentOnEvent by rememberUpdatedState(onEvent)

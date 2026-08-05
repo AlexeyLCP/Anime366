@@ -22,7 +22,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -32,6 +31,7 @@ import androidx.media3.common.util.UnstableApi
 import androidx.media3.ui.compose.ContentFrame
 import androidx.media3.ui.compose.SURFACE_TYPE_TEXTURE_VIEW
 import su.afk.yummy.tv.core.designsystem.presenter.locals.LocalResolveKodikThumbnailUrl
+import su.afk.yummy.tv.core.preferences.settings.PlayerResizeMode
 import su.afk.yummy.tv.core.utils.resolveContinueWatchingImage
 import su.afk.yummy.tv.feature.player.PlayerNextEpisodeSource
 import su.afk.yummy.tv.feature.player.PlayerState
@@ -53,6 +53,7 @@ import su.afk.yummy.tv.feature.player.common.service.rememberPlayerMediaControll
 import su.afk.yummy.tv.feature.player.common.service.rememberPlayerPlaybackConfig
 import su.afk.yummy.tv.feature.player.common.toastIcon
 import su.afk.yummy.tv.feature.player.common.utils.isVisible
+import su.afk.yummy.tv.feature.player.common.utils.playerContentScale
 import su.afk.yummy.tv.feature.player.common.utils.playerEndPromptFor
 import su.afk.yummy.tv.feature.player.common.view.PlayerEndPromptCountdownEffect
 import su.afk.yummy.tv.feature.player.mobile.model.MobilePlayerSettingsMode
@@ -439,7 +440,7 @@ internal fun MobileNativePlayer(
             ContentFrame(
                 player = player,
                 surfaceType = SURFACE_TYPE_TEXTURE_VIEW,
-                contentScale = ContentScale.Fit,
+                contentScale = playerContentScale(state.resizeMode, state.zoomLevel),
                 keepContentOnReset = state.isPlaybackRecovering,
                 modifier = Modifier
                     .fillMaxSize()
@@ -698,6 +699,9 @@ internal fun MobileNativePlayer(
                 speeds = listOf(0.5f, 0.75f, 1f, 1.25f, 1.5f, 1.75f, 2f),
                 selectedSpeed = selectedSpeed,
                 onSpeedSelected = { onEvent(PlayerState.Event.SpeedSelected(it)) },
+                resizeModes = PlayerResizeMode.entries,
+                selectedResizeMode = state.resizeMode,
+                onResizeModeSelected = { onEvent(PlayerState.Event.ResizeModeSelected(it)) },
                 dubbingNames = ui.dubbingNames,
                 dubbingEpisodeCounts = ui.dubbingEpisodeCounts,
                 dubbingViews = ui.dubbingViews,
