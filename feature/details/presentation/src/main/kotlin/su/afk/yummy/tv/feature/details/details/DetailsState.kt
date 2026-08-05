@@ -13,6 +13,7 @@ import su.afk.yummy.tv.core.model.anime.AnimeVideo
 import su.afk.yummy.tv.core.preferences.settings.DetailsButtonAction
 import su.afk.yummy.tv.core.preferences.settings.SettingsStore
 import su.afk.yummy.tv.domain.account.model.UserAnimeList
+import su.afk.yummy.tv.feature.details.episodes.dubbings.EpisodeDubbingsState
 import su.afk.yummy.tv.feature.details.model.DetailsWatchProgressIndex
 
 data class BalancerOption(
@@ -26,6 +27,18 @@ data class BalancerPickerState(
     val episodeNumber: String,
     val options: ImmutableList<BalancerOption>,
     val preferredPlayerUnavailable: Boolean = false,
+)
+
+data class DubbingOption(
+    val video: AnimeVideo,
+    val item: EpisodeDubbingsState.DubbingItem,
+)
+
+@Immutable
+data class DubbingPickerState(
+    val episode: String,
+    val options: ImmutableList<DubbingOption>,
+    val episodeTitle: String? = null,
 )
 
 data class SubscriptionOption(
@@ -51,6 +64,7 @@ class DetailsState {
         val showPosterFullscreen: Boolean = false,
         val watchProgress: DetailsWatchProgressIndex = DetailsWatchProgressIndex.Empty,
         val pendingBalancerSelection: BalancerPickerState? = null,
+        val pendingDubbingSelection: DubbingPickerState? = null,
         val showLibraryListPicker: Boolean = false,
         val isWatchLaunchPending: Boolean = false,
         val isSignedIn: Boolean = false,
@@ -129,6 +143,12 @@ class DetailsState {
 
         /** Пользователь подтвердил видео для запуска после выбора балансера. */
         data class BalancerConfirmed(val video: AnimeVideo) : Event
+
+        /** Пользователь выбрал озвучку в диалоге выбора озвучки. */
+        data class DubbingSelected(val video: AnimeVideo) : Event
+
+        /** Пользователь закрыл диалог выбора озвучки. */
+        data object DubbingPickerDismissed : Event
 
         /** Пользователь открыл отдельный экран подписок. */
         data object SubscriptionsRouteSelected : Event

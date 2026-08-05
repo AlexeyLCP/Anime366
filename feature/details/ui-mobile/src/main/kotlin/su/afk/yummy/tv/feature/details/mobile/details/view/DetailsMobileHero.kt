@@ -86,7 +86,7 @@ internal fun DetailsMobileHero(
             modifier = Modifier
                 .align(Alignment.TopStart)
                 .statusBarsPadding()
-                .padding(12.dp)
+                .padding(start = 12.dp)
                 .size(52.dp),
         ) {
             Icon(

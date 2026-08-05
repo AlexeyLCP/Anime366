@@ -35,6 +35,8 @@ import su.afk.yummy.tv.feature.details.details.handler.DetailsSubscriptionHandle
 import su.afk.yummy.tv.feature.details.details.handler.DetailsVideoHandler
 import su.afk.yummy.tv.feature.details.details.handler.DetailsVideosResult
 import su.afk.yummy.tv.feature.details.details.handler.DetailsWatchTarget
+import su.afk.yummy.tv.feature.details.episodes.dubbings.episodeDubbingItems
+import su.afk.yummy.tv.feature.details.episodes.dubbings.selectEpisodeDubbingLaunchVideo
 import su.afk.yummy.tv.feature.details.model.DetailsWatchProgressIndex
 import su.afk.yummy.tv.feature.details.presentation.R
 import su.afk.yummy.tv.feature.details.utils.subscribedKeys
@@ -160,6 +162,21 @@ class DetailsViewModel @AssistedInject internal constructor(
             }
 
             DetailsState.Event.BalancerPickerDismissed -> setState { copy(pendingBalancerSelection = null) }
+
+            is DetailsState.Event.DubbingSelected -> {
+                setState { copy(pendingDubbingSelection = null) }
+                val allVideos =
+                    (currentState.videosState as? VideosUiState.Content)?.videos.orEmpty()
+                showBalancerPicker(
+                    video = event.video,
+                    candidateVideos = allVideos.filter {
+                        it.episode == event.video.episode && it.dubbing.trim() == event.video.dubbing.trim()
+                    },
+                )
+            }
+
+            DetailsState.Event.DubbingPickerDismissed -> setState { copy(pendingDubbingSelection = null) }
+
             DetailsState.Event.FullDetailsSelected ->
                 nav.navigate(detailsNavigator.getFullDetailsDest(animeId))
 
@@ -491,12 +508,7 @@ class DetailsViewModel @AssistedInject internal constructor(
             is DetailsWatchTarget.Initial -> {
                 setState { copy(isWatchLaunchPending = false) }
                 if (askDubbingOnWatchState.value) {
-                    nav.navigate(
-                        detailsNavigator.getEpisodeDubbingsDest(
-                            animeId,
-                            target.video.episode
-                        )
-                    )
+                    showDubbingPicker(target.video)
                 } else {
                     showBalancerPicker(target.video)
                 }
@@ -573,8 +585,34 @@ class DetailsViewModel @AssistedInject internal constructor(
         }
     }
 
-    private fun showBalancerPicker(video: AnimeVideo) {
+    private fun showDubbingPicker(video: AnimeVideo) {
         val allVideos = (currentState.videosState as? VideosUiState.Content)?.videos ?: return
+        val episode = video.episode
+        val options = allVideos.episodeDubbingItems(episode).mapNotNull { item ->
+            allVideos.selectEpisodeDubbingLaunchVideo(
+                episode = episode,
+                dubbingName = item.name,
+                preferredPlayer = preferredPlayerState.value,
+            )?.let { DubbingOption(video = it, item = item) }
+        }
+        if (options.isEmpty()) {
+            showBalancerPicker(video)
+            return
+        }
+        setState {
+            copy(
+                pendingDubbingSelection = DubbingPickerState(
+                    episode = episode,
+                    options = options.toImmutableList(),
+                )
+            )
+        }
+    }
+
+    private fun showBalancerPicker(video: AnimeVideo, candidateVideos: List<AnimeVideo>? = null) {
+        val allVideos = candidateVideos
+            ?: (currentState.videosState as? VideosUiState.Content)?.videos
+            ?: return
         when (val selection = playerNavigationHandler.selectPlayer(
             video = video,
             allVideos = allVideos,

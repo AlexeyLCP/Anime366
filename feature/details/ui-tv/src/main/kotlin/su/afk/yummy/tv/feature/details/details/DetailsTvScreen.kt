@@ -46,6 +46,7 @@ import su.afk.yummy.tv.feature.details.details.view.LibraryListPickerOverlay
 import su.afk.yummy.tv.feature.details.details.view.SubscriptionsPickerOverlay
 import su.afk.yummy.tv.feature.details.view.common.BalancerPickerOverlay
 import su.afk.yummy.tv.feature.details.view.common.DetailsError
+import su.afk.yummy.tv.feature.details.view.common.DubbingPickerOverlay
 
 @Preview(
     name = "Default",
@@ -104,6 +105,11 @@ fun DetailsTvScreen(
 
     fun dismissLibraryListPicker() {
         onEvent(DetailsState.Event.LibraryListPickerDismissed)
+        restoreButtonFocus()
+    }
+
+    fun dismissDubbingPicker() {
+        onEvent(DetailsState.Event.DubbingPickerDismissed)
         restoreButtonFocus()
     }
 
@@ -208,6 +214,18 @@ fun DetailsTvScreen(
                 picker = balancerPicker,
                 onConfirmed = { option -> onEvent(DetailsState.Event.BalancerConfirmed(option.video)) },
                 onDismiss = ::dismissBalancerPicker,
+            )
+        }
+
+        val dubbingPicker = state.pendingDubbingSelection
+        BackHandler(enabled = dubbingPicker != null) {
+            dismissDubbingPicker()
+        }
+        if (dubbingPicker != null) {
+            DubbingPickerOverlay(
+                selection = dubbingPicker,
+                onSelected = { option -> onEvent(DetailsState.Event.DubbingSelected(option.video)) },
+                onDismiss = ::dismissDubbingPicker,
             )
         }
 
