@@ -1,5 +1,8 @@
 package su.afk.yummy.tv.feature.bloggers.details
 
+import androidx.compose.runtime.Immutable
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiEffect
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiEvent
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiState
@@ -7,9 +10,10 @@ import su.afk.yummy.tv.domain.bloggers.model.BloggerDetails
 import su.afk.yummy.tv.domain.bloggers.model.BloggerVideo
 
 object BloggerDetailsState {
+    @Immutable
     data class State(
         val blogger: BloggerDetails? = null,
-        val videos: List<BloggerVideo> = emptyList(),
+        val videos: ImmutableList<BloggerVideo> = persistentListOf(),
         val currentUserId: Int = 0,
         val loading: Boolean = true,
         val subscribing: Boolean = false,

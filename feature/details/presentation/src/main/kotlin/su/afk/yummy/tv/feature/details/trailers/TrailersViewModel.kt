@@ -5,6 +5,7 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.launch
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.BaseViewModelNew
 import su.afk.yummy.tv.core.error.IErrorHandlerUseCase
@@ -46,7 +47,9 @@ class TrailersViewModel @AssistedInject internal constructor(
     private suspend fun load() {
         setState { copy(isLoading = true, error = null) }
         runCatching { getAnimeTrailers(animeId) }.fold(
-            onSuccess = { trailers -> setState { copy(isLoading = false, trailers = trailers) } },
+            onSuccess = { trailers ->
+                setState { copy(isLoading = false, trailers = trailers.toImmutableList()) }
+            },
             onFailure = { setState { copy(isLoading = false, error = it.message) } },
         )
     }

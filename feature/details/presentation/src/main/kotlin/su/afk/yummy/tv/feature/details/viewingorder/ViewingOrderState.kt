@@ -1,15 +1,19 @@
 package su.afk.yummy.tv.feature.details.viewingorder
 
+import androidx.compose.runtime.Immutable
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiEffect
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiEvent
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiState
 import su.afk.yummy.tv.core.model.anime.AnimeViewingOrderItem
 
 class ViewingOrderState {
+    @Immutable
     data class State(
         val isLoading: Boolean = true,
         val currentAnimeId: Int = 0,
-        val items: List<AnimeViewingOrderItem> = emptyList(),
+        val items: ImmutableList<AnimeViewingOrderItem> = persistentListOf(),
         val error: String? = null,
     ) : UiState
 

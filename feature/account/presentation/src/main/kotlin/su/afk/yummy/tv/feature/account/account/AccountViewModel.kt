@@ -2,6 +2,8 @@ package su.afk.yummy.tv.feature.account.account
 
 import androidx.lifecycle.SavedStateHandle
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -62,8 +64,8 @@ class AccountViewModel @Inject internal constructor(
                             userId = 0,
                             profileSummary = null,
                             stats = null,
-                            notifications = emptyList(),
-                            notificationCounts = emptyList(),
+                            notifications = persistentListOf(),
+                            notificationCounts = persistentListOf(),
                             isNotificationOpening = false,
                             hubError = null,
                         )
@@ -159,8 +161,8 @@ class AccountViewModel @Inject internal constructor(
                             selectedTab = AccountState.AccountTab.STATS,
                             profileSummary = null,
                             stats = null,
-                            notifications = emptyList(),
-                            notificationCounts = emptyList(),
+                            notifications = persistentListOf(),
+                            notificationCounts = persistentListOf(),
                             isNotificationOpening = false,
                             isCaptchaRequired = false,
                             captchaChallengeId = captchaChallengeId + 1,
@@ -410,8 +412,8 @@ class AccountViewModel @Inject internal constructor(
             is AccountNotificationsLoadResult.Success -> {
                 setState {
                     copy(
-                        notifications = result.notifications,
-                        notificationCounts = result.counts,
+                        notifications = result.notifications.toImmutableList(),
+                        notificationCounts = result.counts.toImmutableList(),
                         isNotificationsLoading = false,
                     )
                 }

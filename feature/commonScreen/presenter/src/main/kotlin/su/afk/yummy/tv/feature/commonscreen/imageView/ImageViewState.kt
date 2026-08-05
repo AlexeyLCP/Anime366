@@ -1,13 +1,17 @@
 package su.afk.yummy.tv.feature.commonscreen.imageView
 
+import androidx.compose.runtime.Immutable
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiEffect
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiEvent
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiState
 
 internal class ImageViewState {
 
+    @Immutable
     data class State(
-        val images: List<String> = emptyList(),
+        val images: ImmutableList<String> = persistentListOf(),
         val selectedIndex: Int = 0,
     ) : UiState {
         val currentImage: String? get() = images.getOrNull(selectedIndex)

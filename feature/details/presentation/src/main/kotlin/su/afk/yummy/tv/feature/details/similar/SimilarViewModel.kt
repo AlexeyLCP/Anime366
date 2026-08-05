@@ -5,6 +5,9 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.collections.immutable.minus
+import kotlinx.collections.immutable.plus
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -93,7 +96,7 @@ class SimilarViewModel @AssistedInject internal constructor(
                         val nextState = if (items.isEmpty()) {
                             SimilarUiState.Empty
                         } else {
-                            SimilarUiState.Content(items)
+                            SimilarUiState.Content(items.toImmutableList())
                         }
                         copy(similarState = nextState)
                     } else {
@@ -226,7 +229,7 @@ class SimilarViewModel @AssistedInject internal constructor(
         if (this is SimilarUiState.Content) {
             copy(items = items.map { current ->
                 if (current.animeId == item.animeId) item else current
-            })
+            }.toImmutableList())
         } else {
             this
         }

@@ -1,6 +1,9 @@
 package su.afk.yummy.tv.feature.posts.list
 
+import androidx.compose.runtime.Immutable
 import androidx.paging.PagingData
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiEffect
@@ -11,9 +14,10 @@ import su.afk.yummy.tv.domain.posts.model.PostSort
 import su.afk.yummy.tv.domain.posts.model.PostSummary
 
 object PostsListState {
+    @Immutable
     data class State(
         val posts: Flow<PagingData<PostSummary>> = flowOf(PagingData.empty()),
-        val categories: List<PostCategory> = emptyList(),
+        val categories: ImmutableList<PostCategory> = persistentListOf(),
         val selectedCategory: String? = null,
         val sort: PostSort = PostSort.NEW,
         val categoriesLoading: Boolean = true,

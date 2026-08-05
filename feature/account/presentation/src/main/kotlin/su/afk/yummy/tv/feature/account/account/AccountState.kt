@@ -1,5 +1,9 @@
 package su.afk.yummy.tv.feature.account.account
 
+import androidx.compose.runtime.Immutable
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toImmutableList
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiEffect
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiEvent
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiState
@@ -12,6 +16,7 @@ import su.afk.yummy.tv.feature.account.account.model.AccountUiError
 const val YANI_HCAPTCHA_SITE_KEY = "b1847961-208e-4a90-9671-1e6bba9e0b36"
 
 class AccountState {
+    @Immutable
     data class State(
         val isSignedIn: Boolean = false,
         val userId: Int = 0,
@@ -23,8 +28,8 @@ class AccountState {
         val selectedTab: AccountTab = AccountTab.STATS,
         val profileSummary: UserProfileSummary? = null,
         val stats: UserStats? = null,
-        val notifications: List<ProfileNotification> = emptyList(),
-        val notificationCounts: List<NotificationCount> = emptyList(),
+        val notifications: ImmutableList<ProfileNotification> = persistentListOf(),
+        val notificationCounts: ImmutableList<NotificationCount> = persistentListOf(),
         val isNotificationOpening: Boolean = false,
         val isStatsLoading: Boolean = false,
         val isNotificationsLoading: Boolean = false,
@@ -35,8 +40,9 @@ class AccountState {
         val error: AccountUiError? = null,
         val hubError: AccountUiError? = null,
     ) : UiState {
-        val unreadNotificationCounts: List<NotificationCount>
+        val unreadNotificationCounts: ImmutableList<NotificationCount>
             get() = notificationCounts.filterNot { it.type.equals("message", ignoreCase = true) }
+                .toImmutableList()
 
         val unreadNotificationCount: Int
             get() = unreadNotificationCounts.sumOf { it.count }

@@ -5,6 +5,7 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -90,7 +91,7 @@ class EpisodeDubbingsViewModel @AssistedInject internal constructor(
             onSuccess = { videos ->
                 loadedVideos = videos
                 val dubbings = videos.episodeDubbingItems(episode)
-                setState { copy(isLoading = false, dubbings = dubbings) }
+                setState { copy(isLoading = false, dubbings = dubbings.toImmutableList()) }
             },
             onFailure = { e -> setState { copy(isLoading = false, error = e.message) } },
         )

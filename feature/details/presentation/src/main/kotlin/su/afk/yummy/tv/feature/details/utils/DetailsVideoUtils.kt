@@ -1,5 +1,6 @@
 package su.afk.yummy.tv.feature.details.utils
 
+import kotlinx.collections.immutable.toImmutableList
 import su.afk.yummy.tv.core.model.anime.AnimeVideo
 import su.afk.yummy.tv.feature.details.details.VideosUiState
 import su.afk.yummy.tv.feature.details.details.handler.DetailsVideosResult
@@ -10,7 +11,9 @@ internal fun List<AnimeVideo>.toDetailsVideosResult(
 ): DetailsVideosResult =
     DetailsVideosResult(
         videos = this,
-        videosState = if (isEmpty()) VideosUiState.Empty else VideosUiState.Content(this),
+        videosState = if (isEmpty()) VideosUiState.Empty else VideosUiState.Content(
+            this.toImmutableList()
+        ),
         subscriptions = toSubscriptionOptions(
             optimisticKeys = optimisticSubscriptionKeys,
             optimisticStates = optimisticSubscriptionStates,

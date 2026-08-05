@@ -1,5 +1,8 @@
 package su.afk.yummy.tv.feature.schedule
 
+import androidx.compose.runtime.Immutable
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiEffect
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiEvent
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiState
@@ -7,9 +10,10 @@ import su.afk.yummy.tv.domain.schedule.model.AnimeScheduleDay
 import su.afk.yummy.tv.feature.schedule.model.ScheduleTimelineUi
 
 class ScheduleState {
+    @Immutable
     data class State(
         val isLoading: Boolean = true,
-        val days: List<AnimeScheduleDay> = emptyList(),
+        val days: ImmutableList<AnimeScheduleDay> = persistentListOf(),
         val tvSchedule: ScheduleTimelineUi = ScheduleTimelineUi(),
         val error: String? = null,
     ) : UiState

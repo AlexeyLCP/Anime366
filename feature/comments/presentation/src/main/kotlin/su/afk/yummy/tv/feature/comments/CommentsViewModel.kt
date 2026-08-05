@@ -5,6 +5,11 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.persistentMapOf
+import kotlinx.collections.immutable.persistentSetOf
+import kotlinx.collections.immutable.plus
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -93,9 +98,9 @@ class CommentsViewModel @AssistedInject internal constructor(
                         copy(
                             sort = event.sort,
                             comments = createCommentsFlow(event.sort),
-                            prependedComments = emptyList(),
-                            commentOverlays = emptyMap(),
-                            deletedCommentIds = emptySet(),
+                            prependedComments = persistentListOf(),
+                            commentOverlays = persistentMapOf(),
+                            deletedCommentIds = persistentSetOf(),
                             error = null,
                             isModerator = false,
                         )
@@ -156,9 +161,9 @@ class CommentsViewModel @AssistedInject internal constructor(
         setState {
             copy(
                 comments = createCommentsFlow(sort, forceRefreshFirstPage = forceRefresh),
-                prependedComments = emptyList(),
-                commentOverlays = emptyMap(),
-                deletedCommentIds = emptySet(),
+                prependedComments = persistentListOf(),
+                commentOverlays = persistentMapOf(),
+                deletedCommentIds = persistentSetOf(),
                 error = null,
                 isModerator = false,
             )
@@ -232,7 +237,7 @@ class CommentsViewModel @AssistedInject internal constructor(
                             prependedComments = if (sort == CommentSort.OLD) {
                                 prependedComments
                             } else {
-                                listOf(CommentUi(created)) + prependedComments
+                                (listOf(CommentUi(created)) + prependedComments).toImmutableList()
                             },
                         )
                     }
@@ -324,7 +329,7 @@ class CommentsViewModel @AssistedInject internal constructor(
                                 deletedCommentIds = deletedCommentIds + comment.id,
                                 prependedComments = prependedComments.filterNot {
                                     it.comment.id == comment.id
-                                },
+                                }.toImmutableList(),
                             )
                         }
                     } else {
@@ -439,9 +444,9 @@ class CommentsViewModel @AssistedInject internal constructor(
                         val current = findCommentUi(commentId) ?: item
                         val updated = current.copy(
                             children = if (append) {
-                                current.children + page.comments.map { CommentUi(it) }
+                                (current.children + page.comments.map { CommentUi(it) }).toImmutableList()
                             } else {
-                                page.comments.map { CommentUi(it) }
+                                page.comments.map { CommentUi(it) }.toImmutableList()
                             },
                             childrenVisible = true,
                             childrenLoading = false,
@@ -511,7 +516,8 @@ class CommentsViewModel @AssistedInject internal constructor(
         return overlaid.copy(
             children = overlaid.children
                 .filterNot { it.comment.id in currentState.deletedCommentIds }
-                .map(::withCurrentOverlays),
+                .map(::withCurrentOverlays)
+                .toImmutableList(),
         )
     }
 

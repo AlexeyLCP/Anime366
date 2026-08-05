@@ -2,6 +2,7 @@ package su.afk.yummy.tv.feature.videodownload
 
 import androidx.lifecycle.SavedStateHandle
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -50,7 +51,7 @@ class VideoDownloadViewModel @Inject constructor(
     init {
         observeVideoDownloads()
             .onEach { items ->
-                setState { copy(items = items) }
+                setState { copy(items = items.toImmutableList()) }
             }
             .launchIn(viewModelScope)
         observeExportDestination()

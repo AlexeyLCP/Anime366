@@ -1,5 +1,6 @@
 package su.afk.yummy.tv.feature.details.episodes.handler
 
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CancellationException
 import su.afk.yummy.tv.core.error.StringProvider
 import su.afk.yummy.tv.core.model.anime.AnimeVideo
@@ -70,7 +71,7 @@ internal class EpisodeDownloadHandler @Inject constructor(
             )
             .map { (dubbing, group) ->
                 EpisodesState.EpisodeDownloadDubbingOption(
-                    videos = group,
+                    videos = group.toImmutableList(),
                     title = dubbing,
                     subtitle = group.map { it.player }
                         .distinct()
@@ -82,7 +83,7 @@ internal class EpisodeDownloadHandler @Inject constructor(
             }
         return EpisodesState.EpisodeDownloadDubbingSelection(
             episode = videos.firstOrNull()?.episode.orEmpty(),
-            options = options,
+            options = options.toImmutableList(),
             hasAlternativeDubbings = excludedDubbing != null,
         )
     }
@@ -119,7 +120,7 @@ internal class EpisodeDownloadHandler @Inject constructor(
         return EpisodesState.EpisodeDownloadBalancerSelection(
             episode = firstVideo?.episode.orEmpty(),
             dubbing = firstVideo?.dubbing?.ifBlank { firstVideo.player }.orEmpty(),
-            options = options,
+            options = options.toImmutableList(),
         )
     }
 
@@ -240,7 +241,7 @@ internal class EpisodeDownloadHandler @Inject constructor(
                         it.label,
                         it.url
                     )
-                },
+                }.toImmutableList(),
             ),
         )
     }

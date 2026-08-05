@@ -1,15 +1,19 @@
 package su.afk.yummy.tv.feature.details.screenshots
 
+import androidx.compose.runtime.Immutable
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiEffect
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiEvent
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiState
 import su.afk.yummy.tv.core.model.anime.AnimeScreenshot
 
 class ScreenshotsState {
+    @Immutable
     data class State(
         val isLoading: Boolean = true,
         val title: String = "",
-        val screenshots: List<AnimeScreenshot> = emptyList(),
+        val screenshots: ImmutableList<AnimeScreenshot> = persistentListOf(),
         val selectedIndex: Int? = null,
         val error: String? = null,
     ) : UiState

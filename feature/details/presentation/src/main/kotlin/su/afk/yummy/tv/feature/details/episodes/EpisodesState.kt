@@ -1,5 +1,12 @@
 package su.afk.yummy.tv.feature.details.episodes
 
+import androidx.compose.runtime.Immutable
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.ImmutableMap
+import kotlinx.collections.immutable.PersistentSet
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.persistentMapOf
+import kotlinx.collections.immutable.persistentSetOf
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiEffect
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiEvent
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiState
@@ -11,37 +18,40 @@ import su.afk.yummy.tv.feature.details.episodes.dubbings.EpisodeDubbingsState
 import su.afk.yummy.tv.feature.details.model.DetailsWatchProgressIndex
 
 class EpisodesState {
+    @Immutable
     data class State(
         val videosState: VideosUiState = VideosUiState.Loading,
         val watchProgress: DetailsWatchProgressIndex = DetailsWatchProgressIndex.Empty,
         val pendingBalancerSelection: BalancerPickerState? = null,
         val pendingEpisodeDubbingSelection: EpisodeDubbingSelection? = null,
-        val downloadStatuses: Map<String, EpisodeDownloadUiState> = emptyMap(),
-        val resolvingDownloadKeys: Set<String> = emptySet(),
+        val downloadStatuses: ImmutableMap<String, EpisodeDownloadUiState> = persistentMapOf(),
+        val resolvingDownloadKeys: PersistentSet<String> = persistentSetOf(),
         val pendingDownloadDubbingSelection: EpisodeDownloadDubbingSelection? = null,
         val pendingDownloadBalancerSelection: EpisodeDownloadBalancerSelection? = null,
         val pendingDownloadQualitySelection: EpisodeDownloadQualitySelection? = null,
         val pendingDownloadedEpisodeAction: DownloadedEpisodeAction? = null,
         /** Названия и описания серий из YummyTV API по номеру серии. */
-        val episodeInfo: Map<String, AnimeEpisodeInfo> = emptyMap(),
+        val episodeInfo: ImmutableMap<String, AnimeEpisodeInfo> = persistentMapOf(),
         /** Серии с раскрытым описанием (мобильная карточка). */
-        val expandedEpisodeDescriptions: Set<String> = emptySet(),
+        val expandedEpisodeDescriptions: PersistentSet<String> = persistentSetOf(),
         /** Видео, сгруппированные по серии и отсортированные по номеру. */
-        val episodeGroups: List<EpisodeGroup> = emptyList(),
+        val episodeGroups: ImmutableList<EpisodeGroup> = persistentListOf(),
         /** Озвучка с наибольшим числом просмотров среди kodik-источников. */
         val bestDubbing: String = "",
         /** Приоритетный статус загрузки на серию: busy > paused > downloaded > failed. */
-        val resolvedDownloadStatuses: Map<String, EpisodeDownloadUiState?> = emptyMap(),
+        val resolvedDownloadStatuses: ImmutableMap<String, EpisodeDownloadUiState?> = persistentMapOf(),
     ) : UiState
 
+    @Immutable
     data class EpisodeGroup(
         val episode: String,
-        val videos: List<AnimeVideo>,
+        val videos: ImmutableList<AnimeVideo>,
     )
 
+    @Immutable
     data class EpisodeDubbingSelection(
         val episode: String,
-        val options: List<EpisodeDubbingOption>,
+        val options: ImmutableList<EpisodeDubbingOption>,
         val episodeTitle: String? = null,
     )
 
@@ -50,12 +60,14 @@ class EpisodesState {
         val item: EpisodeDubbingsState.DubbingItem,
     )
 
+    @Immutable
     data class EpisodeDownloadDubbingSelection(
         val episode: String,
-        val options: List<EpisodeDownloadDubbingOption>,
+        val options: ImmutableList<EpisodeDownloadDubbingOption>,
         val hasAlternativeDubbings: Boolean = false,
     )
 
+    @Immutable
     data class DownloadedEpisodeAction(
         val downloadId: Long,
         val episode: String,
@@ -63,22 +75,24 @@ class EpisodesState {
         val playerName: String,
         val qualityLabel: String,
         val bytesDownloaded: Long,
-        val videos: List<AnimeVideo>,
+        val videos: ImmutableList<AnimeVideo>,
         val hasAlternativeDubbings: Boolean,
     )
 
+    @Immutable
     data class EpisodeDownloadDubbingOption(
-        val videos: List<AnimeVideo>,
+        val videos: ImmutableList<AnimeVideo>,
         val title: String,
         val subtitle: String?,
         val status: EpisodeDownloadUiState?,
         val resolving: Boolean,
     )
 
+    @Immutable
     data class EpisodeDownloadBalancerSelection(
         val episode: String,
         val dubbing: String,
-        val options: List<EpisodeDownloadBalancerOption>,
+        val options: ImmutableList<EpisodeDownloadBalancerOption>,
     )
 
     data class EpisodeDownloadBalancerOption(
@@ -89,10 +103,11 @@ class EpisodesState {
         val resolving: Boolean,
     )
 
+    @Immutable
     data class EpisodeDownloadQualitySelection(
         val videoId: Int,
         val episode: String,
-        val options: List<EpisodeDownloadQualityOption>,
+        val options: ImmutableList<EpisodeDownloadQualityOption>,
     )
 
     data class EpisodeDownloadQualityOption(

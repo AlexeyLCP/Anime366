@@ -1,5 +1,6 @@
 package su.afk.yummy.tv.feature.details.details
 
+import kotlinx.collections.immutable.toImmutableList
 import su.afk.yummy.tv.core.model.anime.AnimeVideo
 import su.afk.yummy.tv.core.preferences.settings.PreferredPlayer
 import su.afk.yummy.tv.feature.details.utils.matchesPreferredPlayer
@@ -65,7 +66,7 @@ internal fun resolveDetailsPlayerSelection(
         DetailsPlayerSelection.ShowPicker(
             BalancerPickerState(
                 episodeNumber = video.episode,
-                options = options,
+                options = options.toImmutableList(),
                 preferredPlayerUnavailable = preferredPlayer != PreferredPlayer.NONE,
             )
         )

@@ -4,6 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
+import kotlinx.collections.immutable.toImmutableList
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.BaseViewModelNew
 import su.afk.yummy.tv.core.error.IErrorHandlerUseCase
 import su.afk.yummy.tv.core.error.storage.RetryStorage
@@ -31,7 +32,7 @@ internal class ImageViewViewModel @AssistedInject constructor(
     }
 
     override fun createInitialState() = ImageViewState.State(
-        images = dest.imageUrls,
+        images = dest.imageUrls.toImmutableList(),
         selectedIndex = dest.selectedIndex.coerceIn(0, (dest.imageUrls.size - 1).coerceAtLeast(0)),
     )
 

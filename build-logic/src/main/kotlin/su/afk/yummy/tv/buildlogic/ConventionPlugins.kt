@@ -32,6 +32,7 @@ class AndroidLibraryComposeConventionPlugin : Plugin<Project> {
         configureComposeCompiler()
         dependencies.add("implementation", libs.findLibrary("compose-uiToolingPreview").get())
         dependencies.add("debugImplementation", libs.findLibrary("compose-uiTooling").get())
+        dependencies.add("api", libs.findLibrary("kotlinx-collections-immutable").get())
         Unit
     }
 }

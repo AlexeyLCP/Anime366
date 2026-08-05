@@ -1,6 +1,11 @@
 package su.afk.yummy.tv.feature.reviews.list
 
+import androidx.compose.runtime.Immutable
 import androidx.paging.PagingData
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.PersistentMap
+import kotlinx.collections.immutable.persistentMapOf
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiEffect
@@ -12,19 +17,20 @@ import su.afk.yummy.tv.domain.reviews.model.ReviewSort
 import su.afk.yummy.tv.domain.reviews.model.ReviewVote
 
 class ReviewsListState {
+    @Immutable
     data class State(
         val reviews: Flow<PagingData<AnimeReviewSummary>> = flowOf(PagingData.empty()),
         val sort: ReviewSort = ReviewSort.NEW,
         val currentUserId: Int = 0,
-        val reactionOverrides: Map<Int, ReviewReactions> = emptyMap(),
+        val reactionOverrides: PersistentMap<Int, ReviewReactions> = persistentMapOf(),
         val isGeneralFeed: Boolean = false,
     ) : UiState {
         val isSignedIn get() = currentUserId > 0
-        val availableSorts: List<ReviewSort>
+        val availableSorts: ImmutableList<ReviewSort>
             get() = if (isGeneralFeed) listOf(
                 ReviewSort.NEW,
                 ReviewSort.TOP
-            ) else ReviewSort.entries
+            ).toImmutableList() else ReviewSort.entries.toImmutableList()
     }
 
     sealed interface Event : UiEvent {

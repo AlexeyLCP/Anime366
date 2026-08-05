@@ -1,6 +1,10 @@
 package su.afk.yummy.tv.feature.settings
 
 import android.os.Build
+import androidx.compose.runtime.Immutable
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toImmutableList
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiEffect
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiEvent
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiState
@@ -24,6 +28,7 @@ enum class DetailsButtonMoveDirection {
 }
 
 class SettingsState {
+    @Immutable
     data class State(
         val interfaceMode: AppInterfaceMode = AppInterfaceMode.MOBILE,
         val appTheme: AppTheme = AppTheme.WARM_AMBER,
@@ -55,9 +60,10 @@ class SettingsState {
         val videoExportAutoEnabled: Boolean = false,
         val yaniApplicationToken: String = "",
         val contentLanguage: YaniContentLanguage = YaniContentLanguage.DEFAULT,
-        val detailsButtonOrder: List<DetailsButtonAction> = SettingsStore.defaultDetailsButtonOrder,
+        val detailsButtonOrder: ImmutableList<DetailsButtonAction> =
+            SettingsStore.defaultDetailsButtonOrder.toImmutableList(),
         val videoExportDirectoryName: String? = null,
-        val cacheStorageEntries: List<CacheStorageEntry> = emptyList(),
+        val cacheStorageEntries: ImmutableList<CacheStorageEntry> = persistentListOf(),
         val cacheStorageTotalBytes: Long = 0L,
         val isCacheStorageLoading: Boolean = false,
     ) : UiState

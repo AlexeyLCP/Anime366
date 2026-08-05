@@ -1,6 +1,11 @@
 package su.afk.yummy.tv.feature.library
 
+import androidx.compose.runtime.Immutable
 import androidx.paging.PagingData
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.ImmutableMap
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiEffect
@@ -34,10 +39,11 @@ enum class LibraryRemoveTarget {
 }
 
 class LibraryState {
+    @Immutable
     data class State(
-        val items: List<LibraryItem> = emptyList(),
-        val tabItems: Map<LibraryTab, List<LibraryItem>> = emptyMap(),
-        val continueWatching: List<HomeContinueWatchingItem> = emptyList(),
+        val items: ImmutableList<LibraryItem> = persistentListOf(),
+        val tabItems: ImmutableMap<LibraryTab, ImmutableList<LibraryItem>> = persistentMapOf(),
+        val continueWatching: ImmutableList<HomeContinueWatchingItem> = persistentListOf(),
         val watchHistory: Flow<PagingData<WatchHistoryEntry>> = flowOf(PagingData.empty()),
         val isSignedIn: Boolean = false,
         val isRemoteLoading: Boolean = false,

@@ -5,6 +5,8 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.launch
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.BaseViewModelNew
 import su.afk.yummy.tv.core.error.IErrorHandlerUseCase
@@ -63,12 +65,12 @@ class SubscriptionsViewModel @AssistedInject internal constructor(
             optimisticStates = subscriptionHandler.optimisticSubscriptionStates(animeId),
         )) {
             ScreenSubscriptionBaseResult.SignedOut -> {
-                setState { copy(isLoading = false, subscriptions = emptyList()) }
+                setState { copy(isLoading = false, subscriptions = persistentListOf()) }
             }
 
             is ScreenSubscriptionBaseResult.Content -> {
                 val base = result.base
-                setState { copy(subscriptions = base.subscriptions) }
+                setState { copy(subscriptions = base.subscriptions.toImmutableList()) }
                 subscriptionHandler.loadDetailsSubscriptions(
                     animeId = animeId,
                     details = base.details,
@@ -82,7 +84,7 @@ class SubscriptionsViewModel @AssistedInject internal constructor(
                             copy(
                                 isLoading = false,
                                 error = null,
-                                subscriptions = subscriptions,
+                                subscriptions = subscriptions.toImmutableList(),
                             )
                         }
                     },
@@ -91,7 +93,7 @@ class SubscriptionsViewModel @AssistedInject internal constructor(
                             copy(
                                 isLoading = false,
                                 error = null,
-                                subscriptions = base.subscriptions,
+                                subscriptions = base.subscriptions.toImmutableList(),
                             )
                         }
                     },
@@ -104,7 +106,7 @@ class SubscriptionsViewModel @AssistedInject internal constructor(
                     copy(
                         isLoading = false,
                         error = result.message,
-                        subscriptions = emptyList(),
+                        subscriptions = persistentListOf(),
                     )
                 }
             }
@@ -144,7 +146,7 @@ class SubscriptionsViewModel @AssistedInject internal constructor(
             copy(
                 subscriptions = subscriptions.map {
                     if (it.key == key) it.copy(isSubscribed = subscribed) else it
-                },
+                }.toImmutableList(),
             )
         }
     }

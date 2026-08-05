@@ -1,5 +1,8 @@
 package su.afk.yummy.tv.feature.videodownload
 
+import androidx.compose.runtime.Immutable
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiEffect
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiEvent
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiState
@@ -7,8 +10,9 @@ import su.afk.yummy.tv.domain.videodownload.model.VideoDownloadItem
 import su.afk.yummy.tv.domain.videodownload.model.VideoExportDestination
 
 class VideoDownloadState {
+    @Immutable
     data class State(
-        val items: List<VideoDownloadItem> = emptyList(),
+        val items: ImmutableList<VideoDownloadItem> = persistentListOf(),
         val pendingDeleteItem: VideoDownloadItem? = null,
         val pendingReExportItem: VideoDownloadItem? = null,
         val exportDestination: VideoExportDestination? = null,

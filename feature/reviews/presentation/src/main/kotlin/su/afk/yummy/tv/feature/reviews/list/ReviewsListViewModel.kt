@@ -5,6 +5,8 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.collections.immutable.persistentMapOf
+import kotlinx.collections.immutable.plus
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -64,7 +66,7 @@ class ReviewsListViewModel @AssistedInject constructor(
             // Свежая страница уже несёт актуальные счётчики (кэш инвалидирован при мутации),
             // поэтому сбрасываем накопленные оптимистичные override, чтобы они не маскировали
             // серверное состояние и не росли безгранично.
-            setState { copy(reactionOverrides = emptyMap()) }
+            setState { copy(reactionOverrides = persistentMapOf()) }
             pagedSource?.invalidate()
         }.launchIn(viewModelScope)
     }
@@ -83,7 +85,7 @@ class ReviewsListViewModel @AssistedInject constructor(
                 copy(
                     sort = event.sort,
                     reviews = createFlow(event.sort),
-                    reactionOverrides = emptyMap()
+                    reactionOverrides = persistentMapOf()
                 )
             }
 

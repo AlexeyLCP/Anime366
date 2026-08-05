@@ -2,6 +2,10 @@ package su.afk.yummy.tv.feature.home
 
 import androidx.lifecycle.SavedStateHandle
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.collections.immutable.minus
+import kotlinx.collections.immutable.plus
+import kotlinx.collections.immutable.toImmutableList
+import kotlinx.collections.immutable.toPersistentSet
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.filter
@@ -86,7 +90,7 @@ class HomeViewModel @Inject internal constructor(
             .onEach { items ->
                 setState {
                     copy(
-                        continueWatching = items,
+                        continueWatching = items.toImmutableList(),
                         isContinueWatchingLoaded = true,
                     )
                 }
@@ -160,7 +164,7 @@ class HomeViewModel @Inject internal constructor(
     private fun observeHiddenRecommendations() {
         settingsStore.hiddenRecommendationIds
             .onEach { hiddenIds ->
-                setState { copy(hiddenRecommendationIds = hiddenIds) }
+                setState { copy(hiddenRecommendationIds = hiddenIds.toPersistentSet()) }
                 applyHiddenRecommendations()
             }
             .launchIn(viewModelScope)
@@ -413,7 +417,7 @@ class HomeViewModel @Inject internal constructor(
                 onSuccess = { videos ->
                     setState {
                         copy(
-                            bloggerVideos = videos,
+                            bloggerVideos = videos.toImmutableList(),
                             isBloggerVideosLoading = false
                         )
                     }

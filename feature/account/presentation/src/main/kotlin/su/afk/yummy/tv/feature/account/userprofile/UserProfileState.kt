@@ -1,6 +1,9 @@
 package su.afk.yummy.tv.feature.account.userprofile
 
+import androidx.compose.runtime.Immutable
 import androidx.paging.PagingData
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiEffect
@@ -17,6 +20,7 @@ import su.afk.yummy.tv.domain.account.model.UserReviewSummary
 import su.afk.yummy.tv.domain.account.model.UserStats
 
 class UserProfileState {
+    @Immutable
     data class State(
         val userId: Int = 0,
         val selectedTab: Tab = Tab.OVERVIEW,
@@ -37,8 +41,9 @@ class UserProfileState {
         val friendshipError: Boolean = false,
     ) : UiState
 
+    @Immutable
     data class PagedContent<T>(
-        val items: List<T> = emptyList(),
+        val items: ImmutableList<T> = persistentListOf(),
         val isLoading: Boolean = false,
         val error: Boolean = false,
         val loaded: Boolean = false,

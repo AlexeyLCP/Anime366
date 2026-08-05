@@ -1,5 +1,8 @@
 package su.afk.yummy.tv.feature.account.profileedit
 
+import androidx.compose.runtime.Immutable
+import kotlinx.collections.immutable.ImmutableSet
+import kotlinx.collections.immutable.persistentSetOf
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiEffect
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiEvent
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiState
@@ -9,6 +12,7 @@ import su.afk.yummy.tv.domain.account.model.ProfileListPrivacy
 import su.afk.yummy.tv.domain.account.model.UserProfileSex
 
 class ProfileEditState {
+    @Immutable
     data class State(
         val isLoading: Boolean = true,
         val isSaving: Boolean = false,
@@ -34,7 +38,7 @@ class ProfileEditState {
         val confirmPassword: String = "",
         val isPasswordSaving: Boolean = false,
         val passwordValidationError: Boolean = false,
-        val linkedAccounts: Set<LinkedAccountProvider> = emptySet(),
+        val linkedAccounts: ImmutableSet<LinkedAccountProvider> = persistentSetOf(),
         val pendingUnlinkAccount: LinkedAccountProvider? = null,
         val unlinkingAccount: LinkedAccountProvider? = null,
     ) : UiState

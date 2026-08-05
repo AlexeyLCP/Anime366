@@ -5,6 +5,8 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.launch
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.BaseViewModelNew
 import su.afk.yummy.tv.core.error.IErrorHandlerUseCase
@@ -59,11 +61,23 @@ class CollectionsViewModel @AssistedInject internal constructor(
         setState { copy(isLoading = true, error = null) }
         runCatching { getAnimeCollections(animeId) }.fold(
             onSuccess = { collections ->
-                setState { copy(isLoading = false, collections = collections, error = null) }
+                setState {
+                    copy(
+                        isLoading = false,
+                        collections = collections.toImmutableList(),
+                        error = null
+                    )
+                }
             },
             onFailure = { e ->
                 analytics.eventCollectionsLoadError(e)
-                setState { copy(isLoading = false, error = e.message, collections = emptyList()) }
+                setState {
+                    copy(
+                        isLoading = false,
+                        error = e.message,
+                        collections = persistentListOf()
+                    )
+                }
             },
         )
     }

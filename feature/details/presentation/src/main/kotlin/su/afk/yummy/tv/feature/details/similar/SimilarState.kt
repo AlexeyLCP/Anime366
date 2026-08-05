@@ -1,5 +1,8 @@
 package su.afk.yummy.tv.feature.details.similar
 
+import androidx.compose.runtime.Immutable
+import kotlinx.collections.immutable.PersistentSet
+import kotlinx.collections.immutable.persistentSetOf
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiEffect
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiEvent
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiState
@@ -7,12 +10,13 @@ import su.afk.yummy.tv.core.model.anime.AnimeRecommendationVote
 import su.afk.yummy.tv.feature.details.details.SimilarUiState
 
 class SimilarState {
+    @Immutable
     data class State(
         val similarState: SimilarUiState = SimilarUiState.Loading,
         val fromAi: Boolean = false,
         val isRecommendationIgnored: Boolean = false,
         val isRecommendationMutationPending: Boolean = false,
-        val pendingVoteAnimeIds: Set<Int> = emptySet(),
+        val pendingVoteAnimeIds: PersistentSet<Int> = persistentSetOf(),
     ) : UiState
 
     /** Пользовательские действия на экране похожих аниме. */

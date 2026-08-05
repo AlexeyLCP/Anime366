@@ -1,5 +1,9 @@
 package su.afk.yummy.tv.feature.library.utils
 
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.ImmutableMap
+import kotlinx.collections.immutable.toImmutableList
+import kotlinx.collections.immutable.toImmutableMap
 import su.afk.yummy.tv.domain.account.model.UserAnimeList
 import su.afk.yummy.tv.domain.library.model.LibraryItem
 import su.afk.yummy.tv.feature.library.LibraryTab
@@ -16,7 +20,9 @@ internal fun LibraryTab.userAnimeList(): UserAnimeList? = when (this) {
 }
 
 /** Раскладывает элементы библиотеки по вкладкам, чтобы UI не занимался фильтрацией. */
-internal fun buildLibraryTabItems(items: List<LibraryItem>): Map<LibraryTab, List<LibraryItem>> =
+internal fun buildLibraryTabItems(
+    items: List<LibraryItem>,
+): ImmutableMap<LibraryTab, ImmutableList<LibraryItem>> =
     LibraryTab.visibleEntries.associateWith { tab ->
         when (tab) {
             LibraryTab.CONTINUE_WATCHING, LibraryTab.HISTORY -> emptyList()
@@ -29,8 +35,8 @@ internal fun buildLibraryTabItems(items: List<LibraryItem>): Map<LibraryTab, Lis
                 val localListId = tab.userAnimeList()?.id
                 items.filter { it.listId == localListId }
             }
-        }
-    }
+        }.toImmutableList()
+    }.toImmutableMap()
 
 internal fun Long.toToastTimeString(): String {
     val totalSeconds = coerceAtLeast(0L) / 1_000L

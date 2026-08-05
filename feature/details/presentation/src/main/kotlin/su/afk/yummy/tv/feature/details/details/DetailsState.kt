@@ -1,5 +1,9 @@
 package su.afk.yummy.tv.feature.details.details
 
+import androidx.compose.runtime.Immutable
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toImmutableList
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiEffect
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiEvent
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiState
@@ -17,9 +21,10 @@ data class BalancerOption(
     val isSupported: Boolean = true
 )
 
+@Immutable
 data class BalancerPickerState(
     val episodeNumber: String,
-    val options: List<BalancerOption>,
+    val options: ImmutableList<BalancerOption>,
     val preferredPlayerUnavailable: Boolean = false,
 )
 
@@ -34,6 +39,7 @@ data class SubscriptionOption(
 )
 
 class DetailsState {
+    @Immutable
     data class State(
         val isLoading: Boolean = true,
         val details: AnimeDetails? = null,
@@ -48,10 +54,11 @@ class DetailsState {
         val showLibraryListPicker: Boolean = false,
         val isWatchLaunchPending: Boolean = false,
         val isSignedIn: Boolean = false,
-        val subscriptions: List<SubscriptionOption> = emptyList(),
+        val subscriptions: ImmutableList<SubscriptionOption> = persistentListOf(),
         val showSubscriptionsPicker: Boolean = false,
         val isSubscriptionsLoading: Boolean = false,
-        val detailsButtonOrder: List<DetailsButtonAction> = SettingsStore.defaultDetailsButtonOrder,
+        val detailsButtonOrder: ImmutableList<DetailsButtonAction> =
+            SettingsStore.defaultDetailsButtonOrder.toImmutableList(),
     ) : UiState
 
     /** Пользовательские действия на основном экране деталей аниме. */
@@ -144,12 +151,12 @@ sealed interface VideosUiState {
     data object Loading : VideosUiState
     data object Empty : VideosUiState
     data class Error(val message: String?) : VideosUiState
-    data class Content(val videos: List<AnimeVideo>) : VideosUiState
+    data class Content(val videos: ImmutableList<AnimeVideo>) : VideosUiState
 }
 
 sealed interface SimilarUiState {
     data object Loading : SimilarUiState
     data object Empty : SimilarUiState
     data class Error(val message: String?) : SimilarUiState
-    data class Content(val items: List<AnimeRecommendation>) : SimilarUiState
+    data class Content(val items: ImmutableList<AnimeRecommendation>) : SimilarUiState
 }

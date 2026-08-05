@@ -5,6 +5,12 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.ImmutableMap
+import kotlinx.collections.immutable.minus
+import kotlinx.collections.immutable.plus
+import kotlinx.collections.immutable.toImmutableList
+import kotlinx.collections.immutable.toImmutableMap
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.flowOn
@@ -99,7 +105,9 @@ class EpisodesViewModel @AssistedInject internal constructor(
         observeVideoDownloadStatuses(animeId)
             .onEach { statuses ->
                 setState {
-                    val uiStatuses = statuses.values.associate { it.uiStatusKey to it.toUiState() }
+                    val uiStatuses =
+                        statuses.values.associate { it.uiStatusKey to it.toUiState() }
+                            .toImmutableMap()
                     copy(
                         downloadStatuses = uiStatuses,
                         resolvedDownloadStatuses = resolveDownloadStatuses(
@@ -179,7 +187,7 @@ class EpisodesViewModel @AssistedInject internal constructor(
                             playerName = event.download.playerName,
                             qualityLabel = event.download.qualityLabel,
                             bytesDownloaded = event.download.bytesDownloaded,
-                            videos = event.videos,
+                            videos = event.videos.toImmutableList(),
                             hasAlternativeDubbings = event.videos.any {
                                 downloadHandler.downloadDubbingName(it) != downloadedDubbing
                             },
@@ -264,7 +272,7 @@ class EpisodesViewModel @AssistedInject internal constructor(
     private suspend fun loadEpisodeInfo() {
         val info = runCatching { getAnimeEpisodeInfo(animeId) }.getOrDefault(emptyMap())
         if (info.isNotEmpty()) {
-            setState { copy(episodeInfo = info) }
+            setState { copy(episodeInfo = info.toImmutableMap()) }
         }
     }
 
@@ -298,7 +306,7 @@ class EpisodesViewModel @AssistedInject internal constructor(
             val groups = buildEpisodeGroups(videos)
             copy(
                 videosState = if (videos.isEmpty()) VideosUiState.Empty else VideosUiState.Content(
-                    videos
+                    videos.toImmutableList()
                 ),
                 watchProgress = buildWatchProgressIndex(videos),
                 episodeGroups = groups,
@@ -308,12 +316,15 @@ class EpisodesViewModel @AssistedInject internal constructor(
         }
     }
 
-    private fun buildEpisodeGroups(videos: List<AnimeVideo>): List<EpisodesState.EpisodeGroup> =
+    private fun buildEpisodeGroups(videos: List<AnimeVideo>): ImmutableList<EpisodesState.EpisodeGroup> =
         videos
             .groupBy { it.episode.episodeGroupKey() }
             .entries
             .sortedBy { it.key.episodeNumberOrNull() ?: Double.MAX_VALUE }
-            .map { (episode, groupVideos) -> EpisodesState.EpisodeGroup(episode, groupVideos) }
+            .map { (episode, groupVideos) ->
+                EpisodesState.EpisodeGroup(episode, groupVideos.toImmutableList())
+            }
+            .toImmutableList()
 
     /** Озвучка с наибольшим числом просмотров среди kodik-источников. */
     private fun resolveBestDubbing(videos: List<AnimeVideo>): String {
@@ -327,7 +338,7 @@ class EpisodesViewModel @AssistedInject internal constructor(
     private fun resolveDownloadStatuses(
         episodeGroups: List<EpisodesState.EpisodeGroup>,
         downloadStatuses: Map<String, EpisodesState.EpisodeDownloadUiState>,
-    ): Map<String, EpisodesState.EpisodeDownloadUiState?> =
+    ): ImmutableMap<String, EpisodesState.EpisodeDownloadUiState?> =
         episodeGroups.associate { group ->
             val statuses = group.videos.mapNotNull { downloadStatuses[it.downloadStatusKey()] }
             group.episode to (
@@ -339,7 +350,7 @@ class EpisodesViewModel @AssistedInject internal constructor(
                         ?: statuses.firstOrNull { it.status == EpisodesState.EpisodeDownloadUiStatus.Downloaded }
                         ?: statuses.firstOrNull { it.status == EpisodesState.EpisodeDownloadUiStatus.Failed }
                     )
-        }
+        }.toImmutableMap()
 
     private fun AnimeVideo.downloadStatusKey(): String =
         listOf(id.toString(), iframeUrl).joinToString("|")
@@ -500,7 +511,7 @@ class EpisodesViewModel @AssistedInject internal constructor(
             copy(
                 pendingEpisodeDubbingSelection = EpisodesState.EpisodeDubbingSelection(
                     episode = episode,
-                    options = options,
+                    options = options.toImmutableList(),
                     episodeTitle = info?.title,
                 )
             )

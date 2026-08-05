@@ -2,6 +2,7 @@ package su.afk.yummy.tv.feature.posts.list
 
 import androidx.lifecycle.SavedStateHandle
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.launch
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.BaseViewModelNew
 import su.afk.yummy.tv.core.error.IErrorHandlerUseCase
@@ -52,7 +53,14 @@ class PostsListViewModel @Inject constructor(
 
     private fun loadCategories() = viewModelScope.launch {
         runCatching { getPostCategories() }.fold(
-            { loaded -> setState { copy(categories = loaded, categoriesLoading = false) } },
+            { loaded ->
+                setState {
+                    copy(
+                        categories = loaded.toImmutableList(),
+                        categoriesLoading = false
+                    )
+                }
+            },
             { setState { copy(categoriesLoading = false) } },
         )
     }

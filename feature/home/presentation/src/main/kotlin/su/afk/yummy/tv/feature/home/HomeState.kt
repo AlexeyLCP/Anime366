@@ -1,5 +1,10 @@
 package su.afk.yummy.tv.feature.home
 
+import androidx.compose.runtime.Immutable
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.PersistentSet
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.persistentSetOf
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiEffect
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiEvent
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiState
@@ -17,21 +22,22 @@ data class HomeAnnouncement(
 )
 
 class HomeState {
+    @Immutable
     data class State(
         val isLoading: Boolean = true,
         val feed: HomeFeed? = null,
         val error: String? = null,
-        val continueWatching: List<HomeContinueWatchingItem> = emptyList(),
+        val continueWatching: ImmutableList<HomeContinueWatchingItem> = persistentListOf(),
         val isContinueWatchingLoaded: Boolean = false,
         val supportPromptVisible: Boolean = false,
         val announcement: HomeAnnouncement? = null,
-        val bloggerVideos: List<BloggerVideo> = emptyList(),
+        val bloggerVideos: ImmutableList<BloggerVideo> = persistentListOf(),
         val isBloggerVideosLoading: Boolean = true,
         val bloggerVideosError: String? = null,
         /** Тайтлы, скрытые из блока рекомендаций в текущей сессии. */
-        val hiddenRecommendationIds: Set<Int> = emptySet(),
+        val hiddenRecommendationIds: PersistentSet<Int> = persistentSetOf(),
         /** Тайтлы, для которых сейчас выполняется запрос на скрытие или возврат. */
-        val pendingRecommendationIds: Set<Int> = emptySet(),
+        val pendingRecommendationIds: PersistentSet<Int> = persistentSetOf(),
     ) : UiState
 
     /** Пользовательские действия на главном экране. */

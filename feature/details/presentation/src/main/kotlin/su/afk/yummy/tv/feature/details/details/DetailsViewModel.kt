@@ -5,6 +5,8 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.flowOn
@@ -108,7 +110,7 @@ class DetailsViewModel @AssistedInject internal constructor(
             }
             .launchIn(viewModelScope)
         screenDataHandler.detailsButtonOrder
-            .onEach { order -> setState { copy(detailsButtonOrder = order) } }
+            .onEach { order -> setState { copy(detailsButtonOrder = order.toImmutableList()) } }
             .launchIn(viewModelScope)
         screenDataHandler.observeAccountSession()
             .onEach { session ->
@@ -117,7 +119,7 @@ class DetailsViewModel @AssistedInject internal constructor(
                 setState {
                     copy(
                         isSignedIn = signedIn,
-                        subscriptions = if (!signedIn) emptyList() else subscriptions,
+                        subscriptions = if (!signedIn) persistentListOf() else subscriptions,
                         showSubscriptionsPicker = if (!signedIn) false else showSubscriptionsPicker,
                         isSubscriptionsLoading = if (!signedIn) false else isSubscriptionsLoading,
                     )
@@ -415,7 +417,7 @@ class DetailsViewModel @AssistedInject internal constructor(
         setState {
             copy(
                 videosState = result.videosState,
-                subscriptions = result.subscriptions,
+                subscriptions = result.subscriptions.toImmutableList(),
                 watchProgress = buildWatchProgressIndex(result.videos),
             )
         }
@@ -510,7 +512,7 @@ class DetailsViewModel @AssistedInject internal constructor(
         val userId = yaniUserIdState.value
         val videos = (currentState.videosState as? VideosUiState.Content)?.videos ?: return
         if (!currentState.isSignedIn || userId <= 0) {
-            setState { copy(isSubscriptionsLoading = false, subscriptions = emptyList()) }
+            setState { copy(isSubscriptionsLoading = false, subscriptions = persistentListOf()) }
             return
         }
         setState { copy(isSubscriptionsLoading = true) }
@@ -526,7 +528,7 @@ class DetailsViewModel @AssistedInject internal constructor(
                 setState {
                     copy(
                         isSubscriptionsLoading = false,
-                        subscriptions = subscriptions,
+                        subscriptions = subscriptions.toImmutableList(),
                     )
                 }
             },
@@ -568,7 +570,7 @@ class DetailsViewModel @AssistedInject internal constructor(
             copy(
                 subscriptions = subscriptions.map {
                     if (it.key == key) it.copy(isSubscribed = subscribed) else it
-                }
+                }.toImmutableList()
             )
         }
     }

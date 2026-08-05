@@ -1,6 +1,9 @@
 package su.afk.yummy.tv.feature.bloggers.list
 
+import androidx.compose.runtime.Immutable
 import androidx.paging.PagingData
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiEffect
@@ -12,11 +15,12 @@ import su.afk.yummy.tv.domain.bloggers.model.BloggerVideoCategory
 import su.afk.yummy.tv.domain.bloggers.model.BloggerVideoSort
 
 object BloggerVideosListState {
+    @Immutable
     data class State(
         val animeId: Int? = null,
         val videos: Flow<PagingData<BloggerVideo>> = flowOf(PagingData.empty()),
-        val categories: List<BloggerVideoCategory> = emptyList(),
-        val bloggers: List<Blogger> = emptyList(),
+        val categories: ImmutableList<BloggerVideoCategory> = persistentListOf(),
+        val bloggers: ImmutableList<Blogger> = persistentListOf(),
         val selectedCategory: String = "all",
         val selectedBloggerId: Int? = null,
         val sort: BloggerVideoSort = BloggerVideoSort.NEW,

@@ -2,6 +2,7 @@ package su.afk.yummy.tv.feature.library
 
 import androidx.lifecycle.SavedStateHandle
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
@@ -81,13 +82,18 @@ class LibraryViewModel @Inject internal constructor(
         analytics.eventScreenOpened()
         observeLibraryItems()
             .onEach { entries ->
-                setState { copy(items = entries, tabItems = buildLibraryTabItems(entries)) }
+                setState {
+                    copy(
+                        items = entries.toImmutableList(),
+                        tabItems = buildLibraryTabItems(entries),
+                    )
+                }
             }
             .launchIn(viewModelScope)
 
         observeContinueWatching()
             .onEach { items ->
-                setState { copy(continueWatching = items) }
+                setState { copy(continueWatching = items.toImmutableList()) }
             }
             .launchIn(viewModelScope)
         loadCachedContinueWatching()

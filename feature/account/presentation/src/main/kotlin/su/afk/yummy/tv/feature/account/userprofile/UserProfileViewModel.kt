@@ -8,6 +8,7 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
@@ -380,7 +381,7 @@ class UserProfileViewModel @AssistedInject internal constructor(
     private fun <T> UserProfileState.PagedContent<T>.finish(
         incoming: List<T>,
     ) = copy(
-        items = incoming,
+        items = incoming.toImmutableList(),
         isLoading = false,
         error = false,
         loaded = true,

@@ -5,6 +5,7 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.launch
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.BaseViewModelNew
 import su.afk.yummy.tv.core.error.IErrorHandlerUseCase
@@ -53,7 +54,9 @@ class ViewingOrderViewModel @AssistedInject internal constructor(
     private suspend fun load() {
         setState { copy(isLoading = true, error = null) }
         runCatching { getAnimeDetails(animeId) }.fold(
-            onSuccess = { details -> setState { copy(isLoading = false, items = details.viewingOrder) } },
+            onSuccess = { details ->
+                setState { copy(isLoading = false, items = details.viewingOrder.toImmutableList()) }
+            },
             onFailure = { e -> setState { copy(isLoading = false, error = e.message) } },
         )
     }

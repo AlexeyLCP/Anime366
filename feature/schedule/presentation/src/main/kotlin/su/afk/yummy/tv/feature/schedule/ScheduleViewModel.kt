@@ -2,6 +2,7 @@ package su.afk.yummy.tv.feature.schedule
 
 import androidx.lifecycle.SavedStateHandle
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.launch
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.BaseViewModelNew
 import su.afk.yummy.tv.core.error.IErrorHandlerUseCase
@@ -64,7 +65,7 @@ class ScheduleViewModel @Inject internal constructor(
                     setState {
                         copy(
                             isLoading = false,
-                            days = days,
+                            days = days.toImmutableList(),
                             tvSchedule = days.toTimelineUi(
                                 selectedEpochDay = tvSchedule.selectedEpochDay,
                             ),

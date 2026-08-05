@@ -1,6 +1,13 @@
 package su.afk.yummy.tv.feature.comments
 
+import androidx.compose.runtime.Immutable
 import androidx.paging.PagingData
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.PersistentMap
+import kotlinx.collections.immutable.PersistentSet
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.persistentMapOf
+import kotlinx.collections.immutable.persistentSetOf
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiEffect
@@ -12,12 +19,13 @@ import su.afk.yummy.tv.domain.comments.model.CommentSort
 import su.afk.yummy.tv.domain.comments.model.CommentVote
 
 class CommentsState {
+    @Immutable
     data class State(
         val error: String? = null,
         val comments: Flow<PagingData<CommentUi>> = flowOf(PagingData.empty()),
-        val prependedComments: List<CommentUi> = emptyList(),
-        val commentOverlays: Map<Int, CommentUi> = emptyMap(),
-        val deletedCommentIds: Set<Int> = emptySet(),
+        val prependedComments: ImmutableList<CommentUi> = persistentListOf(),
+        val commentOverlays: PersistentMap<Int, CommentUi> = persistentMapOf(),
+        val deletedCommentIds: PersistentSet<Int> = persistentSetOf(),
         val sort: CommentSort = CommentSort.BEST,
         val isModerator: Boolean = false,
         val currentUserId: Int = 0,
@@ -30,9 +38,10 @@ class CommentsState {
         val isSignedIn: Boolean get() = currentUserId > 0
     }
 
+    @Immutable
     data class CommentUi(
         val comment: Comment,
-        val children: List<CommentUi> = emptyList(),
+        val children: ImmutableList<CommentUi> = persistentListOf(),
         val childrenVisible: Boolean = false,
         val childrenLoading: Boolean = false,
         val childrenError: String? = null,

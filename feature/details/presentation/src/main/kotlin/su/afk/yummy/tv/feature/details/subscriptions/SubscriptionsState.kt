@@ -1,15 +1,19 @@
 package su.afk.yummy.tv.feature.details.subscriptions
 
+import androidx.compose.runtime.Immutable
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiEffect
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiEvent
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiState
 import su.afk.yummy.tv.feature.details.details.SubscriptionOption
 
 class SubscriptionsState {
+    @Immutable
     data class State(
         val isLoading: Boolean = true,
         val error: String? = null,
-        val subscriptions: List<SubscriptionOption> = emptyList(),
+        val subscriptions: ImmutableList<SubscriptionOption> = persistentListOf(),
     ) : UiState
 
     /** Пользовательские действия на экране подписок тайтла. */

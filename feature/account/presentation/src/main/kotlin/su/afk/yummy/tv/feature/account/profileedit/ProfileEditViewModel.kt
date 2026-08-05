@@ -2,6 +2,7 @@ package su.afk.yummy.tv.feature.account.profileedit
 
 import androidx.lifecycle.SavedStateHandle
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.collections.immutable.toImmutableSet
 import kotlinx.coroutines.launch
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.BaseViewModelNew
 import su.afk.yummy.tv.core.error.IErrorHandlerUseCase
@@ -219,7 +220,7 @@ class ProfileEditViewModel @Inject constructor(
                 showDiscord = profile.showDiscord,
                 notifyTelegram = profile.notifyTelegram,
                 notifyVk = profile.notifyVk,
-                linkedAccounts = profile.linkedAccounts,
+                linkedAccounts = profile.linkedAccounts.toImmutableSet(),
             )
         }
     }

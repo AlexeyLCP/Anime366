@@ -5,6 +5,9 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
@@ -126,7 +129,7 @@ class ChatViewModel @AssistedInject constructor(
             ChatState.Event.HistoryDismissed -> setState {
                 copy(
                     historyMessageId = null,
-                    messageHistory = emptyList(),
+                    messageHistory = persistentListOf(),
                     isHistoryLoading = false,
                     hasHistoryError = false,
                 )
@@ -377,14 +380,16 @@ class ChatViewModel @AssistedInject constructor(
             setState {
                 copy(
                     historyMessageId = messageId,
-                    messageHistory = emptyList(),
+                    messageHistory = persistentListOf(),
                     isHistoryLoading = true,
                     hasHistoryError = false,
                 )
             }
             runCatching { mutationHandler.history(messageId) }.fold(
                 onSuccess = { history ->
-                    setState { copy(messageHistory = history, isHistoryLoading = false) }
+                    setState {
+                        copy(messageHistory = history.toImmutableList(), isHistoryLoading = false)
+                    }
                 },
                 onFailure = { setState { copy(isHistoryLoading = false, hasHistoryError = true) } },
             )
@@ -463,7 +468,7 @@ class ChatViewModel @AssistedInject constructor(
                             copy(messages = messages.map { message ->
                                 if (message.toUserId == currentUserId) message.copy(isRead = true)
                                 else message
-                            })
+                            }.toImmutableList())
                         }
                         mutationNotifier.notifyChanged()
                     }
@@ -479,7 +484,7 @@ class ChatViewModel @AssistedInject constructor(
 private fun mergeMessages(
     current: List<ChatMessage>,
     incoming: List<ChatMessage>,
-): List<ChatMessage> = buildMap {
+): ImmutableList<ChatMessage> = buildMap {
     current.forEach { put(it.id, it) }
     incoming.forEach { put(it.id, it) }
-}.values.sortedWith(compareBy(ChatMessage::dateSeconds, ChatMessage::id))
+}.values.sortedWith(compareBy(ChatMessage::dateSeconds, ChatMessage::id)).toImmutableList()

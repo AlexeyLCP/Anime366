@@ -1,6 +1,7 @@
 package su.afk.yummy.tv.feature.comments.mobile.utils
 
 import android.text.format.DateUtils
+import kotlinx.collections.immutable.toImmutableList
 import su.afk.yummy.tv.feature.comments.CommentsState
 import su.afk.yummy.tv.feature.comments.mobile.model.CommentTextPart
 
@@ -10,7 +11,7 @@ internal fun CommentsState.CommentUi.resolve(
     if (comment.id in state.deletedCommentIds) return null
     val overlaid = state.commentOverlays[comment.id] ?: this
     return overlaid.copy(
-        children = overlaid.children.mapNotNull { it.resolve(state) },
+        children = overlaid.children.mapNotNull { it.resolve(state) }.toImmutableList(),
     )
 }
 

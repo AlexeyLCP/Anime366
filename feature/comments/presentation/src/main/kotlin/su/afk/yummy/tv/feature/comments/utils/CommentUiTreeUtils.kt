@@ -1,5 +1,7 @@
 package su.afk.yummy.tv.feature.comments.utils
 
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.toImmutableList
 import su.afk.yummy.tv.domain.comments.model.Comment
 import su.afk.yummy.tv.domain.comments.model.CommentVote
 import su.afk.yummy.tv.domain.comments.model.CommentVoteResult
@@ -16,7 +18,7 @@ internal fun List<CommentUi>.findUi(commentId: Int): CommentUi? {
 internal fun List<CommentUi>.updateCommentUi(
     commentId: Int,
     transform: CommentUi.() -> CommentUi,
-): List<CommentUi> = map { item ->
+): ImmutableList<CommentUi> = map { item ->
     when {
         item.comment.id == commentId -> item.transform()
         item.children.isNotEmpty() -> item.copy(
@@ -28,12 +30,12 @@ internal fun List<CommentUi>.updateCommentUi(
 
         else -> item
     }
-}
+}.toImmutableList()
 
-internal fun List<CommentUi>.replaceComment(comment: Comment): List<CommentUi> =
+internal fun List<CommentUi>.replaceComment(comment: Comment): ImmutableList<CommentUi> =
     updateCommentUi(comment.id) { copy(comment = comment) }
 
-internal fun List<CommentUi>.removeComment(commentId: Int): List<CommentUi> =
+internal fun List<CommentUi>.removeComment(commentId: Int): ImmutableList<CommentUi> =
     mapNotNull { item ->
         when {
             item.comment.id == commentId -> null
@@ -50,13 +52,13 @@ internal fun List<CommentUi>.removeComment(commentId: Int): List<CommentUi> =
 
             else -> item
         }
-    }
+    }.toImmutableList()
 
 internal fun List<CommentUi>.updateVote(
     commentId: Int,
     result: CommentVoteResult,
     vote: CommentVote,
-): List<CommentUi> =
+): ImmutableList<CommentUi> =
     updateCommentUi(commentId) {
         copy(
             comment = comment.copy(

@@ -5,6 +5,7 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.launch
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.BaseViewModelNew
 import su.afk.yummy.tv.core.error.IErrorHandlerUseCase
@@ -80,7 +81,12 @@ class BloggerVideosListViewModel @AssistedInject constructor(
     private fun loadDirectory() {
         viewModelScope.launch {
             runSuspendCatching { getDirectory() }.onSuccess { directory ->
-                setState { copy(categories = directory.categories, bloggers = directory.bloggers) }
+                setState {
+                    copy(
+                        categories = directory.categories.toImmutableList(),
+                        bloggers = directory.bloggers.toImmutableList(),
+                    )
+                }
             }
         }
     }

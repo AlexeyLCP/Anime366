@@ -2,6 +2,7 @@ package su.afk.yummy.tv.feature.settings
 
 import androidx.lifecycle.SavedStateHandle
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -71,7 +72,7 @@ class SettingsViewModel @Inject internal constructor(
                         videoExportAutoEnabled = snapshot.videoExportAutoEnabled,
                         yaniApplicationToken = snapshot.yaniApplicationToken,
                         contentLanguage = snapshot.contentLanguage,
-                        detailsButtonOrder = snapshot.detailsButtonOrder,
+                        detailsButtonOrder = snapshot.detailsButtonOrder.toImmutableList(),
                     )
                 }
             }
@@ -104,7 +105,7 @@ class SettingsViewModel @Inject internal constructor(
             setState {
                 copy(
                     isCacheStorageLoading = false,
-                    cacheStorageEntries = report?.entries ?: cacheStorageEntries,
+                    cacheStorageEntries = report?.entries?.toImmutableList() ?: cacheStorageEntries,
                     cacheStorageTotalBytes = report?.totalBytes ?: cacheStorageTotalBytes,
                 )
             }

@@ -1,5 +1,8 @@
 package su.afk.yummy.tv.feature.player.model
 
+import androidx.compose.runtime.Immutable
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.toImmutableList
 import su.afk.yummy.tv.feature.player.PlayerSkips
 import su.afk.yummy.tv.feature.player.PlayerState
 import su.afk.yummy.tv.feature.player.utils.activeBalancer
@@ -23,6 +26,7 @@ import su.afk.yummy.tv.feature.player.utils.isFinalAvailableEpisode
 import su.afk.yummy.tv.feature.player.utils.nextEpisodeOtherDubbingSource
 import su.afk.yummy.tv.feature.player.utils.normalizedSourceSelection
 
+@Immutable
 data class PlayerPlaybackUiState(
     val activeIframeUrl: String,
     val activeEpisode: String,
@@ -36,15 +40,15 @@ data class PlayerPlaybackUiState(
     /** Озвучка, в которой есть серия N+1, когда в активной озвучке серии закончились */
     val nextEpisodeDubbing: String?,
     val finalEpisodeAction: PlayerFinalEpisodeAction,
-    val dubbingNames: List<String>,
-    val dubbingEpisodeCounts: List<Int>,
-    val dubbingViews: List<Int>,
-    val dubbingSourceNames: List<String>,
-    val dubbingAvailability: List<Boolean>,
+    val dubbingNames: ImmutableList<String>,
+    val dubbingEpisodeCounts: ImmutableList<Int>,
+    val dubbingViews: ImmutableList<Int>,
+    val dubbingSourceNames: ImmutableList<String>,
+    val dubbingAvailability: ImmutableList<Boolean>,
     val currentDubbingIndex: Int,
-    val balancerNames: List<String>,
-    val availableBalancerIndices: List<Int>,
-    val balancerAvailability: List<Boolean>,
+    val balancerNames: ImmutableList<String>,
+    val availableBalancerIndices: ImmutableList<Int>,
+    val balancerAvailability: ImmutableList<Boolean>,
     val currentBalancerIndex: Int,
 )
 
@@ -102,19 +106,19 @@ fun PlayerState.State.toPlayerPlaybackUiState(
         } else {
             PlayerFinalEpisodeAction.None
         },
-        dubbingNames = displayedDubbingNames,
-        dubbingEpisodeCounts = globalEpisodeNumbers.map { it.distinct().size },
-        dubbingViews = globalViews,
-        dubbingSourceNames = globalSourceNames,
-        dubbingAvailability = dubbingAvailability,
+        dubbingNames = displayedDubbingNames.toImmutableList(),
+        dubbingEpisodeCounts = globalEpisodeNumbers.map { it.distinct().size }.toImmutableList(),
+        dubbingViews = globalViews.toImmutableList(),
+        dubbingSourceNames = globalSourceNames.toImmutableList(),
+        dubbingAvailability = dubbingAvailability.toImmutableList(),
         currentDubbingIndex = displayedDubbingNames.indexOf(activeDubbingName)
             .takeIf { it >= 0 }
             ?: selection.dubbingIndex,
         balancerNames = availableBalancerIndices.map { index ->
             sourceGraph.balancers.getOrNull(index)?.name.orEmpty()
-        },
-        availableBalancerIndices = availableBalancerIndices,
-        balancerAvailability = balancerAvailability,
+        }.toImmutableList(),
+        availableBalancerIndices = availableBalancerIndices.toImmutableList(),
+        balancerAvailability = balancerAvailability.toImmutableList(),
         currentBalancerIndex = availableBalancerIndices.indexOf(selection.balancerIndex)
             .takeIf { it >= 0 }
             ?: 0,

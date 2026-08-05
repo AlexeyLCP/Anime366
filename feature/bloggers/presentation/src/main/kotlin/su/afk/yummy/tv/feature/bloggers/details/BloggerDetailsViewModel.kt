@@ -5,6 +5,7 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -68,7 +69,7 @@ class BloggerDetailsViewModel @AssistedInject constructor(
                 setState {
                     copy(
                         blogger = blogger,
-                        videos = videos,
+                        videos = videos.toImmutableList(),
                         loading = false
                     )
                 }

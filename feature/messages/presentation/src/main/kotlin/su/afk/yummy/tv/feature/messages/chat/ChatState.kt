@@ -1,5 +1,8 @@
 package su.afk.yummy.tv.feature.messages.chat
 
+import androidx.compose.runtime.Immutable
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiEffect
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiEvent
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiState
@@ -8,6 +11,7 @@ import su.afk.yummy.tv.domain.messages.model.DialogSummary
 import su.afk.yummy.tv.domain.messages.model.MessageHistoryEntry
 
 object ChatState {
+    @Immutable
     data class State(
         val userId: Int = 0,
         val currentUserId: Int = 0,
@@ -16,7 +20,7 @@ object ChatState {
         val fallbackNickname: String = "",
         val fallbackAvatarUrl: String? = null,
         val peer: DialogSummary? = null,
-        val messages: List<ChatMessage> = emptyList(),
+        val messages: ImmutableList<ChatMessage> = persistentListOf(),
         val draft: String = "",
         val replyingTo: ChatMessage? = null,
         val editingMessageId: Int? = null,
@@ -24,7 +28,7 @@ object ChatState {
         val pendingDeleteMessageId: Int? = null,
         val pendingClaimMessageId: Int? = null,
         val historyMessageId: Int? = null,
-        val messageHistory: List<MessageHistoryEntry> = emptyList(),
+        val messageHistory: ImmutableList<MessageHistoryEntry> = persistentListOf(),
         val isHistoryLoading: Boolean = false,
         val hasHistoryError: Boolean = false,
         val isBanConfirmationVisible: Boolean = false,
