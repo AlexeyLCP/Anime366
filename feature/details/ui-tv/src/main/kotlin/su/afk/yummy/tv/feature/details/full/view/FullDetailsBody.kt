@@ -15,10 +15,16 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.KeyEventType
@@ -31,10 +37,37 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
 import su.afk.yummy.tv.core.model.anime.AnimeDetails
 import su.afk.yummy.tv.feature.details.R
 import su.afk.yummy.tv.feature.details.full.utils.formatEpochSeconds
 import su.afk.yummy.tv.feature.details.utils.formatAiredProgress
+import kotlin.time.Duration.Companion.milliseconds
+
+/** Индекс ряда жанров в [FullDetailsBody]: всегда после тайтла и (если есть) описания. */
+private fun genresItemIndex(details: AnimeDetails): Int? {
+    if (details.genres.isEmpty()) return null
+    var index = 1
+    if (details.description.isNotBlank()) index++
+    return index
+}
+
+private val GenreFocusRestoreTimeout = 500.milliseconds
+
+private suspend fun restoreGenreChipFocus(
+    listState: LazyListState,
+    itemIndex: Int,
+    requester: FocusRequester,
+) {
+    withTimeoutOrNull(GenreFocusRestoreTimeout) {
+        listState.scrollToItem(itemIndex)
+        var focused = false
+        while (!focused) {
+            withFrameNanos { }
+            focused = runCatching { requester.requestFocus() }.getOrDefault(false)
+        }
+    }
+}
 
 /** Тянет вниз/вверх список, пока текущий элемент виден не полностью, иначе отдаёт фокус дальше. */
 private fun scrollWithinItemKeyEvent(
@@ -87,8 +120,21 @@ internal fun FullDetailsBody(
     val episodeProgress = details.episodes?.formatAiredProgress()
     var itemIndex = 0
 
+    // Запоминаем чип жанра, с которого ушли на экран жанра, чтобы при возврате назад
+    // вернуть фокус именно на него, а не на первый фокусируемый элемент.
+    var lastSelectedGenreId by rememberSaveable(details.id) { mutableStateOf<Int?>(null) }
+    val genreFocusRequesters = remember(details.genres) {
+        details.genres.mapNotNull { it.id }.associateWith { FocusRequester() }
+    }
+
     LaunchedEffect(details.id) {
-        firstFocusRequester.requestFocus()
+        val genreIndex = lastSelectedGenreId?.let { genresItemIndex(details) }
+        val genreRequester = lastSelectedGenreId?.let { genreFocusRequesters[it] }
+        if (genreIndex != null && genreRequester != null) {
+            restoreGenreChipFocus(listState, genreIndex, genreRequester)
+        } else {
+            firstFocusRequester.requestFocus()
+        }
     }
 
     LazyColumn(
@@ -164,7 +210,15 @@ internal fun FullDetailsBody(
                             details.genres.forEach { genre ->
                                 FullDetailsChip(
                                     label = genre.title,
-                                    onClick = genre.id?.let { id -> { onGenreSelected(id) } },
+                                    onClick = genre.id?.let { id ->
+                                        {
+                                            lastSelectedGenreId = id
+                                            onGenreSelected(id)
+                                        }
+                                    },
+                                    modifier = genre.id?.let { id ->
+                                        genreFocusRequesters[id]?.let { Modifier.focusRequester(it) }
+                                    } ?: Modifier,
                                 )
                             }
                         }

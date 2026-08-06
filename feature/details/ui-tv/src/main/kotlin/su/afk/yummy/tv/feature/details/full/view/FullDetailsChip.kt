@@ -12,14 +12,18 @@ import androidx.compose.ui.unit.dp
 import su.afk.yummy.tv.core.designsystem.presenter.focus.tvFocusableClick
 
 @Composable
-internal fun FullDetailsChip(label: String, onClick: (() -> Unit)? = null) {
+internal fun FullDetailsChip(
+    label: String,
+    onClick: (() -> Unit)? = null,
+    modifier: Modifier = Modifier,
+) {
     val shape = RoundedCornerShape(999.dp)
     Text(
         text = label,
         style = MaterialTheme.typography.titleSmall,
         fontWeight = FontWeight.Bold,
         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.86f),
-        modifier = Modifier
+        modifier = modifier
             .background(
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f),
                 shape = shape,
