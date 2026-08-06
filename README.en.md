@@ -232,6 +232,7 @@ restrictions or IP blocks.
 - ⭐ Star the repository.
 - 🐞 Open an issue if you found a bug.
 - 💡 Suggest improvements through Issues.
+- https://boosty.to/etozhesandy
 
 ---
 
