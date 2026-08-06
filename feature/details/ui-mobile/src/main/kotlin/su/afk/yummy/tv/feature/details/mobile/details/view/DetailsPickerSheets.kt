@@ -3,6 +3,7 @@ package su.afk.yummy.tv.feature.details.mobile.details.view
 import androidx.compose.runtime.Composable
 import su.afk.yummy.tv.domain.account.model.UserAnimeList
 import su.afk.yummy.tv.feature.details.details.DetailsState
+import su.afk.yummy.tv.feature.details.details.model.DubbingOption
 
 @Composable
 internal fun DetailsPickerSheets(
@@ -13,6 +14,8 @@ internal fun DetailsPickerSheets(
     onSubscriptionsDismiss: () -> Unit,
     onBalancerConfirmed: (su.afk.yummy.tv.core.model.anime.AnimeVideo) -> Unit,
     onBalancerDismiss: () -> Unit,
+    onDubbingSelected: (DubbingOption) -> Unit,
+    onDubbingDismiss: () -> Unit,
 ) {
     if (state.showLibraryListPicker) {
         LibraryListDialog(
@@ -25,6 +28,13 @@ internal fun DetailsPickerSheets(
             state = state,
             onToggle = onSubscriptionToggle,
             onDismiss = onSubscriptionsDismiss,
+        )
+    }
+    state.pendingDubbingSelection?.let { picker ->
+        DubbingDialog(
+            picker = picker,
+            onSelected = onDubbingSelected,
+            onDismiss = onDubbingDismiss,
         )
     }
     state.pendingBalancerSelection?.let { picker ->

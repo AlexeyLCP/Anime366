@@ -176,6 +176,8 @@ fun DetailsMobileScreen(
             onSubscriptionsDismiss = { onEvent(DetailsState.Event.SubscriptionsDismissed) },
             onBalancerConfirmed = { onEvent(DetailsState.Event.BalancerConfirmed(it)) },
             onBalancerDismiss = { onEvent(DetailsState.Event.BalancerPickerDismissed) },
+            onDubbingSelected = { onEvent(DetailsState.Event.DubbingSelected(it.video)) },
+            onDubbingDismiss = { onEvent(DetailsState.Event.DubbingPickerDismissed) },
         )
 
         if (state.showPosterFullscreen) {

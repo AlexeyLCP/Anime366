@@ -129,6 +129,7 @@ fun RelationTvScreen(
                                 text = stringResource(R.string.details_related_anime),
                                 style = MaterialTheme.typography.headlineSmall,
                                 fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onBackground,
                             )
                             if (relation.anime.isEmpty()) {
                                 Text(
