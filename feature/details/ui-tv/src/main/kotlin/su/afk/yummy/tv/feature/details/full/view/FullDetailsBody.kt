@@ -1,6 +1,7 @@
 package su.afk.yummy.tv.feature.details.full.view
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -8,23 +9,69 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import su.afk.yummy.tv.core.model.anime.AnimeDetails
 import su.afk.yummy.tv.feature.details.R
 import su.afk.yummy.tv.feature.details.full.utils.formatEpochSeconds
 import su.afk.yummy.tv.feature.details.utils.formatAiredProgress
+
+/** Тянет вниз/вверх список, пока текущий элемент виден не полностью, иначе отдаёт фокус дальше. */
+private fun scrollWithinItemKeyEvent(
+    scope: CoroutineScope,
+    listState: LazyListState,
+    itemIndex: Int,
+): (KeyEvent) -> Boolean = { event ->
+    if (event.type != KeyEventType.KeyDown) {
+        false
+    } else {
+        val itemInfo = listState.layoutInfo.visibleItemsInfo.find { it.index == itemIndex }
+        val viewportStart = listState.layoutInfo.viewportStartOffset
+        val viewportEnd = listState.layoutInfo.viewportEndOffset
+        when (event.key) {
+            Key.DirectionDown -> {
+                val canScrollDown =
+                    itemInfo != null && itemInfo.offset + itemInfo.size > viewportEnd
+                if (canScrollDown) {
+                    scope.launch { listState.animateScrollBy(DescriptionScrollStepPx) }
+                }
+                canScrollDown
+            }
+
+            Key.DirectionUp -> {
+                val canScrollUp = itemInfo != null && itemInfo.offset < viewportStart
+                if (canScrollUp) {
+                    scope.launch { listState.animateScrollBy(-DescriptionScrollStepPx) }
+                }
+                canScrollUp
+            }
+
+            else -> false
+        }
+    }
+}
+
+private const val DescriptionScrollStepPx = 240f
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -35,6 +82,7 @@ internal fun FullDetailsBody(
     onDirectorSelected: (Int) -> Unit,
 ) {
     val listState = rememberLazyListState()
+    val scope = rememberCoroutineScope()
     val firstFocusRequester = remember { FocusRequester() }
     val episodeProgress = details.episodes?.formatAiredProgress()
     var itemIndex = 0
@@ -76,13 +124,27 @@ internal fun FullDetailsBody(
                             overflow = TextOverflow.Ellipsis,
                         )
                     }
-                    if (details.description.isNotBlank()) {
-                        Text(
-                            text = details.description,
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.78f),
-                        )
-                    }
+                }
+            }
+        }
+
+        if (details.description.isNotBlank()) {
+            item {
+                val descriptionIndex = itemIndex
+                FocusableDetailsItem(
+                    index = nextIndex(),
+                    listState = listState,
+                    onPreviewKeyEvent = scrollWithinItemKeyEvent(
+                        scope,
+                        listState,
+                        descriptionIndex
+                    ),
+                ) {
+                    Text(
+                        text = details.description,
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.78f),
+                    )
                 }
             }
         }

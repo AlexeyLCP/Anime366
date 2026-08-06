@@ -102,9 +102,9 @@ fun RelationTvScreen(
 
             else -> {
                 val relation = checkNotNull(state.relation)
-                val firstCardFocusRequester = remember { FocusRequester() }
-                LaunchedEffect(relation.title, relation.anime.isNotEmpty()) {
-                    if (relation.anime.isNotEmpty()) firstCardFocusRequester.requestFocus()
+                val headerFocusRequester = remember { FocusRequester() }
+                LaunchedEffect(relation.title) {
+                    headerFocusRequester.requestFocus()
                 }
                 LazyVerticalGrid(
                     columns = GridCells.Adaptive(currentTvTitleCardDimensions().width),
@@ -123,6 +123,7 @@ fun RelationTvScreen(
                                 onSubGenreSelected = { genreId ->
                                     onEvent(RelationState.Event.SubGenreSelected(genreId))
                                 },
+                                modifier = Modifier.focusRequester(headerFocusRequester),
                             )
                             Text(
                                 text = stringResource(R.string.details_related_anime),
@@ -144,9 +145,6 @@ fun RelationTvScreen(
                             onClick = {
                                 onEvent(RelationState.Event.AnimeSelected(item.animeId))
                             },
-                            modifier = if (item == relation.anime.firstOrNull()) {
-                                Modifier.focusRequester(firstCardFocusRequester)
-                            } else Modifier,
                             posterOverlay = {
                                 item.rating?.let { rating ->
                                     RatingBadge(

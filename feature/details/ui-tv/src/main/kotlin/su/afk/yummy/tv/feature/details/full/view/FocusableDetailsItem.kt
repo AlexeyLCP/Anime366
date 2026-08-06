@@ -19,6 +19,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 
@@ -28,6 +30,7 @@ internal fun FocusableDetailsItem(
     listState: LazyListState,
     firstFocusRequester: FocusRequester? = null,
     focusable: Boolean = true,
+    onPreviewKeyEvent: ((KeyEvent) -> Boolean)? = null,
     content: @Composable () -> Unit,
 ) {
     val scope = rememberCoroutineScope()
@@ -49,6 +52,13 @@ internal fun FocusableDetailsItem(
                     }
                 }
             }
+            .then(
+                if (onPreviewKeyEvent != null) {
+                    Modifier.onPreviewKeyEvent(onPreviewKeyEvent)
+                } else {
+                    Modifier
+                },
+            )
             .then(if (focusable) Modifier.focusable() else Modifier.focusGroup())
             .background(
                 // Подсвечиваем только терминальные текстовые ряды; в рядах с чипами

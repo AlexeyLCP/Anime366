@@ -3,7 +3,6 @@ package su.afk.yummy.tv.feature.top.view
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.focusGroup
-import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.LocalBringIntoViewSpec
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -303,6 +302,11 @@ internal fun TopBrowser(
                         LazyVerticalGrid(
                             columns = GridCells.Adaptive(minSize = cardWidth),
                             state = gridState,
+                            // Без собственного .focusable() на гриде: если сделать контейнер грида
+                            // самостоятельной точкой фокуса, ремоут-BACK на сфокусированной карточке
+                            // временно сбрасывает фокус на грид и обратно (перезапуская
+                            // launchItemFocusRestore), обрывая доставку BACK между down/up —
+                            // BackHandler в TvMainScaffold так и не срабатывает.
                             modifier = Modifier
                                 .fillMaxSize()
                                 .focusRequester(gridFocusRequester)
@@ -321,8 +325,7 @@ internal fun TopBrowser(
                                     if (!state.hasFocus) {
                                         isRestoringFocus = false
                                     }
-                                }
-                                .focusable(),
+                                },
                             contentPadding = PaddingValues(
                                 start = TvScreenPadding.Horizontal,
                                 end = TvScreenPadding.Horizontal,
