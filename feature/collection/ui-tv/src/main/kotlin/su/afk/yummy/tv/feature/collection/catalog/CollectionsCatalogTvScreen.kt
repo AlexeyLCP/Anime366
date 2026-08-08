@@ -14,7 +14,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -26,6 +25,7 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import su.afk.yummy.tv.core.designsystem.presenter.components.loader.TvLoadingScreen
+import su.afk.yummy.tv.core.designsystem.presenter.focus.requestFocusUntilTimeout
 import su.afk.yummy.tv.core.designsystem.presenter.locals.LocalPreferredContentFocusRequester
 import su.afk.yummy.tv.core.designsystem.presenter.preview.ScreenPreviewTheme
 import su.afk.yummy.tv.core.designsystem.presenter.tv.TvStateMessage
@@ -101,14 +101,7 @@ fun CollectionsCatalogTvScreen(
             return@LaunchedEffect
         }
         val focusRequester = itemFocusRequesters.getOrNull(focusedIndex) ?: return@LaunchedEffect
-        var focused = false
-        repeat(3) {
-            if (!focused) {
-                withFrameNanos { }
-                focused = runCatching { focusRequester.requestFocus() }.getOrDefault(false)
-            }
-        }
-        if (focused) {
+        if (requestFocusUntilTimeout(focusRequester)) {
             focusContentAfterInitialLoad = false
         }
     }

@@ -4,53 +4,51 @@ import su.afk.yummy.tv.feature.account.account.model.AccountUiError
 import javax.inject.Inject
 
 internal class AccountNotificationMutationHandler @Inject constructor(
-    private val hubHandler: AccountHubHandler,
     private val notificationHandler: AccountNotificationHandler,
 ) {
-    suspend fun markNotificationRead(id: Int): AccountNotificationMutationResult =
+    suspend fun markNotificationRead(id: Int): AccountNotificationMutationOutcome =
         mutate(
             error = AccountUiError.UPDATE_NOTIFICATION_FAILED,
             action = { notificationHandler.markNotificationRead(id) },
         )
 
-    suspend fun deleteNotification(id: Int): AccountNotificationMutationResult =
+    suspend fun deleteNotification(id: Int): AccountNotificationMutationOutcome =
         mutate(
             error = AccountUiError.UPDATE_NOTIFICATION_FAILED,
             action = { notificationHandler.deleteNotification(id) },
         )
 
-    suspend fun deleteAllNotifications(): AccountNotificationMutationResult =
+    suspend fun deleteAllNotifications(): AccountNotificationMutationOutcome =
         mutate(
             error = AccountUiError.UPDATE_NOTIFICATIONS_FAILED,
             action = notificationHandler::deleteAllNotifications,
         )
 
-    suspend fun markAllNotificationsRead(): AccountNotificationMutationResult =
+    suspend fun markAllNotificationsRead(): AccountNotificationMutationOutcome =
         mutate(
             error = AccountUiError.UPDATE_NOTIFICATIONS_FAILED,
-            action = { notificationHandler.markAllNotificationsRead() },
+            action = notificationHandler::markAllNotificationsRead,
         )
 
     private suspend fun mutate(
         error: AccountUiError,
         action: suspend () -> Result<Boolean>,
-    ): AccountNotificationMutationResult =
+    ): AccountNotificationMutationOutcome =
         action().fold(
             onSuccess = { updated ->
                 if (updated) {
-                    AccountNotificationMutationResult.Reloaded(hubHandler.loadNotifications())
+                    AccountNotificationMutationOutcome.Success
                 } else {
-                    AccountNotificationMutationResult.Unchanged
+                    AccountNotificationMutationOutcome.Unchanged
                 }
             },
-            onFailure = { AccountNotificationMutationResult.Failure(error) },
+            onFailure = { AccountNotificationMutationOutcome.Failure(error) },
         )
 }
 
-internal sealed interface AccountNotificationMutationResult {
-    data object Unchanged : AccountNotificationMutationResult
-    data class Reloaded(val notifications: AccountNotificationsLoadResult) :
-        AccountNotificationMutationResult
-
-    data class Failure(val error: AccountUiError) : AccountNotificationMutationResult
+/** Outcome of a notification mutation, applied optimistically on the client before this resolves. */
+internal sealed interface AccountNotificationMutationOutcome {
+    data object Success : AccountNotificationMutationOutcome
+    data object Unchanged : AccountNotificationMutationOutcome
+    data class Failure(val error: AccountUiError) : AccountNotificationMutationOutcome
 }

@@ -17,7 +17,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -30,6 +29,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import su.afk.yummy.tv.core.designsystem.presenter.components.loader.TvLoadingScreen
+import su.afk.yummy.tv.core.designsystem.presenter.focus.requestFocusUntilTimeout
 import su.afk.yummy.tv.core.designsystem.presenter.locals.LocalMainMenuFocusRequester
 import su.afk.yummy.tv.domain.account.model.ratingsByValue
 import su.afk.yummy.tv.domain.account.model.topGenres
@@ -65,10 +65,7 @@ internal fun StatsTab(
     fun requestProfileOverviewFocus() {
         scope.launch {
             listState.scrollToItem(PROFILE_OVERVIEW_ITEM_INDEX)
-            repeat(6) {
-                runCatching { profileOverviewFocusRequester.requestFocus() }
-                withFrameNanos { }
-            }
+            requestFocusUntilTimeout(profileOverviewFocusRequester)
         }
     }
 
@@ -82,23 +79,13 @@ internal fun StatsTab(
     }
 
     fun requestDaysOnlineFocus(): Boolean {
-        scope.launch {
-            repeat(6) {
-                runCatching { daysOnlineFocusRequester.requestFocus() }
-                withFrameNanos { }
-            }
-        }
+        scope.launch { requestFocusUntilTimeout(daysOnlineFocusRequester) }
         return true
     }
 
     fun requestMainMenuFocus(): Boolean {
         val requester = mainMenuFocusRequester ?: return false
-        scope.launch {
-            repeat(6) {
-                runCatching { requester.requestFocus() }
-                withFrameNanos { }
-            }
-        }
+        scope.launch { requestFocusUntilTimeout(requester) }
         return true
     }
 

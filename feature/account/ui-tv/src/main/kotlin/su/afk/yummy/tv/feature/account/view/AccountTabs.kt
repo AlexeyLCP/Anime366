@@ -9,7 +9,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -24,6 +23,7 @@ import androidx.compose.ui.input.key.type
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
+import su.afk.yummy.tv.core.designsystem.presenter.focus.requestFocusUntilTimeout
 import su.afk.yummy.tv.core.designsystem.presenter.locals.LocalMainMenuFocusRequester
 import su.afk.yummy.tv.feature.account.R
 import su.afk.yummy.tv.feature.account.account.AccountState
@@ -69,12 +69,7 @@ internal fun AccountTabs(
 
     fun requestMainMenuFocus(): Boolean {
         val requester = mainMenuFocusRequester ?: return false
-        scope.launch {
-            repeat(6) {
-                runCatching { requester.requestFocus() }
-                withFrameNanos { }
-            }
-        }
+        scope.launch { requestFocusUntilTimeout(requester) }
         return true
     }
 

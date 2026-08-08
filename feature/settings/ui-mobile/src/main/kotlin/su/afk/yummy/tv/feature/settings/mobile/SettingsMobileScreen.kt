@@ -19,7 +19,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -30,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import su.afk.yummy.tv.core.designsystem.presenter.baseScreen.BaseScreen
+import su.afk.yummy.tv.core.designsystem.presenter.focus.requestFocusUntilTimeout
 import su.afk.yummy.tv.core.designsystem.presenter.mobile.MobileTopBar
 import su.afk.yummy.tv.core.designsystem.presenter.preview.ScreenPreviewTheme
 import su.afk.yummy.tv.core.preferences.interface_mode.AppInterfaceMode
@@ -91,12 +91,7 @@ fun SettingsMobileScreen(
     }
 
     LaunchedEffect(Unit) {
-        repeat(3) {
-            withFrameNanos { }
-            if (runCatching { interfaceModeFocusRequester.requestFocus() }.getOrDefault(false)) {
-                return@LaunchedEffect
-            }
-        }
+        requestFocusUntilTimeout(interfaceModeFocusRequester)
     }
 
     LaunchedEffect(Unit) {

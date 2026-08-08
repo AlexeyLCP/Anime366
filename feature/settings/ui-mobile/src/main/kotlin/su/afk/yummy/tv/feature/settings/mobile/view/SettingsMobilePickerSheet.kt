@@ -18,7 +18,6 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -28,6 +27,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import su.afk.yummy.tv.core.designsystem.presenter.baseScreen.BaseBottomSheet
+import su.afk.yummy.tv.core.designsystem.presenter.focus.requestFocusUntilTimeout
 import su.afk.yummy.tv.feature.settings.mobile.model.SettingsMobilePickerOption
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -43,12 +43,7 @@ internal fun <T> SettingsMobilePickerSheet(
     val selectedOptionFocusRequester = remember { FocusRequester() }
 
     LaunchedEffect(selectedValue, options) {
-        repeat(3) {
-            withFrameNanos { }
-            if (runCatching { selectedOptionFocusRequester.requestFocus() }.getOrDefault(false)) {
-                return@LaunchedEffect
-            }
-        }
+        requestFocusUntilTimeout(selectedOptionFocusRequester)
     }
 
     BaseBottomSheet(

@@ -209,7 +209,16 @@ private suspend fun requestFocusForFrames(
     return false
 }
 
-private suspend fun requestFocusUntilTimeout(
+/**
+ * Retries [FocusRequester.requestFocus] on every frame until it succeeds or [TvLazyGridFocusRestoreTimeout]
+ * elapses, instead of a fixed number of attempts - the item may not be focusable yet on the frame
+ * right after it's scrolled into view, and a hardcoded retry count is either too short (still racy)
+ * or wastefully long (burns frames after focus would've already succeeded). Shared beyond this file's
+ * own grid/list restore use: any TV screen that needs to grab focus on something not yet guaranteed
+ * to be attached (e.g. right after a scroll, or right after a conditionally-shown overlay appears)
+ * should reuse this instead of rolling its own `repeat(N) { requestFocus(); withFrameNanos {} }`.
+ */
+suspend fun requestFocusUntilTimeout(
     requester: FocusRequester,
 ): Boolean =
     withTimeoutOrNull(TvLazyGridFocusRestoreTimeout) {

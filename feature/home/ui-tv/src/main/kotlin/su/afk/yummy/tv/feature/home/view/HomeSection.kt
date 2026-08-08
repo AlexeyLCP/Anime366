@@ -36,6 +36,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import su.afk.yummy.tv.core.designsystem.presenter.dimensions.TvCardSpacing
 import su.afk.yummy.tv.core.designsystem.presenter.dimensions.TvScreenPadding
+import su.afk.yummy.tv.core.designsystem.presenter.focus.requestFocusUntilTimeout
 import su.afk.yummy.tv.core.designsystem.presenter.focus.tvFocusRestorer
 import su.afk.yummy.tv.core.designsystem.presenter.locals.LocalMainMenuFocusRequester
 import su.afk.yummy.tv.core.logger.AppLogger
@@ -99,16 +100,13 @@ internal fun HomeSection(
         val isVisible = listState.layoutInfo.visibleItemsInfo.any { it.index == target }
         if (!isVisible) {
             listState.scrollToItem(target)
-            withFrameNanos { }
         }
-        runCatching { focusRequesterForItem(target).requestFocus() }
-        withFrameNanos { }
-        runCatching { focusRequesterForItem(target).requestFocus() }
-            .onFailure { error ->
-                AppLogger.w(TAG, error) {
-                    "requestItemFocus: не удалось сфокусировать карточку row=$rowKey item=$target"
-                }
+        val focused = requestFocusUntilTimeout(focusRequesterForItem(target))
+        if (!focused) {
+            AppLogger.w(TAG) {
+                "requestItemFocus: не удалось сфокусировать карточку row=$rowKey item=$target"
             }
+        }
     }
 
     fun rememberFocusedItem(index: Int) {

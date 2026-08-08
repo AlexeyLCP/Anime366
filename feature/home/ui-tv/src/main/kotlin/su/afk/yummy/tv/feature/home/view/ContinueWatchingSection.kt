@@ -36,6 +36,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import su.afk.yummy.tv.core.designsystem.presenter.dimensions.TvCardSpacing
 import su.afk.yummy.tv.core.designsystem.presenter.dimensions.TvScreenPadding
+import su.afk.yummy.tv.core.designsystem.presenter.focus.requestFocusUntilTimeout
 import su.afk.yummy.tv.core.designsystem.presenter.focus.tvFocusRestorer
 import su.afk.yummy.tv.core.designsystem.presenter.locals.LocalMainMenuFocusRequester
 import su.afk.yummy.tv.domain.home.model.HomeContinueWatchingItem
@@ -79,11 +80,8 @@ internal fun ContinueWatchingSection(
         val isVisible = listState.layoutInfo.visibleItemsInfo.any { it.index == target }
         if (!isVisible) {
             listState.scrollToItem(target)
-            withFrameNanos { }
         }
-        runCatching { focusRequesterForItem(target).requestFocus() }
-        withFrameNanos { }
-        runCatching { focusRequesterForItem(target).requestFocus() }
+        requestFocusUntilTimeout(focusRequesterForItem(target))
     }
 
     fun cancelPendingFocusMove() {

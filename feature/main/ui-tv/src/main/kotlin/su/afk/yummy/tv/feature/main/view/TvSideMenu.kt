@@ -20,7 +20,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
@@ -34,6 +33,7 @@ import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import su.afk.yummy.tv.core.designsystem.presenter.focus.requestFocusUntilTimeout
 import su.afk.yummy.tv.core.navigation.root.RootTab
 import su.afk.yummy.tv.feature.main.MainState
 import su.afk.yummy.tv.feature.main.R
@@ -95,10 +95,7 @@ internal fun TvSideMenu(
         val selectedIndex = focusedIndexFor(selectedRoot)
         focusedIndex = selectedIndex
         if (expanded) {
-            repeat(1) {
-                withFrameNanos { }
-                runCatching { rowFocusRequesters[selectedIndex].requestFocus() }
-            }
+            requestFocusUntilTimeout(rowFocusRequesters[selectedIndex])
         }
     }
 

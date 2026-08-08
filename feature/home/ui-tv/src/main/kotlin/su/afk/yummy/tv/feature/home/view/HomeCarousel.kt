@@ -17,7 +17,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
@@ -35,6 +34,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import su.afk.yummy.tv.core.designsystem.presenter.dimensions.TvScreenPadding
 import su.afk.yummy.tv.core.designsystem.presenter.focus.TvFocusOverlay
+import su.afk.yummy.tv.core.designsystem.presenter.focus.requestFocusUntilTimeout
 import su.afk.yummy.tv.core.designsystem.presenter.focus.tvFocusRestorer
 import su.afk.yummy.tv.core.designsystem.presenter.locals.LocalMainMenuFocusRequester
 import su.afk.yummy.tv.domain.home.model.HomeFeedItem
@@ -168,10 +168,7 @@ internal fun HomeCarousel(
         if (target != pagerState.currentPage) {
             pagerState.scrollToPage(target)
         }
-        repeat(6) {
-            runCatching { pageRequesters[target].requestFocus() }
-            withFrameNanos { }
-        }
+        requestFocusUntilTimeout(pageRequesters[target])
         showCarouselFocus = true
         notifyPageFocused(target)
     }

@@ -1,6 +1,7 @@
 package su.afk.yummy.tv.feature.account.account
 
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.launchIn
@@ -11,19 +12,23 @@ import su.afk.yummy.tv.core.error.IErrorHandlerUseCase
 import su.afk.yummy.tv.core.error.storage.RetryStorage
 import su.afk.yummy.tv.core.navigation.NavigationManager
 import su.afk.yummy.tv.core.preferences.settings.SettingsStore
+import su.afk.yummy.tv.domain.account.model.NotificationCount
+import su.afk.yummy.tv.domain.account.model.ProfileNotification
 import su.afk.yummy.tv.domain.account.usecase.ObserveAccountSessionUseCase
 import su.afk.yummy.tv.feature.account.IAccountNavigator
 import su.afk.yummy.tv.feature.account.account.handler.AccountHubHandler
 import su.afk.yummy.tv.feature.account.account.handler.AccountLoginResult
 import su.afk.yummy.tv.feature.account.account.handler.AccountNotificationHandler
 import su.afk.yummy.tv.feature.account.account.handler.AccountNotificationMutationHandler
-import su.afk.yummy.tv.feature.account.account.handler.AccountNotificationMutationResult
+import su.afk.yummy.tv.feature.account.account.handler.AccountNotificationMutationOutcome
 import su.afk.yummy.tv.feature.account.account.handler.AccountNotificationsLoadResult
 import su.afk.yummy.tv.feature.account.account.handler.AccountOpenNotificationResult
 import su.afk.yummy.tv.feature.account.account.handler.AccountRefreshResult
 import su.afk.yummy.tv.feature.account.account.handler.AccountSessionHandler
 import su.afk.yummy.tv.feature.account.account.model.AccountUiError
+import su.afk.yummy.tv.feature.account.utils.decrementCount
 import su.afk.yummy.tv.feature.account.utils.loginCredentialsOrNull
+import su.afk.yummy.tv.feature.account.utils.totalUnreadCount
 import su.afk.yummy.tv.feature.details.IDetailsNavigator
 import su.afk.yummy.tv.feature.messages.IMessagesNavigator
 import su.afk.yummy.tv.feature.videodownload.IVideoDownloadNavigator
@@ -226,26 +231,21 @@ class AccountViewModel @Inject internal constructor(
             is AccountState.Event.NotificationSelected -> openNotification(event.id)
             is AccountState.Event.NotificationReadSelected -> {
                 analytics.eventNotificationReadSelected(event.id)
-                updateNotification {
-                    notificationMutationHandler.markNotificationRead(event.id)
-                }
+                markNotificationReadOptimistically(event.id)
             }
 
             AccountState.Event.AllNotificationsReadSelected -> {
                 analytics.eventAllNotificationsReadSelected()
-                updateNotification {
-                    notificationMutationHandler.markAllNotificationsRead()
-                }
+                markAllNotificationsReadOptimistically()
             }
+
             AccountState.Event.AllNotificationsDeleteSelected -> {
-                updateNotification(notificationMutationHandler::deleteAllNotifications)
+                deleteAllNotificationsOptimistically()
             }
 
             is AccountState.Event.NotificationDeleteSelected -> {
                 analytics.eventNotificationDeleteSelected(event.id)
-                updateNotification {
-                    notificationMutationHandler.deleteNotification(event.id)
-                }
+                deleteNotificationOptimistically(event.id)
             }
         }
     }
@@ -265,6 +265,7 @@ class AccountViewModel @Inject internal constructor(
                             isNotificationOpening = false,
                         )
                     }
+                    if (!notification.viewed) markNotificationReadOptimistically(notification.id)
                     nav.navigate(detailsNavigator.getDetailsDest(result.animeId))
                 }
 
@@ -428,27 +429,116 @@ class AccountViewModel @Inject internal constructor(
         }
     }
 
-    private fun updateNotification(action: suspend () -> AccountNotificationMutationResult) {
+    // Notification mutations apply to local state immediately so the UI never waits on a
+    // network round trip; the server call runs in the background and only a failure re-syncs
+    // from `hubHandler`, since a stale response is otherwise indistinguishable from success.
+
+    private fun markNotificationReadOptimistically(id: Int) {
+        val notification = currentState.notifications.firstOrNull { it.id == id } ?: return
+        if (notification.viewed) return
+        val previousNotifications = currentState.notifications
+        val previousCounts = currentState.notificationCounts
+        val updatedCounts = previousCounts.decrementCount(notification.type)
+        setState {
+            copy(
+                notifications = notifications.map {
+                    if (it.id == id) it.copy(viewed = true) else it
+                }.toImmutableList(),
+                notificationCounts = updatedCounts,
+                hubError = null,
+            )
+        }
         viewModelScope.launch {
-            setState { copy(isNotificationsLoading = true, hubError = null) }
-            when (val result = action()) {
-                AccountNotificationMutationResult.Unchanged -> {
-                    setState { copy(isNotificationsLoading = false) }
-                }
-
-                is AccountNotificationMutationResult.Reloaded -> {
-                    applyNotificationsLoadResult(result.notifications)
-                }
-
-                is AccountNotificationMutationResult.Failure -> {
-                    setState {
-                        copy(
-                            isNotificationsLoading = false,
-                            hubError = result.error,
-                        )
-                    }
-                }
+            settingsStore.setYaniUnreadNotificationsCount(updatedCounts.totalUnreadCount())
+            val outcome = notificationMutationHandler.markNotificationRead(id)
+            if (outcome is AccountNotificationMutationOutcome.Failure) {
+                revertNotifications(previousNotifications, previousCounts, outcome.error)
             }
+        }
+    }
+
+    private fun deleteNotificationOptimistically(id: Int) {
+        val notification = currentState.notifications.firstOrNull { it.id == id } ?: return
+        val previousNotifications = currentState.notifications
+        val previousCounts = currentState.notificationCounts
+        val updatedCounts = if (notification.viewed) {
+            previousCounts
+        } else {
+            previousCounts.decrementCount(notification.type)
+        }
+        setState {
+            copy(
+                notifications = notifications.filterNot { it.id == id }.toImmutableList(),
+                notificationCounts = updatedCounts,
+                hubError = null,
+            )
+        }
+        viewModelScope.launch {
+            if (updatedCounts !== previousCounts) {
+                settingsStore.setYaniUnreadNotificationsCount(updatedCounts.totalUnreadCount())
+            }
+            val outcome = notificationMutationHandler.deleteNotification(id)
+            if (outcome is AccountNotificationMutationOutcome.Failure) {
+                revertNotifications(previousNotifications, previousCounts, outcome.error)
+            }
+        }
+    }
+
+    private fun markAllNotificationsReadOptimistically() {
+        val previousNotifications = currentState.notifications
+        val previousCounts = currentState.notificationCounts
+        if (previousNotifications.all { it.viewed }) return
+        setState {
+            copy(
+                notifications = notifications.map { it.copy(viewed = true) }.toImmutableList(),
+                notificationCounts = notificationCounts.map { it.copy(count = 0) }
+                    .toImmutableList(),
+                hubError = null,
+            )
+        }
+        viewModelScope.launch {
+            settingsStore.setYaniUnreadNotificationsCount(0)
+            val outcome = notificationMutationHandler.markAllNotificationsRead()
+            if (outcome is AccountNotificationMutationOutcome.Failure) {
+                revertNotifications(previousNotifications, previousCounts, outcome.error)
+            }
+        }
+    }
+
+    private fun deleteAllNotificationsOptimistically() {
+        val previousNotifications = currentState.notifications
+        val previousCounts = currentState.notificationCounts
+        if (previousNotifications.isEmpty()) return
+        setState {
+            copy(
+                notifications = persistentListOf(),
+                notificationCounts = persistentListOf(),
+                hubError = null,
+            )
+        }
+        viewModelScope.launch {
+            settingsStore.setYaniUnreadNotificationsCount(0)
+            val outcome = notificationMutationHandler.deleteAllNotifications()
+            if (outcome is AccountNotificationMutationOutcome.Failure) {
+                revertNotifications(previousNotifications, previousCounts, outcome.error)
+            }
+        }
+    }
+
+    private fun revertNotifications(
+        notifications: ImmutableList<ProfileNotification>,
+        counts: ImmutableList<NotificationCount>,
+        error: AccountUiError,
+    ) {
+        setState {
+            copy(
+                notifications = notifications,
+                notificationCounts = counts,
+                hubError = error,
+            )
+        }
+        viewModelScope.launch {
+            settingsStore.setYaniUnreadNotificationsCount(counts.totalUnreadCount())
         }
     }
 

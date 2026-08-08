@@ -24,7 +24,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -41,6 +40,7 @@ import su.afk.yummy.tv.core.designsystem.presenter.dimensions.currentTvTitleCard
 import su.afk.yummy.tv.core.designsystem.presenter.focus.TvFocusedGridBringIntoViewSpec
 import su.afk.yummy.tv.core.designsystem.presenter.focus.launchTvLazyGridKeyFocusRestore
 import su.afk.yummy.tv.core.designsystem.presenter.focus.rememberTvLazyFocusRestoreState
+import su.afk.yummy.tv.core.designsystem.presenter.focus.requestFocusUntilTimeout
 import su.afk.yummy.tv.core.designsystem.presenter.focus.tvFocusRestorer
 import su.afk.yummy.tv.core.designsystem.presenter.locals.LocalMainMenuFocusRequester
 import su.afk.yummy.tv.core.designsystem.presenter.locals.LocalPosterQuality
@@ -133,10 +133,7 @@ internal fun LibraryGrid(
         if (items.isEmpty()) {
             isRestoringFocus = true
             focusRestoreState.clear()
-            repeat(6) {
-                runCatching { selectedTabFocusRequester.requestFocus() }
-                withFrameNanos { }
-            }
+            requestFocusUntilTimeout(selectedTabFocusRequester)
             isRestoringFocus = false
         } else {
             val target = pendingIndex.coerceIn(0, items.lastIndex)

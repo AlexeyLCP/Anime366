@@ -28,7 +28,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -49,6 +48,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import su.afk.yummy.tv.core.designsystem.presenter.components.TvOverlayAppear
+import su.afk.yummy.tv.core.designsystem.presenter.focus.requestFocusUntilTimeout
 import su.afk.yummy.tv.core.designsystem.presenter.theme.YummySemanticColors
 import su.afk.yummy.tv.domain.account.model.UserAnimeList
 import su.afk.yummy.tv.feature.details.R
@@ -75,10 +75,7 @@ internal fun LibraryListPickerOverlay(
 
     LaunchedEffect(Unit) {
         focusManager.clearFocus(force = true)
-        withFrameNanos { }
-        runCatching { firstFocusRequester.requestFocus() }
-        withFrameNanos { }
-        runCatching { firstFocusRequester.requestFocus() }
+        requestFocusUntilTimeout(firstFocusRequester)
     }
 
     Dialog(

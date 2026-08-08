@@ -21,7 +21,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -37,6 +36,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import su.afk.yummy.tv.core.designsystem.presenter.dimensions.TvScreenPadding
+import su.afk.yummy.tv.core.designsystem.presenter.focus.requestFocusUntilTimeout
 import su.afk.yummy.tv.domain.search.model.SearchFilterOptions
 import su.afk.yummy.tv.domain.search.model.SearchFilters
 import su.afk.yummy.tv.domain.search.model.SearchSort
@@ -91,10 +91,7 @@ internal fun FilterPanel(
     }
 
     LaunchedEffect(Unit) {
-        repeat(6) {
-            runCatching { initialFocusRequester.requestFocus() }
-            withFrameNanos { }
-        }
+        requestFocusUntilTimeout(initialFocusRequester)
     }
 
     LaunchedEffect(currentGenrePickerMode, restoreGenreButtonMode) {
