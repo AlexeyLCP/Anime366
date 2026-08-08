@@ -98,6 +98,7 @@ class PlayerViewModel @AssistedInject internal constructor(
                 autoPlayNextEpisode = autoPlayNextEpisode,
                 pictureInPictureEnabled = pictureInPictureEnabled,
             ).copy(
+                playerOrientationMode = playerOrientationMode,
                 mobileGestureTutorialReady = mobileGestureTutorialReady,
                 showMobileGestureTutorial = showMobileGestureTutorial,
                 tvControlsTutorialReady = tvControlsTutorialReady,
@@ -137,6 +138,9 @@ class PlayerViewModel @AssistedInject internal constructor(
             .launchIn(viewModelScope)
         settingsHandler.pictureInPictureEnabled
             .onEach { enabled -> setState { copy(pictureInPictureEnabled = enabled) } }
+            .launchIn(viewModelScope)
+        settingsHandler.playerOrientationMode
+            .onEach { mode -> setState { copy(playerOrientationMode = mode) } }
             .launchIn(viewModelScope)
         settingsHandler.mobilePlayerGestureTutorialDismissed
             .onEach { dismissed ->

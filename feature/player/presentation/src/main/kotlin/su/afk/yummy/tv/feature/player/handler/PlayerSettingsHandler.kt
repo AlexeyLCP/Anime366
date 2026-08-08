@@ -3,6 +3,7 @@ package su.afk.yummy.tv.feature.player.handler
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import su.afk.yummy.tv.core.preferences.settings.PlayerMobileVideoTransformSettings
+import su.afk.yummy.tv.core.preferences.settings.PlayerOrientationMode
 import su.afk.yummy.tv.core.preferences.settings.PlayerResizeSettings
 import su.afk.yummy.tv.core.preferences.settings.SettingsStore
 import su.afk.yummy.tv.feature.player.utils.PlayerResizeSettingsScope
@@ -17,6 +18,7 @@ internal class PlayerSettingsHandler @Inject constructor(
     val showOpeningOnTimeline: Flow<Boolean> = settingsStore.showOpeningOnTimeline
     val autoPlayNextEpisode: Flow<Boolean> = settingsStore.autoPlayNextEpisode
     val pictureInPictureEnabled: Flow<Boolean> = settingsStore.pictureInPictureEnabled
+    val playerOrientationMode: Flow<PlayerOrientationMode> = settingsStore.playerOrientationMode
     val mobilePlayerGestureTutorialDismissed: Flow<Boolean> =
         settingsStore.mobilePlayerGestureTutorialDismissed
     val tvPlayerControlsTutorialDismissed: Flow<Boolean> =

@@ -13,6 +13,7 @@ import su.afk.yummy.tv.core.preferences.settings.AppTheme
 import su.afk.yummy.tv.core.preferences.settings.BackgroundStyle
 import su.afk.yummy.tv.core.preferences.settings.DetailsButtonAction
 import su.afk.yummy.tv.core.preferences.settings.LibraryContinueWatchingCardSize
+import su.afk.yummy.tv.core.preferences.settings.PlayerOrientationMode
 import su.afk.yummy.tv.core.preferences.settings.PosterCardSize
 import su.afk.yummy.tv.core.preferences.settings.PosterQuality
 import su.afk.yummy.tv.core.preferences.settings.PreferredPlayer
@@ -44,6 +45,7 @@ class SettingsState {
         val autoPlayNextEpisode: Boolean = false,
         val askDubbingOnWatch: Boolean = false,
         val pictureInPictureEnabled: Boolean = true,
+        val playerOrientationMode: PlayerOrientationMode = PlayerOrientationMode.SYSTEM,
         val mobilePlayerGestureTutorialDismissed: Boolean = false,
         val tvPlayerControlsTutorialDismissed: Boolean = false,
         val suggestNextEpisodeOnWatched: Boolean = true,
@@ -121,6 +123,9 @@ class SettingsState {
 
         /** Пользователь включил или выключил плавающий режим мобильного плеера. */
         data object PictureInPictureToggled : Event
+
+        /** Пользователь выбрал режим принудительной ориентации плеера. */
+        data class PlayerOrientationModeSelected(val mode: PlayerOrientationMode) : Event
 
         /** Пользователь переключил перехват кнопок громкости в ТВ-плеере. */
         data object TvPlayerVolumeKeysToggled : Event

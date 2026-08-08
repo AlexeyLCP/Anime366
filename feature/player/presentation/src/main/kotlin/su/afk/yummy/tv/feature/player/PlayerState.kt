@@ -3,6 +3,7 @@ package su.afk.yummy.tv.feature.player
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiEffect
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiEvent
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiState
+import su.afk.yummy.tv.core.preferences.settings.PlayerOrientationMode
 import su.afk.yummy.tv.core.preferences.settings.PlayerResizeMode
 import su.afk.yummy.tv.core.preferences.settings.PlayerZoomLevel
 import su.afk.yummy.tv.feature.player.model.PlayerFinalEpisodeAction
@@ -35,6 +36,7 @@ class PlayerState {
         val showOpeningOnTimeline: Boolean = false,
         val autoPlayNextEpisode: Boolean = false,
         val pictureInPictureEnabled: Boolean = true,
+        val playerOrientationMode: PlayerOrientationMode = PlayerOrientationMode.SYSTEM,
         val mobileGestureTutorialReady: Boolean = false,
         val showMobileGestureTutorial: Boolean = false,
         val tvControlsTutorialReady: Boolean = false,

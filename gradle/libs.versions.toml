@@ -29,7 +29,7 @@ hilt-navigation = "1.4.0"
 ksp = "2.3.6"
 
 # Network / Serialization / Async
-ktor = "3.5.1"
+ktor = "3.5.2"
 okhttp = "5.4.0"
 kotlinx-serialization-json = "1.11.0"
 kotlinx-coroutines = "1.11.0"
@@ -42,7 +42,7 @@ work = "2.11.2"
 # Media / Images
 coil = "3.5.0"
 jsoup = "1.23.1"
-media3 = "1.10.1"
+media3 = "1.11.0"
 
 # TV
 androidx-tv-tvprovider = "1.1.0"

@@ -8,6 +8,7 @@ internal enum class SettingsMobilePicker {
     LIBRARY_CONTINUE_WATCHING_SIZE,
     POSTER_QUALITY,
     PLAYER,
+    PLAYER_ORIENTATION,
     VIDEO_QUALITY,
     CACHE,
     CONTENT_LANGUAGE,

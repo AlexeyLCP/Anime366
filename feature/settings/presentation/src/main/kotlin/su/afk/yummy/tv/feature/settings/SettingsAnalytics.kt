@@ -7,6 +7,7 @@ import su.afk.yummy.tv.core.preferences.settings.AppTheme
 import su.afk.yummy.tv.core.preferences.settings.BackgroundStyle
 import su.afk.yummy.tv.core.preferences.settings.DetailsButtonAction
 import su.afk.yummy.tv.core.preferences.settings.LibraryContinueWatchingCardSize
+import su.afk.yummy.tv.core.preferences.settings.PlayerOrientationMode
 import su.afk.yummy.tv.core.preferences.settings.PosterCardSize
 import su.afk.yummy.tv.core.preferences.settings.PosterQuality
 import su.afk.yummy.tv.core.preferences.settings.PreferredPlayer
@@ -185,6 +186,14 @@ internal class SettingsAnalytics @Inject constructor(
         )
     }
 
+    /** Пользователь изменил режим принудительной ориентации плеера. */
+    fun eventPlayerOrientationModeSelected(mode: PlayerOrientationMode) {
+        tracker.track(
+            EVENT_PLAYER_ORIENTATION_MODE_SELECTED,
+            analyticsParamsOf(PARAM_VALUE to mode.name.lowercase()),
+        )
+    }
+
     /** Пользователь включил или выключил автовыгрузку серии после скачивания. */
     fun eventVideoExportAutoToggled(enabled: Boolean) {
         tracker.track(
@@ -334,6 +343,8 @@ internal class SettingsAnalytics @Inject constructor(
             "settings_ask_dubbing_on_watch_toggled"
         const val EVENT_PICTURE_IN_PICTURE_TOGGLED =
             "settings_picture_in_picture_toggled"
+        const val EVENT_PLAYER_ORIENTATION_MODE_SELECTED =
+            "settings_player_orientation_mode_selected"
         const val EVENT_VIDEO_EXPORT_AUTO_TOGGLED = "settings_video_export_auto_toggled"
         const val EVENT_TV_PLAYER_VOLUME_KEYS_TOGGLED =
             "settings_tv_player_volume_keys_toggled"

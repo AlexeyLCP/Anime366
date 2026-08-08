@@ -7,6 +7,7 @@ import su.afk.yummy.tv.core.preferences.settings.AppTheme
 import su.afk.yummy.tv.core.preferences.settings.BackgroundStyle
 import su.afk.yummy.tv.core.preferences.settings.DetailsButtonAction
 import su.afk.yummy.tv.core.preferences.settings.LibraryContinueWatchingCardSize
+import su.afk.yummy.tv.core.preferences.settings.PlayerOrientationMode
 import su.afk.yummy.tv.core.preferences.settings.PosterCardSize
 import su.afk.yummy.tv.core.preferences.settings.PosterQuality
 import su.afk.yummy.tv.core.preferences.settings.PreferredPlayer
@@ -211,6 +212,24 @@ internal fun PreferredPlayer.hint(): String = when (this) {
     PreferredPlayer.VK -> stringResource(R.string.settings_preferred_player_vk_hint)
     PreferredPlayer.RUTUBE -> stringResource(R.string.settings_preferred_player_rutube_hint)
 }
+
+@Composable
+internal fun PlayerOrientationMode.label(): String = stringResource(
+    when (this) {
+        PlayerOrientationMode.SYSTEM -> R.string.settings_player_orientation_system
+        PlayerOrientationMode.LEFT -> R.string.settings_player_orientation_left
+        PlayerOrientationMode.RIGHT -> R.string.settings_player_orientation_right
+    },
+)
+
+@Composable
+internal fun PlayerOrientationMode.hint(): String = stringResource(
+    when (this) {
+        PlayerOrientationMode.SYSTEM -> R.string.settings_player_orientation_system_hint
+        PlayerOrientationMode.LEFT -> R.string.settings_player_orientation_left_hint
+        PlayerOrientationMode.RIGHT -> R.string.settings_player_orientation_right_hint
+    },
+)
 
 @Composable
 internal fun PreferredVideoQuality.label(): String = stringResource(

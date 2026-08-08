@@ -38,6 +38,7 @@ class DataStoreSettingsStore(private val context: Context) : SettingsStore {
     private val autoPlayNextEpisodeKey = booleanPreferencesKey("auto_play_next_episode")
     private val askDubbingOnWatchKey = booleanPreferencesKey("ask_dubbing_on_watch")
     private val pictureInPictureEnabledKey = booleanPreferencesKey("picture_in_picture_enabled")
+    private val playerOrientationModeKey = stringPreferencesKey("player_orientation_mode")
     private val suggestNextEpisodeOnWatchedKey =
         booleanPreferencesKey("suggest_next_episode_on_watched")
     private val refreshContinueWatchingProgressOnLaunchKey =
@@ -135,6 +136,9 @@ class DataStoreSettingsStore(private val context: Context) : SettingsStore {
     override val pictureInPictureEnabled: Flow<Boolean> = context.dataStore.data.map { prefs ->
         prefs[pictureInPictureEnabledKey] ?: true
     }
+
+    override val playerOrientationMode: Flow<PlayerOrientationMode> =
+        enumFlow(playerOrientationModeKey, PlayerOrientationMode.SYSTEM)
 
     override val suggestNextEpisodeOnWatched: Flow<Boolean> = context.dataStore.data.map { prefs ->
         prefs[suggestNextEpisodeOnWatchedKey] ?: true
@@ -280,6 +284,10 @@ class DataStoreSettingsStore(private val context: Context) : SettingsStore {
             autoPlayNextEpisode = prefs[autoPlayNextEpisodeKey] ?: false,
             askDubbingOnWatch = prefs[askDubbingOnWatchKey] ?: false,
             pictureInPictureEnabled = prefs[pictureInPictureEnabledKey] ?: true,
+            playerOrientationMode = prefs.enum(
+                playerOrientationModeKey,
+                PlayerOrientationMode.SYSTEM
+            ),
             suggestNextEpisodeOnWatched = prefs[suggestNextEpisodeOnWatchedKey] ?: true,
             refreshContinueWatchingProgressOnLaunch =
                 prefs[refreshContinueWatchingProgressOnLaunchKey] ?: false,
@@ -389,6 +397,9 @@ class DataStoreSettingsStore(private val context: Context) : SettingsStore {
     override suspend fun setPictureInPictureEnabled(enabled: Boolean) {
         context.dataStore.edit { prefs -> prefs[pictureInPictureEnabledKey] = enabled }
     }
+
+    override suspend fun setPlayerOrientationMode(mode: PlayerOrientationMode) =
+        setEnum(playerOrientationModeKey, mode)
 
     override suspend fun setSuggestNextEpisodeOnWatched(enabled: Boolean) {
         context.dataStore.edit { prefs -> prefs[suggestNextEpisodeOnWatchedKey] = enabled }

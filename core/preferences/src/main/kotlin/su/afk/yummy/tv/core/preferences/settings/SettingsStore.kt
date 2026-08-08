@@ -18,6 +18,7 @@ data class SettingsSnapshot(
     val autoPlayNextEpisode: Boolean,
     val askDubbingOnWatch: Boolean,
     val pictureInPictureEnabled: Boolean,
+    val playerOrientationMode: PlayerOrientationMode,
     val suggestNextEpisodeOnWatched: Boolean,
     val refreshContinueWatchingProgressOnLaunch: Boolean,
     val tvPlayerVolumeKeysEnabled: Boolean,
@@ -65,6 +66,9 @@ interface SettingsStore {
     /** Спрашивать озвучку при нажатии "Смотреть", вместо автовыбора самой популярной. */
     val askDubbingOnWatch: Flow<Boolean>
     val pictureInPictureEnabled: Flow<Boolean>
+
+    /** Принудительная альбомная ориентация плеера, не зависящая от системной блокировки поворота. */
+    val playerOrientationMode: Flow<PlayerOrientationMode>
     val suggestNextEpisodeOnWatched: Flow<Boolean>
     val refreshContinueWatchingProgressOnLaunch: Flow<Boolean>
     val mobilePlayerGestureTutorialDismissed: Flow<Boolean>
@@ -127,6 +131,7 @@ interface SettingsStore {
     suspend fun setAutoPlayNextEpisode(enabled: Boolean)
     suspend fun setAskDubbingOnWatch(enabled: Boolean)
     suspend fun setPictureInPictureEnabled(enabled: Boolean)
+    suspend fun setPlayerOrientationMode(mode: PlayerOrientationMode)
     suspend fun setSuggestNextEpisodeOnWatched(enabled: Boolean)
     suspend fun setRefreshContinueWatchingProgressOnLaunch(enabled: Boolean)
     suspend fun dismissMobilePlayerGestureTutorial()

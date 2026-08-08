@@ -1,5 +1,6 @@
 package su.afk.yummy.tv.feature.player.mobile
 
+import android.content.pm.ActivityInfo
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.annotation.OptIn
@@ -36,6 +37,7 @@ import androidx.media3.common.util.UnstableApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import su.afk.yummy.tv.core.designsystem.presenter.preview.ScreenPreviewTheme
+import su.afk.yummy.tv.core.preferences.settings.PlayerOrientationMode
 import su.afk.yummy.tv.feature.player.PlayerState
 import su.afk.yummy.tv.feature.player.common.rememberPlayerPlaybackUiState
 import su.afk.yummy.tv.feature.player.mobile.model.MobileVideoTransform
@@ -75,6 +77,7 @@ fun PlayerMobileScreen(
     }
 
     HideMobilePlayerSystemBars()
+    ApplyPlayerOrientation(state.playerOrientationMode)
 
     BackHandler {
         if (showErrorBalancerSheet) {
@@ -213,6 +216,23 @@ fun PlayerMobileScreen(
                 },
                 onDismiss = { showErrorDubbingSheet = false },
             )
+        }
+    }
+}
+
+@Composable
+private fun ApplyPlayerOrientation(mode: PlayerOrientationMode) {
+    val context = LocalContext.current
+    val activity = remember(context) { MobilePlayerPipController.findActivity(context) }
+
+    DisposableEffect(activity, mode) {
+        activity?.requestedOrientation = when (mode) {
+            PlayerOrientationMode.SYSTEM -> ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+            PlayerOrientationMode.LEFT -> ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE
+            PlayerOrientationMode.RIGHT -> ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+        }
+        onDispose {
+            activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
         }
     }
 }

@@ -36,6 +36,7 @@ import su.afk.yummy.tv.core.preferences.interface_mode.AppInterfaceMode
 import su.afk.yummy.tv.core.preferences.settings.AppTheme
 import su.afk.yummy.tv.core.preferences.settings.BackgroundStyle
 import su.afk.yummy.tv.core.preferences.settings.LibraryContinueWatchingCardSize
+import su.afk.yummy.tv.core.preferences.settings.PlayerOrientationMode
 import su.afk.yummy.tv.core.preferences.settings.PosterCardSize
 import su.afk.yummy.tv.core.preferences.settings.PosterQuality
 import su.afk.yummy.tv.core.preferences.settings.PreferredPlayer
@@ -212,6 +213,12 @@ fun SettingsMobileScreen(
                         value = state.preferredVideoQuality.label(),
                         hint = state.preferredVideoQuality.hint(),
                         onClick = { activePicker = SettingsMobilePicker.VIDEO_QUALITY },
+                    )
+                    SettingsMobileOptionRow(
+                        label = stringResource(R.string.settings_player_orientation_title),
+                        value = state.playerOrientationMode.label(),
+                        hint = state.playerOrientationMode.hint(),
+                        onClick = { activePicker = SettingsMobilePicker.PLAYER_ORIENTATION },
                     )
                     SettingsMobileToggleRow(
                         label = stringResource(R.string.settings_auto_skip_label),
@@ -537,6 +544,23 @@ fun SettingsMobileScreen(
             onDismiss = { activePicker = null },
             onSelected = {
                 onEvent(SettingsState.Event.PreferredPlayerSelected(it))
+                activePicker = null
+            },
+        )
+
+        SettingsMobilePicker.PLAYER_ORIENTATION -> SettingsMobilePickerSheet(
+            title = stringResource(R.string.settings_player_orientation_title),
+            selectedValue = state.playerOrientationMode,
+            options = PlayerOrientationMode.entries.map {
+                SettingsMobilePickerOption(
+                    it,
+                    it.label(),
+                    it.hint(),
+                )
+            },
+            onDismiss = { activePicker = null },
+            onSelected = {
+                onEvent(SettingsState.Event.PlayerOrientationModeSelected(it))
                 activePicker = null
             },
         )

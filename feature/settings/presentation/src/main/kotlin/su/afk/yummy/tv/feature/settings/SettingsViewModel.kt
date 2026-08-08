@@ -59,6 +59,7 @@ class SettingsViewModel @Inject internal constructor(
                         autoPlayNextEpisode = snapshot.autoPlayNextEpisode,
                         askDubbingOnWatch = snapshot.askDubbingOnWatch,
                         pictureInPictureEnabled = snapshot.pictureInPictureEnabled,
+                        playerOrientationMode = snapshot.playerOrientationMode,
                         suggestNextEpisodeOnWatched = snapshot.suggestNextEpisodeOnWatched,
                         refreshContinueWatchingProgressOnLaunch =
                             snapshot.refreshContinueWatchingProgressOnLaunch,
@@ -203,6 +204,11 @@ class SettingsViewModel @Inject internal constructor(
                 val enabled = !currentState.pictureInPictureEnabled
                 analytics.eventPictureInPictureToggled(enabled)
                 settingsStore.setPictureInPictureEnabled(enabled)
+            }
+
+            is SettingsState.Event.PlayerOrientationModeSelected -> viewModelScope.launch {
+                analytics.eventPlayerOrientationModeSelected(event.mode)
+                settingsStore.setPlayerOrientationMode(event.mode)
             }
 
             SettingsState.Event.TvPlayerVolumeKeysToggled -> viewModelScope.launch {
