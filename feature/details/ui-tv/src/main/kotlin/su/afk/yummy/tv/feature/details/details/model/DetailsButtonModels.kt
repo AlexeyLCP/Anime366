@@ -1,5 +1,6 @@
 package su.afk.yummy.tv.feature.details.details.model
 
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import su.afk.yummy.tv.core.preferences.settings.DetailsButtonAction
 
@@ -11,6 +12,7 @@ internal data class ButtonData(
     val icon: ImageVector,
     val style: ButtonStyle,
     val onClick: () -> Unit,
+    val overrideColor: Color? = null,
 )
 
 internal sealed interface ButtonRowData {

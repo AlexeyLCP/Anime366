@@ -52,6 +52,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
@@ -65,6 +66,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import kotlinx.coroutines.launch
 import su.afk.yummy.tv.core.designsystem.presenter.focus.tvFocusableClick
+import su.afk.yummy.tv.core.designsystem.presenter.theme.YummySemanticColors
 import su.afk.yummy.tv.core.model.anime.AnimeDetails
 import su.afk.yummy.tv.core.preferences.settings.DetailsButtonAction
 import su.afk.yummy.tv.core.preferences.settings.SettingsStore
@@ -77,6 +79,7 @@ import su.afk.yummy.tv.feature.details.details.model.VideosUiState
 import su.afk.yummy.tv.feature.details.details.utils.label
 import su.afk.yummy.tv.feature.details.model.DetailsWatchProgressIndex
 import su.afk.yummy.tv.feature.details.utils.resolveDetailsContinueTarget
+import su.afk.yummy.tv.feature.details.utils.statusColor
 
 @Composable
 internal fun DetailsButtonBar(
@@ -142,6 +145,8 @@ internal fun DetailsButtonBar(
         icon = if (isInLibrary) Icons.AutoMirrored.Filled.PlaylistAddCheck else Icons.AutoMirrored.Filled.PlaylistAdd,
         style = if (isInLibrary) ButtonStyle.Outlined else ButtonStyle.Normal,
         onClick = onLibraryToggle,
+        overrideColor = if (isInLibrary) (libraryList
+            ?: UserAnimeList.WATCHING).statusColor() else null,
     )
     val favoriteButton = ButtonData(
         action = DetailsButtonAction.FAVORITE,
@@ -152,6 +157,7 @@ internal fun DetailsButtonBar(
         icon = if (isFavorite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
         style = if (isFavorite) ButtonStyle.Outlined else ButtonStyle.Normal,
         onClick = onFavoriteToggle,
+        overrideColor = if (isFavorite) YummySemanticColors.StatusFavorite else null,
     )
     val secondaryButtons = listOf(
         ButtonData(
@@ -439,6 +445,7 @@ private fun DetailsActionButton(
         label = button.label,
         icon = button.icon,
         style = button.style,
+        overrideColor = button.overrideColor,
         showLabel = showLabel,
         iconSize = iconSize,
         verticalPadding = verticalPadding,
@@ -462,6 +469,7 @@ private fun ActionButton(
     label: String,
     icon: ImageVector,
     style: ButtonStyle,
+    overrideColor: Color? = null,
     showLabel: Boolean = true,
     iconSize: Dp = 18.dp,
     verticalPadding: Dp = 8.dp,
@@ -470,15 +478,23 @@ private fun ActionButton(
     modifier: Modifier = Modifier,
 ) {
     val shape = RoundedCornerShape(6.dp)
-    val bgColor = when (style) {
-        ButtonStyle.Filled -> MaterialTheme.colorScheme.onSurface
-        ButtonStyle.Outlined -> MaterialTheme.colorScheme.primary
-        ButtonStyle.Normal -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.15f)
+    val bgColor = if (overrideColor != null) {
+        overrideColor.copy(alpha = 0.20f)
+    } else {
+        when (style) {
+            ButtonStyle.Filled -> MaterialTheme.colorScheme.onSurface
+            ButtonStyle.Outlined -> MaterialTheme.colorScheme.primary
+            ButtonStyle.Normal -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.15f)
+        }
     }
-    val textColor = when (style) {
-        ButtonStyle.Filled -> MaterialTheme.colorScheme.surface
-        ButtonStyle.Outlined -> MaterialTheme.colorScheme.onPrimary
-        ButtonStyle.Normal -> MaterialTheme.colorScheme.onSurface
+    val textColor = if (overrideColor != null) {
+        overrideColor
+    } else {
+        when (style) {
+            ButtonStyle.Filled -> MaterialTheme.colorScheme.surface
+            ButtonStyle.Outlined -> MaterialTheme.colorScheme.onPrimary
+            ButtonStyle.Normal -> MaterialTheme.colorScheme.onSurface
+        }
     }
 
     Box(

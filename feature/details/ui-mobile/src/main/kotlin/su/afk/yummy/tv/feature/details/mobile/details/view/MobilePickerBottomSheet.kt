@@ -3,6 +3,7 @@ package su.afk.yummy.tv.feature.details.mobile.details.view
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
@@ -14,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
@@ -82,14 +84,27 @@ private fun MobilePickerItemRow(item: MobilePickerItem) {
             .clickable(enabled = item.enabled, onClick = item.onClick)
             .padding(horizontal = 16.dp, vertical = 14.dp),
     ) {
-        Text(
-            text = item.title,
-            color = titleColor,
-            style = MaterialTheme.typography.bodyLarge,
-            fontWeight = if (item.enabled) FontWeight.Medium else FontWeight.Normal,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-        )
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            if (item.color != null) {
+                Box(
+                    modifier = Modifier
+                        .size(8.dp)
+                        .clip(CircleShape)
+                        .background(item.color),
+                )
+            }
+            Text(
+                text = item.title,
+                color = titleColor,
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = if (item.enabled) FontWeight.Medium else FontWeight.Normal,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+        }
         if (!item.subtitle.isNullOrBlank()) {
             val subtitleColor =
                 colorScheme.onSurfaceVariant.copy(alpha = if (item.enabled) 1f else 0.6f)

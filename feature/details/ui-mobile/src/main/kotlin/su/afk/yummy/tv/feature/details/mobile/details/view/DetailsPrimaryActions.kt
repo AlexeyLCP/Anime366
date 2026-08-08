@@ -14,6 +14,7 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -23,11 +24,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import su.afk.yummy.tv.core.designsystem.presenter.theme.YummySemanticColors
 import su.afk.yummy.tv.core.model.anime.AnimeDetails
 import su.afk.yummy.tv.feature.details.details.DetailsState
 import su.afk.yummy.tv.feature.details.mobile.R
 import su.afk.yummy.tv.feature.details.mobile.details.utils.libraryLabel
 import su.afk.yummy.tv.feature.details.mobile.details.utils.watchLabel
+import su.afk.yummy.tv.feature.details.utils.statusColor
 
 @Composable
 internal fun DetailsPrimaryActions(
@@ -62,8 +65,17 @@ internal fun DetailsPrimaryActions(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
+            val libraryStatusColor = state.libraryList?.takeIf { state.isInLibrary }?.statusColor()
             FilledTonalButton(
                 onClick = onLibraryToggle,
+                colors = if (libraryStatusColor != null) {
+                    ButtonDefaults.filledTonalButtonColors(
+                        containerColor = libraryStatusColor.copy(alpha = 0.18f),
+                        contentColor = libraryStatusColor,
+                    )
+                } else {
+                    ButtonDefaults.filledTonalButtonColors()
+                },
                 modifier = Modifier
                     .weight(1f)
                     .height(46.dp),
@@ -85,6 +97,14 @@ internal fun DetailsPrimaryActions(
             }
             FilledTonalButton(
                 onClick = onFavoriteToggle,
+                colors = if (state.isFavorite) {
+                    ButtonDefaults.filledTonalButtonColors(
+                        containerColor = YummySemanticColors.StatusFavorite.copy(alpha = 0.18f),
+                        contentColor = YummySemanticColors.StatusFavorite,
+                    )
+                } else {
+                    ButtonDefaults.filledTonalButtonColors()
+                },
                 modifier = Modifier
                     .weight(1f)
                     .height(46.dp),

@@ -15,8 +15,10 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -51,6 +53,7 @@ import su.afk.yummy.tv.core.designsystem.presenter.theme.YummySemanticColors
 import su.afk.yummy.tv.domain.account.model.UserAnimeList
 import su.afk.yummy.tv.feature.details.R
 import su.afk.yummy.tv.feature.details.details.utils.label
+import su.afk.yummy.tv.feature.details.utils.statusColor
 
 @Composable
 internal fun LibraryListPickerOverlay(
@@ -127,6 +130,7 @@ internal fun LibraryListPickerOverlay(
                     options.forEachIndexed { index, list ->
                         LibraryListOptionItem(
                             label = list.label(),
+                            color = list.statusColor(),
                             focusRequester = if (index == 0) firstFocusRequester else null,
                             onFocused = { focusedOptionIndex = index },
                             onClick = { onConfirmed(list) },
@@ -141,6 +145,7 @@ internal fun LibraryListPickerOverlay(
 @Composable
 private fun LibraryListOptionItem(
     label: String,
+    color: Color,
     focusRequester: FocusRequester?,
     onFocused: () -> Unit,
     onClick: () -> Unit,
@@ -170,6 +175,12 @@ private fun LibraryListOptionItem(
         horizontalArrangement = Arrangement.spacedBy(14.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
+        Box(
+            modifier = Modifier
+                .size(8.dp)
+                .clip(CircleShape)
+                .background(color),
+        )
         Text(
             text = label,
             style = MaterialTheme.typography.titleSmall,
