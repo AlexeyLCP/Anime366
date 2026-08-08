@@ -7,10 +7,12 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import su.afk.yummy.tv.core.logger.AppLogger
 import su.afk.yummy.tv.domain.account.usecase.ObserveAccountSessionUseCase
@@ -41,8 +43,13 @@ class OnlineStatusCoordinator @Inject constructor(
                 foreground && session.isAuthorized
             }
                 .distinctUntilChanged()
-                .filter { it }
-                .collect { sendOnlineStatus() }
+                .collectLatest { active ->
+                    if (!active) return@collectLatest
+                    while (isActive) {
+                        sendOnlineStatus()
+                        delay(HEARTBEAT_INTERVAL_MS)
+                    }
+                }
         }
         ProcessLifecycleOwner.get().lifecycle.addObserver(this)
     }
@@ -73,5 +80,6 @@ class OnlineStatusCoordinator @Inject constructor(
 
     private companion object {
         const val TAG = "OnlineStatus"
+        const val HEARTBEAT_INTERVAL_MS = 3 * 60 * 1000L
     }
 }
