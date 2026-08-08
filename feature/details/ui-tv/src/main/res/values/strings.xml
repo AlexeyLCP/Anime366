@@ -130,6 +130,7 @@
     <string name="details_views_millions">%1$sM</string>
     <string name="details_views_thousands">%1$dK</string>
     <string name="details_related_anime">Related anime</string>
+    <string name="details_related_anime_count">Related anime (%1$d)</string>
     <string name="details_related_empty">No related anime found</string>
     <string name="details_relation_studio">Studio</string>
     <string name="details_relation_director">Director</string>

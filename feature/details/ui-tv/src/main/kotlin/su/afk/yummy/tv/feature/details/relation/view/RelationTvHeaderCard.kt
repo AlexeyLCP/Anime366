@@ -1,6 +1,6 @@
 package su.afk.yummy.tv.feature.details.relation.view
 
-import androidx.compose.foundation.focusable
+import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -10,15 +10,16 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import su.afk.yummy.tv.core.designsystem.presenter.focus.tvFocusIndicator
 import su.afk.yummy.tv.domain.anime.model.AnimeRelation
-import su.afk.yummy.tv.feature.details.R
 import su.afk.yummy.tv.feature.details.full.view.FullDetailsChip
 import su.afk.yummy.tv.feature.details.relation.model.RelationType
 import su.afk.yummy.tv.feature.details.relation.utils.labelRes
@@ -29,13 +30,20 @@ internal fun RelationTvHeaderCard(
     relationType: RelationType,
     relation: AnimeRelation,
     onSubGenreSelected: (Int) -> Unit,
+    subGenreFocusRequesters: Map<Int, FocusRequester> = emptyMap(),
     modifier: Modifier = Modifier,
 ) {
+    val hasSubGenres = relation.subGenres.isNotEmpty()
+    val shape = MaterialTheme.shapes.extraLarge
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .focusable(),
-        shape = MaterialTheme.shapes.extraLarge,
+            .then(
+                // Если чипов нет, карточке самой нужен фокус-стоп, иначе описание
+                // нечем прочитать пультом; если чипы есть — пропускаем фокус к ним.
+                if (hasSubGenres) Modifier.focusGroup() else Modifier.tvFocusIndicator(shape = shape),
+            ),
+        shape = shape,
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceVariant,
         ),
@@ -62,21 +70,6 @@ internal fun RelationTvHeaderCard(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
-            Surface(
-                shape = MaterialTheme.shapes.large,
-                color = MaterialTheme.colorScheme.secondaryContainer,
-                contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-            ) {
-                Text(
-                    text = stringResource(
-                        R.string.details_relation_titles_found,
-                        relation.anime.size,
-                    ),
-                    style = MaterialTheme.typography.titleSmall,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp),
-                )
-            }
             relation.description?.let { description ->
                 Text(
                     text = description,
@@ -84,7 +77,7 @@ internal fun RelationTvHeaderCard(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
-            if (relation.subGenres.isNotEmpty()) {
+            if (hasSubGenres) {
                 FlowRow(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -93,6 +86,9 @@ internal fun RelationTvHeaderCard(
                         FullDetailsChip(
                             label = genre.title,
                             onClick = { onSubGenreSelected(genre.id) },
+                            modifier = subGenreFocusRequesters[genre.id]
+                                ?.let { Modifier.focusRequester(it) }
+                                ?: Modifier,
                         )
                     }
                 }

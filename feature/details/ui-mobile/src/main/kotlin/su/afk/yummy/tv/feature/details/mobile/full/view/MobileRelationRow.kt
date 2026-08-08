@@ -1,10 +1,12 @@
 package su.afk.yummy.tv.feature.details.mobile.full.view
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.material3.AssistChip
+import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -28,7 +30,18 @@ internal fun MobileRelationRow(
             verticalArrangement = Arrangement.spacedBy(4.dp),
         ) {
             items.forEach { (title, onClick) ->
-                AssistChip(onClick = onClick, label = { Text(title) })
+                AssistChip(
+                    onClick = onClick,
+                    label = { Text(title) },
+                    colors = AssistChipDefaults.assistChipColors(
+                        containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.18f),
+                        labelColor = MaterialTheme.colorScheme.primary,
+                    ),
+                    border = BorderStroke(
+                        1.dp,
+                        MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
+                    ),
+                )
             }
         }
     }

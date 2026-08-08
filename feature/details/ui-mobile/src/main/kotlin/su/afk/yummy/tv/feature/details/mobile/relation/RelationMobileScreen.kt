@@ -102,7 +102,10 @@ fun RelationMobileScreen(
                             },
                         )
                         Text(
-                            text = stringResource(R.string.details_mobile_related_anime),
+                            text = stringResource(
+                                R.string.details_mobile_related_anime_count,
+                                relation.anime.size,
+                            ),
                             style = MaterialTheme.typography.titleLarge,
                             fontWeight = FontWeight.Bold,
                             modifier = Modifier.padding(top = 20.dp),

@@ -10,14 +10,22 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.listSaver
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -28,6 +36,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.withTimeoutOrNull
 import su.afk.yummy.tv.core.designsystem.presenter.components.RatingBadge
 import su.afk.yummy.tv.core.designsystem.presenter.components.TvTitleCard
 import su.afk.yummy.tv.core.designsystem.presenter.components.loader.TvLoadingScreen
@@ -42,6 +51,7 @@ import su.afk.yummy.tv.feature.details.R
 import su.afk.yummy.tv.feature.details.relation.model.RelationType
 import su.afk.yummy.tv.feature.details.relation.view.RelationTvHeaderCard
 import su.afk.yummy.tv.feature.details.view.common.DetailsError
+import kotlin.time.Duration.Companion.milliseconds
 
 @Preview(
     name = "Director",
@@ -102,11 +112,64 @@ fun RelationTvScreen(
 
             else -> {
                 val relation = checkNotNull(state.relation)
+                val gridState = rememberLazyGridState()
                 val headerFocusRequester = remember { FocusRequester() }
+
+                // Запоминаем чип поджанра/карточку связанного аниме, с которых ушли,
+                // чтобы при возврате назад вернуть фокус именно на них. Единый sealed-тип
+                // гарантирует, что "последней целью" может быть только что-то одно —
+                // в отличие от пары независимых nullable-полей, где легко забыть сбросить
+                // одно при установке другого.
+                var lastFocusTarget by rememberSaveable(
+                    relation.title,
+                    stateSaver = RelationFocusTargetSaver,
+                ) {
+                    mutableStateOf<RelationFocusTarget?>(null)
+                }
+                val subGenreFocusRequesters = remember(relation.subGenres) {
+                    relation.subGenres.associate { it.id to FocusRequester() }
+                }
+                val animeFocusRequesters = remember(relation.anime) {
+                    relation.anime.associate { it.animeId to FocusRequester() }
+                }
+                val animeIndexById = remember(relation.anime) {
+                    relation.anime.mapIndexed { index, item -> item.animeId to index }.toMap()
+                }
+
                 LaunchedEffect(relation.title) {
-                    headerFocusRequester.requestFocus()
+                    when (val target = lastFocusTarget) {
+                        is RelationFocusTarget.SubGenre -> {
+                            val requester = subGenreFocusRequesters[target.id]
+                            if (requester != null) {
+                                restoreRelationItemFocus(
+                                    gridState,
+                                    itemIndex = 0,
+                                    requester = requester
+                                )
+                            } else {
+                                headerFocusRequester.requestFocus()
+                            }
+                        }
+
+                        is RelationFocusTarget.Anime -> {
+                            val index = animeIndexById[target.id]
+                            val requester = animeFocusRequesters[target.id]
+                            if (index != null && requester != null) {
+                                restoreRelationItemFocus(
+                                    gridState,
+                                    itemIndex = index + 1,
+                                    requester = requester,
+                                )
+                            } else {
+                                headerFocusRequester.requestFocus()
+                            }
+                        }
+
+                        null -> headerFocusRequester.requestFocus()
+                    }
                 }
                 LazyVerticalGrid(
+                    state = gridState,
                     columns = GridCells.Adaptive(currentTvTitleCardDimensions().width),
                     contentPadding = PaddingValues(
                         horizontal = TvScreenPadding.Horizontal,
@@ -121,12 +184,17 @@ fun RelationTvScreen(
                                 relationType = state.relationType,
                                 relation = relation,
                                 onSubGenreSelected = { genreId ->
+                                    lastFocusTarget = RelationFocusTarget.SubGenre(genreId)
                                     onEvent(RelationState.Event.SubGenreSelected(genreId))
                                 },
+                                subGenreFocusRequesters = subGenreFocusRequesters,
                                 modifier = Modifier.focusRequester(headerFocusRequester),
                             )
                             Text(
-                                text = stringResource(R.string.details_related_anime),
+                                text = stringResource(
+                                    R.string.details_related_anime_count,
+                                    relation.anime.size,
+                                ),
                                 style = MaterialTheme.typography.headlineSmall,
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.onBackground,
@@ -144,8 +212,12 @@ fun RelationTvScreen(
                             title = item.title,
                             posterUrl = item.posterUrl,
                             onClick = {
+                                lastFocusTarget = RelationFocusTarget.Anime(item.animeId)
                                 onEvent(RelationState.Event.AnimeSelected(item.animeId))
                             },
+                            modifier = animeFocusRequesters[item.animeId]
+                                ?.let { Modifier.focusRequester(it) }
+                                ?: Modifier,
                             posterOverlay = {
                                 item.rating?.let { rating ->
                                     RatingBadge(
@@ -174,6 +246,48 @@ fun RelationTvScreen(
                     }
                 }
             }
+        }
+    }
+}
+
+private sealed interface RelationFocusTarget {
+    data class SubGenre(val id: Int) : RelationFocusTarget
+    data class Anime(val id: Int) : RelationFocusTarget
+}
+
+private val RelationFocusTargetSaver = listSaver<RelationFocusTarget?, Any>(
+    save = { target ->
+        when (target) {
+            null -> emptyList()
+            is RelationFocusTarget.SubGenre -> listOf(true, target.id)
+            is RelationFocusTarget.Anime -> listOf(false, target.id)
+        }
+    },
+    restore = { saved ->
+        if (saved.isEmpty()) {
+            null
+        } else {
+            val id = saved[1] as Int
+            if (saved[0] as Boolean) RelationFocusTarget.SubGenre(id) else RelationFocusTarget.Anime(
+                id
+            )
+        }
+    },
+)
+
+private val RelationFocusRestoreTimeout = 500.milliseconds
+
+private suspend fun restoreRelationItemFocus(
+    gridState: LazyGridState,
+    itemIndex: Int,
+    requester: FocusRequester,
+) {
+    withTimeoutOrNull(RelationFocusRestoreTimeout) {
+        gridState.scrollToItem(itemIndex)
+        var focused = false
+        while (!focused) {
+            withFrameNanos { }
+            focused = runCatching { requester.requestFocus() }.getOrDefault(false)
         }
     }
 }

@@ -1,6 +1,8 @@
 package su.afk.yummy.tv.feature.details.full.view
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -18,19 +20,30 @@ internal fun FullDetailsChip(
     modifier: Modifier = Modifier,
 ) {
     val shape = RoundedCornerShape(999.dp)
+    val clickable = onClick != null
+    val primary = MaterialTheme.colorScheme.primary
     Text(
         text = label,
         style = MaterialTheme.typography.titleSmall,
         fontWeight = FontWeight.Bold,
-        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.86f),
+        color = if (clickable) primary else MaterialTheme.colorScheme.onSurface,
         modifier = modifier
             .background(
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f),
+                color = if (clickable) {
+                    primary.copy(alpha = 0.18f)
+                } else {
+                    MaterialTheme.colorScheme.surfaceContainerHigh
+                },
                 shape = shape,
             )
             .then(
-                if (onClick != null) {
-                    Modifier.tvFocusableClick(onClick = onClick, shape = shape)
+                if (clickable) {
+                    Modifier
+                        .border(
+                            border = BorderStroke(1.dp, primary.copy(alpha = 0.5f)),
+                            shape = shape,
+                        )
+                        .tvFocusableClick(onClick = onClick!!, shape = shape)
                 } else {
                     Modifier
                 },
