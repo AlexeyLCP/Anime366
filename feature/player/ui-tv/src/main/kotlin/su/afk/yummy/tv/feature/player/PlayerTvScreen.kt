@@ -16,7 +16,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -29,6 +28,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.launch
+import su.afk.yummy.tv.core.designsystem.presenter.focus.requestFocusUntilTimeout
 import su.afk.yummy.tv.core.designsystem.presenter.preview.ScreenPreviewTheme
 import su.afk.yummy.tv.feature.player.common.rememberPlayerPlaybackUiState
 import su.afk.yummy.tv.feature.player.model.PlayerControlFocusTarget
@@ -98,15 +98,13 @@ fun PlayerTvScreen(
 
     LaunchedEffect(showErrorBalancerPanel, canChangePlayer) {
         if (showErrorBalancerPanel && canChangePlayer) {
-            withFrameNanos { }
-            runCatching { selectedErrorBalancerFocusRequester.requestFocus() }
+            requestFocusUntilTimeout(selectedErrorBalancerFocusRequester)
         }
     }
 
     LaunchedEffect(showErrorDubbingPanel, canChangeDubbing) {
         if (showErrorDubbingPanel && canChangeDubbing) {
-            withFrameNanos { }
-            runCatching { selectedErrorDubbingFocusRequester.requestFocus() }
+            requestFocusUntilTimeout(selectedErrorDubbingFocusRequester)
         }
     }
 

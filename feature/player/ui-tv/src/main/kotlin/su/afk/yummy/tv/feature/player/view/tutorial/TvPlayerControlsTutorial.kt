@@ -23,7 +23,6 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -39,13 +38,10 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.withTimeoutOrNull
+import su.afk.yummy.tv.core.designsystem.presenter.focus.requestFocusUntilTimeout
 import su.afk.yummy.tv.core.designsystem.presenter.theme.YummySemanticColors
 import su.afk.yummy.tv.feature.player.presentation.R
 import su.afk.yummy.tv.feature.player.view.player.TvControlButton
-import kotlin.time.Duration.Companion.milliseconds
-
-private val TUTORIAL_FOCUS_REQUEST_TIMEOUT = 500.milliseconds
 
 /** Полноэкранное одноразовое обучение управлению ТВ-плеером с пульта. */
 @Composable
@@ -65,13 +61,7 @@ internal fun TvPlayerControlsTutorial(
     }
 
     LaunchedEffect(Unit) {
-        withTimeoutOrNull(TUTORIAL_FOCUS_REQUEST_TIMEOUT) {
-            var focused = false
-            while (!focused) {
-                withFrameNanos { }
-                focused = runCatching { nextFocusRequester.requestFocus() }.getOrDefault(false)
-            }
-        }
+        requestFocusUntilTimeout(nextFocusRequester)
     }
 
     val onNext: () -> Unit = {

@@ -8,7 +8,6 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.focus.FocusRequester
 import kotlinx.coroutines.delay
 import su.afk.yummy.tv.core.logger.AppLogger
@@ -164,11 +163,7 @@ internal fun TvMainFocusEffects(
         if (focusController.initialContentFocusRequested) {
             return@LaunchedEffect
         }
-        withFrameNanos { }
-        withFrameNanos { }
-        val focused = runCatching {
-            focusController.contentFocusRequester.requestFocus()
-        }.getOrDefault(false)
+        val focused = requestFocusOnFrameBoundary(focusController.contentFocusRequester)
         focusController.onInitialContentFocusRequested(focused)
     }
 
@@ -183,8 +178,7 @@ internal fun TvMainFocusEffects(
         ) {
             return@LaunchedEffect
         }
-        withFrameNanos { }
-        runCatching { selectedRootFocusRequester.requestFocus() }
+        requestFocusOnFrameBoundary(selectedRootFocusRequester)
     }
 
     LaunchedEffect(showMainMenu) {
@@ -236,8 +230,6 @@ internal fun TvMainFocusEffects(
         }
         val restoreRequester = currentPreferredContentFocusRequester
             ?: focusController.contentFocusRequester
-        withFrameNanos { }
-        withFrameNanos { }
         if (requestFocusOnFrameBoundary(restoreRequester)) {
             focusController.clearPendingContentFocusRequest(request.token)
         } else {

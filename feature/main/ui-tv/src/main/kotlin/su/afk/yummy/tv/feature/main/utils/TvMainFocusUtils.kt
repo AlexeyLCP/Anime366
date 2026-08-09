@@ -1,6 +1,5 @@
 package su.afk.yummy.tv.feature.main.utils
 
-import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.input.key.Key
@@ -9,10 +8,11 @@ import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
-import kotlinx.coroutines.withTimeoutOrNull
+import su.afk.yummy.tv.core.designsystem.presenter.focus.requestFocusUntilTimeout
 import su.afk.yummy.tv.core.navigation.root.RootTab
+import kotlin.time.Duration.Companion.milliseconds
 
-private const val ContentFocusRestoreTimeoutMillis = 900L
+private val ContentFocusRestoreTimeout = 900.milliseconds
 
 internal fun Modifier.moveFocusToContentOnKey(
     onMoveToContent: (force: Boolean) -> Unit,
@@ -56,16 +56,7 @@ internal fun Modifier.moveFocusToContentOnKey(
 
 internal suspend fun requestFocusOnFrameBoundary(
     requester: FocusRequester,
-): Boolean =
-    withTimeoutOrNull<Boolean>(ContentFocusRestoreTimeoutMillis) {
-        repeat(2) { withFrameNanos { } }
-        var focused = false
-        while (!focused) {
-            focused = runCatching { requester.requestFocus() }.getOrDefault(false)
-            withFrameNanos { }
-        }
-        focused
-    } ?: false
+): Boolean = requestFocusUntilTimeout(requester, ContentFocusRestoreTimeout)
 
 internal fun Any?.isContentFocusKeyFor(root: RootTab): Boolean =
     this == null || (this is Pair<*, *> && first == root)

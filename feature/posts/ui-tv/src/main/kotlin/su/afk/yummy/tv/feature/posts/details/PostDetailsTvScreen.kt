@@ -39,7 +39,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -62,6 +61,7 @@ import kotlinx.coroutines.launch
 import su.afk.yummy.tv.core.designsystem.presenter.components.CachedAsyncImage
 import su.afk.yummy.tv.core.designsystem.presenter.components.loader.TvLoadingScreen
 import su.afk.yummy.tv.core.designsystem.presenter.dimensions.TvScreenPadding
+import su.afk.yummy.tv.core.designsystem.presenter.focus.requestFocusUntilTimeout
 import su.afk.yummy.tv.core.designsystem.presenter.focus.tvFocusableClick
 import su.afk.yummy.tv.core.designsystem.presenter.locals.LocalMainMenuFocusRequester
 import su.afk.yummy.tv.core.designsystem.presenter.tv.TvStateMessage
@@ -327,9 +327,8 @@ fun PostDetailsTvScreen(
                                                         listState.layoutInfo.totalItemsCount - 1
                                                     if (lastItemIndex >= 0) {
                                                         listState.scrollToItem(lastItemIndex)
-                                                        withFrameNanos { }
                                                     }
-                                                    likeFocusRequester.requestFocus()
+                                                    requestFocusUntilTimeout(likeFocusRequester)
                                                 }
                                                 true
                                             } else {

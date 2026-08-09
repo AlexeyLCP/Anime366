@@ -46,7 +46,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -65,6 +64,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import kotlinx.coroutines.launch
+import su.afk.yummy.tv.core.designsystem.presenter.focus.requestFocusUntilTimeout
 import su.afk.yummy.tv.core.designsystem.presenter.focus.tvFocusableClick
 import su.afk.yummy.tv.core.designsystem.presenter.theme.YummySemanticColors
 import su.afk.yummy.tv.core.model.anime.AnimeDetails
@@ -291,7 +291,7 @@ internal fun DetailsButtonBar(
         scope.launch {
             val targetRow = buttonRows.rowIndexForButton(targetIndex)
             listState.scrollToItem(targetRow, rowScrollOffset(targetRow))
-            focusRequesters.getOrNull(targetIndex)?.requestFocus()
+            focusRequesters.getOrNull(targetIndex)?.let { requestFocusUntilTimeout(it) }
         }
     }
 
@@ -307,7 +307,6 @@ internal fun DetailsButtonBar(
 
     LaunchedEffect(restoreFocusRequest) {
         if (restoreFocusRequest > 0) {
-            withFrameNanos { }
             requestFocusedButton()
         }
     }

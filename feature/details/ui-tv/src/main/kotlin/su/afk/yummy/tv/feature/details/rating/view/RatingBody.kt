@@ -16,7 +16,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -25,6 +24,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import su.afk.yummy.tv.core.designsystem.presenter.dimensions.TvScreenPadding
+import su.afk.yummy.tv.core.designsystem.presenter.focus.requestFocusUntilTimeout
 import su.afk.yummy.tv.domain.account.model.AnimeListStats
 import su.afk.yummy.tv.domain.account.model.AnimeRatingSummary
 import su.afk.yummy.tv.feature.details.R
@@ -40,8 +40,7 @@ internal fun RatingBody(
     val ratingFocusRequesters = remember { List(10) { FocusRequester() } }
     LaunchedEffect(selectedUserRating) {
         val focusIndex = ((selectedUserRating ?: 10) - 1).coerceIn(0, 9)
-        withFrameNanos { }
-        ratingFocusRequesters[focusIndex].requestFocus()
+        requestFocusUntilTimeout(ratingFocusRequesters[focusIndex])
     }
 
     Box(

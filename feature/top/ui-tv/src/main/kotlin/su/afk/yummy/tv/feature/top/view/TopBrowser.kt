@@ -27,7 +27,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
-import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -42,7 +41,6 @@ import androidx.paging.compose.itemKey
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withTimeoutOrNull
 import su.afk.yummy.tv.core.designsystem.presenter.components.loader.TvLoadingFooter
 import su.afk.yummy.tv.core.designsystem.presenter.components.loader.TvLoadingScreen
 import su.afk.yummy.tv.core.designsystem.presenter.dimensions.TvCardSpacing
@@ -51,6 +49,7 @@ import su.afk.yummy.tv.core.designsystem.presenter.dimensions.currentTvTitleCard
 import su.afk.yummy.tv.core.designsystem.presenter.focus.TvFocusedGridBringIntoViewSpec
 import su.afk.yummy.tv.core.designsystem.presenter.focus.launchTvLazyGridKeyFocusRestore
 import su.afk.yummy.tv.core.designsystem.presenter.focus.rememberTvLazyFocusRestoreState
+import su.afk.yummy.tv.core.designsystem.presenter.focus.requestFocusUntilTimeout
 import su.afk.yummy.tv.core.designsystem.presenter.focus.tvFocusRestorer
 import su.afk.yummy.tv.core.designsystem.presenter.locals.LocalMainMenuFocusRequester
 import su.afk.yummy.tv.core.designsystem.presenter.locals.LocalPreferredContentFocusRequester
@@ -59,7 +58,6 @@ import su.afk.yummy.tv.core.designsystem.presenter.tv.TvStateMessage
 import su.afk.yummy.tv.domain.top.model.AnimeTopItem
 import su.afk.yummy.tv.domain.top.model.AnimeTopType
 import su.afk.yummy.tv.feature.top.utils.uiMessage
-import kotlin.time.Duration.Companion.milliseconds
 
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalFoundationApi::class)
 @Composable
@@ -136,16 +134,6 @@ internal fun TopBrowser(
             itemCount - 1
         )
     }
-
-    suspend fun requestFocusUntilTimeout(requester: FocusRequester): Boolean =
-        withTimeoutOrNull(TOP_FOCUS_RESTORE_TIMEOUT) {
-            var focused = false
-            while (!focused) {
-                withFrameNanos { }
-                focused = runCatching { requester.requestFocus() }.getOrDefault(false)
-            }
-            focused
-        } ?: false
 
     fun requestFirstContentItemFocus() {
         if (!hasFocusableContent) {
@@ -401,5 +389,4 @@ internal fun TopBrowser(
     }
 }
 
-private val TOP_FOCUS_RESTORE_TIMEOUT = 500.milliseconds
 private val TvFocusedCardBottomInset = 24.dp

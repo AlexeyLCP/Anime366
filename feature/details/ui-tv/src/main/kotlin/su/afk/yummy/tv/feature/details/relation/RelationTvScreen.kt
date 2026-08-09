@@ -25,7 +25,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -36,13 +35,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
-import kotlinx.coroutines.withTimeoutOrNull
 import su.afk.yummy.tv.core.designsystem.presenter.components.RatingBadge
 import su.afk.yummy.tv.core.designsystem.presenter.components.TvTitleCard
 import su.afk.yummy.tv.core.designsystem.presenter.components.loader.TvLoadingScreen
 import su.afk.yummy.tv.core.designsystem.presenter.dimensions.TvCardSpacing
 import su.afk.yummy.tv.core.designsystem.presenter.dimensions.TvScreenPadding
 import su.afk.yummy.tv.core.designsystem.presenter.dimensions.currentTvTitleCardDimensions
+import su.afk.yummy.tv.core.designsystem.presenter.focus.requestFocusUntilTimeout
 import su.afk.yummy.tv.core.designsystem.presenter.preview.ScreenPreviewTheme
 import su.afk.yummy.tv.domain.anime.model.AnimeRelation
 import su.afk.yummy.tv.domain.anime.model.AnimeRelationItem
@@ -51,7 +50,6 @@ import su.afk.yummy.tv.feature.details.R
 import su.afk.yummy.tv.feature.details.relation.model.RelationType
 import su.afk.yummy.tv.feature.details.relation.view.RelationTvHeaderCard
 import su.afk.yummy.tv.feature.details.view.common.DetailsError
-import kotlin.time.Duration.Companion.milliseconds
 
 @Preview(
     name = "Director",
@@ -275,21 +273,13 @@ private val RelationFocusTargetSaver = listSaver<RelationFocusTarget?, Any>(
     },
 )
 
-private val RelationFocusRestoreTimeout = 500.milliseconds
-
 private suspend fun restoreRelationItemFocus(
     gridState: LazyGridState,
     itemIndex: Int,
     requester: FocusRequester,
 ) {
-    withTimeoutOrNull(RelationFocusRestoreTimeout) {
-        gridState.scrollToItem(itemIndex)
-        var focused = false
-        while (!focused) {
-            withFrameNanos { }
-            focused = runCatching { requester.requestFocus() }.getOrDefault(false)
-        }
-    }
+    gridState.scrollToItem(itemIndex)
+    requestFocusUntilTimeout(requester)
 }
 
 private fun previewDirectorRelation() = AnimeRelation(

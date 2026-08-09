@@ -18,7 +18,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -30,6 +29,7 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import kotlinx.coroutines.flow.Flow
 import su.afk.yummy.tv.core.designsystem.presenter.components.loader.TvLoadingScreen
 import su.afk.yummy.tv.core.designsystem.presenter.dimensions.TvScreenPadding
+import su.afk.yummy.tv.core.designsystem.presenter.focus.requestFocusUntilTimeout
 import su.afk.yummy.tv.core.designsystem.presenter.tv.TvStateMessage
 import su.afk.yummy.tv.feature.comments.CommentsState
 import su.afk.yummy.tv.feature.comments.tv.utils.buildVisibleComments
@@ -73,13 +73,11 @@ fun CommentsTvScreen(
         }
     }
     LaunchedEffect(Unit) {
-        withFrameNanos { }
-        runCatching { headerFocusRequester.requestFocus() }
+        requestFocusUntilTimeout(headerFocusRequester)
     }
     LaunchedEffect(refreshState) {
         if (refreshState is LoadState.Error && visibleComments.isEmpty()) {
-            withFrameNanos { }
-            runCatching { retryFocusRequester.requestFocus() }
+            requestFocusUntilTimeout(retryFocusRequester)
         }
     }
     LaunchedEffect(state.sort) {
@@ -91,17 +89,15 @@ fun CommentsTvScreen(
     LaunchedEffect(state.composerMode) {
         if (state.composerMode !is CommentsState.ComposerMode.New) {
             isComposerEditing = true
-            withFrameNanos { }
-            runCatching { composerFocusRequester.requestFocus() }
+            requestFocusUntilTimeout(composerFocusRequester)
         }
     }
     LaunchedEffect(state.pendingDelete, state.pendingReport) {
         if (state.pendingDelete == null && state.pendingReport == null) {
             val requester = dialogReturnFocusRequester ?: return@LaunchedEffect
             dialogReturnFocusRequester = null
-            withFrameNanos { }
-            val restored = runCatching { requester.requestFocus() }.getOrDefault(false)
-            if (!restored) runCatching { headerFocusRequester.requestFocus() }
+            val restored = requestFocusUntilTimeout(requester)
+            if (!restored) requestFocusUntilTimeout(headerFocusRequester)
         }
     }
 

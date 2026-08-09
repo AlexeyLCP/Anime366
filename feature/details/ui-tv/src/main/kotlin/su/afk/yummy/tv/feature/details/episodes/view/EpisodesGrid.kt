@@ -23,7 +23,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
-import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -34,6 +33,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import su.afk.yummy.tv.core.designsystem.presenter.dimensions.TvCardSpacing
 import su.afk.yummy.tv.core.designsystem.presenter.dimensions.TvScreenPadding
+import su.afk.yummy.tv.core.designsystem.presenter.focus.requestFocusUntilTimeout
 import su.afk.yummy.tv.core.designsystem.presenter.focus.tvFocusRestorer
 import su.afk.yummy.tv.core.model.anime.AnimeEpisodeInfo
 import su.afk.yummy.tv.core.model.anime.AnimeVideo
@@ -77,10 +77,8 @@ internal fun EpisodesGrid(
                     gridState.scrollToItem(gridIndex)
                     snapshotFlow { gridState.layoutInfo.visibleItemsInfo.any { it.index == gridIndex } }
                         .first { it }
-                } else {
-                    withFrameNanos { }
                 }
-                runCatching { focusRequesters[target].requestFocus() }
+                requestFocusUntilTimeout(focusRequesters[target])
             } finally {
                 isRestoringFocus = false
             }
@@ -89,7 +87,6 @@ internal fun EpisodesGrid(
 
     LaunchedEffect(restoreFocusRequest) {
         if (restoreFocusRequest > 0) {
-            withFrameNanos { }
             requestEpisodeFocus(lastFocusedIndex, scrollToEpisode = false)
         }
     }

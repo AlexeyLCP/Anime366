@@ -4,8 +4,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.runtime.withFrameNanos
 import kotlinx.coroutines.delay
+import su.afk.yummy.tv.core.designsystem.presenter.focus.requestFocusUntilTimeout
 import su.afk.yummy.tv.feature.player.common.PlayerAutoHideController
 import su.afk.yummy.tv.feature.player.model.ActiveSkip
 import su.afk.yummy.tv.feature.player.model.TvPlayerFocusRequesters
@@ -34,11 +34,7 @@ internal fun TvPlayerAutoSkipEffect(
             skipUi.highlightedSkipKey = skip.key
             currentOnControllerVisibleChange(true)
             autoHide.cancel()
-            withFrameNanos { }
-            try {
-                focus.skip.requestFocus()
-            } catch (_: Exception) {
-            }
+            requestFocusUntilTimeout(focus.skip)
             delay(10.seconds)
             if (skipUi.highlightedSkipKey == skip.key) skipUi.highlightedSkipKey = null
         }

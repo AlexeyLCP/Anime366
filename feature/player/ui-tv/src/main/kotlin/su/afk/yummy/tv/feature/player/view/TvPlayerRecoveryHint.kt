@@ -11,7 +11,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -21,6 +20,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import su.afk.yummy.tv.core.designsystem.presenter.focus.requestFocusUntilTimeout
 import su.afk.yummy.tv.feature.player.presentation.R
 
 /** Затянувшееся фоновое восстановление Alloha: предлагаем сменить плеер или озвучку. */
@@ -32,8 +32,7 @@ internal fun TvPlayerRecoveryHint(
 ) {
     val firstButtonFocusRequester = remember { FocusRequester() }
     LaunchedEffect(Unit) {
-        withFrameNanos { }
-        runCatching { firstButtonFocusRequester.requestFocus() }
+        requestFocusUntilTimeout(firstButtonFocusRequester)
     }
     Column(
         modifier = modifier

@@ -274,10 +274,15 @@ internal fun HomeDashboard(
                         fun scrollHeroToTopWhileFocused() {
                             heroEnterScrollJob?.cancel()
                             heroEnterScrollJob = scope.launch {
-                                repeat(4) {
-                                    if (!heroRowHasFocus) return@launch
-                                    lazyColumnState.scrollToItem(heroLazyIdx)
-                                    withFrameNanos { }
+                                withTimeoutOrNull(ROW_FOCUS_TIMEOUT_MILLIS) {
+                                    while (heroRowHasFocus) {
+                                        val atTop =
+                                            lazyColumnState.firstVisibleItemIndex == heroLazyIdx &&
+                                                    lazyColumnState.firstVisibleItemScrollOffset == 0
+                                        if (atTop) return@withTimeoutOrNull
+                                        lazyColumnState.scrollToItem(heroLazyIdx)
+                                        withFrameNanos { }
+                                    }
                                 }
                             }
                         }

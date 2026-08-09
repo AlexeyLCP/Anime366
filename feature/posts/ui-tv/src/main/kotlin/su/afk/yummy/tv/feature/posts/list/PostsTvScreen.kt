@@ -26,7 +26,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
-import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -39,11 +38,11 @@ import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.withTimeoutOrNull
 import su.afk.yummy.tv.core.designsystem.presenter.components.TvChip
 import su.afk.yummy.tv.core.designsystem.presenter.components.loader.TvLoadingFooter
 import su.afk.yummy.tv.core.designsystem.presenter.components.loader.TvLoadingScreen
 import su.afk.yummy.tv.core.designsystem.presenter.dimensions.TvScreenPadding
+import su.afk.yummy.tv.core.designsystem.presenter.focus.requestFocusUntilTimeout
 import su.afk.yummy.tv.core.designsystem.presenter.locals.LocalMainMenuFocusRequester
 import su.afk.yummy.tv.core.designsystem.presenter.locals.LocalPreferredContentFocusRequester
 import su.afk.yummy.tv.core.designsystem.presenter.tv.TvAppendErrorFooter
@@ -114,15 +113,7 @@ fun PostsTvScreen(
         snapshotFlow {
             listState.layoutInfo.visibleItemsInfo.any { it.key == targetId }
         }.first { it }
-        withTimeoutOrNull(FOCUS_RESTORE_TIMEOUT_MS) {
-            var focused = false
-            while (!focused) {
-                withFrameNanos { }
-                focused = runCatching {
-                    cardFocusRequester(targetId).requestFocus()
-                }.getOrDefault(false)
-            }
-        }
+        requestFocusUntilTimeout(cardFocusRequester(targetId))
         isRestoringFocus = false
     }
 
@@ -246,4 +237,3 @@ fun PostsTvScreen(
 
 // Ряды-заголовки (заголовок+сортировка, ряд категорий) перед карточками в LazyColumn.
 private const val HEADER_ITEM_COUNT = 2
-private const val FOCUS_RESTORE_TIMEOUT_MS = 500L

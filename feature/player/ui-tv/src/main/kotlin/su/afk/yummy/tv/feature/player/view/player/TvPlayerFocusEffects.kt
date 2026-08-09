@@ -5,6 +5,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.withFrameNanos
+import su.afk.yummy.tv.core.designsystem.presenter.focus.requestFocusUntilTimeout
 import su.afk.yummy.tv.feature.player.common.utils.isVisible
 import su.afk.yummy.tv.feature.player.model.PlayerControlFocusTarget
 import su.afk.yummy.tv.feature.player.model.TvPlayerFocusRequesters
@@ -53,17 +54,9 @@ internal fun TvPlayerFocusEffects(
         if (tutorialActive) {
             // no-op
         } else if (prompts.nextEpisodePrompt.isVisible) {
-            withFrameNanos { }
-            try {
-                focus.nextEpisode.requestFocus()
-            } catch (_: Exception) {
-            }
+            requestFocusUntilTimeout(focus.nextEpisode)
         } else if (prompts.finalEpisodeActionPrompt != null) {
-            withFrameNanos { }
-            try {
-                focus.finalEpisodeAction.requestFocus()
-            } catch (_: Exception) {
-            }
+            requestFocusUntilTimeout(focus.finalEpisodeAction)
         } else if (recoveryHintVisible) {
             // Хинт восстановления сам запрашивает фокус на свои кнопки — не перехватываем
         } else if (controllerVisible && !panels.isAnyOpen) {
@@ -74,72 +67,41 @@ internal fun TvPlayerFocusEffects(
                 }
             } ?: false
             if (!restoredExternalTarget && !requestPanelReturnFocus()) {
-                try {
-                    focus.play.requestFocus()
-                } catch (_: Exception) {
-                }
+                requestFocusUntilTimeout(focus.play)
             }
         } else if (!controllerVisible) {
-            withFrameNanos { }
-            try {
-                focus.overlay.requestFocus()
-            } catch (_: Exception) {
-            }
+            requestFocusUntilTimeout(focus.overlay)
         }
     }
 
     LaunchedEffect(panels.isOpen(TvPlayerPanel.Quality)) {
         if (panels.isOpen(TvPlayerPanel.Quality)) {
-            withFrameNanos { }
-            try {
-                focus.selectedQuality.requestFocus()
-            } catch (_: Exception) {
-            }
+            requestFocusUntilTimeout(focus.selectedQuality)
         }
     }
     LaunchedEffect(panels.isOpen(TvPlayerPanel.Dubbing)) {
         if (panels.isOpen(TvPlayerPanel.Dubbing)) {
-            withFrameNanos { }
-            try {
-                focus.selectedDubbing.requestFocus()
-            } catch (_: Exception) {
-            }
+            requestFocusUntilTimeout(focus.selectedDubbing)
         }
     }
     LaunchedEffect(panels.isOpen(TvPlayerPanel.Balancer)) {
         if (panels.isOpen(TvPlayerPanel.Balancer)) {
-            withFrameNanos { }
-            try {
-                focus.selectedBalancer.requestFocus()
-            } catch (_: Exception) {
-            }
+            requestFocusUntilTimeout(focus.selectedBalancer)
         }
     }
     LaunchedEffect(panels.isOpen(TvPlayerPanel.Speed)) {
         if (panels.isOpen(TvPlayerPanel.Speed)) {
-            withFrameNanos { }
-            try {
-                focus.selectedSpeed.requestFocus()
-            } catch (_: Exception) {
-            }
+            requestFocusUntilTimeout(focus.selectedSpeed)
         }
     }
     LaunchedEffect(panels.isOpen(TvPlayerPanel.Resize)) {
         if (panels.isOpen(TvPlayerPanel.Resize)) {
-            withFrameNanos { }
-            try {
-                focus.selectedResize.requestFocus()
-            } catch (_: Exception) {
-            }
+            requestFocusUntilTimeout(focus.selectedResize)
         }
     }
     LaunchedEffect(panels.isOpen(TvPlayerPanel.Volume)) {
         if (panels.isOpen(TvPlayerPanel.Volume)) {
-            withFrameNanos { }
-            try {
-                focus.selectedVolume.requestFocus()
-            } catch (_: Exception) {
-            }
+            requestFocusUntilTimeout(focus.selectedVolume)
         }
     }
 }

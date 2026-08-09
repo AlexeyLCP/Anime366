@@ -30,7 +30,6 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -50,6 +49,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import su.afk.yummy.tv.core.designsystem.presenter.components.TvOverlayAppear
+import su.afk.yummy.tv.core.designsystem.presenter.focus.requestFocusUntilTimeout
 import su.afk.yummy.tv.core.designsystem.presenter.theme.YummySemanticColors
 import su.afk.yummy.tv.feature.details.R
 import su.afk.yummy.tv.feature.details.details.model.SubscriptionOption
@@ -69,8 +69,7 @@ internal fun SubscriptionsPickerOverlay(
 
     LaunchedEffect(subscriptions.map { it.key }) {
         if (subscriptions.isNotEmpty() && focusedOptionKey == null) {
-            withFrameNanos { }
-            runCatching { firstFocusRequester.requestFocus() }
+            requestFocusUntilTimeout(firstFocusRequester)
         }
     }
 
@@ -79,8 +78,7 @@ internal fun SubscriptionsPickerOverlay(
         val index = subscriptions.indexOfFirst { it.key == key }
         if (index >= 0) {
             focusedOptionIndex = index
-            withFrameNanos { }
-            runCatching { itemFocusRequesters.getOrNull(index)?.requestFocus() }
+            itemFocusRequesters.getOrNull(index)?.let { requestFocusUntilTimeout(it) }
         }
     }
 

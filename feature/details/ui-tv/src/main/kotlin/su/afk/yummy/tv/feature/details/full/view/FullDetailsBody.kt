@@ -21,7 +21,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -37,12 +36,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withTimeoutOrNull
+import su.afk.yummy.tv.core.designsystem.presenter.focus.requestFocusUntilTimeout
 import su.afk.yummy.tv.core.model.anime.AnimeDetails
 import su.afk.yummy.tv.feature.details.R
 import su.afk.yummy.tv.feature.details.full.utils.formatEpochSeconds
 import su.afk.yummy.tv.feature.details.utils.formatAiredProgress
-import kotlin.time.Duration.Companion.milliseconds
 
 /** Индекс ряда жанров в [FullDetailsBody]: всегда после тайтла и (если есть) описания. */
 private fun genresItemIndex(details: AnimeDetails): Int? {
@@ -52,21 +50,13 @@ private fun genresItemIndex(details: AnimeDetails): Int? {
     return index
 }
 
-private val GenreFocusRestoreTimeout = 500.milliseconds
-
 private suspend fun restoreGenreChipFocus(
     listState: LazyListState,
     itemIndex: Int,
     requester: FocusRequester,
 ) {
-    withTimeoutOrNull(GenreFocusRestoreTimeout) {
-        listState.scrollToItem(itemIndex)
-        var focused = false
-        while (!focused) {
-            withFrameNanos { }
-            focused = runCatching { requester.requestFocus() }.getOrDefault(false)
-        }
-    }
+    listState.scrollToItem(itemIndex)
+    requestFocusUntilTimeout(requester)
 }
 
 /** Тянет вниз/вверх список, пока текущий элемент виден не полностью, иначе отдаёт фокус дальше. */

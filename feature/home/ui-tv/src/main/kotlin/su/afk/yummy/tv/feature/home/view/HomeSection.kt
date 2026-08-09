@@ -19,7 +19,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
@@ -131,9 +130,8 @@ internal fun HomeSection(
         val target = restoreIndex()
         if (listState.layoutInfo.visibleItemsInfo.none { it.index == target }) {
             listState.scrollToItem(target)
-            withFrameNanos { }
         }
-        runCatching { focusRequesterForItem(target).requestFocus() }.getOrDefault(false)
+        requestFocusUntilTimeout(focusRequesterForItem(target))
     })
     DisposableEffect(Unit) {
         registerFocusHandler { restoreItemFocus() }

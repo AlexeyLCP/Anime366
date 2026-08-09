@@ -19,7 +19,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
@@ -101,9 +100,8 @@ internal fun ContinueWatchingSection(
     val restoreItemFocus by rememberUpdatedState<suspend () -> Boolean>(handler@{
         if (listState.layoutInfo.visibleItemsInfo.none { it.index == 0 }) {
             listState.scrollToItem(0)
-            withFrameNanos { }
         }
-        runCatching { focusRequesterForItem(0).requestFocus() }.getOrDefault(false)
+        requestFocusUntilTimeout(focusRequesterForItem(0))
     })
     DisposableEffect(Unit) {
         registerFocusHandler { restoreItemFocus() }
