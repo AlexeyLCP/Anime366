@@ -23,6 +23,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -41,6 +42,7 @@ import su.afk.yummy.tv.core.designsystem.presenter.dimensions.TvCardSpacing
 import su.afk.yummy.tv.core.designsystem.presenter.focus.TvFocusedGridBringIntoViewSpec
 import su.afk.yummy.tv.core.designsystem.presenter.focus.tvFocusRestorer
 import su.afk.yummy.tv.core.designsystem.presenter.focus.tvFocusableClick
+import su.afk.yummy.tv.core.designsystem.presenter.locals.LocalPreferredContentFocusRequester
 import su.afk.yummy.tv.core.designsystem.presenter.tv.TvStateMessage
 import su.afk.yummy.tv.core.model.anime.AnimeRecommendationVote
 import su.afk.yummy.tv.feature.details.R
@@ -136,6 +138,14 @@ internal fun SimilarTab(
                 }
                 var lastFocusedItemId by rememberSaveable(fromAi) { mutableStateOf<Int?>(null) }
                 var lastFocusedIndex by rememberSaveable(fromAi) { mutableIntStateOf(0) }
+                // Пока карточка ни разу не фокусировалась, дефолтный фокус — на кнопке видимости
+                // рекомендации вверху вкладки; как только фокус побывал на карточке, эта карточка
+                // регистрируется как preferred-фокус экрана, иначе после Back из деталей другого
+                // тайтла фокус улетает на первый фокусируемый элемент вкладки (кнопку), т.к. сам
+                // LazyRow не является точкой входа фокуса и его focusRestorer не запрашивается явно.
+                var hasFocusedItem by rememberSaveable(fromAi) { mutableStateOf(false) }
+                val registerPreferredContentFocusRequester =
+                    LocalPreferredContentFocusRequester.current
 
                 fun restoreIndex(): Int {
                     if (state.items.isEmpty()) return 0
@@ -147,8 +157,20 @@ internal fun SimilarTab(
                 }
 
                 fun rememberFocusedItem(index: Int) {
+                    hasFocusedItem = true
                     lastFocusedIndex = index
                     lastFocusedItemId = state.items.getOrNull(index)?.animeId
+                }
+
+                val preferredContentFocusRequester =
+                    if (hasFocusedItem) focusRequesters.getOrNull(restoreIndex()) else null
+
+                DisposableEffect(
+                    preferredContentFocusRequester,
+                    registerPreferredContentFocusRequester
+                ) {
+                    registerPreferredContentFocusRequester?.invoke(preferredContentFocusRequester)
+                    onDispose { registerPreferredContentFocusRequester?.invoke(null) }
                 }
 
                 BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
@@ -156,61 +178,62 @@ internal fun SimilarTab(
                     CompositionLocalProvider(
                         LocalBringIntoViewSpec provides TvFocusedGridBringIntoViewSpec,
                     ) {
-                    LazyRow(
-                        state = listState,
-                        horizontalArrangement = Arrangement.spacedBy(TvCardSpacing.Horizontal),
-                        contentPadding = PaddingValues(horizontal = sideInset, vertical = 8.dp),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .tvFocusRestorer(
-                                fallback = focusRequesters.getOrNull(restoreIndex())
-                                    ?: FocusRequester.Default,
-                            ),
-                    ) {
-                        itemsIndexed(
-                            items = state.items,
-                            key = { _, item -> item.animeId },
-                        ) { index, item ->
-                            val posterUrl = item.poster?.run { big ?: medium ?: fullsize ?: small }
-                            val meta =
-                                listOfNotNull(item.type).joinToString(" · ")
-                            RelatedTitleCard(
-                                title = item.title,
-                                posterUrl = posterUrl,
-                                onClick = { onAnimeSelected(item.animeId) },
-                                rating = item.rating,
-                                year = item.year,
-                                meta = meta,
-                                onFocused = { rememberFocusedItem(index) },
-                                // Постер ниже дефолтного: карточке нужно место под голосование,
-                                // иначе ряд не влезает в экран и футер обрезается.
-                                posterHeight = SimilarPosterHeight,
-                                modifier = Modifier
-                                    .focusRequester(focusRequesters[index])
-                                    .focusProperties {
-                                        up = sourceToggleFocusRequester
-                                        if (!fromAi) down = voteFocusRequesters[index]
+                        LazyRow(
+                            state = listState,
+                            horizontalArrangement = Arrangement.spacedBy(TvCardSpacing.Horizontal),
+                            contentPadding = PaddingValues(horizontal = sideInset, vertical = 8.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .tvFocusRestorer(
+                                    fallback = focusRequesters.getOrNull(restoreIndex())
+                                        ?: FocusRequester.Default,
+                                ),
+                        ) {
+                            itemsIndexed(
+                                items = state.items,
+                                key = { _, item -> item.animeId },
+                            ) { index, item ->
+                                val posterUrl =
+                                    item.poster?.run { big ?: medium ?: fullsize ?: small }
+                                val meta =
+                                    listOfNotNull(item.type).joinToString(" · ")
+                                RelatedTitleCard(
+                                    title = item.title,
+                                    posterUrl = posterUrl,
+                                    onClick = { onAnimeSelected(item.animeId) },
+                                    rating = item.rating,
+                                    year = item.year,
+                                    meta = meta,
+                                    onFocused = { rememberFocusedItem(index) },
+                                    // Постер ниже дефолтного: карточке нужно место под голосование,
+                                    // иначе ряд не влезает в экран и футер обрезается.
+                                    posterHeight = SimilarPosterHeight,
+                                    modifier = Modifier
+                                        .focusRequester(focusRequesters[index])
+                                        .focusProperties {
+                                            up = sourceToggleFocusRequester
+                                            if (!fromAi) down = voteFocusRequesters[index]
+                                        },
+                                    footer = {
+                                        if (!fromAi) {
+                                            TvSimilarVoteButtons(
+                                                item = item,
+                                                enabled = item.animeId !in pendingVoteAnimeIds,
+                                                onVote = { vote -> onVote(item.animeId, vote) },
+                                                modifier = Modifier
+                                                    .focusProperties {
+                                                        up = focusRequesters[index]
+                                                        // Ниже голосования ничего нет — не даём
+                                                        // фокусу перескочить в начало экрана.
+                                                        down = FocusRequester.Cancel
+                                                    },
+                                                focusRequester = voteFocusRequesters[index],
+                                            )
+                                        }
                                     },
-                                footer = {
-                                    if (!fromAi) {
-                                        TvSimilarVoteButtons(
-                                            item = item,
-                                            enabled = item.animeId !in pendingVoteAnimeIds,
-                                            onVote = { vote -> onVote(item.animeId, vote) },
-                                            modifier = Modifier
-                                                .focusProperties {
-                                                    up = focusRequesters[index]
-                                                    // Ниже голосования ничего нет — не даём
-                                                    // фокусу перескочить в начало экрана.
-                                                    down = FocusRequester.Cancel
-                                                },
-                                            focusRequester = voteFocusRequesters[index],
-                                        )
-                                    }
-                                },
-                            )
+                                )
+                            }
                         }
-                    }
                     }
                 }
             }
