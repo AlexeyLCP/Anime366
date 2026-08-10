@@ -1,7 +1,9 @@
 package su.afk.yummy.tv.feature.collection.view
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.focusGroup
+import androidx.compose.foundation.gestures.LocalBringIntoViewSpec
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.PaddingValues
@@ -20,6 +22,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -36,16 +40,19 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.itemKey
+import kotlinx.coroutines.launch
 import su.afk.yummy.tv.core.designsystem.presenter.components.TvTitleCard
 import su.afk.yummy.tv.core.designsystem.presenter.components.loader.TvLoadingFooter
 import su.afk.yummy.tv.core.designsystem.presenter.dimensions.TvCardSpacing
 import su.afk.yummy.tv.core.designsystem.presenter.dimensions.TvScreenPadding
 import su.afk.yummy.tv.core.designsystem.presenter.dimensions.currentTvTitleCardDimensions
+import su.afk.yummy.tv.core.designsystem.presenter.focus.TvFocusedGridBringIntoViewSpec
 import su.afk.yummy.tv.core.designsystem.presenter.locals.LocalMainMenuFocusRequester
 import su.afk.yummy.tv.core.designsystem.presenter.theme.YummySemanticColors
 import su.afk.yummy.tv.domain.collection.model.CollectionSummary
 import su.afk.yummy.tv.feature.collection.R
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 internal fun CollectionsCatalogGrid(
     pagingItems: LazyPagingItems<CollectionSummary>,
@@ -56,6 +63,7 @@ internal fun CollectionsCatalogGrid(
     modifier: Modifier = Modifier,
 ) {
     val gridState = rememberLazyGridState()
+    val scope = rememberCoroutineScope()
     val mainMenuFocusRequester = LocalMainMenuFocusRequester.current
     val cardWidth = currentTvTitleCardDimensions().width
     val itemCount = pagingItems.itemCount
@@ -67,6 +75,9 @@ internal fun CollectionsCatalogGrid(
                     (cardWidth.value + horizontalSpacing.value)).toInt()
                 .coerceAtLeast(1)
 
+        CompositionLocalProvider(
+            LocalBringIntoViewSpec provides TvFocusedGridBringIntoViewSpec,
+        ) {
         LazyVerticalGrid(
             state = gridState,
             columns = GridCells.Adaptive(minSize = cardWidth),
@@ -99,7 +110,15 @@ internal fun CollectionsCatalogGrid(
                     title = item.title,
                     posterUrl = item.posterUrl,
                     onClick = { onCollectionSelected(item.id) },
-                    onFocused = { onCollectionFocused(item.id) },
+                    onFocused = {
+                        onCollectionFocused(item.id)
+                        // Спек BringIntoView не трогает уже видимый ряд (см. фикс дёрганья),
+                        // поэтому верхний ряд карточек сам не подскролливает грид настолько,
+                        // чтобы показать заголовок "Коллекции" над ним — делаем это явно.
+                        if (index < gridColumnCount) {
+                            scope.launch { gridState.scrollToItem(0) }
+                        }
+                    },
                     modifier = Modifier
                         .focusRequester(itemFocusRequesters[index])
                         .onPreviewKeyEvent { event ->
@@ -125,6 +144,7 @@ internal fun CollectionsCatalogGrid(
                     TvLoadingFooter()
                 }
             }
+        }
         }
     }
 }

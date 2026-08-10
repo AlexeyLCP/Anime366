@@ -1,5 +1,7 @@
 package su.afk.yummy.tv.feature.details.viewingorder.view
 
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.gestures.LocalBringIntoViewSpec
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -12,6 +14,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -29,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.Job
 import su.afk.yummy.tv.core.designsystem.presenter.dimensions.TvCardSpacing
 import su.afk.yummy.tv.core.designsystem.presenter.dimensions.TvScreenPadding
+import su.afk.yummy.tv.core.designsystem.presenter.focus.TvFocusedGridBringIntoViewSpec
 import su.afk.yummy.tv.core.designsystem.presenter.focus.launchTvLazyListKeyFocusRestore
 import su.afk.yummy.tv.core.designsystem.presenter.focus.rememberTvLazyFocusRestoreState
 import su.afk.yummy.tv.core.designsystem.presenter.focus.tvFocusRestorer
@@ -37,6 +41,7 @@ import su.afk.yummy.tv.feature.details.R
 
 private val RelatedCardWidth = 188.dp
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 internal fun ViewingOrderRow(
     items: List<AnimeViewingOrderItem>,
@@ -122,6 +127,9 @@ internal fun ViewingOrderRow(
         BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
             val sideInset =
                 ((maxWidth - RelatedCardWidth) / 2).coerceAtLeast(TvScreenPadding.Horizontal)
+            CompositionLocalProvider(
+                LocalBringIntoViewSpec provides TvFocusedGridBringIntoViewSpec,
+            ) {
             LazyRow(
                 state = rowState,
                 contentPadding = PaddingValues(horizontal = sideInset),
@@ -145,6 +153,7 @@ internal fun ViewingOrderRow(
                         modifier = Modifier.focusRequester(focusRequesters[index]),
                     )
                 }
+            }
             }
         }
     }

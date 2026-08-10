@@ -1,6 +1,8 @@
 package su.afk.yummy.tv.feature.details.similar.view
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.LocalBringIntoViewSpec
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -20,6 +22,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -35,6 +38,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import su.afk.yummy.tv.core.designsystem.presenter.dimensions.TvCardSpacing
+import su.afk.yummy.tv.core.designsystem.presenter.focus.TvFocusedGridBringIntoViewSpec
 import su.afk.yummy.tv.core.designsystem.presenter.focus.tvFocusRestorer
 import su.afk.yummy.tv.core.designsystem.presenter.focus.tvFocusableClick
 import su.afk.yummy.tv.core.designsystem.presenter.tv.TvStateMessage
@@ -46,6 +50,7 @@ import su.afk.yummy.tv.feature.details.view.common.RelatedTitleCard
 private val RelatedCardWidth = 188.dp
 private val SimilarPosterHeight = 214.dp
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 internal fun SimilarTab(
     state: SimilarUiState,
@@ -148,6 +153,9 @@ internal fun SimilarTab(
 
                 BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
                     val sideInset = ((maxWidth - RelatedCardWidth) / 2).coerceAtLeast(24.dp)
+                    CompositionLocalProvider(
+                        LocalBringIntoViewSpec provides TvFocusedGridBringIntoViewSpec,
+                    ) {
                     LazyRow(
                         state = listState,
                         horizontalArrangement = Arrangement.spacedBy(TvCardSpacing.Horizontal),
@@ -202,6 +210,7 @@ internal fun SimilarTab(
                                 },
                             )
                         }
+                    }
                     }
                 }
             }

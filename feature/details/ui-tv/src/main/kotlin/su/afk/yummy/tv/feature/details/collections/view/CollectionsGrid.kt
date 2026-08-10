@@ -1,5 +1,7 @@
 package su.afk.yummy.tv.feature.details.collections.view
 
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.gestures.LocalBringIntoViewSpec
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -9,17 +11,20 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import su.afk.yummy.tv.core.designsystem.presenter.components.TvTitleCard
 import su.afk.yummy.tv.core.designsystem.presenter.dimensions.TvCardSpacing
 import su.afk.yummy.tv.core.designsystem.presenter.dimensions.TvScreenPadding
 import su.afk.yummy.tv.core.designsystem.presenter.dimensions.currentTvTitleCardDimensions
+import su.afk.yummy.tv.core.designsystem.presenter.focus.TvFocusedGridBringIntoViewSpec
 import su.afk.yummy.tv.core.designsystem.presenter.locals.LocalPosterQuality
 import su.afk.yummy.tv.domain.account.model.AnimeCollectionSummary
 import su.afk.yummy.tv.feature.details.R
 import su.afk.yummy.tv.feature.details.collections.utils.posterUrl
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 internal fun CollectionsGrid(
     collections: List<AnimeCollectionSummary>,
@@ -27,6 +32,9 @@ internal fun CollectionsGrid(
 ) {
     val posterQuality = LocalPosterQuality.current
     val cardWidth = currentTvTitleCardDimensions().width
+    CompositionLocalProvider(
+        LocalBringIntoViewSpec provides TvFocusedGridBringIntoViewSpec,
+    ) {
     LazyVerticalGrid(
         columns = GridCells.Adaptive(minSize = cardWidth),
         contentPadding = PaddingValues(
@@ -53,5 +61,6 @@ internal fun CollectionsGrid(
                 onClick = { onCollectionSelected(collection.id) },
             )
         }
+    }
     }
 }

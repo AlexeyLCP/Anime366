@@ -13,6 +13,11 @@ object TvFocusedGridBringIntoViewSpec : BringIntoViewSpec {
     ): Float {
         if (containerSize <= 0f) return 0f
 
+        // Элемент и так целиком помещается в контейнер — не подтягиваем его к пивоту:
+        // иначе боковой переход фокуса внутри уже видимого ряда даёт лишний "подскролл".
+        val trailingEdge = offset + size
+        if (offset >= 0f && trailingEdge <= containerSize) return 0f
+
         val distance = if (size >= containerSize) {
             offset
         } else {
