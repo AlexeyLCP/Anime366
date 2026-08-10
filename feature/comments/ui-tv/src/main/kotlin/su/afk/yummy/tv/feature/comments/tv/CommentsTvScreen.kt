@@ -2,9 +2,12 @@ package su.afk.yummy.tv.feature.comments.tv
 
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
@@ -119,18 +122,25 @@ fun CommentsTvScreen(
                 vertical = TvScreenPadding.Vertical,
             ),
     ) {
-        Text(
-            text = stringResource(R.string.comments_title),
-            style = MaterialTheme.typography.headlineLarge,
-            color = MaterialTheme.colorScheme.onBackground,
-            modifier = Modifier.padding(bottom = 8.dp),
-        )
-        CommentsHeader(
-            selectedSort = state.sort,
-            initialFocusRequester = headerFocusRequester,
-            onSortSelected = { onEvent(CommentsState.Event.SortSelected(it)) },
-            onRefresh = { onEvent(CommentsState.Event.RefreshSelected) },
-        )
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 14.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                text = stringResource(R.string.comments_title),
+                style = MaterialTheme.typography.headlineLarge,
+                color = MaterialTheme.colorScheme.onBackground,
+            )
+            CommentsHeader(
+                selectedSort = state.sort,
+                initialFocusRequester = headerFocusRequester,
+                onSortSelected = { onEvent(CommentsState.Event.SortSelected(it)) },
+                onRefresh = { onEvent(CommentsState.Event.RefreshSelected) },
+            )
+        }
         Box(
             modifier = Modifier
                 .weight(1f)

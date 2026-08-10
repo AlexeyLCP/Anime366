@@ -11,6 +11,7 @@ android {
 dependencies {
     implementation(project(":core:designsystem"))
     implementation(project(":core:navigation"))
+    implementation(project(":core:utils"))
     implementation(project(":feature:comments:api"))
     implementation(project(":feature:comments:domain"))
     implementation(project(":feature:comments:presentation"))

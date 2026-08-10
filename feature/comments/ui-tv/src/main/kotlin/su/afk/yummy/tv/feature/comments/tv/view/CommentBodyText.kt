@@ -12,31 +12,62 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import su.afk.yummy.tv.core.designsystem.presenter.focus.tvFocusHighlight
 import su.afk.yummy.tv.core.designsystem.presenter.focus.tvFocusableClick
+import su.afk.yummy.tv.core.utils.toParagraphs
 import su.afk.yummy.tv.feature.comments.tv.R
 import su.afk.yummy.tv.feature.comments.tv.model.CommentTextPart
 import su.afk.yummy.tv.feature.comments.tv.utils.parseCommentText
 
+/**
+ * @param nextFocusRequester куда должен уйти фокус по DOWN с последнего фокус-стопа текста —
+ * без этого пространственный focus-search у Compose попадает не на первую кнопку (лайк), а на
+ * произвольную, т.к. текст растянут на всю ширину карточки, а кнопки — нет.
+ */
 @Composable
-internal fun CommentBodyText(text: String) {
+internal fun CommentBodyText(text: String, nextFocusRequester: FocusRequester) {
     val defaultSpoilerTitle = stringResource(R.string.comments_spoiler_title)
     val parts = remember(text, defaultSpoilerTitle) {
         parseCommentText(text, defaultSpoilerTitle)
     }
     val visibleSpoilers = remember(text) { mutableStateMapOf<Int, Boolean>() }
+    val focusStopCount = parts.indices.sumOf { index ->
+        when (val part = parts[index]) {
+            is CommentTextPart.Plain -> part.text.toParagraphs().size
+            is CommentTextPart.Spoiler ->
+                1 + if (visibleSpoilers[index] == true) part.text.toParagraphs().size else 0
+        }
+    }
+    var focusStopIndex = 0
+    fun Modifier.lastFocusStopDown(): Modifier {
+        focusStopIndex++
+        return if (focusStopIndex == focusStopCount) {
+            focusProperties { down = nextFocusRequester }
+        } else {
+            this
+        }
+    }
     Column(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(6.dp),
     ) {
         parts.forEachIndexed { index, part ->
             when (part) {
-                is CommentTextPart.Plain -> Text(
-                    text = part.text,
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurface,
-                )
+                is CommentTextPart.Plain -> part.text.toParagraphs().forEach { paragraph ->
+                    Text(
+                        text = paragraph,
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .lastFocusStopDown()
+                            .tvFocusHighlight(),
+                    )
+                }
 
                 is CommentTextPart.Spoiler -> {
                     val visible = visibleSpoilers[index] == true
@@ -48,6 +79,7 @@ internal fun CommentBodyText(text: String) {
                         style = MaterialTheme.typography.labelLarge,
                         color = MaterialTheme.colorScheme.onSecondaryContainer,
                         modifier = Modifier
+                            .lastFocusStopDown()
                             .tvFocusableClick(
                                 onClick = { visibleSpoilers[index] = !visible },
                                 shape = RoundedCornerShape(8.dp),
@@ -60,11 +92,17 @@ internal fun CommentBodyText(text: String) {
                             .padding(horizontal = 12.dp, vertical = 7.dp),
                     )
                     if (visible) {
-                        Text(
-                            text = part.text,
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onSurface,
-                        )
+                        part.text.toParagraphs().forEach { paragraph ->
+                            Text(
+                                text = paragraph,
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = MaterialTheme.colorScheme.onSurface,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .lastFocusStopDown()
+                                    .tvFocusHighlight(),
+                            )
+                        }
                     }
                 }
             }

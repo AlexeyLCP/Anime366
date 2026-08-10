@@ -63,6 +63,7 @@ internal fun CommentCard(
 ) {
     val comment = item.comment
     val canEdit = currentUserId == comment.author.id || isModerator
+    val likeFocusRequester = androidx.compose.runtime.remember { FocusRequester() }
     val deleteFocusRequester = androidx.compose.runtime.remember { FocusRequester() }
     val reportFocusRequester = androidx.compose.runtime.remember { FocusRequester() }
     Surface(
@@ -110,7 +111,7 @@ internal fun CommentCard(
                     style = MaterialTheme.typography.bodyLarge,
                 )
             } else {
-                CommentBodyText(comment.text)
+                CommentBodyText(comment.text, nextFocusRequester = likeFocusRequester)
             }
 
             FlowRow(
@@ -124,6 +125,7 @@ internal fun CommentCard(
                         selected = comment.vote == CommentVote.LIKE,
                         accentColor = YummySemanticColors.Like,
                         enabled = !isMutating,
+                        modifier = Modifier.focusRequester(likeFocusRequester),
                         onClick = { onVote(comment.id, CommentVote.LIKE) },
                     )
                     CommentActionButton(
@@ -133,34 +135,6 @@ internal fun CommentCard(
                         accentColor = YummySemanticColors.Dislike,
                         enabled = !isMutating,
                         onClick = { onVote(comment.id, CommentVote.DISLIKE) },
-                    )
-                    CommentActionButton(
-                        label = stringResource(R.string.comments_reply),
-                        icon = Icons.AutoMirrored.Filled.Reply,
-                        enabled = !isMutating,
-                        onClick = { onReply(comment.id) },
-                    )
-                    if (canEdit) {
-                        CommentActionButton(
-                            label = stringResource(R.string.comments_edit),
-                            icon = Icons.Filled.Edit,
-                            enabled = !isMutating,
-                            onClick = { onEdit(comment.id) },
-                        )
-                        CommentActionButton(
-                            label = stringResource(R.string.comments_delete),
-                            icon = Icons.Filled.Delete,
-                            enabled = !isMutating,
-                            modifier = Modifier.focusRequester(deleteFocusRequester),
-                            onClick = { onDelete(comment.id, deleteFocusRequester) },
-                        )
-                    }
-                    CommentActionButton(
-                        label = stringResource(R.string.comments_report),
-                        icon = Icons.Filled.Flag,
-                        enabled = !isMutating,
-                        modifier = Modifier.focusRequester(reportFocusRequester),
-                        onClick = { onReport(comment.id, reportFocusRequester) },
                     )
                 }
                 if (comment.childrenCount > 0 || item.children.isNotEmpty()) {
@@ -177,6 +151,36 @@ internal fun CommentCard(
                         },
                         enabled = !item.childrenLoading,
                         onClick = { onToggleChildren(comment.id) },
+                    )
+                }
+                if (comment.deletedAtEpochSeconds == null) {
+                    if (canEdit) {
+                        CommentActionButton(
+                            label = stringResource(R.string.comments_edit),
+                            icon = Icons.Filled.Edit,
+                            enabled = !isMutating,
+                            onClick = { onEdit(comment.id) },
+                        )
+                        CommentActionButton(
+                            label = stringResource(R.string.comments_delete),
+                            icon = Icons.Filled.Delete,
+                            enabled = !isMutating,
+                            modifier = Modifier.focusRequester(deleteFocusRequester),
+                            onClick = { onDelete(comment.id, deleteFocusRequester) },
+                        )
+                    }
+                    CommentActionButton(
+                        label = stringResource(R.string.comments_reply),
+                        icon = Icons.AutoMirrored.Filled.Reply,
+                        enabled = !isMutating,
+                        onClick = { onReply(comment.id) },
+                    )
+                    CommentActionButton(
+                        label = stringResource(R.string.comments_report),
+                        icon = Icons.Filled.Flag,
+                        enabled = !isMutating,
+                        modifier = Modifier.focusRequester(reportFocusRequester),
+                        onClick = { onReport(comment.id, reportFocusRequester) },
                     )
                 }
             }
@@ -210,7 +214,11 @@ internal fun CommentCard(
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
                             CircularProgressIndicator(Modifier.size(20.dp), strokeWidth = 2.dp)
-                            Text(stringResource(R.string.comments_loading))
+                            Text(
+                                text = stringResource(R.string.comments_loading),
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
                         }
                     }
                     item.childrenError?.let { error ->
