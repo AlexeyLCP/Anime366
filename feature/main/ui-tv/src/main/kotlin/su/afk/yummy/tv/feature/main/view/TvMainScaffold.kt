@@ -54,7 +54,8 @@ fun TvMainScaffold(
     var menuExpanded by remember { mutableStateOf(false) }
     val menuCanFocus = focusController.menuCanFocus &&
             focusController.previousShowMainMenu &&
-            !focusController.restoreContentFocusAfterMenuShown
+            !focusController.restoreContentFocusAfterMenuShown &&
+            focusController.pendingContentFocusRequest == null
     val topSafeDrawingModifier = if (applyTopSafeDrawingInset) {
         Modifier.windowInsetsPadding(
             WindowInsets.safeDrawing.only(WindowInsetsSides.Top),
