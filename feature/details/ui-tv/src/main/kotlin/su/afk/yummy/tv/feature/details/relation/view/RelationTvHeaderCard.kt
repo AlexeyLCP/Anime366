@@ -1,6 +1,7 @@
 package su.afk.yummy.tv.feature.details.relation.view
 
 import androidx.compose.foundation.focusGroup
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -18,7 +19,6 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import su.afk.yummy.tv.core.designsystem.presenter.focus.tvFocusIndicator
 import su.afk.yummy.tv.domain.anime.model.AnimeRelation
 import su.afk.yummy.tv.feature.details.full.view.FullDetailsChip
 import su.afk.yummy.tv.feature.details.relation.model.RelationType
@@ -36,46 +36,53 @@ internal fun RelationTvHeaderCard(
     val hasSubGenres = relation.subGenres.isNotEmpty()
     val shape = MaterialTheme.shapes.extraLarge
     Card(
-        modifier = modifier
-            .fillMaxWidth()
-            .then(
-                // Если чипов нет, карточке самой нужен фокус-стоп, иначе описание
-                // нечем прочитать пультом; если чипы есть — пропускаем фокус к ним.
-                if (hasSubGenres) Modifier.focusGroup() else Modifier.tvFocusIndicator(shape = shape),
-            ),
+        modifier = Modifier.fillMaxWidth(),
         shape = shape,
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceVariant,
         ),
     ) {
         Column(
-            modifier = Modifier.padding(28.dp),
+            modifier = Modifier
+                .padding(28.dp)
+                .then(if (hasSubGenres) Modifier.focusGroup() else Modifier),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            Text(
-                text = stringResource(relationType.labelRes()),
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary,
-            )
-            Text(
-                text = relation.title,
-                style = MaterialTheme.typography.displaySmall,
-                fontWeight = FontWeight.ExtraBold,
-            )
-            relation.secondaryTitle?.let { secondaryTitle ->
+            // Фокус-стоп — отдельный от чипов элемент (сиблинг, а не их родитель):
+            // если сделать фокусируемой всю карточку целиком, вложенные фокусируемые
+            // чипы окажутся внутри её же границ, и directional focus search пультом
+            // не находит их как цель "ниже" — навигация на чипы перестаёт работать.
+            Column(
+                // Без tvFocusIndicator — фокус-стоп нужен только для навигации пультом,
+                // цветная рамка на самом описании не нужна.
+                modifier = modifier.focusable(),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
                 Text(
-                    text = secondaryTitle,
-                    style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    text = stringResource(relationType.labelRes()),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary,
                 )
-            }
-            relation.description?.let { description ->
                 Text(
-                    text = description,
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    text = relation.title,
+                    style = MaterialTheme.typography.displaySmall,
+                    fontWeight = FontWeight.ExtraBold,
                 )
+                relation.secondaryTitle?.let { secondaryTitle ->
+                    Text(
+                        text = secondaryTitle,
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+                relation.description?.let { description ->
+                    Text(
+                        text = description,
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
             }
             if (hasSubGenres) {
                 FlowRow(
