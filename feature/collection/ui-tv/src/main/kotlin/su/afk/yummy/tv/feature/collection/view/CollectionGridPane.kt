@@ -220,82 +220,83 @@ private fun CollectionGrid(
         CompositionLocalProvider(
             LocalBringIntoViewSpec provides TvFocusedGridBringIntoViewSpec,
         ) {
-        LazyVerticalGrid(
-            state = gridState,
-            columns = GridCells.Adaptive(minSize = cardWidth),
-            modifier = Modifier
-                .fillMaxSize()
-                .focusRequester(gridFocusRequester)
-                .tvFocusRestorer(fallback = gridFallbackFocusRequester())
-                .onFocusChanged { state ->
-                    val hadFocus = gridHasFocus
-                    gridHasFocus = state.hasFocus
-                    if (!state.hasFocus) {
-                        isRestoringFocus = false
-                    }
-                    if (state.isFocused && !hadFocus && !isRestoringFocus) {
-                        if (firstEntry) {
-                            requestHeaderFocus()
-                        } else if (animes.isNotEmpty()) {
-                            requestAnimeFocus(restoreTargetIndex(), headerFocusRequester)
+            LazyVerticalGrid(
+                state = gridState,
+                columns = GridCells.Adaptive(minSize = cardWidth),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .focusRequester(gridFocusRequester)
+                    .tvFocusRestorer(fallback = gridFallbackFocusRequester())
+                    .onFocusChanged { state ->
+                        val hadFocus = gridHasFocus
+                        gridHasFocus = state.hasFocus
+                        if (!state.hasFocus) {
+                            isRestoringFocus = false
+                        }
+                        if (state.isFocused && !hadFocus && !isRestoringFocus) {
+                            if (firstEntry) {
+                                requestHeaderFocus()
+                            } else if (animes.isNotEmpty()) {
+                                requestAnimeFocus(restoreTargetIndex(), headerFocusRequester)
+                            }
                         }
                     }
+                    .focusable(),
+                contentPadding = PaddingValues(
+                    start = TvScreenPadding.Horizontal,
+                    end = TvScreenPadding.Horizontal,
+                    top = TvScreenPadding.Vertical,
+                    bottom = TvScreenPadding.Vertical,
+                ),
+                verticalArrangement = Arrangement.spacedBy(TvCardSpacing.Vertical),
+                horizontalArrangement = Arrangement.spacedBy(horizontalSpacing),
+            ) {
+                item(span = { GridItemSpan(maxLineSpan) }) {
+                    CollectionHeader(
+                        collection = collection,
+                        isVoteLoading = isVoteLoading,
+                        isOwner = isOwner,
+                        isMutationLoading = isMutationLoading,
+                        onVote = onVote,
+                        onEdit = onEdit,
+                        onDelete = onDelete,
+                        onComments = onComments,
+                        titleFocusRequester = headerFocusRequester,
+                        downFocusRequester = focusRequesters.firstOrNull(),
+                    )
                 }
-                .focusable(),
-            contentPadding = PaddingValues(
-                start = TvScreenPadding.Horizontal,
-                end = TvScreenPadding.Horizontal,
-                top = TvScreenPadding.Vertical,
-                bottom = TvScreenPadding.Vertical,
-            ),
-            verticalArrangement = Arrangement.spacedBy(TvCardSpacing.Vertical),
-            horizontalArrangement = Arrangement.spacedBy(horizontalSpacing),
-        ) {
-            item(span = { GridItemSpan(maxLineSpan) }) {
-                CollectionHeader(
-                    collection = collection,
-                    isVoteLoading = isVoteLoading,
-                    isOwner = isOwner,
-                    isMutationLoading = isMutationLoading,
-                    onVote = onVote,
-                    onEdit = onEdit,
-                    onDelete = onDelete,
-                    onComments = onComments,
-                    titleFocusRequester = headerFocusRequester,
-                    downFocusRequester = focusRequesters.firstOrNull(),
-                )
-            }
 
-            itemsIndexed(animes, key = { _, anime -> anime.id }) { index, anime ->
-                val stableOnClick = remember(anime.id, index) {
-                    {
-                        rememberFocusedAnime(index)
-                        onAnimeSelected(anime.id)
-                    }
-                }
-                val stableOnFocused = remember(anime.id, index) { { rememberFocusedAnime(index) } }
-                CollectionAnimeCard(
-                    modifier = Modifier
-                        .focusRequester(focusRequesters[index])
-                        .focusProperties {
-                            if (index % gridColumnCount == 0) {
-                                mainMenuFocusRequester?.let { left = it }
-                            }
-                            if (index < gridColumnCount) {
-                                up = headerFocusRequester
-                            }
+                itemsIndexed(animes, key = { _, anime -> anime.id }) { index, anime ->
+                    val stableOnClick = remember(anime.id, index) {
+                        {
+                            rememberFocusedAnime(index)
+                            onAnimeSelected(anime.id)
                         }
-                        .onFocusChanged { state ->
-                            if (state.hasFocus && !isRestoringFocus) {
-                                rememberFocusedAnime(index)
+                    }
+                    val stableOnFocused =
+                        remember(anime.id, index) { { rememberFocusedAnime(index) } }
+                    CollectionAnimeCard(
+                        modifier = Modifier
+                            .focusRequester(focusRequesters[index])
+                            .focusProperties {
+                                if (index % gridColumnCount == 0) {
+                                    mainMenuFocusRequester?.let { left = it }
+                                }
+                                if (index < gridColumnCount) {
+                                    up = headerFocusRequester
+                                }
                             }
-                        },
-                    item = anime,
-                    onClick = stableOnClick,
-                    onFocused = stableOnFocused,
-                )
+                            .onFocusChanged { state ->
+                                if (state.hasFocus && !isRestoringFocus) {
+                                    rememberFocusedAnime(index)
+                                }
+                            },
+                        item = anime,
+                        onClick = stableOnClick,
+                        onFocused = stableOnFocused,
+                    )
+                }
             }
-        }
         }
     }
 }

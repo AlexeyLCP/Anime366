@@ -39,7 +39,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import su.afk.yummy.tv.core.designsystem.presenter.dimensions.TvCardSpacing
-import su.afk.yummy.tv.core.designsystem.presenter.focus.TvFocusedGridBringIntoViewSpec
+import su.afk.yummy.tv.core.designsystem.presenter.focus.TvCenteredCarouselBringIntoViewSpec
 import su.afk.yummy.tv.core.designsystem.presenter.focus.tvFocusRestorer
 import su.afk.yummy.tv.core.designsystem.presenter.focus.tvFocusableClick
 import su.afk.yummy.tv.core.designsystem.presenter.locals.LocalPreferredContentFocusRequester
@@ -176,7 +176,7 @@ internal fun SimilarTab(
                 BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
                     val sideInset = ((maxWidth - RelatedCardWidth) / 2).coerceAtLeast(24.dp)
                     CompositionLocalProvider(
-                        LocalBringIntoViewSpec provides TvFocusedGridBringIntoViewSpec,
+                        LocalBringIntoViewSpec provides TvCenteredCarouselBringIntoViewSpec,
                     ) {
                         LazyRow(
                             state = listState,

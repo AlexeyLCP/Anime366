@@ -1,7 +1,9 @@
 package su.afk.yummy.tv.feature.details.relation
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.LocalBringIntoViewSpec
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,6 +20,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -41,6 +44,7 @@ import su.afk.yummy.tv.core.designsystem.presenter.components.loader.TvLoadingSc
 import su.afk.yummy.tv.core.designsystem.presenter.dimensions.TvCardSpacing
 import su.afk.yummy.tv.core.designsystem.presenter.dimensions.TvScreenPadding
 import su.afk.yummy.tv.core.designsystem.presenter.dimensions.currentTvTitleCardDimensions
+import su.afk.yummy.tv.core.designsystem.presenter.focus.TvFocusedGridBringIntoViewSpec
 import su.afk.yummy.tv.core.designsystem.presenter.focus.requestFocusUntilTimeout
 import su.afk.yummy.tv.core.designsystem.presenter.preview.ScreenPreviewTheme
 import su.afk.yummy.tv.domain.anime.model.AnimeRelation
@@ -89,6 +93,7 @@ private fun RelationTvEmptyGenreScreenPreview() = ScreenPreviewTheme {
     )
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun RelationTvScreen(
     state: RelationState.State,
@@ -166,6 +171,9 @@ fun RelationTvScreen(
                         null -> headerFocusRequester.requestFocus()
                     }
                 }
+                CompositionLocalProvider(
+                    LocalBringIntoViewSpec provides TvFocusedGridBringIntoViewSpec,
+                ) {
                 LazyVerticalGrid(
                     state = gridState,
                     columns = GridCells.Adaptive(currentTvTitleCardDimensions().width),
@@ -242,6 +250,7 @@ fun RelationTvScreen(
                             },
                         )
                     }
+                }
                 }
             }
         }
