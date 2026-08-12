@@ -2,8 +2,6 @@
     <string name="app_name">YummyTV</string>
     <string name="search_hint">Search anime</string>
     <string name="search_settings_description">Search YummyTV catalog</string>
-    <string name="search_suggest_anime">Anime</string>
-    <string name="search_suggest_rating">Rating: %1$.1f</string>
     <string name="interface_mode_title">Choose interface</string>
     <string name="interface_mode_message">You can choose the interface that works best with this device.</string>
     <string name="interface_mode_tv">TV interface</string>

@@ -8,8 +8,9 @@ import su.afk.yummy.tv.core.navigation.NavigationManager
 import su.afk.yummy.tv.feature.faq.mobile.FaqMobileScreen
 import su.afk.yummy.tv.feature.faq.mobile.model.FaqState
 import su.afk.yummy.tv.feature.faq.navigator.FaqDestination
+import javax.inject.Inject
 
-class FaqNavRegistrar : NavRegistrar {
+class FaqNavRegistrar @Inject constructor() : NavRegistrar {
     override fun register(builder: EntryProviderScope<NavKey>, nav: NavigationManager) =
         with(builder) {
             entry<FaqDestination> {

@@ -1,4 +1,4 @@
-package su.afk.yummy.tv.android.worker
+package su.afk.yummy.tv.core.tv
 
 import android.content.Context
 import androidx.hilt.work.HiltWorker

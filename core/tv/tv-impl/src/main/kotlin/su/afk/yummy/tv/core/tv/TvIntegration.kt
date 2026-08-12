@@ -1,5 +1,10 @@
 package su.afk.yummy.tv.core.tv
 
+import android.content.Intent
+import android.media.tv.TvContract
+import android.os.Build
+import androidx.activity.result.ActivityResultCaller
+import androidx.activity.result.contract.ActivityResultContracts
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -14,6 +19,7 @@ import su.afk.yummy.tv.core.analytics.ErrorAnalyticsReporter
 import su.afk.yummy.tv.core.preferences.settings.SettingsStore
 import su.afk.yummy.tv.core.storage.watchprogress.WatchProgressStore
 import su.afk.yummy.tv.core.tv.api.ITvIntegration
+import su.afk.yummy.tv.domain.home.model.HomeFeedSectionType
 import su.afk.yummy.tv.domain.home.usecase.GetHomeFeedUseCase
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -32,6 +38,9 @@ internal class TvIntegration @Inject constructor(
     private val coroutineExceptionHandler = CoroutineExceptionHandler { _, throwable ->
         errorAnalyticsReporter.reportCoroutineError(owner = "TvIntegration", throwable = throwable)
     }
+
+    // Живёт весь процесс — TvIntegration Singleton, отдельного onDestroy/cancel для него нет,
+    // поэтому scope намеренно не отменяется (это не забытый cancel(), а осознанный fire-and-forget).
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO + coroutineExceptionHandler)
 
     override val browsableChannelRequest: SharedFlow<Long> = previewChannelManager.browsableRequest
@@ -43,6 +52,27 @@ internal class TvIntegration @Inject constructor(
 
     override fun refreshPreviewChannelStatus() {
         scope.launch { previewChannelManager.checkBrowsable() }
+    }
+
+    override fun bindBrowsableChannelRequests(
+        activityResultCaller: ActivityResultCaller,
+        scope: CoroutineScope,
+    ) {
+        val launcher = activityResultCaller.registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()
+        ) { refreshPreviewChannelStatus() }
+
+        scope.launch {
+            browsableChannelRequest.collect { channelId ->
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return@collect
+                runCatching {
+                    launcher.launch(
+                        Intent(TvContract.ACTION_REQUEST_CHANNEL_BROWSABLE)
+                            .putExtra(TvContract.EXTRA_CHANNEL_ID, channelId)
+                    )
+                }
+            }
+        }
     }
 
     override fun start() {
@@ -63,10 +93,12 @@ internal class TvIntegration @Inject constructor(
         }
 
         scope.launch {
+            // Задержка, чтобы не соревноваться за сеть/CPU с загрузкой домашнего экрана при холодном
+            // старте — синхронизация preview-канала не блокирует ничего и может подождать.
             delay(5.seconds)
             runCatching { getHomeFeed() }.onSuccess { feed ->
                 val newItems = feed.sections
-                    .firstOrNull { it.title.contains("нов", ignoreCase = true) }
+                    .firstOrNull { it.type == HomeFeedSectionType.NEW_RELEASES }
                     ?.items
                     ?: feed.sections.firstOrNull()?.items
                     ?: emptyList()

@@ -1,11 +1,9 @@
-package su.afk.yummy.tv.android.di
+package su.afk.yummy.tv.core.utils
 
 import coil3.ImageLoader
 import coil3.fetch.FetchResult
 import coil3.fetch.Fetcher
 import coil3.request.Options
-import su.afk.yummy.tv.core.utils.KodikThumbnail
-import su.afk.yummy.tv.core.utils.ResolveKodikThumbnailUrlUseCase
 
 /**
  * Резолвит URL Kodik-превью и передаёт его штатному network fetcher Coil.

@@ -119,6 +119,7 @@ include(":feature:search:data")
 include(":feature:search:presentation")
 include(":feature:search:ui-tv")
 include(":feature:search:ui-mobile")
+include(":feature:search:android")
 
 include(":feature:top:domain")
 include(":feature:top:data")

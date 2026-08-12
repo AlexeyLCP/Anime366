@@ -5,4 +5,7 @@ plugins {
 
 android { namespace = "su.afk.yummy.tv.feature.reviews.api" }
 
-dependencies { api(libs.bundles.navigation.serialization) }
+dependencies {
+    api(libs.bundles.navigation.serialization)
+    implementation(libs.javax.inject)
+}

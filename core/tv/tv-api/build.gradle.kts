@@ -7,5 +7,6 @@ android {
 }
 
 dependencies {
-    implementation(libs.kotlinx.coroutines.android)
+    api(libs.androidx.activity)
+    api(libs.kotlinx.coroutines.android)
 }

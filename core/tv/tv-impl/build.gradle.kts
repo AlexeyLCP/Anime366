@@ -16,4 +16,7 @@ dependencies {
     implementation(project(":feature:home:domain"))
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.tvprovider)
+    implementation(libs.work.runtime.ktx)
+    implementation(libs.hilt.work)
+    add("ksp", libs.hilt.work.compiler)
 }

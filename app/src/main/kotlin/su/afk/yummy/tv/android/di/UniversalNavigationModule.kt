@@ -1,332 +1,389 @@
 package su.afk.yummy.tv.android.di
 
 import androidx.navigation3.runtime.NavKey
+import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import dagger.multibindings.IntoSet
+import su.afk.yummy.tv.android.di.UniversalNavigationModule.Companion.provideRootTabs
 import su.afk.yummy.tv.core.navigation.MobileUi
 import su.afk.yummy.tv.core.navigation.NavRegistrar
 import su.afk.yummy.tv.core.navigation.TvUi
 import su.afk.yummy.tv.core.navigation.root.RootTab
 import su.afk.yummy.tv.feature.account.IAccountNavigator
+import su.afk.yummy.tv.feature.account.navigator.AccountDestination
+import su.afk.yummy.tv.feature.account.navigator.AccountNavigator
 import su.afk.yummy.tv.feature.bloggers.IBloggerVideosNavigator
+import su.afk.yummy.tv.feature.bloggers.navigator.BloggerVideosNavigator
 import su.afk.yummy.tv.feature.collection.ICollectionNavigator
+import su.afk.yummy.tv.feature.collection.navigator.CollectionNavigator
+import su.afk.yummy.tv.feature.collection.navigator.CollectionsCatalogDestination
 import su.afk.yummy.tv.feature.comments.ICommentsNavigator
+import su.afk.yummy.tv.feature.comments.navigator.CommentsNavigator
 import su.afk.yummy.tv.feature.details.IDetailsNavigator
+import su.afk.yummy.tv.feature.details.navigator.DetailsNavigator
 import su.afk.yummy.tv.feature.faq.IFaqNavigator
+import su.afk.yummy.tv.feature.faq.navigator.FaqNavigator
 import su.afk.yummy.tv.feature.home.IHomeNavigator
+import su.afk.yummy.tv.feature.home.navigator.HomeDestination
+import su.afk.yummy.tv.feature.home.navigator.HomeNavigator
 import su.afk.yummy.tv.feature.library.ILibraryNavigator
+import su.afk.yummy.tv.feature.library.navigator.LibraryDestination
+import su.afk.yummy.tv.feature.library.navigator.LibraryNavigator
 import su.afk.yummy.tv.feature.messages.IMessagesNavigator
+import su.afk.yummy.tv.feature.messages.navigator.MessagesNavigator
 import su.afk.yummy.tv.feature.pages.ISitePagesNavigator
+import su.afk.yummy.tv.feature.pages.navigator.SitePagesNavigator
 import su.afk.yummy.tv.feature.player.IPlayerNavigator
+import su.afk.yummy.tv.feature.player.navigator.PlayerNavigator
 import su.afk.yummy.tv.feature.posts.IPostsNavigator
+import su.afk.yummy.tv.feature.posts.navigator.PostsDestination
+import su.afk.yummy.tv.feature.posts.navigator.PostsNavigator
 import su.afk.yummy.tv.feature.reviews.IReviewsNavigator
+import su.afk.yummy.tv.feature.reviews.navigator.ReviewsNavigator
 import su.afk.yummy.tv.feature.schedule.IScheduleNavigator
+import su.afk.yummy.tv.feature.schedule.navigator.ScheduleDestination
+import su.afk.yummy.tv.feature.schedule.navigator.ScheduleNavigator
 import su.afk.yummy.tv.feature.search.ISearchNavigator
+import su.afk.yummy.tv.feature.search.navigator.SearchDestination
+import su.afk.yummy.tv.feature.search.navigator.SearchNavigator
 import su.afk.yummy.tv.feature.settings.ISettingsNavigator
+import su.afk.yummy.tv.feature.settings.navigator.SettingsDestination
+import su.afk.yummy.tv.feature.settings.navigator.SettingsNavigator
 import su.afk.yummy.tv.feature.top.ITopNavigator
+import su.afk.yummy.tv.feature.top.navigator.TopDestination
+import su.afk.yummy.tv.feature.top.navigator.TopNavigator
 import su.afk.yummy.tv.feature.videodownload.IVideoDownloadNavigator
+import su.afk.yummy.tv.feature.videodownload.navigator.VideoDownloadNavigator
 import javax.inject.Singleton
 
+/**
+ * Собирает навигаторы и регистраторы экранов всех фич в общий Hilt-граф. Реализации — простые
+ * классы без зависимостей (`@Inject constructor()`), поэтому связывание через [Binds] вместо
+ * ручного `@Provides fun ... = XxxImpl()`: Dagger сам вызывает конструктор, а не мы руками.
+ *
+ * У mobile- и tv-регистраторов одной и той же фичи одинаковое простое имя класса (`XxxNavRegistrar`
+ * в разных пакетах) — `import ... as Alias` для них не работает (KSP не резолвит такой алиас в
+ * сигнатуре `@Binds`), поэтому в сигнатурах ниже эти типы указаны полным именем.
+ *
+ * [provideRootTabs] — исключение: она строит [Map], а не связывает интерфейс с реализацией,
+ * такое `@Binds` выразить не может, поэтому это `@Provides` в companion object (Kotlin-модуль
+ * с `@Binds` не может держать `@Provides` как обычный метод интерфейса).
+ */
 @Module
 @InstallIn(SingletonComponent::class)
-object UniversalNavigationModule {
+interface UniversalNavigationModule {
 
-    @Provides
-    fun provideRootTabs(): @JvmSuppressWildcards Map<RootTab, NavKey> = mapOf(
-        RootTab.ACCOUNT to su.afk.yummy.tv.feature.account.navigator.AccountDestination,
-        RootTab.SEARCH to su.afk.yummy.tv.feature.search.navigator.SearchDestination(),
-        RootTab.HOME to su.afk.yummy.tv.feature.home.navigator.HomeDestination,
-        RootTab.POSTS to su.afk.yummy.tv.feature.posts.navigator.PostsDestination,
-        RootTab.COLLECTIONS to
-                su.afk.yummy.tv.feature.collection.navigator.CollectionsCatalogDestination,
-        RootTab.SCHEDULE to su.afk.yummy.tv.feature.schedule.navigator.ScheduleDestination,
-        RootTab.TOP to su.afk.yummy.tv.feature.top.navigator.TopDestination,
-        RootTab.LIBRARY to su.afk.yummy.tv.feature.library.navigator.LibraryDestination,
-        RootTab.SETTINGS to su.afk.yummy.tv.feature.settings.navigator.SettingsDestination,
-    )
-
-    @Provides
+    @Binds
     @Singleton
-    fun provideAccountNavigator(): IAccountNavigator =
-        su.afk.yummy.tv.feature.account.navigator.AccountNavigator()
+    fun bindAccountNavigator(impl: AccountNavigator): IAccountNavigator
 
-    @Provides
+    @Binds
     @Singleton
-    fun provideMessagesNavigator(): IMessagesNavigator =
-        su.afk.yummy.tv.feature.messages.navigator.MessagesNavigator()
+    fun bindMessagesNavigator(impl: MessagesNavigator): IMessagesNavigator
 
-    @Provides
+    @Binds
     @Singleton
-    fun provideCollectionNavigator(): ICollectionNavigator =
-        su.afk.yummy.tv.feature.collection.navigator.CollectionNavigator()
+    fun bindCollectionNavigator(impl: CollectionNavigator): ICollectionNavigator
 
-    @Provides
+    @Binds
     @Singleton
-    fun provideCommentsNavigator(): ICommentsNavigator =
-        su.afk.yummy.tv.feature.comments.navigator.CommentsNavigator()
+    fun bindCommentsNavigator(impl: CommentsNavigator): ICommentsNavigator
 
-    @Provides
+    @Binds
     @Singleton
-    fun provideDetailsNavigator(): IDetailsNavigator =
-        su.afk.yummy.tv.feature.details.navigator.DetailsNavigator()
+    fun bindDetailsNavigator(impl: DetailsNavigator): IDetailsNavigator
 
-    @Provides
+    @Binds
     @Singleton
-    fun provideFaqNavigator(): IFaqNavigator =
-        su.afk.yummy.tv.feature.faq.navigator.FaqNavigator()
+    fun bindFaqNavigator(impl: FaqNavigator): IFaqNavigator
 
-    @Provides
+    @Binds
     @Singleton
-    fun provideSitePagesNavigator(): ISitePagesNavigator =
-        su.afk.yummy.tv.feature.pages.navigator.SitePagesNavigator()
+    fun bindSitePagesNavigator(impl: SitePagesNavigator): ISitePagesNavigator
 
-    @Provides
+    @Binds
     @Singleton
-    fun provideHomeNavigator(): IHomeNavigator =
-        su.afk.yummy.tv.feature.home.navigator.HomeNavigator()
+    fun bindHomeNavigator(impl: HomeNavigator): IHomeNavigator
 
-    @Provides
+    @Binds
     @Singleton
-    fun provideLibraryNavigator(): ILibraryNavigator =
-        su.afk.yummy.tv.feature.library.navigator.LibraryNavigator()
+    fun bindLibraryNavigator(impl: LibraryNavigator): ILibraryNavigator
 
-    @Provides
+    @Binds
     @Singleton
-    fun providePlayerNavigator(): IPlayerNavigator =
-        su.afk.yummy.tv.feature.player.navigator.PlayerNavigator()
+    fun bindPlayerNavigator(impl: PlayerNavigator): IPlayerNavigator
 
-    @Provides
+    @Binds
     @Singleton
-    fun providePostsNavigator(): IPostsNavigator =
-        su.afk.yummy.tv.feature.posts.navigator.PostsNavigator()
+    fun bindPostsNavigator(impl: PostsNavigator): IPostsNavigator
 
-    @Provides
+    @Binds
     @Singleton
-    fun provideReviewsNavigator(): IReviewsNavigator =
-        su.afk.yummy.tv.feature.reviews.navigator.ReviewsNavigator()
+    fun bindReviewsNavigator(impl: ReviewsNavigator): IReviewsNavigator
 
-    @Provides
+    @Binds
     @Singleton
-    fun provideBloggerVideosNavigator(): IBloggerVideosNavigator =
-        su.afk.yummy.tv.feature.bloggers.navigator.BloggerVideosNavigator()
+    fun bindBloggerVideosNavigator(impl: BloggerVideosNavigator): IBloggerVideosNavigator
 
-    @Provides
+    @Binds
     @Singleton
-    fun provideScheduleNavigator(): IScheduleNavigator =
-        su.afk.yummy.tv.feature.schedule.navigator.ScheduleNavigator()
+    fun bindScheduleNavigator(impl: ScheduleNavigator): IScheduleNavigator
 
-    @Provides
+    @Binds
     @Singleton
-    fun provideSearchNavigator(): ISearchNavigator =
-        su.afk.yummy.tv.feature.search.navigator.SearchNavigator()
+    fun bindSearchNavigator(impl: SearchNavigator): ISearchNavigator
 
-    @Provides
+    @Binds
     @Singleton
-    fun provideSettingsNavigator(): ISettingsNavigator =
-        su.afk.yummy.tv.feature.settings.navigator.SettingsNavigator()
+    fun bindSettingsNavigator(impl: SettingsNavigator): ISettingsNavigator
 
-    @Provides
+    @Binds
     @Singleton
-    fun provideTopNavigator(): ITopNavigator =
-        su.afk.yummy.tv.feature.top.navigator.TopNavigator()
+    fun bindTopNavigator(impl: TopNavigator): ITopNavigator
 
-    @Provides
+    @Binds
     @Singleton
-    fun provideVideoDownloadNavigator(): IVideoDownloadNavigator =
-        su.afk.yummy.tv.feature.videodownload.navigator.VideoDownloadNavigator()
+    fun bindVideoDownloadNavigator(impl: VideoDownloadNavigator): IVideoDownloadNavigator
 
-    @Provides
+    @Binds
     @IntoSet
     @MobileUi
-    fun provideMobileAccountNavRegistrar(): NavRegistrar =
-        su.afk.yummy.tv.feature.account.mobile.navigator.AccountNavRegistrar()
+    fun bindMobileAccountNavRegistrar(
+        impl: su.afk.yummy.tv.feature.account.mobile.navigator.AccountNavRegistrar,
+    ): NavRegistrar
 
-    @Provides
+    @Binds
     @IntoSet
     @MobileUi
-    fun provideMobileCollectionNavRegistrar(): NavRegistrar =
-        su.afk.yummy.tv.feature.collection.mobile.navigator.CollectionNavRegistrar()
+    fun bindMobileCollectionNavRegistrar(
+        impl: su.afk.yummy.tv.feature.collection.mobile.navigator.CollectionNavRegistrar,
+    ): NavRegistrar
 
-    @Provides
+    @Binds
     @IntoSet
     @MobileUi
-    fun provideMobileCommentsNavRegistrar(): NavRegistrar =
-        su.afk.yummy.tv.feature.comments.mobile.navigator.CommentsNavRegistrar()
+    fun bindMobileCommentsNavRegistrar(
+        impl: su.afk.yummy.tv.feature.comments.mobile.navigator.CommentsNavRegistrar,
+    ): NavRegistrar
 
-    @Provides
+    @Binds
     @IntoSet
     @MobileUi
-    fun provideMobileDetailsNavRegistrar(): NavRegistrar =
-        su.afk.yummy.tv.feature.details.mobile.navigator.DetailsNavRegistrar()
+    fun bindMobileDetailsNavRegistrar(
+        impl: su.afk.yummy.tv.feature.details.mobile.navigator.DetailsNavRegistrar,
+    ): NavRegistrar
 
-    @Provides
+    @Binds
     @IntoSet
     @MobileUi
-    fun provideMobileFaqNavRegistrar(): NavRegistrar =
-        su.afk.yummy.tv.feature.faq.mobile.navigator.FaqNavRegistrar()
+    fun bindMobileFaqNavRegistrar(
+        impl: su.afk.yummy.tv.feature.faq.mobile.navigator.FaqNavRegistrar,
+    ): NavRegistrar
 
-    @Provides
+    @Binds
     @IntoSet
     @MobileUi
-    fun provideMobileSitePagesNavRegistrar(): NavRegistrar =
-        su.afk.yummy.tv.feature.pages.mobile.navigator.SitePagesNavRegistrar()
+    fun bindMobileSitePagesNavRegistrar(
+        impl: su.afk.yummy.tv.feature.pages.mobile.navigator.SitePagesNavRegistrar,
+    ): NavRegistrar
 
-    @Provides
+    @Binds
     @IntoSet
     @MobileUi
-    fun provideMobileHomeNavRegistrar(): NavRegistrar =
-        su.afk.yummy.tv.feature.home.mobile.navigator.HomeNavRegistrar()
+    fun bindMobileHomeNavRegistrar(
+        impl: su.afk.yummy.tv.feature.home.mobile.navigator.HomeNavRegistrar,
+    ): NavRegistrar
 
-    @Provides
+    @Binds
     @IntoSet
     @MobileUi
-    fun provideMobileLibraryNavRegistrar(): NavRegistrar =
-        su.afk.yummy.tv.feature.library.mobile.navigator.LibraryNavRegistrar()
+    fun bindMobileLibraryNavRegistrar(
+        impl: su.afk.yummy.tv.feature.library.mobile.navigator.LibraryNavRegistrar,
+    ): NavRegistrar
 
-    @Provides
+    @Binds
     @IntoSet
     @MobileUi
-    fun provideMobileMessagesNavRegistrar(): NavRegistrar =
-        su.afk.yummy.tv.feature.messages.mobile.navigator.MessagesNavRegistrar()
+    fun bindMobileMessagesNavRegistrar(
+        impl: su.afk.yummy.tv.feature.messages.mobile.navigator.MessagesNavRegistrar,
+    ): NavRegistrar
 
-    @Provides
+    @Binds
     @IntoSet
     @MobileUi
-    fun provideMobileReviewsNavRegistrar(): NavRegistrar =
-        su.afk.yummy.tv.feature.reviews.mobile.navigator.ReviewsNavRegistrar()
+    fun bindMobileReviewsNavRegistrar(
+        impl: su.afk.yummy.tv.feature.reviews.mobile.navigator.ReviewsNavRegistrar,
+    ): NavRegistrar
 
-    @Provides
+    @Binds
     @IntoSet
     @MobileUi
-    fun provideMobileBloggerVideosNavRegistrar(): NavRegistrar =
-        su.afk.yummy.tv.feature.bloggers.mobile.navigator.BloggerVideosNavRegistrar()
+    fun bindMobileBloggerVideosNavRegistrar(
+        impl: su.afk.yummy.tv.feature.bloggers.mobile.navigator.BloggerVideosNavRegistrar,
+    ): NavRegistrar
 
-    @Provides
+    @Binds
     @IntoSet
     @MobileUi
-    fun provideMobilePlayerNavRegistrar(): NavRegistrar =
-        su.afk.yummy.tv.feature.player.mobile.navigator.PlayerNavRegistrar()
+    fun bindMobilePlayerNavRegistrar(
+        impl: su.afk.yummy.tv.feature.player.mobile.navigator.PlayerNavRegistrar,
+    ): NavRegistrar
 
-    @Provides
+    @Binds
     @IntoSet
     @MobileUi
-    fun provideMobilePostsNavRegistrar(): NavRegistrar =
-        su.afk.yummy.tv.feature.posts.mobile.navigator.PostsNavRegistrar()
+    fun bindMobilePostsNavRegistrar(
+        impl: su.afk.yummy.tv.feature.posts.mobile.navigator.PostsNavRegistrar,
+    ): NavRegistrar
 
-    @Provides
+    @Binds
     @IntoSet
     @MobileUi
-    fun provideMobileScheduleNavRegistrar(): NavRegistrar =
-        su.afk.yummy.tv.feature.schedule.mobile.navigator.ScheduleNavRegistrar()
+    fun bindMobileScheduleNavRegistrar(
+        impl: su.afk.yummy.tv.feature.schedule.mobile.navigator.ScheduleNavRegistrar,
+    ): NavRegistrar
 
-    @Provides
+    @Binds
     @IntoSet
     @MobileUi
-    fun provideMobileSearchNavRegistrar(): NavRegistrar =
-        su.afk.yummy.tv.feature.search.mobile.navigator.SearchNavRegistrar()
+    fun bindMobileSearchNavRegistrar(
+        impl: su.afk.yummy.tv.feature.search.mobile.navigator.SearchNavRegistrar,
+    ): NavRegistrar
 
-    @Provides
+    @Binds
     @IntoSet
     @MobileUi
-    fun provideMobileSettingsNavRegistrar(): NavRegistrar =
-        su.afk.yummy.tv.feature.settings.mobile.navigator.SettingsNavRegistrar()
+    fun bindMobileSettingsNavRegistrar(
+        impl: su.afk.yummy.tv.feature.settings.mobile.navigator.SettingsNavRegistrar,
+    ): NavRegistrar
 
-    @Provides
+    @Binds
     @IntoSet
     @MobileUi
-    fun provideMobileTopNavRegistrar(): NavRegistrar =
-        su.afk.yummy.tv.feature.top.mobile.navigator.TopNavRegistrar()
+    fun bindMobileTopNavRegistrar(
+        impl: su.afk.yummy.tv.feature.top.mobile.navigator.TopNavRegistrar,
+    ): NavRegistrar
 
-    @Provides
+    @Binds
     @IntoSet
     @MobileUi
-    fun provideMobileVideoDownloadNavRegistrar(): NavRegistrar =
-        su.afk.yummy.tv.feature.videodownload.mobile.navigator.VideoDownloadNavRegistrar()
+    fun bindMobileVideoDownloadNavRegistrar(
+        impl: su.afk.yummy.tv.feature.videodownload.mobile.navigator.VideoDownloadNavRegistrar,
+    ): NavRegistrar
 
-    @Provides
+    @Binds
     @IntoSet
     @TvUi
-    fun provideTvAccountNavRegistrar(): NavRegistrar =
-        su.afk.yummy.tv.feature.account.tv.navigator.AccountNavRegistrar()
+    fun bindTvAccountNavRegistrar(
+        impl: su.afk.yummy.tv.feature.account.tv.navigator.AccountNavRegistrar,
+    ): NavRegistrar
 
-    @Provides
+    @Binds
     @IntoSet
     @TvUi
-    fun provideTvCollectionNavRegistrar(): NavRegistrar =
-        su.afk.yummy.tv.feature.collection.tv.navigator.CollectionNavRegistrar()
+    fun bindTvCollectionNavRegistrar(
+        impl: su.afk.yummy.tv.feature.collection.tv.navigator.CollectionNavRegistrar,
+    ): NavRegistrar
 
-    @Provides
+    @Binds
     @IntoSet
     @TvUi
-    fun provideTvCommentsNavRegistrar(): NavRegistrar =
-        su.afk.yummy.tv.feature.comments.tv.navigator.CommentsNavRegistrar()
+    fun bindTvCommentsNavRegistrar(
+        impl: su.afk.yummy.tv.feature.comments.tv.navigator.CommentsNavRegistrar,
+    ): NavRegistrar
 
-    @Provides
+    @Binds
     @IntoSet
     @TvUi
-    fun provideTvDetailsNavRegistrar(): NavRegistrar =
-        su.afk.yummy.tv.feature.details.tv.navigator.DetailsNavRegistrar()
+    fun bindTvDetailsNavRegistrar(
+        impl: su.afk.yummy.tv.feature.details.tv.navigator.DetailsNavRegistrar,
+    ): NavRegistrar
 
-    @Provides
+    @Binds
     @IntoSet
     @TvUi
-    fun provideTvHomeNavRegistrar(): NavRegistrar =
-        su.afk.yummy.tv.feature.home.tv.navigator.HomeNavRegistrar()
+    fun bindTvHomeNavRegistrar(
+        impl: su.afk.yummy.tv.feature.home.tv.navigator.HomeNavRegistrar,
+    ): NavRegistrar
 
-    @Provides
+    @Binds
     @IntoSet
     @TvUi
-    fun provideTvLibraryNavRegistrar(): NavRegistrar =
-        su.afk.yummy.tv.feature.library.tv.navigator.LibraryNavRegistrar()
+    fun bindTvLibraryNavRegistrar(
+        impl: su.afk.yummy.tv.feature.library.tv.navigator.LibraryNavRegistrar,
+    ): NavRegistrar
 
-    @Provides
+    @Binds
     @IntoSet
     @TvUi
-    fun provideTvReviewsNavRegistrar(): NavRegistrar =
-        su.afk.yummy.tv.feature.reviews.tv.navigator.ReviewsNavRegistrar()
+    fun bindTvReviewsNavRegistrar(
+        impl: su.afk.yummy.tv.feature.reviews.tv.navigator.ReviewsNavRegistrar,
+    ): NavRegistrar
 
-    @Provides
+    @Binds
     @IntoSet
     @TvUi
-    fun provideTvBloggerVideosNavRegistrar(): NavRegistrar =
-        su.afk.yummy.tv.feature.bloggers.tv.navigator.BloggerVideosNavRegistrar()
+    fun bindTvBloggerVideosNavRegistrar(
+        impl: su.afk.yummy.tv.feature.bloggers.tv.navigator.BloggerVideosNavRegistrar,
+    ): NavRegistrar
 
-    @Provides
+    @Binds
     @IntoSet
     @TvUi
-    fun provideTvPlayerNavRegistrar(): NavRegistrar =
-        su.afk.yummy.tv.feature.player.tv.navigator.PlayerNavRegistrar()
+    fun bindTvPlayerNavRegistrar(
+        impl: su.afk.yummy.tv.feature.player.tv.navigator.PlayerNavRegistrar,
+    ): NavRegistrar
 
-    @Provides
+    @Binds
     @IntoSet
     @TvUi
-    fun provideTvPostsNavRegistrar(): NavRegistrar =
-        su.afk.yummy.tv.feature.posts.tv.navigator.PostsNavRegistrar()
+    fun bindTvPostsNavRegistrar(
+        impl: su.afk.yummy.tv.feature.posts.tv.navigator.PostsNavRegistrar,
+    ): NavRegistrar
 
-    @Provides
+    @Binds
     @IntoSet
     @TvUi
-    fun provideTvScheduleNavRegistrar(): NavRegistrar =
-        su.afk.yummy.tv.feature.schedule.tv.navigator.ScheduleNavRegistrar()
+    fun bindTvScheduleNavRegistrar(
+        impl: su.afk.yummy.tv.feature.schedule.tv.navigator.ScheduleNavRegistrar,
+    ): NavRegistrar
 
-    @Provides
+    @Binds
     @IntoSet
     @TvUi
-    fun provideTvSearchNavRegistrar(): NavRegistrar =
-        su.afk.yummy.tv.feature.search.tv.navigator.SearchNavRegistrar()
+    fun bindTvSearchNavRegistrar(
+        impl: su.afk.yummy.tv.feature.search.tv.navigator.SearchNavRegistrar,
+    ): NavRegistrar
 
-    @Provides
+    @Binds
     @IntoSet
     @TvUi
-    fun provideTvSettingsNavRegistrar(): NavRegistrar =
-        su.afk.yummy.tv.feature.settings.tv.navigator.SettingsNavRegistrar()
+    fun bindTvSettingsNavRegistrar(
+        impl: su.afk.yummy.tv.feature.settings.tv.navigator.SettingsNavRegistrar,
+    ): NavRegistrar
 
-    @Provides
+    @Binds
     @IntoSet
     @TvUi
-    fun provideTvTopNavRegistrar(): NavRegistrar =
-        su.afk.yummy.tv.feature.top.tv.navigator.TopNavRegistrar()
+    fun bindTvTopNavRegistrar(
+        impl: su.afk.yummy.tv.feature.top.tv.navigator.TopNavRegistrar,
+    ): NavRegistrar
+
+    companion object {
+        @Provides
+        fun provideRootTabs(): @JvmSuppressWildcards Map<RootTab, NavKey> = mapOf(
+            RootTab.ACCOUNT to AccountDestination,
+            RootTab.SEARCH to SearchDestination(),
+            RootTab.HOME to HomeDestination,
+            RootTab.POSTS to PostsDestination,
+            RootTab.COLLECTIONS to CollectionsCatalogDestination,
+            RootTab.SCHEDULE to ScheduleDestination,
+            RootTab.TOP to TopDestination,
+            RootTab.LIBRARY to LibraryDestination,
+            RootTab.SETTINGS to SettingsDestination,
+        )
+    }
 }

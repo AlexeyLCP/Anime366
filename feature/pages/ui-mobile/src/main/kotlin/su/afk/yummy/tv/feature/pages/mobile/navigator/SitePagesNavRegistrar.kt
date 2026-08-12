@@ -9,8 +9,9 @@ import su.afk.yummy.tv.core.navigation.NavigationManager
 import su.afk.yummy.tv.feature.pages.SitePagesViewModel
 import su.afk.yummy.tv.feature.pages.mobile.SitePagesMobileScreen
 import su.afk.yummy.tv.feature.pages.navigator.SitePagesDestination
+import javax.inject.Inject
 
-class SitePagesNavRegistrar : NavRegistrar {
+class SitePagesNavRegistrar @Inject constructor() : NavRegistrar {
     override fun register(builder: EntryProviderScope<NavKey>, nav: NavigationManager) =
         with(builder) {
             entry<SitePagesDestination> {

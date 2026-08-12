@@ -2,8 +2,9 @@ package su.afk.yummy.tv.feature.bloggers.navigator
 
 import androidx.navigation3.runtime.NavKey
 import su.afk.yummy.tv.feature.bloggers.IBloggerVideosNavigator
+import javax.inject.Inject
 
-class BloggerVideosNavigator : IBloggerVideosNavigator {
+class BloggerVideosNavigator @Inject constructor() : IBloggerVideosNavigator {
     override fun feed(): NavKey = BloggerVideosDestination()
     override fun anime(animeId: Int): NavKey = BloggerVideosDestination(animeId)
     override fun blogger(bloggerId: Int): NavKey = BloggerDetailsDestination(bloggerId)

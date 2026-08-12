@@ -1,4 +1,4 @@
-package su.afk.yummy.tv.android.search
+package su.afk.yummy.tv.feature.search.android
 
 import android.app.SearchManager
 import android.content.ContentProvider
@@ -14,7 +14,6 @@ import dagger.hilt.android.EntryPointAccessors
 import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
-import su.afk.yummy.tv.R
 import su.afk.yummy.tv.domain.search.model.SearchFilters
 import su.afk.yummy.tv.domain.search.model.SearchItem
 import su.afk.yummy.tv.domain.search.usecase.SearchUseCase
@@ -32,7 +31,10 @@ class SystemSearchProvider : ContentProvider() {
         sortOrder: String?,
     ): Cursor {
         val appContext = appContext()
-        if (uri.authority != appContext.getString(R.string.search_suggest_authority)) {
+        // Манифест app-модуля объявляет authorities="${applicationId}.search" — тот же суффикс
+        // выводим здесь из packageName в рантайме, а не из ресурса app-модуля (этот класс живёт
+        // в отдельном модуле и до R.string.search_suggest_authority app-а дотянуться не может).
+        if (uri.authority != "${appContext.packageName}.search") {
             return emptyCursor()
         }
 
@@ -42,6 +44,9 @@ class SystemSearchProvider : ContentProvider() {
         val normalizedQuery = query.trim()
         if (normalizedQuery.length < MIN_QUERY_LENGTH) return emptyCursor()
 
+        // query() обязан вернуть Cursor синхронно (контракт ContentProvider), поэтому suspend-поиск
+        // можно вызвать только через runBlocking — здесь это не забытый Dispatchers.IO, а вынужденное
+        // решение. withTimeout не даёт медленному сетевому запросу подвесить вызывающий (системный) поток.
         return runCatching {
             val items = runBlocking {
                 withTimeout(SEARCH_TIMEOUT) {
@@ -55,6 +60,9 @@ class SystemSearchProvider : ContentProvider() {
             }
             items.toCursor(appContext)
         }.getOrElse {
+            // Гасим всё, включая TimeoutCancellationException: runBlocking выше — изолированный Job,
+            // не дочерний для вызывающего кода, так что перехват его CancellationException здесь
+            // безопасен и не ломает отмену снаружи. Саджесты не должны падать/зависать из-за ошибки поиска.
             emptyCursor()
         }
     }

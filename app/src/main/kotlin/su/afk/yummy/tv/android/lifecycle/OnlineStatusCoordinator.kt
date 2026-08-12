@@ -1,8 +1,6 @@
 package su.afk.yummy.tv.android.lifecycle
 
-import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.ProcessLifecycleOwner
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -14,24 +12,43 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import su.afk.yummy.tv.android.lifecycle.OnlineStatusCoordinator.Companion.HEARTBEAT_INTERVAL_MS
 import su.afk.yummy.tv.core.logger.AppLogger
+import su.afk.yummy.tv.core.utils.DeviceHashProvider
+import su.afk.yummy.tv.core.utils.ProcessLifecycleCoordinator
 import su.afk.yummy.tv.domain.account.usecase.ObserveAccountSessionUseCase
 import su.afk.yummy.tv.domain.account.usecase.UpdateOnlineStatusUseCase
 import javax.inject.Inject
 import javax.inject.Singleton
 
+/**
+ * Шлёт heartbeat "пользователь онлайн" на бэкенд, пока приложение видимо И пользователь
+ * авторизован — обе части объединены в [combine], чтобы не пинговать бэкенд впустую для
+ * анонимных сессий или пока приложение свёрнуто.
+ *
+ * [collectLatest] — ключевой механизм: любое изменение объединённого флага (свернули
+ * приложение, разлогинились) отменяет текущий цикл heartbeat, а не просто выставляет флаг;
+ * при возврате в активное состояние статус отправляется сразу и далее каждые
+ * [HEARTBEAT_INTERVAL_MS].
+ *
+ * Идентификатор — хеш устройства ([DeviceHashProvider]), а не id аккаунта: бэкенду для этого
+ * пинга достаточно знать, что конкретное устройство активно, привязка к личности не нужна.
+ */
 @Singleton
 class OnlineStatusCoordinator @Inject constructor(
     private val deviceHashProvider: DeviceHashProvider,
     private val observeAccountSession: ObserveAccountSessionUseCase,
     private val updateOnlineStatus: UpdateOnlineStatusUseCase,
-) : DefaultLifecycleObserver {
+) : ProcessLifecycleCoordinator() {
 
+    // Живёт весь процесс, как и observer выше — отдельного cancel() нет, это осознанно.
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private val isForeground = MutableStateFlow(false)
+
+    // start() при двойном вызове заново запустил бы второй параллельный heartbeat-цикл.
     private var started = false
 
-    fun start() {
+    override fun start() {
         if (started) return
         started = true
 
@@ -51,7 +68,7 @@ class OnlineStatusCoordinator @Inject constructor(
                     }
                 }
         }
-        ProcessLifecycleOwner.get().lifecycle.addObserver(this)
+        super.start()
     }
 
     override fun onStart(owner: LifecycleOwner) {

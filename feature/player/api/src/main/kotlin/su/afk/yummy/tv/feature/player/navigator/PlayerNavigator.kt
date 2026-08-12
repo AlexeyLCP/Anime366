@@ -2,8 +2,9 @@ package su.afk.yummy.tv.feature.player.navigator
 
 import androidx.navigation3.runtime.NavKey
 import su.afk.yummy.tv.feature.player.IPlayerNavigator
+import javax.inject.Inject
 
-class PlayerNavigator : IPlayerNavigator {
+class PlayerNavigator @Inject constructor() : IPlayerNavigator {
     override fun getPlayerDest(
         iframeUrl: String,
         animeTitle: String,

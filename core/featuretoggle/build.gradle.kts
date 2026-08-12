@@ -12,8 +12,10 @@ android {
 
 dependencies {
     implementation(project(":core:logger"))
+    implementation(project(":core:utils"))
 
     implementation(libs.varioqub.config)
     implementation(libs.varioqub.appmetrica.adapter)
+    implementation(libs.androidx.lifecycle.process)
     implementation(libs.kotlinx.coroutines.android)
 }

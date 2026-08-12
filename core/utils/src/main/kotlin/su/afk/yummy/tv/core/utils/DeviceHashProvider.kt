@@ -1,4 +1,4 @@
-package su.afk.yummy.tv.android.lifecycle
+package su.afk.yummy.tv.core.utils
 
 import android.content.Context
 import android.provider.Settings
@@ -7,6 +7,12 @@ import java.security.MessageDigest
 import javax.inject.Inject
 import javax.inject.Singleton
 
+/**
+ * Отдаёт стабильный псевдонимный идентификатор устройства вместо сырого ANDROID_ID: хешируем
+ * его вместе с packageName, чтобы бэкенд не получал значение, по которому это же устройство
+ * можно было бы сопоставить с другими приложениями того же вендора (ANDROID_ID один на
+ * устройство, а не на приложение).
+ */
 @Singleton
 class DeviceHashProvider @Inject constructor(
     @ApplicationContext private val context: Context,

@@ -2,8 +2,9 @@ package su.afk.yummy.tv.feature.details.navigator
 
 import androidx.navigation3.runtime.NavKey
 import su.afk.yummy.tv.feature.details.IDetailsNavigator
+import javax.inject.Inject
 
-class DetailsNavigator : IDetailsNavigator {
+class DetailsNavigator @Inject constructor() : IDetailsNavigator {
     override fun getDetailsDest(animeId: Int): NavKey = DetailsDestination(animeId)
     override fun getFullDetailsDest(animeId: Int): NavKey = DetailsFullDestination(animeId)
     override fun getEpisodesDest(animeId: Int): NavKey = DetailsEpisodesDestination(animeId)

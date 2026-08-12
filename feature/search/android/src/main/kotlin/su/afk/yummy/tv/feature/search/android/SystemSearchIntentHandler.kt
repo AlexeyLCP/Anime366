@@ -1,4 +1,4 @@
-package su.afk.yummy.tv.android.search
+package su.afk.yummy.tv.feature.search.android
 
 import android.app.SearchManager
 import android.content.Intent

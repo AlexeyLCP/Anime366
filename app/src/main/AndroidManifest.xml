@@ -71,7 +71,7 @@
         </activity>
 
         <provider
-            android:name=".android.search.SystemSearchProvider"
+            android:name="su.afk.yummy.tv.feature.search.android.SystemSearchProvider"
             android:authorities="${applicationId}.search"
             android:exported="true" />
 

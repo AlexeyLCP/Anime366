@@ -15,8 +15,9 @@ import su.afk.yummy.tv.feature.bloggers.navigator.BloggerDetailsDestination
 import su.afk.yummy.tv.feature.bloggers.navigator.BloggerVideoDetailsDestination
 import su.afk.yummy.tv.feature.bloggers.navigator.BloggerVideosDestination
 import su.afk.yummy.tv.feature.bloggers.video.BloggerVideoDetailsViewModel
+import javax.inject.Inject
 
-class BloggerVideosNavRegistrar : NavRegistrar {
+class BloggerVideosNavRegistrar @Inject constructor() : NavRegistrar {
     override fun register(builder: EntryProviderScope<NavKey>, nav: NavigationManager) =
         with(builder) {
             entry<BloggerVideosDestination> { destination ->

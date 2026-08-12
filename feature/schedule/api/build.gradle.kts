@@ -9,4 +9,5 @@ android {
 
 dependencies {
     api(libs.bundles.navigation.serialization)
+    implementation(libs.javax.inject)
 }

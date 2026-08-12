@@ -10,4 +10,5 @@ android {
 dependencies {
     api(libs.bundles.navigation.serialization)
     api(libs.media3.datasource)
+    implementation(libs.javax.inject)
 }
