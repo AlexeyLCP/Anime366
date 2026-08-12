@@ -12,6 +12,7 @@ import androidx.media3.common.TrackGroup
 import androidx.media3.common.TrackSelectionOverride
 import androidx.media3.common.Tracks
 import androidx.media3.common.util.UnstableApi
+import androidx.media3.exoplayer.DefaultRenderersFactory
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
 import androidx.media3.exoplayer.trackselection.DefaultTrackSelector
@@ -63,7 +64,14 @@ class PlayerMediaSessionService : MediaSessionService() {
                 buildUponParameters().setForceHighestSupportedBitrate(!isLowRamDevice)
             )
         }
-        val exoPlayer = ExoPlayer.Builder(this)
+        // enableDecoderFallback: если аппаратный AVC-декодер не может инициализироваться
+        // (например NO_MEMORY при config/start на некоторых устройствах/прошивках), без этого
+        // флага Media3 просто кидает ошибку вместо попытки со следующим декодером в списке -
+        // а для Alloha это уводит в бесконечный fresh-session recovery loop, каждый раз
+        // упирающийся в тот же самый сломанный железный декодер.
+        val renderersFactory = DefaultRenderersFactory(this)
+            .setEnableDecoderFallback(true)
+        val exoPlayer = ExoPlayer.Builder(this, renderersFactory)
             .setTrackSelector(trackSelector)
             .setMediaSourceFactory(
                 DefaultMediaSourceFactory(playbackConfig.dataSourceFactory())
