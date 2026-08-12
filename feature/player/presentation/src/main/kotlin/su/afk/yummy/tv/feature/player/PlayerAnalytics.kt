@@ -29,6 +29,12 @@ private data class PlayerAnalyticsSource(
 internal class PlayerAnalytics @Inject constructor(
     private val tracker: AnalyticsTracker,
 ) {
+    // Silent retries (Alloha recovery, playback retry) re-resolve the same episode/dubbing/player
+    // repeatedly, calling eventStreamResolveFailed on every attempt. Without this, a source that
+    // stays broken floods non-fatal reporting with identical reports. Only the first failure per
+    // source combo is reported; a successful resolve clears it so a later failure reports again.
+    private var lastReportedStreamFailureSource: PlayerAnalyticsSource? = null
+
     /**
      * Пользователь открыл экран плеера.
      *
@@ -267,6 +273,8 @@ internal class PlayerAnalytics @Inject constructor(
             tracker.track(EVENT_STREAM_RESOLVE_FAILED, sourceParams(source) + extras)
             return
         }
+        if (source == lastReportedStreamFailureSource) return
+        lastReportedStreamFailureSource = source
         tracker.reportError(
             groupIdentifier = EVENT_STREAM_RESOLVE_FAILED,
             message = playerErrorReportMessage(
@@ -287,6 +295,7 @@ internal class PlayerAnalytics @Inject constructor(
      * Параметры: anime_id, video_id, player_id, episode, player, dubbing.
      */
     fun eventStreamStarted(state: PlayerState.State) {
+        lastReportedStreamFailureSource = null
         tracker.track(EVENT_STREAM_STARTED, sourceParams(state.analyticsSource()))
     }
 

@@ -4,12 +4,19 @@ import su.afk.yummy.tv.core.analytics.AnalyticsTracker
 import su.afk.yummy.tv.core.analytics.analyticsParamsOf
 import su.afk.yummy.tv.domain.videodownload.model.VideoDownloadItem
 import su.afk.yummy.tv.domain.videodownload.model.VideoExportSource
+import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
+import javax.inject.Singleton
 
 /** Воронка экспорта: выбор папки → постановка в очередь → результат. */
+@Singleton
 class VideoExportAnalytics @Inject constructor(
     private val tracker: AnalyticsTracker,
 ) {
+    // Same worker-retry duplication risk as VideoDownloadAnalytics.reportFailed - dedupe per
+    // download id until a success clears it.
+    private val reportedFailureIds = ConcurrentHashMap.newKeySet<Long>()
+
     /** Пользователь выбрал папку и она пригодна для записи. */
     fun reportDirectorySelected() {
         tracker.track(EVENT_DIRECTORY_SELECTED)
@@ -36,6 +43,7 @@ class VideoExportAnalytics @Inject constructor(
     }
 
     fun reportSucceeded(item: VideoDownloadItem, durationMs: Long, bytes: Long) {
+        reportedFailureIds.remove(item.id)
         tracker.track(
             EVENT_SUCCEEDED,
             item.analyticsParams() + analyticsParamsOf(
@@ -50,6 +58,7 @@ class VideoExportAnalytics @Inject constructor(
         details: String,
         throwable: Throwable? = null,
     ) {
+        if (!reportedFailureIds.add(item.id)) return
         val message = buildString {
             append("Video export failed (")
             append(item.analyticsParams().entries.joinToString { (key, value) -> "$key=$value" })
