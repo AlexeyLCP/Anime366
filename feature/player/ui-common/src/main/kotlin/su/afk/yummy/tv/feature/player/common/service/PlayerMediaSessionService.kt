@@ -25,6 +25,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import su.afk.yummy.tv.core.analytics.AnalyticsTracker
 import su.afk.yummy.tv.core.preferences.settings.SettingsStore
 import su.afk.yummy.tv.domain.player.session.AllohaPlaybackSessionManager
 import su.afk.yummy.tv.feature.player.common.PlayerLoadControlFactory
@@ -42,6 +43,9 @@ class PlayerMediaSessionService : MediaSessionService() {
 
     @Inject
     internal lateinit var settingsStore: SettingsStore
+
+    @Inject
+    internal lateinit var analyticsTracker: AnalyticsTracker
 
     private var mediaSession: MediaSession? = null
     private var player: ExoPlayer? = null
@@ -80,6 +84,7 @@ class PlayerMediaSessionService : MediaSessionService() {
             .setLoadControl(PlayerLoadControlFactory.create(isLowRamDevice))
             .setHandleAudioBecomingNoisy(true)
             .build()
+        exoPlayer.addAnalyticsListener(PlayerDecoderAnalyticsListener(analyticsTracker))
         exoPlayer.addListener(object : Player.Listener {
             private var overriddenAudioGroup: TrackGroup? = null
 

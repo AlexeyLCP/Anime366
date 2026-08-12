@@ -2,6 +2,7 @@ package su.afk.yummy.tv.core.analytics
 
 import su.afk.yummy.tv.core.analytics.AnalyticsEvents.PARAM_AUTH_STATE
 import su.afk.yummy.tv.core.analytics.AnalyticsEvents.PARAM_YANI_APPLICATION_TOKEN_STATE
+import su.afk.yummy.tv.core.analytics.AnalyticsEvents.playerDecoderInitialized
 
 
 /**
@@ -17,6 +18,11 @@ object AnalyticsEvents {
     const val PARAM_SCREEN = "screen"
     const val PARAM_AUTH_STATE = "auth_state"
     const val PARAM_YANI_APPLICATION_TOKEN_STATE = "yani_application_token_state"
+    const val PARAM_ERROR_TYPE = "error_type"
+    const val PARAM_DECODER_NAME = "decoder"
+    const val PARAM_DECODER_HARDWARE = "decoder_hardware"
+    const val PARAM_DECODER_FALLBACK = "decoder_fallback"
+    const val PARAM_DECODER_INIT_DURATION_MS = "decoder_init_duration_ms"
 
     /**
      * Values for [PARAM_AUTH_STATE].
@@ -84,6 +90,42 @@ object AnalyticsEvents {
     ): AnalyticsEvent = AnalyticsEvent(
         name = "player_error",
         params = mapOf(PARAM_SCREEN to "player") + params,
+    )
+
+    /**
+     * Reports a video decoder finishing initialization in the player (successful candidate,
+     * which may not be the first one Media3 tried - see [fallback]).
+     */
+    fun playerDecoderInitialized(
+        decoderName: String,
+        hardwareAccelerated: Boolean,
+        fallback: Boolean,
+        initializationDurationMs: Long,
+    ): AnalyticsEvent = AnalyticsEvent(
+        name = "player_decoder_initialized",
+        params = analyticsParamsOf(
+            PARAM_SCREEN to "player",
+            PARAM_DECODER_NAME to decoderName,
+            PARAM_DECODER_HARDWARE to hardwareAccelerated,
+            PARAM_DECODER_FALLBACK to fallback,
+            PARAM_DECODER_INIT_DURATION_MS to initializationDurationMs,
+        ),
+    )
+
+    /**
+     * Reports a video decoder candidate failing to initialize. Media3 may still recover by
+     * falling back to the next candidate - see [playerDecoderInitialized]'s `fallback` param.
+     */
+    fun playerDecoderError(
+        decoderName: String?,
+        errorType: String,
+    ): AnalyticsEvent = AnalyticsEvent(
+        name = "player_decoder_error",
+        params = analyticsParamsOf(
+            PARAM_SCREEN to "player",
+            PARAM_DECODER_NAME to decoderName,
+            PARAM_ERROR_TYPE to errorType,
+        ),
     )
 
     /**
