@@ -6,17 +6,15 @@ import android.content.Intent
 import android.net.Uri
 import android.provider.OpenableColumns
 import dagger.hilt.android.qualifiers.ApplicationContext
+import su.afk.yummy.tv.core.deeplink.api.DeepLinkHandler
+import su.afk.yummy.tv.core.deeplink.resolver.YummyDeepLinkResolver
 import su.afk.yummy.tv.core.navigation.NavigationManager
 import su.afk.yummy.tv.feature.player.IPlayerNavigator
 import javax.inject.Inject
 
-interface DeepLinkHandler {
-    fun handle(intent: Intent)
-}
-
 internal class DeepLinkHandlerImpl @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val resolver: DeepLinkResolver,
+    private val resolver: YummyDeepLinkResolver,
     private val navManager: NavigationManager,
     private val playerNavigator: IPlayerNavigator,
 ) : DeepLinkHandler {

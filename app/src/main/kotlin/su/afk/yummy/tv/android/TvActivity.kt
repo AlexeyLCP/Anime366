@@ -7,7 +7,7 @@ import androidx.activity.compose.setContent
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
-import su.afk.yummy.tv.core.deeplink.DeepLinkHandler
+import su.afk.yummy.tv.core.deeplink.api.DeepLinkHandler
 import su.afk.yummy.tv.core.tv.api.ITvIntegration
 import su.afk.yummy.tv.feature.main.TvMainGraph
 import su.afk.yummy.tv.feature.search.android.SystemSearchIntentHandler
@@ -18,11 +18,13 @@ class TvActivity : ComponentActivity() {
 
     @Inject
     lateinit var mainGraph: TvMainGraph
+
     @Inject
     lateinit var deepLinkHandler: DeepLinkHandler
 
     @Inject
     lateinit var searchIntentHandler: SystemSearchIntentHandler
+
     @Inject
     lateinit var tvIntegration: ITvIntegration
 

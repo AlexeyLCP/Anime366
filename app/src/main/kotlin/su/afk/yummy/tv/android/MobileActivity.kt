@@ -7,7 +7,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.core.view.WindowCompat
 import dagger.hilt.android.AndroidEntryPoint
-import su.afk.yummy.tv.core.deeplink.DeepLinkHandler
+import su.afk.yummy.tv.core.deeplink.api.DeepLinkHandler
 import su.afk.yummy.tv.feature.main.mobile.MobileMainGraph
 import su.afk.yummy.tv.feature.player.mobile.pip.MobilePlayerPipController
 import su.afk.yummy.tv.feature.search.android.SystemSearchIntentHandler
@@ -18,6 +18,7 @@ class MobileActivity : ComponentActivity() {
 
     @Inject
     lateinit var mainGraph: MobileMainGraph
+
     @Inject
     lateinit var deepLinkHandler: DeepLinkHandler
 
