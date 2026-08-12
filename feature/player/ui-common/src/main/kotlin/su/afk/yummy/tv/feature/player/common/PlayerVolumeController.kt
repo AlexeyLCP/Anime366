@@ -1,9 +1,7 @@
 package su.afk.yummy.tv.feature.player.common
 
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -14,6 +12,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import su.afk.yummy.tv.core.preferences.settings.SettingsStore
+import su.afk.yummy.tv.core.utils.di.DefaultApplicationScope
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.math.roundToInt
@@ -31,9 +30,8 @@ import kotlin.math.roundToInt
 @Singleton
 class PlayerVolumeController @Inject constructor(
     settingsStore: SettingsStore,
+    @DefaultApplicationScope private val scope: CoroutineScope,
 ) {
-    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
-
     private val _volume = MutableStateFlow(DEFAULT_VOLUME)
 
     /** Текущий уровень как множитель 0f..1f для передачи в `player.volume`. */

@@ -1,10 +1,7 @@
-package su.afk.yummy.tv.core.analytics
+package su.afk.yummy.tv.core.analytics.api
 
 /**
  * Sends analytics events to the configured destination.
- *
- * Implementations merge [AnalyticsContext.params] with event params before reporting.
- * Event params intentionally win on key collisions so a rare event can override a global value.
  */
 interface AnalyticsTracker {
     /**
@@ -20,11 +17,4 @@ interface AnalyticsTracker {
         throwable: Throwable,
         groupIdentifier: String? = null,
     )
-
-    /**
-     * Reports [event].
-     */
-    fun track(event: AnalyticsEvent) {
-        track(event.name, event.params)
-    }
 }

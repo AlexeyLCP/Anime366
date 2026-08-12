@@ -1,4 +1,4 @@
-package su.afk.yummy.tv.core.analytics
+package su.afk.yummy.tv.core.analytics.utils
 
 /**
  * Builds a normalized analytics params map.

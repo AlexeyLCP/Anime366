@@ -1,7 +1,7 @@
 package su.afk.yummy.tv.feature.commonscreen
 
-import su.afk.yummy.tv.core.analytics.AnalyticsTracker
-import su.afk.yummy.tv.core.analytics.analyticsParamsOf
+import su.afk.yummy.tv.core.analytics.api.AnalyticsTracker
+import su.afk.yummy.tv.core.analytics.utils.analyticsParamsOf
 import javax.inject.Inject
 
 internal class CommonScreenAnalytics @Inject constructor(

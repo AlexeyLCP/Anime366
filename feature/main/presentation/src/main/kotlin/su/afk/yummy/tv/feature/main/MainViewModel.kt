@@ -12,8 +12,6 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
-import su.afk.yummy.tv.core.analytics.AnalyticsEvents
-import su.afk.yummy.tv.core.analytics.AnalyticsTracker
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.BaseViewModelNew
 import su.afk.yummy.tv.core.error.IErrorHandlerUseCase
 import su.afk.yummy.tv.core.error.StringProvider
@@ -22,7 +20,6 @@ import su.afk.yummy.tv.core.featuretoggle.FeatureToggleUpdateObserver
 import su.afk.yummy.tv.core.featuretoggle.VersionSupportChecker
 import su.afk.yummy.tv.core.navigation.NavigationManager
 import su.afk.yummy.tv.core.preferences.settings.SettingsStore
-import su.afk.yummy.tv.core.preferences.settings.YaniApplicationTokenState
 import su.afk.yummy.tv.core.update.github.GitHubUpdateChecker
 import su.afk.yummy.tv.domain.account.mutation.AccountMutationErrorNotifier
 import su.afk.yummy.tv.domain.account.usecase.GetAccountSessionUseCase
@@ -38,10 +35,10 @@ import javax.inject.Named
 import kotlin.time.Duration.Companion.seconds
 
 @HiltViewModel
-class MainViewModel @Inject constructor(
+class MainViewModel @Inject internal constructor(
     override val errorHandler: IErrorHandlerUseCase,
     override val retryStorage: RetryStorage,
-    private val analyticsTracker: AnalyticsTracker,
+    private val analytics: MainAnalytics,
     private val settingsStore: SettingsStore,
     private val nav: NavigationManager,
     private val updateChecker: GitHubUpdateChecker,
@@ -70,7 +67,7 @@ class MainViewModel @Inject constructor(
     private var notificationCountsJob: Job? = null
 
     init {
-        analyticsTracker.track(EVENT_SCREEN_OPENED)
+        analytics.eventScreenOpened()
         observeSettings()
         observeFeatureToggleUpdates()
         observeAccountMutationErrors()
@@ -116,11 +113,9 @@ class MainViewModel @Inject constructor(
                 session to tokenState
             }.collect { (session, tokenState) ->
                 val signedIn = session.isAuthorized
-                analyticsTracker.track(
-                    AnalyticsEvents.appSession(
-                        isAuthorized = signedIn,
-                        yaniApplicationTokenState = tokenState.analyticsValue(),
-                    )
+                analytics.eventAppSession(
+                    isAuthorized = signedIn,
+                    yaniApplicationTokenState = tokenState,
                 )
                 setState {
                     copy(
@@ -193,13 +188,8 @@ class MainViewModel @Inject constructor(
             }
         }
     }
-}
 
-private fun YaniApplicationTokenState.analyticsValue(): String =
-    when (this) {
-        YaniApplicationTokenState.DEFAULT -> AnalyticsEvents.YANI_APPLICATION_TOKEN_STATE_DEFAULT
-        YaniApplicationTokenState.CUSTOM -> AnalyticsEvents.YANI_APPLICATION_TOKEN_STATE_CUSTOM
+    companion object {
+        private val GITHUB_UPDATE_TIMEOUT = 5.seconds
     }
-
-private const val EVENT_SCREEN_OPENED = "main_screen"
-private val GITHUB_UPDATE_TIMEOUT = 5.seconds
+}

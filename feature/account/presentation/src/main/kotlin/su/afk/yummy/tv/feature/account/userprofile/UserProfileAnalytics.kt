@@ -1,8 +1,8 @@
 package su.afk.yummy.tv.feature.account.userprofile
 
-import su.afk.yummy.tv.core.analytics.AnalyticsTracker
-import su.afk.yummy.tv.core.analytics.analyticsParamsOf
-import su.afk.yummy.tv.core.analytics.analyticsType
+import su.afk.yummy.tv.core.analytics.api.AnalyticsTracker
+import su.afk.yummy.tv.core.analytics.utils.analyticsParamsOf
+import su.afk.yummy.tv.core.analytics.utils.analyticsType
 import javax.inject.Inject
 
 internal class UserProfileAnalytics @Inject constructor(

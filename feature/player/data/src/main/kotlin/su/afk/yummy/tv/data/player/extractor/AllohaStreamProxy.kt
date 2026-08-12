@@ -4,10 +4,7 @@ import android.util.Base64
 import android.util.Log
 import android.webkit.CookieManager
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
@@ -16,6 +13,7 @@ import kotlinx.coroutines.launch
 import okhttp3.ConnectionPool
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import su.afk.yummy.tv.core.utils.ioScope
 import java.io.OutputStream
 import java.net.ServerSocket
 import java.net.Socket
@@ -54,7 +52,7 @@ internal class AllohaStreamProxy(
     private val qualityMasterProvider: (String) -> String?,
     private val requestSessionRefresh: () -> Unit,
 ) : AutoCloseable {
-    private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+    private val scope = ioScope()
     private val server = ServerSocket(0, 8)
 
     private val lastSeenGeneration = AtomicLong(-1L)

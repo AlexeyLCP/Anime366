@@ -1,8 +1,8 @@
 package su.afk.yummy.tv.feature.comments
 
-import su.afk.yummy.tv.core.analytics.AnalyticsTracker
-import su.afk.yummy.tv.core.analytics.analyticsParamsOf
-import su.afk.yummy.tv.core.analytics.analyticsType
+import su.afk.yummy.tv.core.analytics.api.AnalyticsTracker
+import su.afk.yummy.tv.core.analytics.utils.analyticsParamsOf
+import su.afk.yummy.tv.core.analytics.utils.analyticsType
 import su.afk.yummy.tv.domain.comments.model.CommentReportReason
 import su.afk.yummy.tv.domain.comments.model.CommentSort
 import su.afk.yummy.tv.domain.comments.model.CommentTarget

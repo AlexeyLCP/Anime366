@@ -1,4 +1,4 @@
-package su.afk.yummy.tv.core.analytics
+package su.afk.yummy.tv.core.analytics.api.initialize
 
 import android.content.Context
 

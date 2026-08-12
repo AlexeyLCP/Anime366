@@ -1,8 +1,8 @@
-package su.afk.yummy.tv.core.analytics
+package su.afk.yummy.tv.core.analytics.api.coroutine
 
 /**
  * Reports app errors that should be visible in analytics and crash diagnostics.
  */
-interface ErrorAnalyticsReporter {
+interface ErrorCoroutineAnalytics {
     fun reportCoroutineError(owner: String, throwable: Throwable)
 }

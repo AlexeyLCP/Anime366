@@ -1,7 +1,7 @@
 package su.afk.yummy.tv.data.videodownload.worker
 
-import su.afk.yummy.tv.core.analytics.AnalyticsTracker
-import su.afk.yummy.tv.core.analytics.analyticsParamsOf
+import su.afk.yummy.tv.core.analytics.api.AnalyticsTracker
+import su.afk.yummy.tv.core.analytics.utils.analyticsParamsOf
 import su.afk.yummy.tv.domain.videodownload.model.VideoDownloadItem
 import su.afk.yummy.tv.domain.videodownload.model.VideoExportSource
 import java.util.concurrent.ConcurrentHashMap

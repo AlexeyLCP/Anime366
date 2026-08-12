@@ -15,7 +15,6 @@ import io.ktor.http.HttpMethod
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.collectLatest
@@ -27,6 +26,7 @@ import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import su.afk.yummy.tv.core.preferences.auth.YaniAuthPreferences
 import su.afk.yummy.tv.core.preferences.settings.SettingsStore
+import su.afk.yummy.tv.core.utils.di.IoApplicationScope
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -44,6 +44,7 @@ class YaniHttpClientProvider @Inject constructor(
     private val settingsStore: SettingsStore,
     private val yaniAuthPreferences: YaniAuthPreferences,
     private val okHttpClient: OkHttpClient,
+    @IoApplicationScope private val scope: CoroutineScope,
 ) {
     private val mutex = Mutex()
 
@@ -55,7 +56,7 @@ class YaniHttpClientProvider @Inject constructor(
         return mutex.withLock {
             client?.let { return it }
             withContext(Dispatchers.IO) {
-                buildYaniHttpClient(settingsStore, yaniAuthPreferences, okHttpClient)
+                buildYaniHttpClient(settingsStore, yaniAuthPreferences, okHttpClient, scope)
             }.also { client = it }
         }
     }
@@ -65,8 +66,9 @@ fun buildYaniHttpClient(
     settingsStore: SettingsStore,
     yaniAuthPreferences: YaniAuthPreferences,
     okHttpClient: OkHttpClient,
+    scope: CoroutineScope,
 ): HttpClient {
-    val headerCache = YaniRequestHeaderCache(settingsStore, yaniAuthPreferences)
+    val headerCache = YaniRequestHeaderCache(settingsStore, yaniAuthPreferences, scope)
 
     return HttpClient(OkHttp) {
         engine {
@@ -134,8 +136,8 @@ fun buildYaniHttpClient(
 private class YaniRequestHeaderCache(
     private val settingsStore: SettingsStore,
     private val yaniAuthPreferences: YaniAuthPreferences,
+    private val scope: CoroutineScope,
 ) {
-    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val initialLoadMutex = Mutex()
 
     @Volatile private var loaded = false

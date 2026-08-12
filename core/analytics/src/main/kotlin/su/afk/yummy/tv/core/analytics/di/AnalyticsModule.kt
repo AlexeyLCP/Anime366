@@ -4,26 +4,20 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import su.afk.yummy.tv.core.analytics.AnalyticsContext
-import su.afk.yummy.tv.core.analytics.AnalyticsInitializer
-import su.afk.yummy.tv.core.analytics.AnalyticsTracker
-import su.afk.yummy.tv.core.analytics.AppMetricaAnalyticsInitializer
-import su.afk.yummy.tv.core.analytics.AppMetricaAnalyticsTracker
 import su.afk.yummy.tv.core.analytics.BuildConfig
-import su.afk.yummy.tv.core.analytics.DefaultAnalyticsContext
-import su.afk.yummy.tv.core.analytics.DefaultErrorAnalyticsReporter
-import su.afk.yummy.tv.core.analytics.ErrorAnalyticsReporter
-import su.afk.yummy.tv.core.analytics.LogcatAnalyticsTracker
-import su.afk.yummy.tv.core.analytics.NoOpAnalyticsInitializer
+import su.afk.yummy.tv.core.analytics.api.AnalyticsTracker
+import su.afk.yummy.tv.core.analytics.api.coroutine.ErrorCoroutineAnalytics
+import su.afk.yummy.tv.core.analytics.api.initialize.AnalyticsInitializer
+import su.afk.yummy.tv.core.analytics.appmetrica.AppMetricaAnalyticsInitializer
+import su.afk.yummy.tv.core.analytics.appmetrica.AppMetricaAnalyticsTracker
+import su.afk.yummy.tv.core.analytics.coroutine.ErrorCoroutineAnalyticsImpl
+import su.afk.yummy.tv.core.analytics.logcat.LogcatAnalyticsTracker
+import su.afk.yummy.tv.core.analytics.logcat.NoOpAnalyticsInitializer
 import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
 internal object AnalyticsModule {
-
-    @Provides
-    @Singleton
-    fun provideAnalyticsContext(): AnalyticsContext = DefaultAnalyticsContext()
 
     @Provides
     @Singleton
@@ -44,7 +38,6 @@ internal object AnalyticsModule {
     @Provides
     @Singleton
     fun provideErrorAnalyticsReporter(
-        defaultErrorAnalyticsReporter: DefaultErrorAnalyticsReporter,
-    ): ErrorAnalyticsReporter =
-        defaultErrorAnalyticsReporter
+        errorCoroutineAnalyticsReporterImpl: ErrorCoroutineAnalyticsImpl,
+    ): ErrorCoroutineAnalytics = errorCoroutineAnalyticsReporterImpl
 }

@@ -2,7 +2,7 @@ package su.afk.yummy.tv.core.error
 
 import io.ktor.client.plugins.ResponseException
 import kotlinx.coroutines.CancellationException
-import su.afk.yummy.tv.core.analytics.ErrorAnalyticsReporter
+import su.afk.yummy.tv.core.analytics.api.coroutine.ErrorCoroutineAnalytics
 import su.afk.yummy.tv.core.model.ErrorItem
 import su.afk.yummy.tv.core.navigation.NavigationManager
 import su.afk.yummy.tv.feature.commonscreen.navigator.IErrorNavigator
@@ -15,7 +15,7 @@ internal class ErrorHandlerUseCaseImpl @Inject constructor(
     private val strings: StringProvider,
     private val errorNavigator: IErrorNavigator,
     private val navigationManager: NavigationManager,
-    private val errorAnalyticsReporter: ErrorAnalyticsReporter,
+    private val errorCoroutineAnalytics: ErrorCoroutineAnalytics,
 ) : IErrorHandlerUseCase {
 
     override fun parse(
@@ -29,7 +29,7 @@ internal class ErrorHandlerUseCaseImpl @Inject constructor(
         owner?.let {
             if (!t.isNetworkError()) {
                 runCatching {
-                    errorAnalyticsReporter.reportCoroutineError(
+                    errorCoroutineAnalytics.reportCoroutineError(
                         owner = it,
                         throwable = t,
                     )

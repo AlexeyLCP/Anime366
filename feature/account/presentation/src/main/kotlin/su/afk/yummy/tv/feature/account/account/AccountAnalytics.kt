@@ -1,7 +1,7 @@
 package su.afk.yummy.tv.feature.account.account
 
-import su.afk.yummy.tv.core.analytics.AnalyticsTracker
-import su.afk.yummy.tv.core.analytics.analyticsParamsOf
+import su.afk.yummy.tv.core.analytics.api.AnalyticsTracker
+import su.afk.yummy.tv.core.analytics.utils.analyticsParamsOf
 import su.afk.yummy.tv.domain.account.model.ProfileNotification
 import javax.inject.Inject
 

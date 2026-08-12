@@ -1,20 +1,19 @@
 package su.afk.yummy.tv.data.player.session
 
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import su.afk.yummy.tv.core.utils.di.IoApplicationScope
 import su.afk.yummy.tv.domain.player.model.AllohaStreamSession
 import su.afk.yummy.tv.domain.player.session.AllohaPlaybackSessionManager
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-internal class DefaultAllohaPlaybackSessionManager @Inject constructor() :
-    AllohaPlaybackSessionManager {
-    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+internal class DefaultAllohaPlaybackSessionManager @Inject constructor(
+    @IoApplicationScope private val scope: CoroutineScope,
+) : AllohaPlaybackSessionManager {
     private val lock = Any()
     private var activeSession: AllohaStreamSession? = null
     private var pendingRelease: Job? = null

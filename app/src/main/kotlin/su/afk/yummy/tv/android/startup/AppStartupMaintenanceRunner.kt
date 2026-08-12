@@ -3,12 +3,11 @@ package su.afk.yummy.tv.android.startup
 import android.content.Context
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import su.afk.yummy.tv.BuildConfig
 import su.afk.yummy.tv.core.preferences.settings.SettingsStore
 import su.afk.yummy.tv.core.storage.maintenance.StorageCleanupStore
+import su.afk.yummy.tv.core.utils.di.DefaultApplicationScope
 import su.afk.yummy.tv.data.videodownload.cache.LegacyStreamingCachePruner
 import java.io.File
 import javax.inject.Inject
@@ -24,9 +23,8 @@ class AppStartupMaintenanceRunner @Inject constructor(
     private val settingsStore: SettingsStore,
     private val legacyStreamingCachePruner: LegacyStreamingCachePruner,
     private val storageCleanupStore: StorageCleanupStore,
+    @DefaultApplicationScope private val scope: CoroutineScope,
 ) {
-
-    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
     fun run() {
         scope.launch {

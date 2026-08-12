@@ -1,8 +1,8 @@
 package su.afk.yummy.tv.feature.library
 
-import su.afk.yummy.tv.core.analytics.AnalyticsTracker
-import su.afk.yummy.tv.core.analytics.analyticsParamsOf
-import su.afk.yummy.tv.core.analytics.analyticsType
+import su.afk.yummy.tv.core.analytics.api.AnalyticsTracker
+import su.afk.yummy.tv.core.analytics.utils.analyticsParamsOf
+import su.afk.yummy.tv.core.analytics.utils.analyticsType
 import su.afk.yummy.tv.domain.account.model.UserAnimeList
 import su.afk.yummy.tv.domain.home.model.HomeContinueWatchingItem
 import su.afk.yummy.tv.feature.library.model.LibraryRemoveTarget

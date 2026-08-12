@@ -1,4 +1,4 @@
-package su.afk.yummy.tv.core.analytics
+package su.afk.yummy.tv.core.analytics.utils
 
 import java.io.IOException
 import kotlin.coroutines.cancellation.CancellationException

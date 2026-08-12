@@ -9,13 +9,12 @@ import android.webkit.CookieManager
 import android.webkit.JavascriptInterface
 import android.webkit.WebView
 import android.webkit.WebViewClient
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
+import su.afk.yummy.tv.core.utils.ioScope
 import su.afk.yummy.tv.domain.player.isAllohaPlayerUrl
 import su.afk.yummy.tv.domain.player.model.AllohaStreamSession
 import su.afk.yummy.tv.domain.player.model.PlayerStreamRequest
@@ -34,7 +33,7 @@ import kotlin.random.Random
 
 /** Extracts Alloha's signed HLS session by observing the iframe's own network stack. */
 internal class AllohaExtractor @Inject constructor() : PlayerStreamExtractor {
-    private val extractorScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private val extractorScope = ioScope()
 
     // Idle WebViews kept warm for reuse - see acquireWebView()/releaseWebView() below.
     private val idleWebViews = ConcurrentLinkedQueue<WebView>()

@@ -1,10 +1,11 @@
-package su.afk.yummy.tv.core.analytics
+package su.afk.yummy.tv.core.analytics.appmetrica
 
 import android.content.Context
 import android.content.res.Configuration
 import io.appmetrica.analytics.AppMetrica
 import io.appmetrica.analytics.AppMetricaConfig
 import io.appmetrica.analytics.PredefinedDeviceTypes
+import su.afk.yummy.tv.core.analytics.api.initialize.AnalyticsInitializer
 import javax.inject.Inject
 
 internal class AppMetricaAnalyticsInitializer @Inject constructor() : AnalyticsInitializer {

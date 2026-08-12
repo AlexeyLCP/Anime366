@@ -1,9 +1,8 @@
 package su.afk.yummy.tv.feature.search
 
-import su.afk.yummy.tv.core.analytics.AnalyticsEvents
-import su.afk.yummy.tv.core.analytics.AnalyticsTracker
-import su.afk.yummy.tv.core.analytics.analyticsParamsOf
-import su.afk.yummy.tv.core.analytics.analyticsType
+import su.afk.yummy.tv.core.analytics.api.AnalyticsTracker
+import su.afk.yummy.tv.core.analytics.utils.analyticsParamsOf
+import su.afk.yummy.tv.core.analytics.utils.analyticsType
 import su.afk.yummy.tv.domain.search.model.SearchFilters
 import javax.inject.Inject
 
@@ -139,8 +138,8 @@ internal class SearchAnalytics @Inject constructor(
         tracker.track(
             EVENT_SEARCH_FILTERS_APPLY,
             analyticsParamsOf(
-                AnalyticsEvents.PARAM_SCREEN to SCREEN_SEARCH,
-                AnalyticsEvents.PARAM_ACTION to action,
+                PARAM_SCREEN to SCREEN_SEARCH,
+                PARAM_ACTION to action,
                 PARAM_HAS_QUERY to hasQuery,
                 PARAM_FILTER_COUNT to filterCount,
             ),
@@ -151,9 +150,11 @@ internal class SearchAnalytics @Inject constructor(
     internal companion object {
         private const val ACTION_APPLY = "apply"
         private const val ACTION_RESET = "reset"
+        private const val PARAM_ACTION = "action"
         private const val PARAM_ANIME_ID = "anime_id"
         private const val PARAM_FILTER_COUNT = "filter_count"
         private const val PARAM_HAS_QUERY = "has_query"
+        private const val PARAM_SCREEN = "screen"
         private const val PARAM_SOURCE = "source"
         private const val SCREEN_SEARCH = "search"
         private const val SOURCE_EXTERNAL = "external"

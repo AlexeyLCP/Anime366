@@ -1,10 +1,9 @@
 package su.afk.yummy.tv.core.update
 
 import android.os.Build
-import su.afk.yummy.tv.core.analytics.AnalyticsEvents
-import su.afk.yummy.tv.core.analytics.AnalyticsTracker
-import su.afk.yummy.tv.core.analytics.analyticsParamsOf
-import su.afk.yummy.tv.core.analytics.analyticsType
+import su.afk.yummy.tv.core.analytics.api.AnalyticsTracker
+import su.afk.yummy.tv.core.analytics.utils.analyticsParamsOf
+import su.afk.yummy.tv.core.analytics.utils.analyticsType
 import su.afk.yummy.tv.core.update.apk.UpdatePermissionRequiredException
 import javax.inject.Inject
 
@@ -34,16 +33,15 @@ internal class UpdateAnalytics @Inject constructor(
 
     private fun trackAction(action: String, version: String?) {
         tracker.track(
-            AnalyticsEvents.updateAction(
-                action = action,
-                params = analyticsParamsOf(PARAM_VERSION to version),
-            )
+            EVENT_UPDATE_ACTION,
+            mapOf(PARAM_SCREEN to SCREEN_UPDATE, PARAM_ACTION to action) +
+                    analyticsParamsOf(PARAM_VERSION to version),
         )
     }
 
     private fun trackError(phase: String, version: String?, error: Throwable) {
         val params = errorParams(phase, version, error)
-        tracker.track(AnalyticsEvents.updateError(params))
+        tracker.track(EVENT_UPDATE_ERROR, mapOf(PARAM_SCREEN to SCREEN_UPDATE) + params)
         // «Нет разрешения на установку из неизвестных источников» — не баг, а ожидаемый шаг UX:
         // оставляем плановое событие update_error, но не репортим как non-fatal ошибку.
         if (error !is UpdatePermissionRequiredException) {
@@ -93,14 +91,18 @@ internal class UpdateAnalytics @Inject constructor(
         const val ACTION_CONFIRM = "confirm"
         const val ACTION_DISMISS = "dismiss"
         const val ACTION_RETRY = "retry"
+        const val EVENT_UPDATE_ACTION = "update_action"
         const val EVENT_UPDATE_ERROR = "update_error"
         const val PHASE_DOWNLOAD = "download"
         const val PHASE_INSTALL = "install"
+        const val PARAM_ACTION = "action"
         const val PARAM_ERROR_MESSAGE = "error_message"
         const val PARAM_ERROR_TYPE = "error_type"
         const val PARAM_PHASE = "phase"
+        const val PARAM_SCREEN = "screen"
         const val PARAM_SDK_INT = "sdk_int"
         const val PARAM_VERSION = "version"
+        const val SCREEN_UPDATE = "update"
         const val MAX_ERROR_MESSAGE_LENGTH = 300
     }
 }

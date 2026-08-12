@@ -12,17 +12,16 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "app_settings")
 
-class DataStoreSettingsStore(private val context: Context) : SettingsStore {
-
-    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+class DataStoreSettingsStore(
+    private val context: Context,
+    private val scope: CoroutineScope,
+) : SettingsStore {
 
     private val posterQualityKey = stringPreferencesKey("poster_quality")
     private val posterCardSizeKey = stringPreferencesKey("poster_card_size")

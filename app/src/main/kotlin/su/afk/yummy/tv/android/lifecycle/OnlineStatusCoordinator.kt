@@ -3,8 +3,6 @@ package su.afk.yummy.tv.android.lifecycle
 import androidx.lifecycle.LifecycleOwner
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -16,6 +14,7 @@ import su.afk.yummy.tv.android.lifecycle.OnlineStatusCoordinator.Companion.HEART
 import su.afk.yummy.tv.core.logger.AppLogger
 import su.afk.yummy.tv.core.utils.DeviceHashProvider
 import su.afk.yummy.tv.core.utils.ProcessLifecycleCoordinator
+import su.afk.yummy.tv.core.utils.di.DefaultApplicationScope
 import su.afk.yummy.tv.domain.account.usecase.ObserveAccountSessionUseCase
 import su.afk.yummy.tv.domain.account.usecase.UpdateOnlineStatusUseCase
 import javax.inject.Inject
@@ -39,10 +38,9 @@ class OnlineStatusCoordinator @Inject constructor(
     private val deviceHashProvider: DeviceHashProvider,
     private val observeAccountSession: ObserveAccountSessionUseCase,
     private val updateOnlineStatus: UpdateOnlineStatusUseCase,
+    // Живёт весь процесс, как и observer ниже — отдельного cancel() нет, это осознанно.
+    @DefaultApplicationScope private val scope: CoroutineScope,
 ) : ProcessLifecycleCoordinator() {
-
-    // Живёт весь процесс, как и observer выше — отдельного cancel() нет, это осознанно.
-    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private val isForeground = MutableStateFlow(false)
 
     // start() при двойном вызове заново запустил бы второй параллельный heartbeat-цикл.

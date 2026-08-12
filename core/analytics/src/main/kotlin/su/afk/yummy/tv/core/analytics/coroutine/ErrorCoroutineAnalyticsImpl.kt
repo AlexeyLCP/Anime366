@@ -1,10 +1,12 @@
-package su.afk.yummy.tv.core.analytics
+package su.afk.yummy.tv.core.analytics.coroutine
 
+import su.afk.yummy.tv.core.analytics.api.AnalyticsTracker
+import su.afk.yummy.tv.core.analytics.api.coroutine.ErrorCoroutineAnalytics
 import javax.inject.Inject
 
-internal class DefaultErrorAnalyticsReporter @Inject constructor(
+internal class ErrorCoroutineAnalyticsImpl @Inject constructor(
     private val analyticsTracker: AnalyticsTracker,
-) : ErrorAnalyticsReporter {
+) : ErrorCoroutineAnalytics {
 
     override fun reportCoroutineError(owner: String, throwable: Throwable) {
         analyticsTracker.reportError(

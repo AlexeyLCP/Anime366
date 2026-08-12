@@ -5,9 +5,8 @@ import android.content.Context
 import android.content.Intent
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
+import su.afk.yummy.tv.core.utils.di.IoApplicationScope
 import su.afk.yummy.tv.domain.videodownload.usecase.PauseVideoDownloadUseCase
 import su.afk.yummy.tv.domain.videodownload.usecase.RestartVideoDownloadUseCase
 import javax.inject.Inject
@@ -20,10 +19,14 @@ class VideoDownloadNotificationReceiver : BroadcastReceiver() {
     @Inject
     lateinit var restartVideoDownload: RestartVideoDownloadUseCase
 
+    @IoApplicationScope
+    @Inject
+    lateinit var scope: CoroutineScope
+
     override fun onReceive(context: Context, intent: Intent) {
         val downloadId = intent.getLongExtra(EXTRA_DOWNLOAD_ID, 0L).takeIf { it > 0L } ?: return
         val pendingResult = goAsync()
-        CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
+        scope.launch {
             try {
                 when (intent.action) {
                     ACTION_PAUSE -> pause(downloadId)

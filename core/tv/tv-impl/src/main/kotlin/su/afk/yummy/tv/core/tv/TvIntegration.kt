@@ -7,18 +7,17 @@ import androidx.activity.result.ActivityResultCaller
 import androidx.activity.result.contract.ActivityResultContracts
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
-import su.afk.yummy.tv.core.analytics.ErrorAnalyticsReporter
+import su.afk.yummy.tv.core.analytics.api.coroutine.ErrorCoroutineAnalytics
 import su.afk.yummy.tv.core.preferences.settings.SettingsStore
 import su.afk.yummy.tv.core.storage.watchprogress.WatchProgressStore
 import su.afk.yummy.tv.core.tv.api.ITvIntegration
+import su.afk.yummy.tv.core.utils.di.IoApplicationScope
 import su.afk.yummy.tv.domain.home.model.HomeFeedSectionType
 import su.afk.yummy.tv.domain.home.usecase.GetHomeFeedUseCase
 import javax.inject.Inject
@@ -32,16 +31,19 @@ internal class TvIntegration @Inject constructor(
     private val previewChannelManager: PreviewChannelManager,
     private val getHomeFeed: GetHomeFeedUseCase,
     private val settingsStore: SettingsStore,
-    private val errorAnalyticsReporter: ErrorAnalyticsReporter,
+    private val errorCoroutineAnalytics: ErrorCoroutineAnalytics,
+    @IoApplicationScope private val ioApplicationScope: CoroutineScope,
 ) : ITvIntegration {
 
     private val coroutineExceptionHandler = CoroutineExceptionHandler { _, throwable ->
-        errorAnalyticsReporter.reportCoroutineError(owner = "TvIntegration", throwable = throwable)
+        errorCoroutineAnalytics.reportCoroutineError(owner = "TvIntegration", throwable = throwable)
     }
 
-    // Живёт весь процесс — TvIntegration Singleton, отдельного onDestroy/cancel для него нет,
-    // поэтому scope намеренно не отменяется (это не забытый cancel(), а осознанный fire-and-forget).
-    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO + coroutineExceptionHandler)
+    // Тот же Job, что и у ioApplicationScope — это осознанно (TvIntegration Singleton, живёт весь
+    // процесс, отдельного onDestroy/cancel для него нет), поэтому добавление exception handler
+    // поверх безопасно: scope здесь никогда не отменяется.
+    private val scope =
+        CoroutineScope(ioApplicationScope.coroutineContext + coroutineExceptionHandler)
 
     override val browsableChannelRequest: SharedFlow<Long> = previewChannelManager.browsableRequest
     override val previewChannelBrowsable: StateFlow<Boolean> = previewChannelManager.isBrowsable

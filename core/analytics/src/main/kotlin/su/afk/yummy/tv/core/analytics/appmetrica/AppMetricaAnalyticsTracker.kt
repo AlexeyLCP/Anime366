@@ -1,20 +1,19 @@
-package su.afk.yummy.tv.core.analytics
+package su.afk.yummy.tv.core.analytics.appmetrica
 
 import io.appmetrica.analytics.AppMetrica
+import su.afk.yummy.tv.core.analytics.api.AnalyticsTracker
+import su.afk.yummy.tv.core.analytics.utils.isReportableError
 import javax.inject.Inject
 
-internal class AppMetricaAnalyticsTracker @Inject constructor(
-    private val analyticsContext: AnalyticsContext,
-) : AnalyticsTracker {
+internal class AppMetricaAnalyticsTracker @Inject constructor() : AnalyticsTracker {
 
     override fun track(eventName: String, params: Map<String, String>) {
         val eventName = eventName.trim()
         if (eventName.isEmpty()) return
-        val mergedParams = analyticsContext.params + params
-        if (mergedParams.isEmpty()) {
+        if (params.isEmpty()) {
             AppMetrica.reportEvent(eventName)
         } else {
-            AppMetrica.reportEvent(eventName, mergedParams)
+            AppMetrica.reportEvent(eventName, params)
         }
     }
 
