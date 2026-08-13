@@ -20,7 +20,11 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -76,9 +80,14 @@ fun SearchMobileScreen(
     val gridState = rememberLazyGridState()
     val keyboardController = LocalSoftwareKeyboardController.current
     val queryFocusRequester = remember { FocusRequester() }
+    // Автофокус только при первом входе: при возврате из деталки клавиатура не открывается
+    var autoFocusDone by rememberSaveable { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
-        queryFocusRequester.requestFocus()
+        if (!autoFocusDone && state.query.isEmpty()) {
+            queryFocusRequester.requestFocus()
+        }
+        autoFocusDone = true
     }
 
     BaseScreen(
