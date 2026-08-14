@@ -7,14 +7,14 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
-import su.afk.yummy.tv.core.error.StringProvider
-import su.afk.yummy.tv.core.logger.AppLogger
-import su.afk.yummy.tv.core.preferences.settings.SettingsStore
+import su.afk.yummy.tv.core.analytics.api.AnalyticsTracker
+import su.afk.yummy.tv.core.error.api.StringProvider
+import su.afk.yummy.tv.core.preferences.settings.YaniAccountSettingsStore
 import su.afk.yummy.tv.core.storage.home.HomeFeedStore
 import su.afk.yummy.tv.core.storage.home.isFresh
 import su.afk.yummy.tv.core.storage.watchprogress.WatchProgressEntry
 import su.afk.yummy.tv.core.storage.watchprogress.WatchProgressStore
-import su.afk.yummy.tv.core.utils.isLikelyImageUrl
+import su.afk.yummy.tv.core.utils.network.isLikelyImageUrl
 import su.afk.yummy.tv.data.home.dto.YaniFeedDto
 import su.afk.yummy.tv.data.home.dto.YaniVideoDto
 import su.afk.yummy.tv.data.home.network.YaniHomeApi
@@ -35,8 +35,9 @@ class YaniHomeFeedRepository(
     private val api: YaniHomeApi,
     private val homeFeedStore: HomeFeedStore,
     private val stringProvider: StringProvider,
-    private val settingsStore: SettingsStore,
+    private val settingsStore: YaniAccountSettingsStore,
     private val watchProgressStore: WatchProgressStore,
+    private val analyticsTracker: AnalyticsTracker,
 ) : HomeFeedRepository {
 
     override suspend fun getHomeFeed(): HomeFeed = getHomeFeed(forceRefresh = false)
@@ -129,9 +130,9 @@ class YaniHomeFeedRepository(
         watchSignature: String,
         displayWatchEntries: List<WatchProgressEntry>,
     ): HomeFeed {
-        AppLogger.i(TAG) { "Fetch feed language=$languageCode watchSignature=$watchSignature" }
+        analyticsTracker.log(TAG) { "Fetch feed language=$languageCode watchSignature=$watchSignature" }
         val dto = api.getFeed()
-        AppLogger.i(TAG) { "Feed dto ${dto.summaryForLog()}" }
+        analyticsTracker.log(TAG) { "Feed dto ${dto.summaryForLog()}" }
         val cache = dto.toHomeFeedCache(
             language = languageCode,
             watchSignature = watchSignature,
@@ -143,7 +144,7 @@ class YaniHomeFeedRepository(
         val feed = cache.toStoredHomeFeed(stringProvider)
             .withLocalContinueWatching(displayWatchEntries)
             .withoutHiddenRecommendations(hiddenRecommendationIds())
-        AppLogger.i(TAG) {
+        analyticsTracker.log(TAG) {
             "Feed mapped ${feed.summaryForLog()} " +
                     "continueSamples=${feed.continueWatchingItems.summaryForLog()}"
         }

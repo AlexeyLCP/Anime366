@@ -37,7 +37,6 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.res.stringResource
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.distinctUntilChanged
-import su.afk.yummy.tv.core.designsystem.presenter.components.loader.TvLoadingScreen
 import su.afk.yummy.tv.core.designsystem.presenter.dimensions.TvCardSpacing
 import su.afk.yummy.tv.core.designsystem.presenter.dimensions.TvScreenPadding
 import su.afk.yummy.tv.core.designsystem.presenter.dimensions.currentTvTitleCardDimensions
@@ -46,6 +45,7 @@ import su.afk.yummy.tv.core.designsystem.presenter.focus.launchTvLazyGridKeyFocu
 import su.afk.yummy.tv.core.designsystem.presenter.focus.rememberTvLazyFocusRestoreState
 import su.afk.yummy.tv.core.designsystem.presenter.focus.tvFocusRestorer
 import su.afk.yummy.tv.core.designsystem.presenter.locals.LocalMainMenuFocusRequester
+import su.afk.yummy.tv.core.designsystem.presenter.tv.TvLoadingScreen
 import su.afk.yummy.tv.core.designsystem.presenter.tv.TvStateMessage
 import su.afk.yummy.tv.domain.collection.model.CollectionDetail
 import su.afk.yummy.tv.domain.collection.model.CollectionVote

@@ -6,10 +6,10 @@ import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.BaseViewModelNew
-import su.afk.yummy.tv.core.error.IErrorHandlerUseCase
-import su.afk.yummy.tv.core.error.StringProvider
-import su.afk.yummy.tv.core.error.storage.RetryStorage
-import su.afk.yummy.tv.core.navigation.NavigationManager
+import su.afk.yummy.tv.core.error.api.IErrorHandlerUseCase
+import su.afk.yummy.tv.core.error.api.RetryStorage
+import su.afk.yummy.tv.core.error.api.StringProvider
+import su.afk.yummy.tv.core.navigation.manager.INavigationManager
 import su.afk.yummy.tv.domain.anime.model.AnimeRelationKind
 import su.afk.yummy.tv.domain.anime.model.AnimeRelationReference
 import su.afk.yummy.tv.domain.anime.usecase.GetAnimeRelationUseCase
@@ -24,7 +24,7 @@ class RelationViewModel @AssistedInject internal constructor(
     @Assisted private val url: String?,
     override val errorHandler: IErrorHandlerUseCase,
     override val retryStorage: RetryStorage,
-    private val nav: NavigationManager,
+    private val nav: INavigationManager,
     private val detailsNavigator: IDetailsNavigator,
     private val getAnimeRelation: GetAnimeRelationUseCase,
     private val stringProvider: StringProvider,

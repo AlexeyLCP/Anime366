@@ -4,7 +4,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import su.afk.yummy.tv.core.utils.di.IoApplicationScope
+import su.afk.yummy.tv.core.utils.coroutines.di.IoApplicationScope
 import su.afk.yummy.tv.domain.player.model.AllohaStreamSession
 import su.afk.yummy.tv.domain.player.session.AllohaPlaybackSessionManager
 import javax.inject.Inject

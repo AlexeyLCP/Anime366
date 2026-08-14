@@ -32,14 +32,14 @@ import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import kotlinx.coroutines.flow.Flow
-import su.afk.yummy.tv.core.designsystem.presenter.components.TvChip
-import su.afk.yummy.tv.core.designsystem.presenter.components.loader.TvLoadingFooter
-import su.afk.yummy.tv.core.designsystem.presenter.components.loader.TvLoadingScreen
 import su.afk.yummy.tv.core.designsystem.presenter.dimensions.TvCardSpacing
 import su.afk.yummy.tv.core.designsystem.presenter.dimensions.TvScreenPadding
 import su.afk.yummy.tv.core.designsystem.presenter.focus.TvFocusedGridBringIntoViewSpec
 import su.afk.yummy.tv.core.designsystem.presenter.focus.tvFocusRestorer
 import su.afk.yummy.tv.core.designsystem.presenter.tv.TvAppendErrorFooter
+import su.afk.yummy.tv.core.designsystem.presenter.tv.TvChip
+import su.afk.yummy.tv.core.designsystem.presenter.tv.TvLoadingFooter
+import su.afk.yummy.tv.core.designsystem.presenter.tv.TvLoadingScreen
 import su.afk.yummy.tv.core.designsystem.presenter.tv.TvStateMessage
 import su.afk.yummy.tv.feature.reviews.tv.R
 import su.afk.yummy.tv.feature.reviews.utils.label
@@ -122,50 +122,51 @@ fun ReviewsListTvScreen(
                 CompositionLocalProvider(
                     LocalBringIntoViewSpec provides TvFocusedGridBringIntoViewSpec,
                 ) {
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(2),
-                    horizontalArrangement = Arrangement.spacedBy(TvCardSpacing.Horizontal),
-                    verticalArrangement = Arrangement.spacedBy(TvCardSpacing.Vertical),
-                    contentPadding = PaddingValues(
-                        top = TvCardSpacing.Vertical,
-                        bottom = TvScreenPadding.Vertical,
-                    ),
-                    modifier = Modifier
-                        .weight(1f)
-                        .tvFocusRestorer(fallback = firstCardFocus),
-                ) {
-                    items(
-                        reviews.itemCount,
-                        key = { index -> reviews[index]?.id ?: index }) { index ->
-                        reviews[index]?.let { review ->
-                            ReviewTvCard(
-                                review = review,
-                                reactions = state.reactionOverrides[review.id] ?: review.reactions,
-                                showAnime = state.isGeneralFeed,
-                                onOpen = { onEvent(ReviewsListState.Event.ReviewSelected(review.id)) },
-                                modifier = if (index == 0) {
-                                    Modifier.focusRequester(firstCardFocus)
-                                } else {
-                                    Modifier
-                                },
-                            )
+                    LazyVerticalGrid(
+                        columns = GridCells.Fixed(2),
+                        horizontalArrangement = Arrangement.spacedBy(TvCardSpacing.Horizontal),
+                        verticalArrangement = Arrangement.spacedBy(TvCardSpacing.Vertical),
+                        contentPadding = PaddingValues(
+                            top = TvCardSpacing.Vertical,
+                            bottom = TvScreenPadding.Vertical,
+                        ),
+                        modifier = Modifier
+                            .weight(1f)
+                            .tvFocusRestorer(fallback = firstCardFocus),
+                    ) {
+                        items(
+                            reviews.itemCount,
+                            key = { index -> reviews[index]?.id ?: index }) { index ->
+                            reviews[index]?.let { review ->
+                                ReviewTvCard(
+                                    review = review,
+                                    reactions = state.reactionOverrides[review.id]
+                                        ?: review.reactions,
+                                    showAnime = state.isGeneralFeed,
+                                    onOpen = { onEvent(ReviewsListState.Event.ReviewSelected(review.id)) },
+                                    modifier = if (index == 0) {
+                                        Modifier.focusRequester(firstCardFocus)
+                                    } else {
+                                        Modifier
+                                    },
+                                )
+                            }
+                        }
+                        when (reviews.loadState.append) {
+                            is LoadState.Loading -> item(span = { GridItemSpan(maxLineSpan) }) {
+                                TvLoadingFooter()
+                            }
+
+                            is LoadState.Error -> item(span = { GridItemSpan(maxLineSpan) }) {
+                                TvAppendErrorFooter(
+                                    message = stringResource(R.string.reviews_error),
+                                    onRetry = reviews::retry,
+                                )
+                            }
+
+                            else -> Unit
                         }
                     }
-                    when (reviews.loadState.append) {
-                        is LoadState.Loading -> item(span = { GridItemSpan(maxLineSpan) }) {
-                            TvLoadingFooter()
-                        }
-
-                        is LoadState.Error -> item(span = { GridItemSpan(maxLineSpan) }) {
-                            TvAppendErrorFooter(
-                                message = stringResource(R.string.reviews_error),
-                                onRetry = reviews::retry,
-                            )
-                        }
-
-                        else -> Unit
-                    }
-                }
                 }
             }
         }

@@ -17,4 +17,9 @@ interface AnalyticsTracker {
         throwable: Throwable,
         groupIdentifier: String? = null,
     )
+
+    /**
+     * Free-form debug diagnostic. No-op outside of debug-backed implementations.
+     */
+    fun log(tag: String, throwable: Throwable? = null, message: () -> String)
 }

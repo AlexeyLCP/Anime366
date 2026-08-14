@@ -4,7 +4,7 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
-import su.afk.yummy.tv.core.preferences.settings.SettingsStore
+import su.afk.yummy.tv.core.preferences.settings.YaniAccountSettingsStore
 import su.afk.yummy.tv.core.storage.account.AccountStorageStore
 import su.afk.yummy.tv.core.storage.collection.CollectionStorageStore
 import su.afk.yummy.tv.core.storage.collection.isFresh
@@ -32,7 +32,7 @@ class YaniCollectionDetailRepository(
     private val api: YaniCollectionApi,
     private val collectionStorage: CollectionStorageStore,
     private val accountStorage: AccountStorageStore,
-    private val settingsStore: SettingsStore,
+    private val settingsStore: YaniAccountSettingsStore,
 ) : CollectionRepository {
 
     override suspend fun getCollection(id: Int): CollectionDetail =

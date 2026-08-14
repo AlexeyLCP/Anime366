@@ -5,8 +5,8 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import su.afk.yummy.tv.core.preferences.settings.PlayerMobileVideoTransformSettings
-import su.afk.yummy.tv.core.preferences.settings.PlayerResizeSettings
+import su.afk.yummy.tv.core.preferences.settings.model.PlayerMobileVideoTransformSettings
+import su.afk.yummy.tv.core.preferences.settings.model.PlayerResizeSettings
 import su.afk.yummy.tv.feature.player.utils.PlayerResizeSettingsScope
 import javax.inject.Inject
 

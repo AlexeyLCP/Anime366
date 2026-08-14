@@ -31,8 +31,8 @@ import androidx.media3.common.util.UnstableApi
 import androidx.media3.ui.compose.ContentFrame
 import androidx.media3.ui.compose.SURFACE_TYPE_TEXTURE_VIEW
 import su.afk.yummy.tv.core.designsystem.presenter.locals.LocalResolveKodikThumbnailUrl
-import su.afk.yummy.tv.core.preferences.settings.PlayerResizeMode
-import su.afk.yummy.tv.core.utils.resolveContinueWatchingImage
+import su.afk.yummy.tv.core.preferences.settings.model.PlayerResizeMode
+import su.afk.yummy.tv.core.utils.kodik.resolveContinueWatchingImage
 import su.afk.yummy.tv.feature.player.PlayerState
 import su.afk.yummy.tv.feature.player.common.PlayerBlackBackdrop
 import su.afk.yummy.tv.feature.player.common.PlayerBufferingIndicator

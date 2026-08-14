@@ -1,6 +1,6 @@
 package su.afk.yummy.tv.data.bloggers.repository
 
-import su.afk.yummy.tv.core.network.UserScopedCache
+import su.afk.yummy.tv.core.network.cache.UserScopedCache
 import su.afk.yummy.tv.data.bloggers.dto.BloggerDetailsResponseDto
 import su.afk.yummy.tv.data.bloggers.dto.BloggerVideoResponseDto
 import su.afk.yummy.tv.data.bloggers.dto.BloggerVideosResponseDto

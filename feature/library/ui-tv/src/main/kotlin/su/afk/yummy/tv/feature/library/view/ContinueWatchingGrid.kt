@@ -40,7 +40,7 @@ import su.afk.yummy.tv.core.designsystem.presenter.focus.rememberTvLazyFocusRest
 import su.afk.yummy.tv.core.designsystem.presenter.focus.requestFocusUntilTimeout
 import su.afk.yummy.tv.core.designsystem.presenter.focus.tvFocusRestorer
 import su.afk.yummy.tv.core.designsystem.presenter.locals.LocalMainMenuFocusRequester
-import su.afk.yummy.tv.core.preferences.settings.LibraryContinueWatchingCardSize
+import su.afk.yummy.tv.core.preferences.settings.model.LibraryContinueWatchingCardSize
 import su.afk.yummy.tv.domain.home.model.HomeContinueWatchingItem
 import su.afk.yummy.tv.feature.library.R
 import su.afk.yummy.tv.feature.library.utils.continueWatchingFocusKey

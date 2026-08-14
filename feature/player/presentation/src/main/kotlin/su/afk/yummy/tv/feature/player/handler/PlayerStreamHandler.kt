@@ -1,8 +1,8 @@
 package su.afk.yummy.tv.feature.player.handler
 
 import kotlinx.coroutines.flow.first
-import su.afk.yummy.tv.core.error.StringProvider
-import su.afk.yummy.tv.core.preferences.settings.SettingsStore
+import su.afk.yummy.tv.core.error.api.StringProvider
+import su.afk.yummy.tv.core.preferences.settings.PlayerSettingsStore
 import su.afk.yummy.tv.core.storage.watchprogress.WatchProgressStore
 import su.afk.yummy.tv.domain.player.isAllohaPlayerUrl
 import su.afk.yummy.tv.domain.player.model.AllohaStreamSession
@@ -21,7 +21,7 @@ import javax.inject.Inject
 /** Resolves the active player iframe into a playable stream and presentation-ready stream errors. */
 internal class PlayerStreamHandler @Inject constructor(
     private val watchProgressStore: WatchProgressStore,
-    private val settingsStore: SettingsStore,
+    private val settingsStore: PlayerSettingsStore,
     private val resolvePlayerStream: ResolvePlayerStreamUseCase,
     private val openAllohaStreamSession: OpenAllohaStreamSessionUseCase,
     private val strings: StringProvider,

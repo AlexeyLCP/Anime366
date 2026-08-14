@@ -7,11 +7,11 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.launch
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.BaseViewModelNew
-import su.afk.yummy.tv.core.error.IErrorHandlerUseCase
-import su.afk.yummy.tv.core.error.storage.RetryStorage
-import su.afk.yummy.tv.core.navigation.NavigationManager
-import su.afk.yummy.tv.core.utils.pagingFlow
-import su.afk.yummy.tv.core.utils.runSuspendCatching
+import su.afk.yummy.tv.core.error.api.IErrorHandlerUseCase
+import su.afk.yummy.tv.core.error.api.RetryStorage
+import su.afk.yummy.tv.core.navigation.manager.INavigationManager
+import su.afk.yummy.tv.core.utils.coroutines.runSuspendCatching
+import su.afk.yummy.tv.core.utils.paging.pagingFlow
 import su.afk.yummy.tv.domain.bloggers.model.BloggerVideoSort
 import su.afk.yummy.tv.domain.bloggers.usecase.GetAnimeBloggerVideosUseCase
 import su.afk.yummy.tv.domain.bloggers.usecase.GetBloggerVideosUseCase
@@ -25,7 +25,7 @@ private const val ALL_CATEGORY_ID = "all"
 class BloggerVideosListViewModel @AssistedInject constructor(
     override val errorHandler: IErrorHandlerUseCase,
     override val retryStorage: RetryStorage,
-    private val nav: NavigationManager,
+    private val nav: INavigationManager,
     private val getVideos: GetBloggerVideosUseCase,
     private val getAnimeVideos: GetAnimeBloggerVideosUseCase,
     private val getDirectory: GetBloggersDirectoryUseCase,

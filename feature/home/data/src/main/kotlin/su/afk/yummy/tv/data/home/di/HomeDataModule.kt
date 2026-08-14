@@ -4,9 +4,10 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import su.afk.yummy.tv.core.error.StringProvider
-import su.afk.yummy.tv.core.network.YaniHttpClientProvider
-import su.afk.yummy.tv.core.preferences.settings.SettingsStore
+import su.afk.yummy.tv.core.analytics.api.AnalyticsTracker
+import su.afk.yummy.tv.core.error.api.StringProvider
+import su.afk.yummy.tv.core.network.yani.YaniHttpClientProvider
+import su.afk.yummy.tv.core.preferences.settings.YaniAccountSettingsStore
 import su.afk.yummy.tv.core.storage.home.HomeFeedStore
 import su.afk.yummy.tv.core.storage.watchprogress.WatchProgressStore
 import su.afk.yummy.tv.data.home.network.YaniHomeApi
@@ -29,8 +30,9 @@ object HomeDataModule {
         api: YaniHomeApi,
         homeFeedStore: HomeFeedStore,
         stringProvider: StringProvider,
-        settingsStore: SettingsStore,
+        settingsStore: YaniAccountSettingsStore,
         watchProgressStore: WatchProgressStore,
+        analyticsTracker: AnalyticsTracker,
     ): HomeFeedRepository =
         YaniHomeFeedRepository(
             api,
@@ -38,5 +40,6 @@ object HomeDataModule {
             stringProvider,
             settingsStore,
             watchProgressStore,
+            analyticsTracker,
         )
 }

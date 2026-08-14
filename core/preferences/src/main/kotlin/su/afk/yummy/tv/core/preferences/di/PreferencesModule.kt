@@ -1,42 +1,62 @@
 package su.afk.yummy.tv.core.preferences.di
 
-import android.content.Context
+import dagger.Binds
 import dagger.Module
-import dagger.Provides
 import dagger.hilt.InstallIn
-import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import kotlinx.coroutines.CoroutineScope
 import su.afk.yummy.tv.core.preferences.auth.KeystoreYaniAuthPreferences
 import su.afk.yummy.tv.core.preferences.auth.YaniAuthPreferences
 import su.afk.yummy.tv.core.preferences.interface_mode.AppInterfaceModePreferences
 import su.afk.yummy.tv.core.preferences.interface_mode.SharedPreferencesAppInterfaceModePreferences
+import su.afk.yummy.tv.core.preferences.settings.AppLifecycleSettingsStore
+import su.afk.yummy.tv.core.preferences.settings.AppearanceSettingsStore
+import su.afk.yummy.tv.core.preferences.settings.CacheSettingsStore
 import su.afk.yummy.tv.core.preferences.settings.DataStoreSettingsStore
+import su.afk.yummy.tv.core.preferences.settings.PlayerSettingsStore
 import su.afk.yummy.tv.core.preferences.settings.SettingsStore
-import su.afk.yummy.tv.core.utils.di.IoApplicationScope
+import su.afk.yummy.tv.core.preferences.settings.VideoExportSettingsStore
+import su.afk.yummy.tv.core.preferences.settings.YaniAccountSettingsStore
 import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-object PreferencesModule {
+internal interface PreferencesModule {
 
-    @Provides
+    @Binds
     @Singleton
-    fun provideSettingsStore(
-        @ApplicationContext context: Context,
-        @IoApplicationScope scope: CoroutineScope,
-    ): SettingsStore = DataStoreSettingsStore(context, scope)
+    fun bindSettingsStore(impl: DataStoreSettingsStore): SettingsStore
 
-    @Provides
+    @Binds
     @Singleton
-    fun provideAppInterfaceModePreferences(
-        @ApplicationContext context: Context,
-    ): AppInterfaceModePreferences = SharedPreferencesAppInterfaceModePreferences(context)
+    fun bindYaniAccountSettingsStore(impl: DataStoreSettingsStore): YaniAccountSettingsStore
 
-    @Provides
+    @Binds
     @Singleton
-    fun provideYaniAuthPreferences(
-        @ApplicationContext context: Context,
-        settingsStore: SettingsStore,
-    ): YaniAuthPreferences = KeystoreYaniAuthPreferences(context, settingsStore)
+    fun bindPlayerSettingsStore(impl: DataStoreSettingsStore): PlayerSettingsStore
+
+    @Binds
+    @Singleton
+    fun bindAppearanceSettingsStore(impl: DataStoreSettingsStore): AppearanceSettingsStore
+
+    @Binds
+    @Singleton
+    fun bindCacheSettingsStore(impl: DataStoreSettingsStore): CacheSettingsStore
+
+    @Binds
+    @Singleton
+    fun bindVideoExportSettingsStore(impl: DataStoreSettingsStore): VideoExportSettingsStore
+
+    @Binds
+    @Singleton
+    fun bindAppLifecycleSettingsStore(impl: DataStoreSettingsStore): AppLifecycleSettingsStore
+
+    @Binds
+    @Singleton
+    fun bindAppInterfaceModePreferences(
+        impl: SharedPreferencesAppInterfaceModePreferences,
+    ): AppInterfaceModePreferences
+
+    @Binds
+    @Singleton
+    fun bindYaniAuthPreferences(impl: KeystoreYaniAuthPreferences): YaniAuthPreferences
 }

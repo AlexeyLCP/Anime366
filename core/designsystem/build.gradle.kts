@@ -11,8 +11,6 @@ dependencies {
     api(project(":core:model"))
 
     implementation(project(":core:error"))
-    implementation(project(":core:preferences"))
-    implementation(project(":core:storage"))
     implementation(project(":core:utils"))
 
     implementation(libs.bundles.compose.core)

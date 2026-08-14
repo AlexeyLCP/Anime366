@@ -4,8 +4,8 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import su.afk.yummy.tv.core.network.YaniHttpClientProvider
-import su.afk.yummy.tv.core.preferences.settings.SettingsStore
+import su.afk.yummy.tv.core.network.yani.YaniHttpClientProvider
+import su.afk.yummy.tv.core.preferences.settings.YaniAccountSettingsStore
 import su.afk.yummy.tv.core.storage.account.AccountStorageStore
 import su.afk.yummy.tv.core.storage.collection.CollectionStorageStore
 import su.afk.yummy.tv.data.collection.network.YaniCollectionApi
@@ -28,7 +28,7 @@ object CollectionDataModule {
         api: YaniCollectionApi,
         collectionStorage: CollectionStorageStore,
         accountStorage: AccountStorageStore,
-        settingsStore: SettingsStore,
+        settingsStore: YaniAccountSettingsStore,
     ): CollectionRepository =
         YaniCollectionDetailRepository(api, collectionStorage, accountStorage, settingsStore)
 }

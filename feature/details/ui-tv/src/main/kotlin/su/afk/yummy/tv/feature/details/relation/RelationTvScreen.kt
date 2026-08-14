@@ -39,14 +39,14 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import su.afk.yummy.tv.core.designsystem.presenter.components.RatingBadge
-import su.afk.yummy.tv.core.designsystem.presenter.components.TvTitleCard
-import su.afk.yummy.tv.core.designsystem.presenter.components.loader.TvLoadingScreen
 import su.afk.yummy.tv.core.designsystem.presenter.dimensions.TvCardSpacing
 import su.afk.yummy.tv.core.designsystem.presenter.dimensions.TvScreenPadding
 import su.afk.yummy.tv.core.designsystem.presenter.dimensions.currentTvTitleCardDimensions
 import su.afk.yummy.tv.core.designsystem.presenter.focus.TvFocusedGridBringIntoViewSpec
 import su.afk.yummy.tv.core.designsystem.presenter.focus.requestFocusUntilTimeout
 import su.afk.yummy.tv.core.designsystem.presenter.preview.ScreenPreviewTheme
+import su.afk.yummy.tv.core.designsystem.presenter.tv.TvLoadingScreen
+import su.afk.yummy.tv.core.designsystem.presenter.tv.TvTitleCard
 import su.afk.yummy.tv.domain.anime.model.AnimeRelation
 import su.afk.yummy.tv.domain.anime.model.AnimeRelationItem
 import su.afk.yummy.tv.domain.anime.model.AnimeRelationSubGenre
@@ -174,83 +174,83 @@ fun RelationTvScreen(
                 CompositionLocalProvider(
                     LocalBringIntoViewSpec provides TvFocusedGridBringIntoViewSpec,
                 ) {
-                LazyVerticalGrid(
-                    state = gridState,
-                    columns = GridCells.Adaptive(currentTvTitleCardDimensions().width),
-                    contentPadding = PaddingValues(
-                        horizontal = TvScreenPadding.Horizontal,
-                        vertical = TvScreenPadding.Vertical,
-                    ),
-                    horizontalArrangement = Arrangement.spacedBy(TvCardSpacing.Horizontal),
-                    verticalArrangement = Arrangement.spacedBy(TvCardSpacing.Vertical),
-                ) {
-                    item(span = { GridItemSpan(maxLineSpan) }) {
-                        Column(verticalArrangement = Arrangement.spacedBy(20.dp)) {
-                            RelationTvHeaderCard(
-                                relationType = state.relationType,
-                                relation = relation,
-                                onSubGenreSelected = { genreId ->
-                                    lastFocusTarget = RelationFocusTarget.SubGenre(genreId)
-                                    onEvent(RelationState.Event.SubGenreSelected(genreId))
-                                },
-                                subGenreFocusRequesters = subGenreFocusRequesters,
-                                modifier = Modifier.focusRequester(headerFocusRequester),
-                            )
-                            Text(
-                                text = stringResource(
-                                    R.string.details_related_anime_count,
-                                    relation.anime.size,
-                                ),
-                                style = MaterialTheme.typography.headlineSmall,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.onBackground,
-                            )
-                            if (relation.anime.isEmpty()) {
-                                Text(
-                                    text = stringResource(R.string.details_related_empty),
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    LazyVerticalGrid(
+                        state = gridState,
+                        columns = GridCells.Adaptive(currentTvTitleCardDimensions().width),
+                        contentPadding = PaddingValues(
+                            horizontal = TvScreenPadding.Horizontal,
+                            vertical = TvScreenPadding.Vertical,
+                        ),
+                        horizontalArrangement = Arrangement.spacedBy(TvCardSpacing.Horizontal),
+                        verticalArrangement = Arrangement.spacedBy(TvCardSpacing.Vertical),
+                    ) {
+                        item(span = { GridItemSpan(maxLineSpan) }) {
+                            Column(verticalArrangement = Arrangement.spacedBy(20.dp)) {
+                                RelationTvHeaderCard(
+                                    relationType = state.relationType,
+                                    relation = relation,
+                                    onSubGenreSelected = { genreId ->
+                                        lastFocusTarget = RelationFocusTarget.SubGenre(genreId)
+                                        onEvent(RelationState.Event.SubGenreSelected(genreId))
+                                    },
+                                    subGenreFocusRequesters = subGenreFocusRequesters,
+                                    modifier = Modifier.focusRequester(headerFocusRequester),
                                 )
+                                Text(
+                                    text = stringResource(
+                                        R.string.details_related_anime_count,
+                                        relation.anime.size,
+                                    ),
+                                    style = MaterialTheme.typography.headlineSmall,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.onBackground,
+                                )
+                                if (relation.anime.isEmpty()) {
+                                    Text(
+                                        text = stringResource(R.string.details_related_empty),
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    )
+                                }
                             }
                         }
+                        items(relation.anime, key = { it.animeId }) { item ->
+                            TvTitleCard(
+                                title = item.title,
+                                posterUrl = item.posterUrl,
+                                onClick = {
+                                    lastFocusTarget = RelationFocusTarget.Anime(item.animeId)
+                                    onEvent(RelationState.Event.AnimeSelected(item.animeId))
+                                },
+                                modifier = animeFocusRequesters[item.animeId]
+                                    ?.let { Modifier.focusRequester(it) }
+                                    ?: Modifier,
+                                posterOverlay = {
+                                    item.rating?.let { rating ->
+                                        RatingBadge(
+                                            rating = rating,
+                                            modifier = Modifier
+                                                .align(Alignment.TopEnd)
+                                                .padding(4.dp),
+                                        )
+                                    }
+                                    item.year?.let { year ->
+                                        Text(
+                                            text = year.toString(),
+                                            color = MaterialTheme.colorScheme.onSurface,
+                                            modifier = Modifier
+                                                .align(Alignment.BottomEnd)
+                                                .padding(4.dp)
+                                                .background(
+                                                    MaterialTheme.colorScheme.surface.copy(alpha = 0.88f),
+                                                    RoundedCornerShape(4.dp),
+                                                )
+                                                .padding(horizontal = 6.dp, vertical = 3.dp),
+                                        )
+                                    }
+                                },
+                            )
+                        }
                     }
-                    items(relation.anime, key = { it.animeId }) { item ->
-                        TvTitleCard(
-                            title = item.title,
-                            posterUrl = item.posterUrl,
-                            onClick = {
-                                lastFocusTarget = RelationFocusTarget.Anime(item.animeId)
-                                onEvent(RelationState.Event.AnimeSelected(item.animeId))
-                            },
-                            modifier = animeFocusRequesters[item.animeId]
-                                ?.let { Modifier.focusRequester(it) }
-                                ?: Modifier,
-                            posterOverlay = {
-                                item.rating?.let { rating ->
-                                    RatingBadge(
-                                        rating = rating,
-                                        modifier = Modifier
-                                            .align(Alignment.TopEnd)
-                                            .padding(4.dp),
-                                    )
-                                }
-                                item.year?.let { year ->
-                                    Text(
-                                        text = year.toString(),
-                                        color = MaterialTheme.colorScheme.onSurface,
-                                        modifier = Modifier
-                                            .align(Alignment.BottomEnd)
-                                            .padding(4.dp)
-                                            .background(
-                                                MaterialTheme.colorScheme.surface.copy(alpha = 0.88f),
-                                                RoundedCornerShape(4.dp),
-                                            )
-                                            .padding(horizontal = 6.dp, vertical = 3.dp),
-                                    )
-                                }
-                            },
-                        )
-                    }
-                }
                 }
             }
         }

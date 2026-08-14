@@ -8,14 +8,14 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import su.afk.yummy.tv.core.error.IErrorHandlerUseCase
-import su.afk.yummy.tv.core.error.storage.RetryStorage
+import su.afk.yummy.tv.core.error.api.IErrorHandlerUseCase
+import su.afk.yummy.tv.core.error.api.RetryStorage
 
 interface UiState
 interface UiEvent
 interface UiEffect
 
-abstract class BaseViewModelNew<S : UiState, E : UiEvent, F : UiEffect> : CoroutineVieModel() {
+abstract class BaseViewModelNew<S : UiState, E : UiEvent, F : UiEffect> : CoroutineViewModel() {
 
     protected abstract fun createInitialState(): S
 

@@ -3,7 +3,7 @@ package su.afk.yummy.tv.data.comments.mapper
 import su.afk.yummy.tv.core.storage.comments.CommentItemEntry
 import su.afk.yummy.tv.core.storage.comments.CommentPageEntry
 import su.afk.yummy.tv.core.storage.comments.CommentsPageCache
-import su.afk.yummy.tv.core.utils.toHttpsUrlOrNull
+import su.afk.yummy.tv.core.utils.network.toHttpsUrlOrNull
 import su.afk.yummy.tv.data.comments.dto.YaniCommentDto
 import su.afk.yummy.tv.data.comments.dto.YaniCommentsResponseDto
 import su.afk.yummy.tv.data.comments.dto.YaniVoteCommentPayloadDto

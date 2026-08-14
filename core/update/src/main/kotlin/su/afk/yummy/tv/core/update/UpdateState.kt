@@ -34,7 +34,6 @@ class UpdateState {
     }
 
     sealed class Effect : UiEffect {
-        data object NavigateToUpdate : Effect()
         data object NavigateBack : Effect()
     }
 }

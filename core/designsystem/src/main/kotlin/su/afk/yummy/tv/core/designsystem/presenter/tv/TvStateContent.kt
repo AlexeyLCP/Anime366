@@ -6,7 +6,6 @@ import androidx.compose.material.icons.filled.Warning
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import su.afk.yummy.tv.core.designsystem.presenter.components.loader.TvLoadingScreen
 
 @Composable
 fun TvStateContent(

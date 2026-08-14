@@ -33,7 +33,7 @@ import coil3.compose.AsyncImage
 import su.afk.yummy.tv.core.designsystem.presenter.focus.tvFocusableClick
 import su.afk.yummy.tv.core.designsystem.presenter.theme.YummySemanticColors
 import su.afk.yummy.tv.core.model.anime.AnimeVideo
-import su.afk.yummy.tv.core.utils.KodikThumbnail
+import su.afk.yummy.tv.core.utils.kodik.KodikThumbnail
 import su.afk.yummy.tv.feature.details.R
 import su.afk.yummy.tv.feature.details.episodes.model.EpisodeWatchStatus
 import su.afk.yummy.tv.feature.details.episodes.utils.durationLabel

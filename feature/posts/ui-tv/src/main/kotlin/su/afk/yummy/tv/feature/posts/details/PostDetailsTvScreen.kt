@@ -59,13 +59,13 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import su.afk.yummy.tv.core.designsystem.presenter.components.CachedAsyncImage
-import su.afk.yummy.tv.core.designsystem.presenter.components.loader.TvLoadingScreen
 import su.afk.yummy.tv.core.designsystem.presenter.dimensions.TvScreenPadding
 import su.afk.yummy.tv.core.designsystem.presenter.focus.requestFocusUntilTimeout
 import su.afk.yummy.tv.core.designsystem.presenter.focus.tvFocusableClick
 import su.afk.yummy.tv.core.designsystem.presenter.locals.LocalMainMenuFocusRequester
+import su.afk.yummy.tv.core.designsystem.presenter.tv.TvLoadingScreen
 import su.afk.yummy.tv.core.designsystem.presenter.tv.TvStateMessage
-import su.afk.yummy.tv.core.utils.formatFeedDateTime
+import su.afk.yummy.tv.core.utils.formatting.formatFeedDateTime
 import su.afk.yummy.tv.domain.posts.model.PostVote
 import su.afk.yummy.tv.feature.posts.details.utils.compactCount
 import su.afk.yummy.tv.feature.posts.model.PostContentBlock

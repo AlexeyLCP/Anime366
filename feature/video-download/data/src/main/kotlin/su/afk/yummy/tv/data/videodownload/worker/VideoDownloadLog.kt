@@ -3,21 +3,24 @@ package su.afk.yummy.tv.data.videodownload.worker
 import androidx.annotation.OptIn
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.datasource.HttpDataSource
-import su.afk.yummy.tv.core.logger.AppLogger
+import su.afk.yummy.tv.core.analytics.api.AnalyticsTracker
 import java.net.URI
 
 internal const val VIDEO_DOWNLOAD_TAG = "VideoDownloadWorker"
 
-internal fun logDownloadDebug(message: () -> String) {
-    AppLogger.d(VIDEO_DOWNLOAD_TAG, message)
+internal fun AnalyticsTracker.logDownloadDebug(message: () -> String) {
+    log(VIDEO_DOWNLOAD_TAG, message = message)
 }
 
-internal fun logDownloadInfo(message: () -> String) {
-    AppLogger.i(VIDEO_DOWNLOAD_TAG, message)
+internal fun AnalyticsTracker.logDownloadInfo(message: () -> String) {
+    log(VIDEO_DOWNLOAD_TAG, message = message)
 }
 
-internal fun logDownloadWarning(throwable: Throwable? = null, message: () -> String) {
-    AppLogger.w(VIDEO_DOWNLOAD_TAG, throwable, message)
+internal fun AnalyticsTracker.logDownloadWarning(
+    throwable: Throwable? = null,
+    message: () -> String
+) {
+    log(VIDEO_DOWNLOAD_TAG, throwable, message)
 }
 
 internal fun String.safeDownloadUrlForLog(): String =

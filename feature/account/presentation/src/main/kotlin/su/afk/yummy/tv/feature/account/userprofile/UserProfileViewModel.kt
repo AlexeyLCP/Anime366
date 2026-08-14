@@ -14,11 +14,11 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.BaseViewModelNew
-import su.afk.yummy.tv.core.error.IErrorHandlerUseCase
-import su.afk.yummy.tv.core.error.storage.RetryStorage
-import su.afk.yummy.tv.core.navigation.NavigationManager
-import su.afk.yummy.tv.core.utils.OffsetPage
-import su.afk.yummy.tv.core.utils.OffsetPagingSource
+import su.afk.yummy.tv.core.error.api.IErrorHandlerUseCase
+import su.afk.yummy.tv.core.error.api.RetryStorage
+import su.afk.yummy.tv.core.navigation.manager.INavigationManager
+import su.afk.yummy.tv.core.utils.paging.OffsetPage
+import su.afk.yummy.tv.core.utils.paging.OffsetPagingSource
 import su.afk.yummy.tv.domain.account.model.FriendshipStatus
 import su.afk.yummy.tv.domain.account.usecase.AddFriendUseCase
 import su.afk.yummy.tv.domain.account.usecase.GetAccountSessionUseCase
@@ -49,7 +49,7 @@ class UserProfileViewModel @AssistedInject internal constructor(
     @Assisted private val userId: Int,
     override val errorHandler: IErrorHandlerUseCase,
     override val retryStorage: RetryStorage,
-    private val nav: NavigationManager,
+    private val nav: INavigationManager,
     private val accountNavigator: IAccountNavigator,
     private val collectionNavigator: ICollectionNavigator,
     private val detailsNavigator: IDetailsNavigator,

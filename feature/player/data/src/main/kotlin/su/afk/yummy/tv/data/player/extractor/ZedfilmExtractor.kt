@@ -14,6 +14,7 @@ import android.webkit.WebViewClient
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
+import su.afk.yummy.tv.core.analytics.api.AnalyticsTracker
 import org.json.JSONObject
 import su.afk.yummy.tv.data.player.utils.CHROME_UA
 import su.afk.yummy.tv.data.player.utils.withBrowserUserAgent
@@ -33,6 +34,7 @@ internal data class ZedfilmResult(
 
 internal class ZedfilmExtractor @Inject constructor(
     private val httpClient: PlayerHttpClient,
+    private val analyticsTracker: AnalyticsTracker,
 ) : PlayerStreamExtractor {
 
     private val ZEDFILM_ORIGIN = "https://zedfilm.ru"
@@ -91,12 +93,21 @@ internal class ZedfilmExtractor @Inject constructor(
     ): ZedfilmResult? {
         val html = runCatching { fetchText(playerUrl) }
             .getOrElse {
-                logExtractorFailure("Zedfilm", playerUrl, "failed to load iframe page", it)
+                analyticsTracker.logExtractorFailure(
+                    "Zedfilm",
+                    playerUrl,
+                    "failed to load iframe page",
+                    it
+                )
                 return null
             }
         val candidates = collectCandidates(html, playerUrl)
         if (candidates.isEmpty()) {
-            logExtractorFailure("Zedfilm", playerUrl, "no stream URLs found in iframe page")
+            analyticsTracker.logExtractorFailure(
+                "Zedfilm",
+                playerUrl,
+                "no stream URLs found in iframe page"
+            )
             return null
         }
 
@@ -170,7 +181,7 @@ internal class ZedfilmExtractor @Inject constructor(
 
         timeoutRunnable = Runnable {
             if (resultFromCapturedStreams() == null) {
-                logExtractorFailure(
+                analyticsTracker.logExtractorFailure(
                     "Zedfilm",
                     playerUrl,
                     "timed out before any stream was captured"
@@ -208,7 +219,7 @@ internal class ZedfilmExtractor @Inject constructor(
                     request: WebResourceRequest,
                     error: WebResourceError,
                 ) {
-                    logExtractorFailure(
+                    analyticsTracker.logExtractorFailure(
                         extractor = "Zedfilm",
                         url = request.url.toString(),
                         reason = "WebView error ${error.errorCode}: ${error.description}",
@@ -220,7 +231,7 @@ internal class ZedfilmExtractor @Inject constructor(
                     handler: SslErrorHandler,
                     error: SslError,
                 ) {
-                    logExtractorFailure(
+                    analyticsTracker.logExtractorFailure(
                         extractor = "Zedfilm",
                         url = error.url.orEmpty(),
                         reason = "WebView SSL error ${error.primaryError}",
@@ -271,11 +282,21 @@ internal class ZedfilmExtractor @Inject constructor(
         val json = runCatching {
             String(Base64.decode(encoded, Base64.DEFAULT))
         }.getOrElse {
-            logExtractorFailure("Zedfilm", baseUrl, "failed to decode video_Init payload", it)
+            analyticsTracker.logExtractorFailure(
+                "Zedfilm",
+                baseUrl,
+                "failed to decode video_Init payload",
+                it
+            )
             return linkedMapOf()
         }
         val data = runCatching { JSONObject(json) }.getOrElse {
-            logExtractorFailure("Zedfilm", baseUrl, "failed to parse video_Init payload", it)
+            analyticsTracker.logExtractorFailure(
+                "Zedfilm",
+                baseUrl,
+                "failed to parse video_Init payload",
+                it
+            )
             return linkedMapOf()
         }
 

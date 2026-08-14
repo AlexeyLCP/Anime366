@@ -6,9 +6,9 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
-import su.afk.yummy.tv.core.preferences.settings.SettingsStore
-import su.afk.yummy.tv.core.preferences.settings.YaniContentLanguage
-import su.afk.yummy.tv.core.preferences.settings.withYaniContentLanguage
+import su.afk.yummy.tv.core.preferences.settings.YaniAccountSettingsStore
+import su.afk.yummy.tv.core.preferences.settings.model.YaniContentLanguage
+import su.afk.yummy.tv.core.preferences.settings.model.withYaniContentLanguage
 import su.afk.yummy.tv.core.storage.search.SearchStorageStore
 import su.afk.yummy.tv.core.storage.search.isFresh
 import su.afk.yummy.tv.data.search.dto.YaniSearchCatalogDto
@@ -37,7 +37,7 @@ private data class YaniSearchFilterOptionsDto(
 class YaniSearchRepository(
     private val api: YaniSearchApi,
     private val searchStorage: SearchStorageStore,
-    private val settingsStore: SettingsStore,
+    private val settingsStore: YaniAccountSettingsStore,
 ) : SearchRepository {
     override suspend fun getRandomAnime(): SearchItem? = withContext(Dispatchers.IO) {
         api.getRandomAnime().firstNotNullOfOrNull { it.toSearchItem() }

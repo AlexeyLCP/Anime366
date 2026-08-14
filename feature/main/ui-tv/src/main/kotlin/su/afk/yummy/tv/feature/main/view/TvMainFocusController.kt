@@ -10,14 +10,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.focus.FocusRequester
 import kotlinx.coroutines.delay
-import su.afk.yummy.tv.core.logger.AppLogger
 import su.afk.yummy.tv.core.navigation.root.RootTab
 import su.afk.yummy.tv.feature.main.model.PendingContentFocusRequest
 import su.afk.yummy.tv.feature.main.model.RegisteredContentFocusRequester
 import su.afk.yummy.tv.feature.main.utils.isContentFocusKeyFor
 import su.afk.yummy.tv.feature.main.utils.requestFocusOnFrameBoundary
-
-private const val TAG = "TvMainFocus"
 
 /** Дольше nav-перехода (280 мс): фолбэк на пейн — только после ухода старого экрана */
 private const val PENDING_CONTENT_FOCUS_FALLBACK_DELAY_MILLIS = 400L
@@ -202,11 +199,6 @@ internal fun TvMainFocusEffects(
         // по регистрации preferred requester'а (смена ключа currentPreferredContentFocusRequester).
         if (requestFocusOnFrameBoundary(restoreRequester)) {
             focusController.onContentFocusRestoredAfterMenuShown()
-        } else {
-            AppLogger.w(TAG) {
-                "Восстановление фокуса контента не удалось: root=$selectedRoot, " +
-                        "key=$contentFocusKey, preferred=${currentPreferredContentFocusRequester != null}"
-            }
         }
     }
 
@@ -232,11 +224,6 @@ internal fun TvMainFocusEffects(
             ?: focusController.contentFocusRequester
         if (requestFocusOnFrameBoundary(restoreRequester)) {
             focusController.clearPendingContentFocusRequest(request.token)
-        } else {
-            AppLogger.w(TAG) {
-                "Запрошенный фокус контента не удался: root=$selectedRoot, " +
-                        "key=$contentFocusKey, preferred=${currentPreferredContentFocusRequester != null}"
-            }
         }
     }
 }

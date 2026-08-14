@@ -7,9 +7,9 @@ import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.contentOrNull
-import su.afk.yummy.tv.core.preferences.settings.SettingsStore
+import su.afk.yummy.tv.core.preferences.settings.YaniAccountSettingsStore
 import su.afk.yummy.tv.core.storage.document.DocumentCacheStore
-import su.afk.yummy.tv.core.utils.htmlToPlainText
+import su.afk.yummy.tv.core.utils.formatting.htmlToPlainText
 import su.afk.yummy.tv.data.pages.network.YaniPagesApi
 import su.afk.yummy.tv.domain.pages.model.SitePage
 import su.afk.yummy.tv.domain.pages.model.SitePageType
@@ -19,7 +19,7 @@ import javax.inject.Inject
 class YaniSitePagesRepository @Inject constructor(
     private val api: YaniPagesApi,
     private val cache: DocumentCacheStore,
-    private val settingsStore: SettingsStore,
+    private val settingsStore: YaniAccountSettingsStore,
 ) : SitePagesRepository {
     override suspend fun getPage(type: SitePageType): SitePage {
         val language = settingsStore.yaniContentLanguage.first().apiCode

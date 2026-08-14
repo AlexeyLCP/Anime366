@@ -4,14 +4,14 @@ import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import su.afk.yummy.tv.core.featuretoggle.FeatureToggleInitializer
-import su.afk.yummy.tv.core.featuretoggle.FeatureToggleProvider
-import su.afk.yummy.tv.core.featuretoggle.FeatureToggleUpdateObserver
 import su.afk.yummy.tv.core.featuretoggle.FeatureToggleVersionSupportChecker
-import su.afk.yummy.tv.core.featuretoggle.VarioqubFeatureToggleInitializer
-import su.afk.yummy.tv.core.featuretoggle.VarioqubFeatureToggleProvider
-import su.afk.yummy.tv.core.featuretoggle.VarioqubFeatureToggleState
-import su.afk.yummy.tv.core.featuretoggle.VersionSupportChecker
+import su.afk.yummy.tv.core.featuretoggle.api.FeatureToggleInitializer
+import su.afk.yummy.tv.core.featuretoggle.api.FeatureToggleProvider
+import su.afk.yummy.tv.core.featuretoggle.api.FeatureToggleUpdateObserver
+import su.afk.yummy.tv.core.featuretoggle.api.VersionSupportChecker
+import su.afk.yummy.tv.core.featuretoggle.varioqub.VarioqubFeatureToggleInitializer
+import su.afk.yummy.tv.core.featuretoggle.varioqub.VarioqubFeatureToggleProvider
+import su.afk.yummy.tv.core.featuretoggle.varioqub.VarioqubFeatureToggleState
 import javax.inject.Singleton
 
 @Module

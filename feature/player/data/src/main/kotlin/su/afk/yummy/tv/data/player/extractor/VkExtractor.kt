@@ -2,6 +2,7 @@ package su.afk.yummy.tv.data.player.extractor
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import su.afk.yummy.tv.core.analytics.api.AnalyticsTracker
 import su.afk.yummy.tv.data.player.utils.CHROME_UA
 import su.afk.yummy.tv.domain.player.isVkPlayerUrl
 import su.afk.yummy.tv.domain.player.model.PlayerStreamRequest
@@ -18,6 +19,7 @@ internal data class VkResult(
 
 internal class VkExtractor @Inject constructor(
     private val httpClient: PlayerHttpClient,
+    private val analyticsTracker: AnalyticsTracker,
 ) : PlayerStreamExtractor {
 
     private val DEFAULT_REFERER = "https://vk.com/"
@@ -85,7 +87,7 @@ internal class VkExtractor @Inject constructor(
                 val source = it
                 runCatching { normalizePayload(fetchText(source, normalizedUrl)) }
                     .getOrElse {
-                        logExtractorFailure(
+                        analyticsTracker.logExtractorFailure(
                             "VK",
                             source,
                             "failed to load video_ext page, fallback to iframe",
@@ -98,7 +100,7 @@ internal class VkExtractor @Inject constructor(
             val sourceUrl = videoExtUrl ?: normalizedUrl
             val candidates = collectCandidates(sourceHtml, sourceUrl)
             if (candidates.isEmpty()) {
-                logExtractorFailure("VK", normalizedUrl, "no stream URLs found")
+                analyticsTracker.logExtractorFailure("VK", normalizedUrl, "no stream URLs found")
                 return@withContext null
             }
 
@@ -111,7 +113,12 @@ internal class VkExtractor @Inject constructor(
                 qualities = qualities,
             )
         } catch (e: Exception) {
-            logExtractorFailure("VK", normalizedUrl, "unexpected extractor error", e)
+            analyticsTracker.logExtractorFailure(
+                "VK",
+                normalizedUrl,
+                "unexpected extractor error",
+                e
+            )
             null
         }
     }

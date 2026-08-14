@@ -27,6 +27,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
+import su.afk.yummy.tv.core.analytics.api.AnalyticsTracker
 import su.afk.yummy.tv.data.videodownload.cache.VideoDownloadCacheProvider
 import su.afk.yummy.tv.data.videodownload.notification.VideoDownloadNotificationService
 import su.afk.yummy.tv.data.videodownload.strategy.DownloadPlayerStrategy
@@ -64,6 +65,7 @@ class VideoDownloadWorker @AssistedInject internal constructor(
     private val cacheProvider: VideoDownloadCacheProvider,
     private val notificationService: VideoDownloadNotificationService,
     private val analytics: VideoDownloadAnalytics,
+    private val analyticsTracker: AnalyticsTracker,
 ) : CoroutineWorker(appContext, params) {
     @Volatile
     private var activeDownloader: Downloader? = null
@@ -131,13 +133,13 @@ class VideoDownloadWorker @AssistedInject internal constructor(
                     errorMessage = null,
                 )
                 analytics.reportSucceeded(item)
-                logDownloadInfo { "Completed download id=$id retryUsed=$retriedAfterForbidden" }
+                analyticsTracker.logDownloadInfo { "Completed download id=$id retryUsed=$retriedAfterForbidden" }
                 exportRepository.enqueueAutoExportIfEnabled(id)
                 return Result.success()
             } catch (throwable: Throwable) {
                 if (throwable is CancellationException) throw throwable
                 if (isStopped) {
-                    logDownloadInfo { "Stopped download id=$id retryUsed=$retriedAfterForbidden" }
+                    analyticsTracker.logDownloadInfo { "Stopped download id=$id retryUsed=$retriedAfterForbidden" }
                     return Result.failure()
                 }
                 val details = throwable.downloadFailureDetails()
@@ -146,7 +148,7 @@ class VideoDownloadWorker @AssistedInject internal constructor(
                     throwable.isForbiddenHttpResponse()
                 ) {
                     retriedAfterForbidden = true
-                    logDownloadWarning(throwable) {
+                    analyticsTracker.logDownloadWarning(throwable) {
                         "Download id=$id got 403 from ${strategy.playerLabel}; " +
                                 "refreshing iframe and stream before retry. " +
                                 "details=$details"
@@ -184,7 +186,7 @@ class VideoDownloadWorker @AssistedInject internal constructor(
                 ) {
                     val retryDetails = "$details; retryUsed=true; " +
                             "workRetry=${runAttemptCount.nextRetryAttempt()}/$MAX_STREAM_REFRESH_WORK_RETRIES"
-                    logDownloadWarning(throwable) {
+                    analyticsTracker.logDownloadWarning(throwable) {
                         "Download id=$id will retry because refreshed ${strategy.playerLabel} stream is still forbidden. " +
                                 "details=$retryDetails"
                     }
@@ -201,7 +203,7 @@ class VideoDownloadWorker @AssistedInject internal constructor(
                     throwable.isTransientDownloadFailure()
                 ) {
                     transientRetryCount += 1
-                    logDownloadWarning(throwable) {
+                    analyticsTracker.logDownloadWarning(throwable) {
                         "Download id=$id got transient ${strategy.playerLabel} failure; " +
                                 "refreshing iframe and stream before retry. " +
                                 "attempt=$transientRetryCount/$MAX_TRANSIENT_DOWNLOAD_RETRIES " +
@@ -240,7 +242,7 @@ class VideoDownloadWorker @AssistedInject internal constructor(
                     val retryDetails = "$details; localRetries=$transientRetryCount; " +
                             "workRetry=${runAttemptCount.nextRetryAttempt()}/" +
                             MAX_STREAM_REFRESH_WORK_RETRIES
-                    logDownloadWarning(throwable) {
+                    analyticsTracker.logDownloadWarning(throwable) {
                         "Download id=$id exhausted local ${strategy.playerLabel} retries; scheduling worker retry. " +
                                 "details=$retryDetails"
                     }
@@ -253,7 +255,7 @@ class VideoDownloadWorker @AssistedInject internal constructor(
                 }
 
                 val failedDetails = "$details; retryUsed=$retriedAfterForbidden"
-                logDownloadWarning(throwable) {
+                analyticsTracker.logDownloadWarning(throwable) {
                     "Failed download id=$id details=$failedDetails"
                 }
                 repository.updateStatus(
@@ -284,7 +286,7 @@ class VideoDownloadWorker @AssistedInject internal constructor(
         val failedDetails = "refreshReason=$reason; refreshFailed=$message; " +
                 "workRetry=${runAttemptCount.nextRetryAttempt()}/$MAX_STREAM_REFRESH_WORK_RETRIES"
         if (runAttemptCount < MAX_STREAM_REFRESH_WORK_RETRIES) {
-            logDownloadWarning(throwable) {
+            analyticsTracker.logDownloadWarning(throwable) {
                 "Download id=$id will retry because fresh ${strategy.playerLabel} source is not ready. " +
                         "details=$failedDetails"
             }
@@ -295,7 +297,7 @@ class VideoDownloadWorker @AssistedInject internal constructor(
             )
             return Result.retry()
         }
-        logDownloadWarning(throwable) {
+        analyticsTracker.logDownloadWarning(throwable) {
             "Failed download id=$id details=$failedDetails"
         }
         repository.updateStatus(
@@ -318,7 +320,7 @@ class VideoDownloadWorker @AssistedInject internal constructor(
             status = VideoDownloadStatus.Resolving,
             errorMessage = null,
         )
-        logDownloadInfo {
+        analyticsTracker.logDownloadInfo {
             "Refreshing download source id=$id reason=$reason " +
                     "workAttempt=${runAttemptCount + 1} player=${strategy.playerLabel} " +
                     "iframe=${item.iframeUrl.shortFingerprint()}"
@@ -355,7 +357,7 @@ class VideoDownloadWorker @AssistedInject internal constructor(
                 )
                 val previousIframeFingerprint = item.iframeUrl.shortFingerprint()
                 val refreshedIframeFingerprint = stream.iframeUrl.shortFingerprint()
-                logDownloadInfo {
+                analyticsTracker.logDownloadInfo {
                     "Refreshed download source id=$id reason=$reason player=${stream.playerName} " +
                             "quality=${stream.qualityLabel} iframe=$previousIframeFingerprint->$refreshedIframeFingerprint " +
                             "changed=${previousIframeFingerprint != refreshedIframeFingerprint}"
@@ -393,13 +395,13 @@ class VideoDownloadWorker @AssistedInject internal constructor(
                         )
                     )
                     if (session.expiresAtMs() == expiresAt) {
-                        logDownloadInfo { "Refreshing live ${strategy.playerLabel} session id=$id before TTL expiry" }
+                        analyticsTracker.logDownloadInfo { "Refreshing live ${strategy.playerLabel} session id=$id before TTL expiry" }
                         session.refresh()
                     }
                 }
             }
         }
-        logDownloadInfo {
+        analyticsTracker.logDownloadInfo {
             "Starting download id=$id animeId=${item.animeId} videoId=${item.videoId} " +
                     "player=${item.playerName} quality=${item.qualityLabel} " +
                     "kind=$streamKind throttle=${streamKind.throttleLabel()} " +
@@ -469,7 +471,7 @@ class VideoDownloadWorker @AssistedInject internal constructor(
                 var lastLoggedProgress = -1
                 val downloader = createDownloader(mediaItem, cacheDataSource)
                 activeDownloader = downloader
-                logDownloadDebug {
+                analyticsTracker.logDownloadDebug {
                     "Prepared downloader id=$id kind=$streamKind cacheKeyHash=${item.cacheKey.hashCode()} " +
                             "headers=${downloadHeaders.safeHeaderNames()} retryUsed=$retriedAfterForbidden " +
                             "player=${strategy.playerLabel} liveSessionUsed=${liveSession != null}"
@@ -522,7 +524,7 @@ class VideoDownloadWorker @AssistedInject internal constructor(
                     }
                     if (progressPercent / PROGRESS_LOG_STEP > lastLoggedProgress / PROGRESS_LOG_STEP) {
                         lastLoggedProgress = progressPercent
-                        logDownloadDebug {
+                        analyticsTracker.logDownloadDebug {
                             "Progress id=$id progress=$progressPercent% " +
                                     "bytes=$storedBytesDownloaded total=${storedTotalBytes ?: "unknown"} " +
                                     "retryUsed=$retriedAfterForbidden"

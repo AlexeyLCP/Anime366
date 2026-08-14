@@ -12,13 +12,13 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.BaseViewModelNew
-import su.afk.yummy.tv.core.error.IErrorHandlerUseCase
-import su.afk.yummy.tv.core.error.StringProvider
-import su.afk.yummy.tv.core.error.storage.RetryStorage
+import su.afk.yummy.tv.core.error.api.IErrorHandlerUseCase
+import su.afk.yummy.tv.core.error.api.RetryStorage
+import su.afk.yummy.tv.core.error.api.StringProvider
 import su.afk.yummy.tv.core.model.anime.AnimeRecommendation
 import su.afk.yummy.tv.core.model.anime.AnimeRecommendationVote
-import su.afk.yummy.tv.core.navigation.NavigationManager
-import su.afk.yummy.tv.core.preferences.settings.SettingsStore
+import su.afk.yummy.tv.core.navigation.manager.INavigationManager
+import su.afk.yummy.tv.core.preferences.settings.YaniAccountSettingsStore
 import su.afk.yummy.tv.domain.anime.usecase.GetAnimeRecommendationsUseCase
 import su.afk.yummy.tv.domain.anime.usecase.SetAnimeRecommendationIgnoredUseCase
 import su.afk.yummy.tv.domain.anime.usecase.VoteAnimeRecommendationUseCase
@@ -33,12 +33,12 @@ class SimilarViewModel @AssistedInject internal constructor(
     @Assisted private val animeId: Int,
     override val errorHandler: IErrorHandlerUseCase,
     override val retryStorage: RetryStorage,
-    private val nav: NavigationManager,
+    private val nav: INavigationManager,
     private val detailsNavigator: IDetailsNavigator,
     private val getAnimeRecommendations: GetAnimeRecommendationsUseCase,
     private val setAnimeRecommendationIgnored: SetAnimeRecommendationIgnoredUseCase,
     private val voteAnimeRecommendation: VoteAnimeRecommendationUseCase,
-    private val settingsStore: SettingsStore,
+    private val settingsStore: YaniAccountSettingsStore,
     private val stringProvider: StringProvider,
     private val analytics: DetailsAnalytics,
 ) : BaseViewModelNew<SimilarState.State, SimilarState.Event, SimilarState.Effect>() {

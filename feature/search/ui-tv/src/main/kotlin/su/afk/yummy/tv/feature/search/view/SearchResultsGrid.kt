@@ -31,13 +31,13 @@ import androidx.compose.ui.unit.dp
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.itemKey
 import su.afk.yummy.tv.core.designsystem.presenter.components.RatingBadge
-import su.afk.yummy.tv.core.designsystem.presenter.components.TvTitleCard
-import su.afk.yummy.tv.core.designsystem.presenter.components.loader.TvLoadingFooter
 import su.afk.yummy.tv.core.designsystem.presenter.dimensions.TvCardSpacing
 import su.afk.yummy.tv.core.designsystem.presenter.dimensions.TvScreenPadding
 import su.afk.yummy.tv.core.designsystem.presenter.dimensions.currentTvTitleCardDimensions
 import su.afk.yummy.tv.core.designsystem.presenter.focus.TvFocusedGridBringIntoViewSpec
 import su.afk.yummy.tv.core.designsystem.presenter.focus.tvFocusRestorer
+import su.afk.yummy.tv.core.designsystem.presenter.tv.TvLoadingFooter
+import su.afk.yummy.tv.core.designsystem.presenter.tv.TvTitleCard
 import su.afk.yummy.tv.domain.search.model.SearchItem
 
 @OptIn(ExperimentalFoundationApi::class)

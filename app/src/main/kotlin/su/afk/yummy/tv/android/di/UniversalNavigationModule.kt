@@ -8,9 +8,9 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import dagger.multibindings.IntoSet
 import su.afk.yummy.tv.android.di.UniversalNavigationModule.Companion.provideRootTabs
-import su.afk.yummy.tv.core.navigation.MobileUi
-import su.afk.yummy.tv.core.navigation.NavRegistrar
-import su.afk.yummy.tv.core.navigation.TvUi
+import su.afk.yummy.tv.core.navigation.registrar.MobileUi
+import su.afk.yummy.tv.core.navigation.registrar.NavRegistrar
+import su.afk.yummy.tv.core.navigation.registrar.TvUi
 import su.afk.yummy.tv.core.navigation.root.RootTab
 import su.afk.yummy.tv.feature.account.IAccountNavigator
 import su.afk.yummy.tv.feature.account.navigator.AccountDestination

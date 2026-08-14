@@ -10,12 +10,12 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.BaseViewModelNew
-import su.afk.yummy.tv.core.error.IErrorHandlerUseCase
-import su.afk.yummy.tv.core.error.StringProvider
-import su.afk.yummy.tv.core.error.storage.RetryStorage
-import su.afk.yummy.tv.core.navigation.NavigationManager
-import su.afk.yummy.tv.core.preferences.settings.SettingsStore
-import su.afk.yummy.tv.core.utils.runSuspendCatching
+import su.afk.yummy.tv.core.error.api.IErrorHandlerUseCase
+import su.afk.yummy.tv.core.error.api.RetryStorage
+import su.afk.yummy.tv.core.error.api.StringProvider
+import su.afk.yummy.tv.core.navigation.manager.INavigationManager
+import su.afk.yummy.tv.core.preferences.settings.YaniAccountSettingsStore
+import su.afk.yummy.tv.core.utils.coroutines.runSuspendCatching
 import su.afk.yummy.tv.domain.bloggers.usecase.GetBloggerDetailsUseCase
 import su.afk.yummy.tv.domain.bloggers.usecase.GetBloggerVideosUseCase
 import su.afk.yummy.tv.domain.bloggers.usecase.SetBloggerSubscribedUseCase
@@ -28,13 +28,13 @@ class BloggerDetailsViewModel @AssistedInject constructor(
     @Assisted private val bloggerId: Int,
     override val errorHandler: IErrorHandlerUseCase,
     override val retryStorage: RetryStorage,
-    private val nav: NavigationManager,
+    private val nav: INavigationManager,
     private val navigator: IBloggerVideosNavigator,
     private val getDetails: GetBloggerDetailsUseCase,
     private val getVideos: GetBloggerVideosUseCase,
     private val setSubscribed: SetBloggerSubscribedUseCase,
     private val strings: StringProvider,
-    settingsStore: SettingsStore,
+    settingsStore: YaniAccountSettingsStore,
 ) : BaseViewModelNew<BloggerDetailsState.State, BloggerDetailsState.Event, BloggerDetailsState.Effect>() {
     override fun createInitialState() = BloggerDetailsState.State()
 

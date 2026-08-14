@@ -8,13 +8,13 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.BaseViewModelNew
-import su.afk.yummy.tv.core.error.IErrorHandlerUseCase
-import su.afk.yummy.tv.core.error.StringProvider
-import su.afk.yummy.tv.core.error.storage.RetryStorage
-import su.afk.yummy.tv.core.navigation.NavigationManager
-import su.afk.yummy.tv.core.utils.OffsetPage
-import su.afk.yummy.tv.core.utils.OffsetPagingSource
-import su.afk.yummy.tv.core.utils.runSuspendCatching
+import su.afk.yummy.tv.core.error.api.IErrorHandlerUseCase
+import su.afk.yummy.tv.core.error.api.RetryStorage
+import su.afk.yummy.tv.core.error.api.StringProvider
+import su.afk.yummy.tv.core.navigation.manager.INavigationManager
+import su.afk.yummy.tv.core.utils.coroutines.runSuspendCatching
+import su.afk.yummy.tv.core.utils.paging.OffsetPage
+import su.afk.yummy.tv.core.utils.paging.OffsetPagingSource
 import su.afk.yummy.tv.domain.account.usecase.GetAccountSessionUseCase
 import su.afk.yummy.tv.domain.collection.CollectionMutationNotifier
 import su.afk.yummy.tv.domain.collection.model.CreateCollectionRequest
@@ -30,7 +30,7 @@ private const val COLLECTIONS_PAGE_SIZE = 20
 class CollectionsCatalogViewModel @Inject internal constructor(
     override val errorHandler: IErrorHandlerUseCase,
     override val retryStorage: RetryStorage,
-    private val nav: NavigationManager,
+    private val nav: INavigationManager,
     private val collectionNavigator: ICollectionNavigator,
     private val getCollections: GetCollectionsUseCase,
     private val mutationNotifier: CollectionMutationNotifier,

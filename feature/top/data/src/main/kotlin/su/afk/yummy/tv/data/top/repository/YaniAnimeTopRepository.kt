@@ -4,7 +4,7 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
-import su.afk.yummy.tv.core.preferences.settings.SettingsStore
+import su.afk.yummy.tv.core.preferences.settings.YaniAccountSettingsStore
 import su.afk.yummy.tv.core.storage.top.AnimeTopStore
 import su.afk.yummy.tv.core.storage.top.isFresh
 import su.afk.yummy.tv.data.top.network.YaniAnimeTopApi
@@ -20,7 +20,7 @@ private const val ANIME_TOP_CACHE_RETENTION_MS = 7 * 24 * 60 * 60 * 1000L
 class YaniAnimeTopRepository(
     private val api: YaniAnimeTopApi,
     private val topStore: AnimeTopStore,
-    private val settingsStore: SettingsStore,
+    private val settingsStore: YaniAccountSettingsStore,
 ) : AnimeTopRepository {
 
     override suspend fun getTopAnime(type: AnimeTopType, limit: Int, offset: Int): AnimeTopPage =

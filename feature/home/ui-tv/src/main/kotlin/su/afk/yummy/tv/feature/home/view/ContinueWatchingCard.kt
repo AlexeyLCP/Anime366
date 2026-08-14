@@ -5,10 +5,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import su.afk.yummy.tv.core.designsystem.presenter.components.TvProgressMediaCard
 import su.afk.yummy.tv.core.designsystem.presenter.theme.YummySemanticColors
-import su.afk.yummy.tv.core.utils.KodikThumbnail
-import su.afk.yummy.tv.core.utils.resolveContinueWatchingImageModel
+import su.afk.yummy.tv.core.designsystem.presenter.tv.TvProgressMediaCard
+import su.afk.yummy.tv.core.utils.kodik.KodikThumbnail
+import su.afk.yummy.tv.core.utils.kodik.resolveContinueWatchingImageModel
 import su.afk.yummy.tv.domain.home.model.HomeContinueWatchingItem
 import su.afk.yummy.tv.feature.home.R
 import su.afk.yummy.tv.feature.home.utils.bestUrl

@@ -41,14 +41,14 @@ import androidx.compose.ui.unit.dp
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.itemKey
 import kotlinx.coroutines.launch
-import su.afk.yummy.tv.core.designsystem.presenter.components.TvTitleCard
-import su.afk.yummy.tv.core.designsystem.presenter.components.loader.TvLoadingFooter
 import su.afk.yummy.tv.core.designsystem.presenter.dimensions.TvCardSpacing
 import su.afk.yummy.tv.core.designsystem.presenter.dimensions.TvScreenPadding
 import su.afk.yummy.tv.core.designsystem.presenter.dimensions.currentTvTitleCardDimensions
 import su.afk.yummy.tv.core.designsystem.presenter.focus.TvFocusedGridBringIntoViewSpec
 import su.afk.yummy.tv.core.designsystem.presenter.locals.LocalMainMenuFocusRequester
 import su.afk.yummy.tv.core.designsystem.presenter.theme.YummySemanticColors
+import su.afk.yummy.tv.core.designsystem.presenter.tv.TvLoadingFooter
+import su.afk.yummy.tv.core.designsystem.presenter.tv.TvTitleCard
 import su.afk.yummy.tv.domain.collection.model.CollectionSummary
 import su.afk.yummy.tv.feature.collection.R
 
@@ -78,73 +78,73 @@ internal fun CollectionsCatalogGrid(
         CompositionLocalProvider(
             LocalBringIntoViewSpec provides TvFocusedGridBringIntoViewSpec,
         ) {
-        LazyVerticalGrid(
-            state = gridState,
-            columns = GridCells.Adaptive(minSize = cardWidth),
-            contentPadding = PaddingValues(
-                start = TvScreenPadding.Horizontal,
-                end = TvScreenPadding.Horizontal,
-                top = TvScreenPadding.Vertical,
-                bottom = TvScreenPadding.Vertical,
-            ),
-            verticalArrangement = Arrangement.spacedBy(TvCardSpacing.Vertical),
-            horizontalArrangement = Arrangement.spacedBy(horizontalSpacing),
-            modifier = Modifier
-                .fillMaxSize()
-                .focusGroup(),
-        ) {
-            item(span = { GridItemSpan(maxLineSpan) }) {
-                Text(
-                    text = stringResource(R.string.collection_catalog_tv_title),
-                    style = MaterialTheme.typography.headlineMedium,
-                    color = MaterialTheme.colorScheme.onSurface,
-                )
-            }
-
-            items(
-                count = itemCount,
-                key = pagingItems.itemKey { it.id },
-            ) { index ->
-                val item = pagingItems[index] ?: return@items
-                TvTitleCard(
-                    title = item.title,
-                    posterUrl = item.posterUrl,
-                    onClick = { onCollectionSelected(item.id) },
-                    onFocused = {
-                        onCollectionFocused(item.id)
-                        // Спек BringIntoView не трогает уже видимый ряд (см. фикс дёрганья),
-                        // поэтому верхний ряд карточек сам не подскролливает грид настолько,
-                        // чтобы показать заголовок "Коллекции" над ним — делаем это явно.
-                        if (index < gridColumnCount) {
-                            scope.launch { gridState.scrollToItem(0) }
-                        }
-                    },
-                    modifier = Modifier
-                        .focusRequester(itemFocusRequesters[index])
-                        .onPreviewKeyEvent { event ->
-                            if (event.type != KeyEventType.KeyDown) return@onPreviewKeyEvent false
-                            if (event.key != Key.DirectionLeft) return@onPreviewKeyEvent false
-                            if (index % gridColumnCount != 0) return@onPreviewKeyEvent false
-                            runCatching { mainMenuFocusRequester?.requestFocus() }
-                            mainMenuFocusRequester != null
-                        },
-                    posterOverlay = {
-                        CollectionCatalogLikesBadge(
-                            likesCount = item.likesCount,
-                            modifier = Modifier
-                                .align(Alignment.TopEnd)
-                                .padding(6.dp),
-                        )
-                    },
-                )
-            }
-
-            if (isLoadingMore) {
+            LazyVerticalGrid(
+                state = gridState,
+                columns = GridCells.Adaptive(minSize = cardWidth),
+                contentPadding = PaddingValues(
+                    start = TvScreenPadding.Horizontal,
+                    end = TvScreenPadding.Horizontal,
+                    top = TvScreenPadding.Vertical,
+                    bottom = TvScreenPadding.Vertical,
+                ),
+                verticalArrangement = Arrangement.spacedBy(TvCardSpacing.Vertical),
+                horizontalArrangement = Arrangement.spacedBy(horizontalSpacing),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .focusGroup(),
+            ) {
                 item(span = { GridItemSpan(maxLineSpan) }) {
-                    TvLoadingFooter()
+                    Text(
+                        text = stringResource(R.string.collection_catalog_tv_title),
+                        style = MaterialTheme.typography.headlineMedium,
+                        color = MaterialTheme.colorScheme.onSurface,
+                    )
+                }
+
+                items(
+                    count = itemCount,
+                    key = pagingItems.itemKey { it.id },
+                ) { index ->
+                    val item = pagingItems[index] ?: return@items
+                    TvTitleCard(
+                        title = item.title,
+                        posterUrl = item.posterUrl,
+                        onClick = { onCollectionSelected(item.id) },
+                        onFocused = {
+                            onCollectionFocused(item.id)
+                            // Спек BringIntoView не трогает уже видимый ряд (см. фикс дёрганья),
+                            // поэтому верхний ряд карточек сам не подскролливает грид настолько,
+                            // чтобы показать заголовок "Коллекции" над ним — делаем это явно.
+                            if (index < gridColumnCount) {
+                                scope.launch { gridState.scrollToItem(0) }
+                            }
+                        },
+                        modifier = Modifier
+                            .focusRequester(itemFocusRequesters[index])
+                            .onPreviewKeyEvent { event ->
+                                if (event.type != KeyEventType.KeyDown) return@onPreviewKeyEvent false
+                                if (event.key != Key.DirectionLeft) return@onPreviewKeyEvent false
+                                if (index % gridColumnCount != 0) return@onPreviewKeyEvent false
+                                runCatching { mainMenuFocusRequester?.requestFocus() }
+                                mainMenuFocusRequester != null
+                            },
+                        posterOverlay = {
+                            CollectionCatalogLikesBadge(
+                                likesCount = item.likesCount,
+                                modifier = Modifier
+                                    .align(Alignment.TopEnd)
+                                    .padding(6.dp),
+                            )
+                        },
+                    )
+                }
+
+                if (isLoadingMore) {
+                    item(span = { GridItemSpan(maxLineSpan) }) {
+                        TvLoadingFooter()
+                    }
                 }
             }
-        }
         }
     }
 }

@@ -9,8 +9,3 @@ sealed interface TopBarScroll {
     data object EnterAlways : TopBarScroll
     data object ExitUntilCollapsed : TopBarScroll
 }
-
-
-internal enum class BaseScreenContentState {
-    Loading, Error, Empty, Content,
-}

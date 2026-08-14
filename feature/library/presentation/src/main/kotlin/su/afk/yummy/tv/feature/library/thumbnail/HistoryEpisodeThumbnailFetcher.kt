@@ -5,15 +5,15 @@ import coil3.fetch.FetchResult
 import coil3.fetch.Fetcher
 import coil3.request.Options
 import su.afk.yummy.tv.core.model.anime.kodikThumbnailIframeUrl
-import su.afk.yummy.tv.core.model.anime.utils.episodeGroupKey
-import su.afk.yummy.tv.core.utils.ResolveKodikThumbnailUrlUseCase
+import su.afk.yummy.tv.core.utils.episode.episodeGroupKey
+import su.afk.yummy.tv.core.utils.kodik.ResolveKodikThumbnailUrlUseCase
 import su.afk.yummy.tv.domain.anime.usecase.GetAnimeVideosUseCase
 
 /**
  * Резолвит kodik-превью серии из истории просмотров, у которой нет iframe-урла под рукой:
  * сначала подтягивает список видео аниме (кэш 5 мин в [GetAnimeVideosUseCase]), находит серию по
  * [episodeGroupKey], берёт её kodik iframe-урл и уже его отдаёт [ResolveKodikThumbnailUrlUseCase] —
- * дальше как в [su.afk.yummy.tv.core.utils.KodikThumbnailFetcher].
+ * дальше как в [su.afk.yummy.tv.core.utils.kodik.KodikThumbnailFetcher].
  */
 class HistoryEpisodeThumbnailFetcher(
     private val data: HistoryEpisodeThumbnail,

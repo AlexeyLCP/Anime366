@@ -1,6 +1,6 @@
 package su.afk.yummy.tv.feature.library.utils
 
-import su.afk.yummy.tv.core.utils.formatRelativeDateTime
+import su.afk.yummy.tv.core.utils.formatting.formatRelativeDateTime
 import su.afk.yummy.tv.domain.home.model.HomeContinueWatchingItem
 import su.afk.yummy.tv.domain.library.model.LibraryItem
 import su.afk.yummy.tv.domain.library.model.WatchHistoryEntry

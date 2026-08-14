@@ -20,9 +20,9 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import su.afk.yummy.tv.core.designsystem.presenter.mobile.MobileProgressMediaCard
-import su.afk.yummy.tv.core.utils.KodikThumbnail
-import su.afk.yummy.tv.core.utils.resolveContinueWatchingImageModel
+import su.afk.yummy.tv.core.designsystem.presenter.mobile.cards.MobileProgressMediaCard
+import su.afk.yummy.tv.core.utils.kodik.KodikThumbnail
+import su.afk.yummy.tv.core.utils.kodik.resolveContinueWatchingImageModel
 import su.afk.yummy.tv.domain.home.model.HomeContinueWatchingItem
 import su.afk.yummy.tv.feature.library.mobile.R
 import su.afk.yummy.tv.feature.library.mobile.utils.posterUrl

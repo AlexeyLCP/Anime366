@@ -2,7 +2,7 @@ package su.afk.yummy.tv.feature.account.mobile.view
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import su.afk.yummy.tv.core.designsystem.presenter.mobile.MobileSectionLoading
+import su.afk.yummy.tv.core.designsystem.presenter.mobile.state.MobileSectionLoading
 
 @Composable
 internal fun AccountMobileLoadingIndicator(

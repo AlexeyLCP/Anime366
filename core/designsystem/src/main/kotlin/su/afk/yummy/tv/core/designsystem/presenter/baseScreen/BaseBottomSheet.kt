@@ -1,7 +1,6 @@
 package su.afk.yummy.tv.core.designsystem.presenter.baseScreen
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
@@ -22,18 +21,9 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
-
-private const val MAX_HEIGHT_FRACTION = 0.85f
-
-/** Высота, дальше которой контент bottom sheet не должен растягиваться (95% экрана). */
-@Composable
-fun rememberBottomSheetMaxHeight(): Dp =
-    (LocalConfiguration.current.screenHeightDp * MAX_HEIGHT_FRACTION).dp
 
 /**
  * Гасит остаточный scroll/fling, когда список внутри шторки короче её максимальной высоты и
@@ -94,32 +84,6 @@ fun BaseBottomSheet(
                 )
             }
             content()
-        }
-    }
-}
-
-/**
- * Вариант [BaseBottomSheet] для контента, который сам управляет своим корневым layout'ом
- * (например, [androidx.compose.foundation.lazy.LazyColumn] с собственными insets/contentPadding).
- * [content] получает [maxHeight] сам ограничивает себя через `Modifier.heightIn(max = maxHeight)`.
- */
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun BaseBottomSheetCustom(
-    onDismissRequest: () -> Unit,
-    modifier: Modifier = Modifier,
-    sheetState: SheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
-    content: @Composable (maxHeight: Dp) -> Unit,
-) {
-    val maxHeight = rememberBottomSheetMaxHeight()
-
-    ModalBottomSheet(
-        modifier = modifier,
-        sheetState = sheetState,
-        onDismissRequest = onDismissRequest,
-    ) {
-        Box(modifier = Modifier.nestedScroll(rememberBottomOverscrollGuard())) {
-            content(maxHeight)
         }
     }
 }

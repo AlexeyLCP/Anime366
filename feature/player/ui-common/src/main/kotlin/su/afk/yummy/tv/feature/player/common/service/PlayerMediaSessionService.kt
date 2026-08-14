@@ -26,7 +26,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import su.afk.yummy.tv.core.analytics.api.AnalyticsTracker
-import su.afk.yummy.tv.core.preferences.settings.SettingsStore
+import su.afk.yummy.tv.core.preferences.settings.PlayerSettingsStore
 import su.afk.yummy.tv.domain.player.session.AllohaPlaybackSessionManager
 import su.afk.yummy.tv.feature.player.common.PlayerLoadControlFactory
 import su.afk.yummy.tv.feature.player.common.PlayerLoudnessNormalizer
@@ -42,7 +42,7 @@ class PlayerMediaSessionService : MediaSessionService() {
     internal lateinit var allohaSessionManager: AllohaPlaybackSessionManager
 
     @Inject
-    internal lateinit var settingsStore: SettingsStore
+    internal lateinit var settingsStore: PlayerSettingsStore
 
     @Inject
     internal lateinit var analyticsTracker: AnalyticsTracker

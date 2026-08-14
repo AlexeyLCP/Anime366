@@ -3,7 +3,7 @@ package su.afk.yummy.tv.data.schedule.storage.mapper
 import su.afk.yummy.tv.core.storage.schedule.AnimeScheduleCache
 import su.afk.yummy.tv.core.storage.schedule.AnimeScheduleCacheEntry
 import su.afk.yummy.tv.core.storage.schedule.AnimeScheduleItemEntry
-import su.afk.yummy.tv.core.utils.toHttpsUrl
+import su.afk.yummy.tv.core.utils.network.toHttpsUrl
 import su.afk.yummy.tv.data.schedule.dto.YaniScheduleAnimeDto
 import su.afk.yummy.tv.domain.schedule.model.AnimeScheduleDay
 import su.afk.yummy.tv.domain.schedule.model.AnimeScheduleItem

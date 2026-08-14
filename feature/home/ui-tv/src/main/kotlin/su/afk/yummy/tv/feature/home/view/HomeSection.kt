@@ -38,7 +38,6 @@ import su.afk.yummy.tv.core.designsystem.presenter.dimensions.TvScreenPadding
 import su.afk.yummy.tv.core.designsystem.presenter.focus.requestFocusUntilTimeout
 import su.afk.yummy.tv.core.designsystem.presenter.focus.tvFocusRestorer
 import su.afk.yummy.tv.core.designsystem.presenter.locals.LocalMainMenuFocusRequester
-import su.afk.yummy.tv.core.logger.AppLogger
 import su.afk.yummy.tv.domain.home.model.HomeFeedItem
 import su.afk.yummy.tv.feature.home.utils.focusKey
 
@@ -100,12 +99,7 @@ internal fun HomeSection(
         if (!isVisible) {
             listState.scrollToItem(target)
         }
-        val focused = requestFocusUntilTimeout(focusRequesterForItem(target))
-        if (!focused) {
-            AppLogger.w(TAG) {
-                "requestItemFocus: не удалось сфокусировать карточку row=$rowKey item=$target"
-            }
-        }
+        requestFocusUntilTimeout(focusRequesterForItem(target))
     }
 
     fun rememberFocusedItem(index: Int) {
@@ -275,5 +269,3 @@ internal fun HomeSection(
         }
     }
 }
-
-private const val TAG = "TvHomeFocus"

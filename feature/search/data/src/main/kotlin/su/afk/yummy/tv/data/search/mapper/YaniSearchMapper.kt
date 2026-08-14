@@ -1,6 +1,6 @@
 package su.afk.yummy.tv.data.search.mapper
 
-import su.afk.yummy.tv.core.utils.toHttpsUrl
+import su.afk.yummy.tv.core.utils.network.toHttpsUrl
 import su.afk.yummy.tv.data.search.dto.YaniSearchItemDto
 import su.afk.yummy.tv.domain.search.model.SearchItem
 

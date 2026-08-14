@@ -10,7 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import su.afk.yummy.tv.core.utils.htmlToPlainText
+import su.afk.yummy.tv.core.utils.formatting.htmlToPlainText
 import su.afk.yummy.tv.domain.reviews.model.AnimeReviewSummary
 import su.afk.yummy.tv.domain.reviews.model.ReviewStatus
 import su.afk.yummy.tv.feature.reviews.utils.sanitizeReviewHtml

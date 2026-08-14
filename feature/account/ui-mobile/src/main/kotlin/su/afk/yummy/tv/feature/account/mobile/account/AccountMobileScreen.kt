@@ -24,12 +24,12 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import su.afk.yummy.tv.core.designsystem.presenter.baseScreen.BaseScreen
-import su.afk.yummy.tv.core.designsystem.presenter.mobile.LocalMobileBottomBarUpFocusRequester
-import su.afk.yummy.tv.core.designsystem.presenter.mobile.LocalMobileMainActions
-import su.afk.yummy.tv.core.designsystem.presenter.mobile.MobileBottomBarDefaults
-import su.afk.yummy.tv.core.designsystem.presenter.mobile.MobileMessage
 import su.afk.yummy.tv.core.designsystem.presenter.mobile.MobileSwipeableTabsPager
+import su.afk.yummy.tv.core.designsystem.presenter.mobile.bar.LocalMobileBottomBarUpFocusRequester
+import su.afk.yummy.tv.core.designsystem.presenter.mobile.bar.LocalMobileMainActions
+import su.afk.yummy.tv.core.designsystem.presenter.mobile.bar.MobileBottomBarDefaults
 import su.afk.yummy.tv.core.designsystem.presenter.mobile.rememberMobileSwipeableTabsState
+import su.afk.yummy.tv.core.designsystem.presenter.mobile.state.MobileMessage
 import su.afk.yummy.tv.core.designsystem.presenter.preview.ScreenPreviewTheme
 import su.afk.yummy.tv.feature.account.account.AccountState
 import su.afk.yummy.tv.feature.account.mobile.R

@@ -13,14 +13,14 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.BaseViewModelNew
-import su.afk.yummy.tv.core.error.IErrorHandlerUseCase
-import su.afk.yummy.tv.core.error.StringProvider
-import su.afk.yummy.tv.core.error.storage.RetryStorage
-import su.afk.yummy.tv.core.featuretoggle.FeatureToggleUpdateObserver
-import su.afk.yummy.tv.core.featuretoggle.VersionSupportChecker
-import su.afk.yummy.tv.core.navigation.NavigationManager
+import su.afk.yummy.tv.core.error.api.IErrorHandlerUseCase
+import su.afk.yummy.tv.core.error.api.RetryStorage
+import su.afk.yummy.tv.core.error.api.StringProvider
+import su.afk.yummy.tv.core.featuretoggle.api.FeatureToggleUpdateObserver
+import su.afk.yummy.tv.core.featuretoggle.api.VersionSupportChecker
+import su.afk.yummy.tv.core.navigation.manager.INavigationManager
 import su.afk.yummy.tv.core.preferences.settings.SettingsStore
-import su.afk.yummy.tv.core.update.github.GitHubUpdateChecker
+import su.afk.yummy.tv.core.update.api.UpdateChecker
 import su.afk.yummy.tv.domain.account.mutation.AccountMutationErrorNotifier
 import su.afk.yummy.tv.domain.account.usecase.GetAccountSessionUseCase
 import su.afk.yummy.tv.domain.account.usecase.GetNotificationCountsUseCase
@@ -40,8 +40,8 @@ class MainViewModel @Inject internal constructor(
     override val retryStorage: RetryStorage,
     private val analytics: MainAnalytics,
     private val settingsStore: SettingsStore,
-    private val nav: NavigationManager,
-    private val updateChecker: GitHubUpdateChecker,
+    private val nav: INavigationManager,
+    private val updateChecker: UpdateChecker,
     private val versionSupportChecker: VersionSupportChecker,
     private val featureToggleUpdateObserver: FeatureToggleUpdateObserver,
     private val observeAccountSession: ObserveAccountSessionUseCase,

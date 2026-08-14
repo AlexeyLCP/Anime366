@@ -36,8 +36,8 @@ import su.afk.yummy.tv.core.storage.account.AccountUserReviewsPageCache
 import su.afk.yummy.tv.core.storage.account.AccountVideoSubscriptionCacheEntry
 import su.afk.yummy.tv.core.storage.account.AccountVideoSubscriptionEntry
 import su.afk.yummy.tv.core.storage.account.AccountVideoSubscriptionsCache
-import su.afk.yummy.tv.core.utils.htmlToPlainText
-import su.afk.yummy.tv.core.utils.toHttpsUrl
+import su.afk.yummy.tv.core.utils.formatting.htmlToPlainText
+import su.afk.yummy.tv.core.utils.network.toHttpsUrl
 import su.afk.yummy.tv.data.account.dto.YaniAccountPosterDto
 import su.afk.yummy.tv.data.account.dto.YaniAnimeListStatDto
 import su.afk.yummy.tv.data.account.dto.YaniCollectionSummaryDto

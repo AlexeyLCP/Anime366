@@ -15,7 +15,7 @@ import androidx.compose.material.icons.filled.VideoLibrary
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import su.afk.yummy.tv.core.model.anime.AnimeDetails
-import su.afk.yummy.tv.core.preferences.settings.DetailsButtonAction
+import su.afk.yummy.tv.core.preferences.settings.model.DetailsButtonAction
 import su.afk.yummy.tv.feature.details.details.DetailsState
 import su.afk.yummy.tv.feature.details.mobile.R
 import su.afk.yummy.tv.feature.details.mobile.details.model.MobileDetailsAction

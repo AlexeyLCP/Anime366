@@ -3,7 +3,7 @@ package su.afk.yummy.tv.data.account.repository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
-import su.afk.yummy.tv.core.preferences.settings.SettingsStore
+import su.afk.yummy.tv.core.preferences.settings.YaniAccountSettingsStore
 import su.afk.yummy.tv.core.storage.account.AccountStorageStore
 import su.afk.yummy.tv.data.account.mapper.toFriendshipStatus
 import su.afk.yummy.tv.data.account.mapper.toUserSearchItem
@@ -18,7 +18,7 @@ import su.afk.yummy.tv.domain.account.repository.UserDirectoryRepository
 class YaniUserDirectoryRepository(
     private val api: YaniAccountApi,
     private val storage: AccountStorageStore,
-    private val settingsStore: SettingsStore,
+    private val settingsStore: YaniAccountSettingsStore,
 ) : UserDirectoryRepository {
     override suspend fun search(query: String, limit: Int, offset: Int): List<UserSearchItem> =
         withContext(Dispatchers.IO) {

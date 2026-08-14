@@ -28,7 +28,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.unit.dp
 import su.afk.yummy.tv.core.designsystem.presenter.components.GlobalToastOverlay
-import su.afk.yummy.tv.core.designsystem.presenter.mobile.LocalMobileBottomBarUpFocusRequester
+import su.afk.yummy.tv.core.designsystem.presenter.mobile.bar.LocalMobileBottomBarUpFocusRequester
 import su.afk.yummy.tv.feature.main.mobile.model.MobileMenuItem
 
 @Composable

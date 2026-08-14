@@ -38,14 +38,14 @@ import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
-import su.afk.yummy.tv.core.designsystem.presenter.components.TvChip
-import su.afk.yummy.tv.core.designsystem.presenter.components.loader.TvLoadingFooter
-import su.afk.yummy.tv.core.designsystem.presenter.components.loader.TvLoadingScreen
 import su.afk.yummy.tv.core.designsystem.presenter.dimensions.TvScreenPadding
 import su.afk.yummy.tv.core.designsystem.presenter.focus.requestFocusUntilTimeout
 import su.afk.yummy.tv.core.designsystem.presenter.locals.LocalMainMenuFocusRequester
 import su.afk.yummy.tv.core.designsystem.presenter.locals.LocalPreferredContentFocusRequester
 import su.afk.yummy.tv.core.designsystem.presenter.tv.TvAppendErrorFooter
+import su.afk.yummy.tv.core.designsystem.presenter.tv.TvChip
+import su.afk.yummy.tv.core.designsystem.presenter.tv.TvLoadingFooter
+import su.afk.yummy.tv.core.designsystem.presenter.tv.TvLoadingScreen
 import su.afk.yummy.tv.core.designsystem.presenter.tv.TvStateMessage
 import su.afk.yummy.tv.domain.posts.model.PostSort
 import su.afk.yummy.tv.feature.posts.tv.R

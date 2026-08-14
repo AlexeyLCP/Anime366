@@ -20,7 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.itemKey
-import su.afk.yummy.tv.core.designsystem.presenter.mobile.MobileAppendError
+import su.afk.yummy.tv.core.designsystem.presenter.mobile.state.MobileAppendError
 import su.afk.yummy.tv.feature.comments.CommentsState
 import su.afk.yummy.tv.feature.comments.mobile.R
 import su.afk.yummy.tv.feature.comments.mobile.utils.resolve

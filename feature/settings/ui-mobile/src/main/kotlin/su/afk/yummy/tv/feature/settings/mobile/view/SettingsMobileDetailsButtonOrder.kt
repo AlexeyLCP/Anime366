@@ -19,7 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import su.afk.yummy.tv.core.preferences.settings.DetailsButtonAction
+import su.afk.yummy.tv.core.preferences.settings.model.DetailsButtonAction
 import su.afk.yummy.tv.feature.settings.mobile.R
 import su.afk.yummy.tv.feature.settings.mobile.utils.toDetailsButtonOrderItems
 import su.afk.yummy.tv.feature.settings.model.DetailsButtonMoveDirection

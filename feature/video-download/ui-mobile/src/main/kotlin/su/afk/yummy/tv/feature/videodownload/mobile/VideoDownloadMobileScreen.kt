@@ -26,10 +26,10 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import su.afk.yummy.tv.core.designsystem.presenter.baseScreen.BaseScreen
-import su.afk.yummy.tv.core.designsystem.presenter.mobile.MobileMessage
-import su.afk.yummy.tv.core.designsystem.presenter.mobile.MobileTopBar
 import su.afk.yummy.tv.core.designsystem.presenter.mobile.NotificationPermissionGateHost
+import su.afk.yummy.tv.core.designsystem.presenter.mobile.bar.MobileTopBar
 import su.afk.yummy.tv.core.designsystem.presenter.mobile.rememberNotificationPermissionGate
+import su.afk.yummy.tv.core.designsystem.presenter.mobile.state.MobileMessage
 import su.afk.yummy.tv.core.designsystem.presenter.preview.ScreenPreviewTheme
 import su.afk.yummy.tv.feature.videodownload.VideoDownloadState
 import su.afk.yummy.tv.feature.videodownload.mobile.utils.formatDiskSize

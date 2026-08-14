@@ -2,8 +2,8 @@ package su.afk.yummy.tv.feature.player.utils
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
-import su.afk.yummy.tv.core.preferences.settings.PlayerResizeMode
-import su.afk.yummy.tv.core.preferences.settings.PlayerZoomLevel
+import su.afk.yummy.tv.core.preferences.settings.model.PlayerResizeMode
+import su.afk.yummy.tv.core.preferences.settings.model.PlayerZoomLevel
 import su.afk.yummy.tv.feature.player.common.utils.playerContentScale
 import su.afk.yummy.tv.feature.player.presentation.R
 

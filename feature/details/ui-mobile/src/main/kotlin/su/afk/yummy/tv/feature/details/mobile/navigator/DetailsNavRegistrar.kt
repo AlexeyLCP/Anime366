@@ -4,9 +4,9 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.ScreenNavigator
-import su.afk.yummy.tv.core.navigation.NavRegistrar
-import su.afk.yummy.tv.core.navigation.NavigationManager
-import su.afk.yummy.tv.core.navigation.bottomOverlay
+import su.afk.yummy.tv.core.navigation.manager.INavigationManager
+import su.afk.yummy.tv.core.navigation.registrar.NavRegistrar
+import su.afk.yummy.tv.core.navigation.scene.bottomOverlay
 import su.afk.yummy.tv.feature.details.collections.CollectionsViewModel
 import su.afk.yummy.tv.feature.details.details.DetailsViewModel
 import su.afk.yummy.tv.feature.details.episodes.EpisodesViewModel
@@ -46,7 +46,7 @@ import su.afk.yummy.tv.feature.details.viewingorder.ViewingOrderViewModel
 import javax.inject.Inject
 
 class DetailsNavRegistrar @Inject constructor() : NavRegistrar {
-    override fun register(builder: EntryProviderScope<NavKey>, nav: NavigationManager) =
+    override fun register(builder: EntryProviderScope<NavKey>, nav: INavigationManager) =
         with(builder) {
             entry<DetailsDestination> { dest ->
                 val viewModel = hiltViewModel<DetailsViewModel, DetailsViewModel.Factory>(

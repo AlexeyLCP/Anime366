@@ -19,9 +19,9 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import su.afk.yummy.tv.core.designsystem.presenter.baseScreen.BaseScreen
-import su.afk.yummy.tv.core.designsystem.presenter.mobile.MobileTopBar
+import su.afk.yummy.tv.core.designsystem.presenter.mobile.bar.MobileTopBar
 import su.afk.yummy.tv.core.designsystem.presenter.preview.ScreenPreviewTheme
-import su.afk.yummy.tv.core.utils.openExternalUri
+import su.afk.yummy.tv.core.utils.system.openExternalUri
 import su.afk.yummy.tv.feature.faq.mobile.model.FaqState
 import su.afk.yummy.tv.feature.faq.mobile.view.FaqExpandableItem
 import su.afk.yummy.tv.feature.faq.mobile.view.FaqFeedbackButton

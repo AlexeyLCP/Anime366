@@ -8,11 +8,11 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.BaseViewModelNew
-import su.afk.yummy.tv.core.error.IErrorHandlerUseCase
-import su.afk.yummy.tv.core.error.StringProvider
-import su.afk.yummy.tv.core.error.storage.RetryStorage
-import su.afk.yummy.tv.core.navigation.NavigationManager
-import su.afk.yummy.tv.core.preferences.settings.SettingsStore
+import su.afk.yummy.tv.core.error.api.IErrorHandlerUseCase
+import su.afk.yummy.tv.core.error.api.RetryStorage
+import su.afk.yummy.tv.core.error.api.StringProvider
+import su.afk.yummy.tv.core.navigation.manager.INavigationManager
+import su.afk.yummy.tv.core.preferences.settings.YaniAccountSettingsStore
 import su.afk.yummy.tv.domain.comments.model.CommentTargetType
 import su.afk.yummy.tv.domain.reviews.model.ReviewVote
 import su.afk.yummy.tv.domain.reviews.usecase.DeleteReviewUseCase
@@ -28,7 +28,7 @@ class ReviewDetailsViewModel @AssistedInject constructor(
     @Assisted private val reviewId: Int,
     override val errorHandler: IErrorHandlerUseCase,
     override val retryStorage: RetryStorage,
-    private val nav: NavigationManager,
+    private val nav: INavigationManager,
     private val accountNavigator: IAccountNavigator,
     private val commentsNavigator: ICommentsNavigator,
     private val detailsNavigator: IDetailsNavigator,
@@ -36,7 +36,7 @@ class ReviewDetailsViewModel @AssistedInject constructor(
     private val voteReview: VoteReviewUseCase,
     private val deleteReview: DeleteReviewUseCase,
     private val strings: StringProvider,
-    settingsStore: SettingsStore,
+    settingsStore: YaniAccountSettingsStore,
 ) : BaseViewModelNew<ReviewDetailsState.State, ReviewDetailsState.Event, ReviewDetailsState.Effect>() {
     @AssistedFactory
     interface Factory {

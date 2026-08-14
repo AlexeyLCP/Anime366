@@ -4,8 +4,8 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import su.afk.yummy.tv.core.network.YaniHttpClientProvider
-import su.afk.yummy.tv.core.preferences.settings.SettingsStore
+import su.afk.yummy.tv.core.network.yani.YaniHttpClientProvider
+import su.afk.yummy.tv.core.preferences.settings.YaniAccountSettingsStore
 import su.afk.yummy.tv.core.storage.schedule.AnimeScheduleStore
 import su.afk.yummy.tv.data.schedule.network.YaniScheduleApi
 import su.afk.yummy.tv.data.schedule.repository.YaniScheduleRepository
@@ -25,7 +25,7 @@ object ScheduleDataModule {
     fun provideScheduleRepository(
         api: YaniScheduleApi,
         scheduleStore: AnimeScheduleStore,
-        settingsStore: SettingsStore,
+        settingsStore: YaniAccountSettingsStore,
     ): AnimeScheduleRepository =
         YaniScheduleRepository(api, scheduleStore, settingsStore)
 }

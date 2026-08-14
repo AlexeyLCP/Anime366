@@ -1,7 +1,8 @@
 package su.afk.yummy.tv.core.featuretoggle
 
 import androidx.lifecycle.LifecycleOwner
-import su.afk.yummy.tv.core.utils.ProcessLifecycleCoordinator
+import su.afk.yummy.tv.core.featuretoggle.api.FeatureToggleInitializer
+import su.afk.yummy.tv.core.utils.system.ProcessLifecycleCoordinator
 import javax.inject.Inject
 import javax.inject.Singleton
 

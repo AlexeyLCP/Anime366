@@ -14,10 +14,10 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.okhttp.OkHttp
 import okhttp3.OkHttpClient
-import su.afk.yummy.tv.core.preferences.settings.SettingsStore
-import su.afk.yummy.tv.core.utils.KodikThumbnailFetcher
-import su.afk.yummy.tv.core.utils.KodikThumbnailKeyer
-import su.afk.yummy.tv.core.utils.ResolveKodikThumbnailUrlUseCase
+import su.afk.yummy.tv.core.preferences.settings.CacheSettingsStore
+import su.afk.yummy.tv.core.utils.kodik.KodikThumbnailFetcher
+import su.afk.yummy.tv.core.utils.kodik.KodikThumbnailKeyer
+import su.afk.yummy.tv.core.utils.kodik.ResolveKodikThumbnailUrlUseCase
 import su.afk.yummy.tv.domain.anime.usecase.GetAnimeVideosUseCase
 import su.afk.yummy.tv.feature.library.thumbnail.HistoryEpisodeThumbnailFetcher
 import su.afk.yummy.tv.feature.library.thumbnail.HistoryEpisodeThumbnailKeyer
@@ -33,7 +33,7 @@ import javax.inject.Singleton
 class CoilImageLoaderInstaller @Inject constructor(
     @param:ApplicationContext private val context: Context,
     private val okHttpClient: OkHttpClient,
-    private val settingsStore: SettingsStore,
+    private val settingsStore: CacheSettingsStore,
     private val resolveKodikThumbnailUrl: ResolveKodikThumbnailUrlUseCase,
     private val getAnimeVideos: GetAnimeVideosUseCase,
 ) {

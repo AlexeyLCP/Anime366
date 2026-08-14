@@ -3,8 +3,8 @@ package su.afk.yummy.tv.data.top.network
 import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
-import su.afk.yummy.tv.core.network.YANI_BASE_URL
-import su.afk.yummy.tv.core.network.YaniHttpClientProvider
+import su.afk.yummy.tv.core.network.yani.YANI_BASE_URL
+import su.afk.yummy.tv.core.network.yani.YaniHttpClientProvider
 import su.afk.yummy.tv.data.top.dto.YaniAnimeTopListDto
 import su.afk.yummy.tv.domain.top.model.AnimeTopType
 

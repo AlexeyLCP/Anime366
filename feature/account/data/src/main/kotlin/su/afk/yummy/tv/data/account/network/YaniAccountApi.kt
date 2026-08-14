@@ -20,10 +20,10 @@ import io.ktor.http.isSuccess
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.booleanOrNull
 import kotlinx.serialization.json.buildJsonObject
-import su.afk.yummy.tv.core.logger.AppLogger
-import su.afk.yummy.tv.core.network.YANI_BASE_URL
-import su.afk.yummy.tv.core.network.YaniApiJson
-import su.afk.yummy.tv.core.network.YaniHttpClientProvider
+import su.afk.yummy.tv.core.analytics.api.AnalyticsTracker
+import su.afk.yummy.tv.core.network.yani.YANI_BASE_URL
+import su.afk.yummy.tv.core.network.yani.YaniApiJson
+import su.afk.yummy.tv.core.network.yani.YaniHttpClientProvider
 import su.afk.yummy.tv.data.account.dto.YaniAnimeListStatDto
 import su.afk.yummy.tv.data.account.dto.YaniAnimeListStateDto
 import su.afk.yummy.tv.data.account.dto.YaniAnimeListStateResponseDto
@@ -82,6 +82,7 @@ class YaniAccountException(message: String, val code: Int? = null) : RuntimeExce
 
 class YaniAccountApi(
     private val clientProvider: YaniHttpClientProvider,
+    private val analyticsTracker: AnalyticsTracker,
 ) {
 
     suspend fun unlinkAccount(provider: LinkedAccountProvider): Boolean {
@@ -94,7 +95,7 @@ class YaniAccountApi(
 
     suspend fun login(login: String, password: String, captchaResponse: String? = null): String {
         val response = try {
-            AppLogger.d(TAG) { "POST /profile/login" }
+            analyticsTracker.log(TAG) { "POST /profile/login" }
             clientProvider.get().post("$YANI_BASE_URL/profile/login") {
                 contentType(ContentType.Application.Json)
                 setBody(
@@ -106,11 +107,11 @@ class YaniAccountApi(
                 )
             }
         } catch (e: ClientRequestException) {
-            AppLogger.d(TAG) { "POST /profile/login failed status=${e.response.status.value}" }
+            analyticsTracker.log(TAG) { "POST /profile/login failed status=${e.response.status.value}" }
             if (e.response.status.value == CAPTCHA_ERROR_CODE) throw YaniCaptchaRequiredException()
             throw e
         }
-        AppLogger.d(TAG) { "POST /profile/login status=${response.status.value}" }
+        analyticsTracker.log(TAG) { "POST /profile/login status=${response.status.value}" }
 
         if (!response.status.isSuccess()) {
             val error = response.toYaniError()
@@ -132,7 +133,7 @@ class YaniAccountApi(
 
     suspend fun register(body: YaniRegistrationBodyDto) {
         val response = try {
-            AppLogger.d(TAG) { "POST /users" }
+            analyticsTracker.log(TAG) { "POST /users" }
             clientProvider.get().post("$YANI_BASE_URL/users") {
                 contentType(ContentType.Application.Json)
                 setBody(body)
@@ -149,7 +150,7 @@ class YaniAccountApi(
     }
 
     suspend fun verifyRegistration(hash: String): String {
-        AppLogger.d(TAG) { "POST /users/registration-verify" }
+        analyticsTracker.log(TAG) { "POST /users/registration-verify" }
         val result = clientProvider.get().post("$YANI_BASE_URL/users/registration-verify") {
             contentType(ContentType.Application.Json)
             setBody(YaniRegistrationVerifyBodyDto(hash = hash))
@@ -172,7 +173,7 @@ class YaniAccountApi(
         }.body<YaniProfileResponseDto>().response
 
     suspend fun updateOnline(deviceHash: String) {
-        AppLogger.d(TAG) { "POST /profile/online" }
+        analyticsTracker.log(TAG) { "POST /profile/online" }
         val result = clientProvider.get().post("$YANI_BASE_URL/profile/online") {
             contentType(ContentType.Application.Json)
             setBody(YaniOnlineBodyDto(hash = deviceHash))

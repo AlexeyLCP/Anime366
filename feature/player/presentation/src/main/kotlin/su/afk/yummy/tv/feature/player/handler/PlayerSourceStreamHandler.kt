@@ -6,8 +6,8 @@ import su.afk.yummy.tv.domain.player.usecase.GetPlayerSourceGraphUseCase
 import su.afk.yummy.tv.feature.player.PlayerAnalytics
 import su.afk.yummy.tv.feature.player.PlayerSourceGraph
 import su.afk.yummy.tv.feature.player.PlayerState
+import su.afk.yummy.tv.feature.player.mapper.toPresentationSourceGraph
 import su.afk.yummy.tv.feature.player.utils.activeIframeUrl
-import su.afk.yummy.tv.feature.player.utils.toPresentationSourceGraph
 import su.afk.yummy.tv.feature.player.utils.toSourceRequest
 import javax.inject.Inject
 

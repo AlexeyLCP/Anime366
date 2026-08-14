@@ -15,10 +15,10 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import su.afk.yummy.tv.core.designsystem.presenter.baseScreen.BaseScreen
-import su.afk.yummy.tv.core.designsystem.presenter.mobile.MobileSectionLoading
 import su.afk.yummy.tv.core.designsystem.presenter.mobile.MobileSwipeableTabsPager
-import su.afk.yummy.tv.core.designsystem.presenter.mobile.MobileTopBar
+import su.afk.yummy.tv.core.designsystem.presenter.mobile.bar.MobileTopBar
 import su.afk.yummy.tv.core.designsystem.presenter.mobile.rememberMobileSwipeableTabsState
+import su.afk.yummy.tv.core.designsystem.presenter.mobile.state.MobileSectionLoading
 import su.afk.yummy.tv.core.designsystem.presenter.preview.ScreenPreviewTheme
 import su.afk.yummy.tv.feature.account.mobile.R
 import su.afk.yummy.tv.feature.account.mobile.userprofile.view.UserProfileHeader

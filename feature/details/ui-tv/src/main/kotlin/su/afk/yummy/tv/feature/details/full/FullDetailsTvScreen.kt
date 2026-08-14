@@ -9,8 +9,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
-import su.afk.yummy.tv.core.designsystem.presenter.components.loader.TvLoadingScreen
 import su.afk.yummy.tv.core.designsystem.presenter.preview.ScreenPreviewTheme
+import su.afk.yummy.tv.core.designsystem.presenter.tv.TvLoadingScreen
 import su.afk.yummy.tv.feature.details.full.view.FullDetailsBody
 import su.afk.yummy.tv.feature.details.view.common.DetailsError
 
@@ -80,6 +80,7 @@ fun FullDetailsTvScreen(
                 },
                 onDirectorSelected = { onEvent(FullDetailsState.Event.DirectorSelected(it)) },
             )
+
             else -> DetailsError(
                 message = error.orEmpty(),
                 onRetry = { onEvent(FullDetailsState.Event.RetrySelected) },

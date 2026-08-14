@@ -39,8 +39,8 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import su.afk.yummy.tv.core.designsystem.presenter.focus.tvFocusableClick
 import su.afk.yummy.tv.core.designsystem.presenter.theme.YummySemanticColors
-import su.afk.yummy.tv.core.utils.htmlToPlainText
-import su.afk.yummy.tv.core.utils.toCompactCount
+import su.afk.yummy.tv.core.utils.formatting.htmlToPlainText
+import su.afk.yummy.tv.core.utils.formatting.toCompactCount
 import su.afk.yummy.tv.domain.reviews.model.AnimeReviewSummary
 import su.afk.yummy.tv.domain.reviews.model.ReviewReactions
 import su.afk.yummy.tv.domain.reviews.model.ReviewStatus

@@ -1,9 +1,11 @@
 package su.afk.yummy.tv.core.preferences.interface_mode
 
 import android.content.Context
+import dagger.hilt.android.qualifiers.ApplicationContext
+import javax.inject.Inject
 
-internal class SharedPreferencesAppInterfaceModePreferences(
-    context: Context,
+internal class SharedPreferencesAppInterfaceModePreferences @Inject constructor(
+    @ApplicationContext context: Context,
 ) : AppInterfaceModePreferences {
 
     private val preferences = context.getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE)

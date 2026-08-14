@@ -14,8 +14,8 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import su.afk.yummy.tv.core.designsystem.presenter.components.TvTitleCard
 import su.afk.yummy.tv.core.designsystem.presenter.dimensions.currentTvTitleCardDimensions
+import su.afk.yummy.tv.core.designsystem.presenter.tv.TvTitleCard
 
 @Composable
 internal fun LibraryAnimeCard(

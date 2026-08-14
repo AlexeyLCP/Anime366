@@ -3,8 +3,10 @@ package su.afk.yummy.tv.core.error
 import io.ktor.client.plugins.ResponseException
 import kotlinx.coroutines.CancellationException
 import su.afk.yummy.tv.core.analytics.api.coroutine.ErrorCoroutineAnalytics
+import su.afk.yummy.tv.core.error.api.IErrorHandlerUseCase
+import su.afk.yummy.tv.core.error.api.StringProvider
 import su.afk.yummy.tv.core.model.ErrorItem
-import su.afk.yummy.tv.core.navigation.NavigationManager
+import su.afk.yummy.tv.core.navigation.manager.INavigationManager
 import su.afk.yummy.tv.feature.commonscreen.navigator.IErrorNavigator
 import java.io.IOException
 import java.net.SocketTimeoutException
@@ -14,7 +16,7 @@ import javax.inject.Inject
 internal class ErrorHandlerUseCaseImpl @Inject constructor(
     private val strings: StringProvider,
     private val errorNavigator: IErrorNavigator,
-    private val navigationManager: NavigationManager,
+    private val navigationManager: INavigationManager,
     private val errorCoroutineAnalytics: ErrorCoroutineAnalytics,
 ) : IErrorHandlerUseCase {
 

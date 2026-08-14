@@ -9,12 +9,12 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.BaseViewModelNew
-import su.afk.yummy.tv.core.error.IErrorHandlerUseCase
-import su.afk.yummy.tv.core.error.StringProvider
-import su.afk.yummy.tv.core.error.storage.RetryStorage
-import su.afk.yummy.tv.core.navigation.NavigationManager
+import su.afk.yummy.tv.core.error.api.IErrorHandlerUseCase
+import su.afk.yummy.tv.core.error.api.RetryStorage
+import su.afk.yummy.tv.core.error.api.StringProvider
+import su.afk.yummy.tv.core.navigation.manager.INavigationManager
 import su.afk.yummy.tv.core.preferences.settings.SettingsStore
-import su.afk.yummy.tv.core.utils.pagingFlow
+import su.afk.yummy.tv.core.utils.paging.pagingFlow
 import su.afk.yummy.tv.domain.home.model.HomeContinueWatchingItem
 import su.afk.yummy.tv.domain.home.usecase.GetCachedHomeFeedUseCase
 import su.afk.yummy.tv.domain.home.usecase.ObserveContinueWatchingUseCase
@@ -50,7 +50,7 @@ class LibraryViewModel @Inject internal constructor(
     private val getCachedHomeFeed: GetCachedHomeFeedUseCase,
     private val observeContinueWatching: ObserveContinueWatchingUseCase,
     private val removeCachedContinueWatching: RemoveCachedContinueWatchingUseCase,
-    private val nav: NavigationManager,
+    private val nav: INavigationManager,
     private val detailsNavigator: IDetailsNavigator,
     private val remoteLibrarySyncHandler: RemoteLibrarySyncHandler,
     private val resolveContinueWatchingLaunch: ResolveContinueWatchingLaunchUseCase,

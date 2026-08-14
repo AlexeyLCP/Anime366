@@ -1,8 +1,8 @@
 package su.afk.yummy.tv.data.videodownload.worker.utils
 
-import su.afk.yummy.tv.core.utils.httpOriginOrNull
-import su.afk.yummy.tv.core.utils.normalizedHttpUrl
-import su.afk.yummy.tv.core.utils.safeHttpHeaderNames
+import su.afk.yummy.tv.core.utils.network.httpOriginOrNull
+import su.afk.yummy.tv.core.utils.network.normalizedHttpUrl
+import su.afk.yummy.tv.core.utils.network.safeHttpHeaderNames
 
 internal const val USER_AGENT_HEADER = "User-Agent"
 

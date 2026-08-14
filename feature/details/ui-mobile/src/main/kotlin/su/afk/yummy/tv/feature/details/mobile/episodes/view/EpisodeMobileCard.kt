@@ -33,7 +33,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import su.afk.yummy.tv.core.designsystem.presenter.theme.YummySemanticColors
 import su.afk.yummy.tv.core.model.anime.AnimeVideo
-import su.afk.yummy.tv.core.utils.KodikThumbnail
+import su.afk.yummy.tv.core.utils.kodik.KodikThumbnail
 import su.afk.yummy.tv.feature.details.episodes.EpisodesState
 import su.afk.yummy.tv.feature.details.mobile.R
 import su.afk.yummy.tv.feature.details.mobile.episodes.model.EpisodeMobileWatchStatus

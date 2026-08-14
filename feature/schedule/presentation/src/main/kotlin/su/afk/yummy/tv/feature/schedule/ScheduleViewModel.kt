@@ -4,13 +4,13 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.launch
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.BaseViewModelNew
-import su.afk.yummy.tv.core.error.IErrorHandlerUseCase
-import su.afk.yummy.tv.core.error.storage.RetryStorage
-import su.afk.yummy.tv.core.navigation.NavigationManager
+import su.afk.yummy.tv.core.error.api.IErrorHandlerUseCase
+import su.afk.yummy.tv.core.error.api.RetryStorage
+import su.afk.yummy.tv.core.navigation.manager.INavigationManager
 import su.afk.yummy.tv.domain.schedule.usecase.GetAnimeScheduleUseCase
 import su.afk.yummy.tv.feature.details.IDetailsNavigator
-import su.afk.yummy.tv.feature.schedule.utils.toTimelineUi
-import su.afk.yummy.tv.feature.schedule.utils.withSelectedDay
+import su.afk.yummy.tv.feature.schedule.mapper.toTimelineUi
+import su.afk.yummy.tv.feature.schedule.mapper.withSelectedDay
 import javax.inject.Inject
 
 @HiltViewModel
@@ -18,7 +18,7 @@ class ScheduleViewModel @Inject internal constructor(
     override val errorHandler: IErrorHandlerUseCase,
     override val retryStorage: RetryStorage,
     private val getSchedule: GetAnimeScheduleUseCase,
-    private val nav: NavigationManager,
+    private val nav: INavigationManager,
     private val detailsNavigator: IDetailsNavigator,
     private val analytics: ScheduleAnalytics,
 ) : BaseViewModelNew<ScheduleState.State, ScheduleState.Event, ScheduleState.Effect>() {

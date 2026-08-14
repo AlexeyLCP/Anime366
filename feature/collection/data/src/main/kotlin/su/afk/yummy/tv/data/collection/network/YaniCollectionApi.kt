@@ -10,8 +10,8 @@ import io.ktor.client.request.put
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
-import su.afk.yummy.tv.core.network.YANI_BASE_URL
-import su.afk.yummy.tv.core.network.YaniHttpClientProvider
+import su.afk.yummy.tv.core.network.yani.YANI_BASE_URL
+import su.afk.yummy.tv.core.network.yani.YaniHttpClientProvider
 import su.afk.yummy.tv.data.collection.dto.YaniCollectionDetailResponseDto
 import su.afk.yummy.tv.data.collection.dto.YaniCollectionListResponseDto
 import su.afk.yummy.tv.data.collection.dto.YaniCollectionMutationResponseDto

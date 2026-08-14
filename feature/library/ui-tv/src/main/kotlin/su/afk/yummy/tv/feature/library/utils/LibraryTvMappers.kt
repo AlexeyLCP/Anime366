@@ -3,7 +3,7 @@ package su.afk.yummy.tv.feature.library.utils
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
-import su.afk.yummy.tv.core.preferences.settings.PosterQuality
+import su.afk.yummy.tv.core.model.settings.PosterQuality
 import su.afk.yummy.tv.domain.home.model.HomeContinueWatchingItem
 import su.afk.yummy.tv.domain.home.model.HomePoster
 import su.afk.yummy.tv.domain.library.model.LibraryItem

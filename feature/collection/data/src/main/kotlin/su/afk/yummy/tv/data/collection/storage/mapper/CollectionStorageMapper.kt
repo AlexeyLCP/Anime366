@@ -6,7 +6,7 @@ import su.afk.yummy.tv.core.storage.collection.CollectionCatalogPageCache
 import su.afk.yummy.tv.core.storage.collection.CollectionCatalogPageEntry
 import su.afk.yummy.tv.core.storage.collection.CollectionDetailCache
 import su.afk.yummy.tv.core.storage.collection.CollectionDetailEntry
-import su.afk.yummy.tv.core.utils.toHttpsUrl
+import su.afk.yummy.tv.core.utils.network.toHttpsUrl
 import su.afk.yummy.tv.data.collection.dto.YaniCollectionDetailDto
 import su.afk.yummy.tv.data.collection.dto.YaniCollectionPosterDto
 import su.afk.yummy.tv.domain.collection.model.CollectionAnimeItem

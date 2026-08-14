@@ -9,7 +9,7 @@ import su.afk.yummy.tv.core.model.anime.AnimeRating
 import su.afk.yummy.tv.core.model.anime.AnimeScreenshot
 import su.afk.yummy.tv.core.model.anime.AnimeStudio
 import su.afk.yummy.tv.core.model.anime.AnimeViewingOrderItem
-import su.afk.yummy.tv.core.utils.toHttpsUrl
+import su.afk.yummy.tv.core.utils.network.toHttpsUrl
 import su.afk.yummy.tv.data.details.dto.YaniAgeRatingDto
 import su.afk.yummy.tv.data.details.dto.YaniAnimeDetailsDto
 import su.afk.yummy.tv.data.details.dto.YaniAnimePosterDto

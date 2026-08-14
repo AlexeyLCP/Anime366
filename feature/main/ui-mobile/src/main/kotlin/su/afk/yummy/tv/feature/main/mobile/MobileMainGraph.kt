@@ -33,17 +33,17 @@ import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.ScreenNavigator
 import su.afk.yummy.tv.core.designsystem.presenter.locals.LocalPosterCardSize
 import su.afk.yummy.tv.core.designsystem.presenter.locals.LocalPosterQuality
 import su.afk.yummy.tv.core.designsystem.presenter.locals.LocalResolveKodikThumbnailUrl
-import su.afk.yummy.tv.core.designsystem.presenter.mobile.LocalMobileBottomBarUpFocusRequester
-import su.afk.yummy.tv.core.designsystem.presenter.mobile.LocalMobileMainActions
-import su.afk.yummy.tv.core.designsystem.presenter.mobile.MobileMainActions
+import su.afk.yummy.tv.core.designsystem.presenter.mobile.bar.LocalMobileBottomBarUpFocusRequester
+import su.afk.yummy.tv.core.designsystem.presenter.mobile.bar.LocalMobileMainActions
+import su.afk.yummy.tv.core.designsystem.presenter.mobile.bar.MobileMainActions
 import su.afk.yummy.tv.core.designsystem.presenter.theme.YummyTvTheme
-import su.afk.yummy.tv.core.navigation.AppNavHost
-import su.afk.yummy.tv.core.navigation.MobileUi
-import su.afk.yummy.tv.core.navigation.NavRegistrar
-import su.afk.yummy.tv.core.navigation.NavigationManager
+import su.afk.yummy.tv.core.navigation.host.AppNavHost
+import su.afk.yummy.tv.core.navigation.manager.INavigationManager
+import su.afk.yummy.tv.core.navigation.registrar.MobileUi
+import su.afk.yummy.tv.core.navigation.registrar.NavRegistrar
 import su.afk.yummy.tv.core.navigation.root.RootTab
 import su.afk.yummy.tv.core.update.nav.UpdateDestination
-import su.afk.yummy.tv.core.utils.ResolveKodikThumbnailUrlUseCase
+import su.afk.yummy.tv.core.utils.kodik.ResolveKodikThumbnailUrlUseCase
 import su.afk.yummy.tv.feature.faq.IFaqNavigator
 import su.afk.yummy.tv.feature.main.MainState
 import su.afk.yummy.tv.feature.main.MainViewModel
@@ -59,7 +59,7 @@ import kotlin.time.Duration.Companion.seconds
 
 @Singleton
 class MobileMainGraph @Inject internal constructor(
-    private val navManager: NavigationManager,
+    private val navManager: INavigationManager,
     private val faqNavigator: IFaqNavigator,
     private val sitePagesNavigator: ISitePagesNavigator,
     private val settingsNavigator: ISettingsNavigator,

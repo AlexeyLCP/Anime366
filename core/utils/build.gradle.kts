@@ -8,8 +8,6 @@ android {
 }
 
 dependencies {
-    implementation(project(":core:logger"))
-
     implementation(libs.androidx.paging.runtime)
     implementation(libs.androidx.lifecycle.process)
     implementation(libs.coil.core)

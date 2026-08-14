@@ -4,10 +4,10 @@ import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
 import kotlinx.coroutines.flow.first
-import su.afk.yummy.tv.core.network.YANI_BASE_URL
-import su.afk.yummy.tv.core.network.YaniHttpClientProvider
-import su.afk.yummy.tv.core.network.getOrFetchJson
-import su.afk.yummy.tv.core.preferences.settings.SettingsStore
+import su.afk.yummy.tv.core.network.cache.getOrFetchJson
+import su.afk.yummy.tv.core.network.yani.YANI_BASE_URL
+import su.afk.yummy.tv.core.network.yani.YaniHttpClientProvider
+import su.afk.yummy.tv.core.preferences.settings.YaniAccountSettingsStore
 import su.afk.yummy.tv.core.storage.document.DocumentCacheStore
 import su.afk.yummy.tv.data.library.dto.YaniWatchHistoryResponseDto
 import javax.inject.Inject
@@ -15,7 +15,7 @@ import javax.inject.Inject
 class YaniWatchHistoryApi @Inject constructor(
     private val clientProvider: YaniHttpClientProvider,
     private val documentCache: DocumentCacheStore,
-    private val settingsStore: SettingsStore,
+    private val settingsStore: YaniAccountSettingsStore,
 ) {
     suspend fun getPage(limit: Int, offset: Int): YaniWatchHistoryResponseDto {
         val userId = settingsStore.yaniUserId.first()

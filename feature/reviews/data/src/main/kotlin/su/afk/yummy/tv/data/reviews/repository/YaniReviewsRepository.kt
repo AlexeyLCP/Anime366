@@ -1,10 +1,10 @@
 package su.afk.yummy.tv.data.reviews.repository
 
 import kotlinx.coroutines.flow.first
-import su.afk.yummy.tv.core.network.UserScopedCache
-import su.afk.yummy.tv.core.preferences.settings.SettingsStore
+import su.afk.yummy.tv.core.network.cache.UserScopedCache
+import su.afk.yummy.tv.core.preferences.settings.YaniAccountSettingsStore
 import su.afk.yummy.tv.core.storage.anime.AnimeStorageStore
-import su.afk.yummy.tv.core.utils.toHttpsUrlOrNull
+import su.afk.yummy.tv.core.utils.network.toHttpsUrlOrNull
 import su.afk.yummy.tv.data.reviews.dto.YaniReviewDto
 import su.afk.yummy.tv.data.reviews.dto.YaniReviewResponseDto
 import su.afk.yummy.tv.data.reviews.dto.YaniReviewsFeedResponseDto
@@ -24,7 +24,7 @@ class YaniReviewsRepository @Inject constructor(
     private val api: YaniReviewsApi,
     private val cache: UserScopedCache,
     private val animeStorage: AnimeStorageStore,
-    private val settingsStore: SettingsStore,
+    private val settingsStore: YaniAccountSettingsStore,
 ) :
     ReviewsRepository {
     private val reviewAnimeIds = ConcurrentHashMap<Int, Int>()

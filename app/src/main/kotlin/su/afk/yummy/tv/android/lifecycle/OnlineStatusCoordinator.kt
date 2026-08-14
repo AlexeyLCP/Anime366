@@ -11,10 +11,10 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import su.afk.yummy.tv.android.lifecycle.OnlineStatusCoordinator.Companion.HEARTBEAT_INTERVAL_MS
-import su.afk.yummy.tv.core.logger.AppLogger
-import su.afk.yummy.tv.core.utils.DeviceHashProvider
-import su.afk.yummy.tv.core.utils.ProcessLifecycleCoordinator
-import su.afk.yummy.tv.core.utils.di.DefaultApplicationScope
+import su.afk.yummy.tv.core.analytics.api.AnalyticsTracker
+import su.afk.yummy.tv.core.utils.coroutines.di.DefaultApplicationScope
+import su.afk.yummy.tv.core.utils.system.DeviceHashProvider
+import su.afk.yummy.tv.core.utils.system.ProcessLifecycleCoordinator
 import su.afk.yummy.tv.domain.account.usecase.ObserveAccountSessionUseCase
 import su.afk.yummy.tv.domain.account.usecase.UpdateOnlineStatusUseCase
 import javax.inject.Inject
@@ -38,6 +38,7 @@ class OnlineStatusCoordinator @Inject constructor(
     private val deviceHashProvider: DeviceHashProvider,
     private val observeAccountSession: ObserveAccountSessionUseCase,
     private val updateOnlineStatus: UpdateOnlineStatusUseCase,
+    private val analyticsTracker: AnalyticsTracker,
     // Живёт весь процесс, как и observer ниже — отдельного cancel() нет, это осознанно.
     @DefaultApplicationScope private val scope: CoroutineScope,
 ) : ProcessLifecycleCoordinator() {
@@ -80,7 +81,7 @@ class OnlineStatusCoordinator @Inject constructor(
     private suspend fun sendOnlineStatus() {
         val deviceHash = deviceHashProvider.get()
         if (deviceHash == null) {
-            AppLogger.w(TAG) { "Skipping online status update: ANDROID_ID is unavailable" }
+            analyticsTracker.log(TAG) { "Skipping online status update: ANDROID_ID is unavailable" }
             return
         }
 
@@ -89,7 +90,7 @@ class OnlineStatusCoordinator @Inject constructor(
         } catch (error: CancellationException) {
             throw error
         } catch (error: Throwable) {
-            AppLogger.w(TAG, error) { "Failed to update online status" }
+            analyticsTracker.log(TAG, error) { "Failed to update online status" }
         }
     }
 

@@ -23,7 +23,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import su.afk.yummy.tv.core.designsystem.presenter.theme.YummySemanticColors
-import su.afk.yummy.tv.core.utils.toCompactCount
+import su.afk.yummy.tv.core.utils.formatting.toCompactCount
 
 enum class MobileReactionSelection {
     LIKE,

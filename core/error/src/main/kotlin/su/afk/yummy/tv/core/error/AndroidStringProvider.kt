@@ -2,6 +2,7 @@ package su.afk.yummy.tv.core.error
 
 import android.content.Context
 import dagger.hilt.android.qualifiers.ApplicationContext
+import su.afk.yummy.tv.core.error.api.StringProvider
 import javax.inject.Inject
 
 class AndroidStringProvider @Inject constructor(

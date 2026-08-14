@@ -3,8 +3,8 @@ package su.afk.yummy.tv.feature.player
 import su.afk.yummy.tv.core.analytics.api.AnalyticsTracker
 import su.afk.yummy.tv.core.analytics.utils.analyticsParamsOf
 import su.afk.yummy.tv.core.analytics.utils.analyticsType
-import su.afk.yummy.tv.core.preferences.settings.PlayerResizeMode
-import su.afk.yummy.tv.core.preferences.settings.PlayerZoomLevel
+import su.afk.yummy.tv.core.preferences.settings.model.PlayerResizeMode
+import su.afk.yummy.tv.core.preferences.settings.model.PlayerZoomLevel
 import su.afk.yummy.tv.feature.player.handler.PlayerStreamResult
 import su.afk.yummy.tv.feature.player.model.PlayerNextEpisodeSource
 import su.afk.yummy.tv.feature.player.model.PlayerSkipType

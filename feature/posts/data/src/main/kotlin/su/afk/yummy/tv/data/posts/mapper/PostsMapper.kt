@@ -1,6 +1,6 @@
 package su.afk.yummy.tv.data.posts.mapper
 
-import su.afk.yummy.tv.core.utils.toHttpsUrl
+import su.afk.yummy.tv.core.utils.network.toHttpsUrl
 import su.afk.yummy.tv.data.posts.dto.YaniPostAuthorDto
 import su.afk.yummy.tv.data.posts.dto.YaniPostCategoryDto
 import su.afk.yummy.tv.data.posts.dto.YaniPostDetailsDto

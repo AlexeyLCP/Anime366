@@ -3,11 +3,11 @@ package su.afk.yummy.tv.feature.main
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiEffect
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiEvent
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiState
+import su.afk.yummy.tv.core.model.settings.AppTheme
+import su.afk.yummy.tv.core.model.settings.BackgroundStyle
+import su.afk.yummy.tv.core.model.settings.PosterCardSize
+import su.afk.yummy.tv.core.model.settings.PosterQuality
 import su.afk.yummy.tv.core.navigation.root.RootTab
-import su.afk.yummy.tv.core.preferences.settings.AppTheme
-import su.afk.yummy.tv.core.preferences.settings.BackgroundStyle
-import su.afk.yummy.tv.core.preferences.settings.PosterCardSize
-import su.afk.yummy.tv.core.preferences.settings.PosterQuality
 
 class MainState {
 

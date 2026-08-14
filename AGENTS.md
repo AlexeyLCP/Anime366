@@ -36,13 +36,14 @@
   referenced from a handler, the ViewModel, or UI — belongs in `.model` instead, one file per type,
   file name matching the type name.
 - Put UI-only models in `.model`.
-- Put UI mappers, formatters, and extension helpers in `.utils`.
+- Put Domain/Data model → UI model mapper functions in a feature-specific `.mapper` package
+  (module-root-level, sibling to `.utils`/`.handler`/`.model`), one file per mapper, named
+  `XxxMapper.kt`. Do not define mapper functions inside ViewModel files — ViewModels only call them.
+- Put formatters and extension helpers in `.utils`.
 - Keep reusable formatting and error extensions out of Screen and `.view` files; place them in a
   feature-specific `XxxUtils.kt` under `.utils`.
 - Keep reusable parsers, normalizers, and stateless extension helpers out of use cases, handlers,
   and their companion objects; place them in a feature-specific `XxxUtils.kt` under `.utils`.
-- Put composable label/resource mappings and other UI mappings in a feature-specific
-  `XxxUiMapper.kt` under `.utils`.
 - Import extension receiver types normally; do not use fully qualified receiver types in function
   declarations.
 - Keep stateless private entity mappers used by only one class in that class's companion object;

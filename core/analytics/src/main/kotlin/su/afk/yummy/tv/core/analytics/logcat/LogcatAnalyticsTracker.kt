@@ -1,7 +1,7 @@
 package su.afk.yummy.tv.core.analytics.logcat
 
+import android.util.Log
 import su.afk.yummy.tv.core.analytics.api.AnalyticsTracker
-import su.afk.yummy.tv.core.logger.AppLogger
 import javax.inject.Inject
 
 internal class LogcatAnalyticsTracker @Inject constructor() : AnalyticsTracker {
@@ -10,9 +10,9 @@ internal class LogcatAnalyticsTracker @Inject constructor() : AnalyticsTracker {
         val eventName = eventName.trim()
         if (eventName.isEmpty()) return
         if (params.isEmpty()) {
-            AppLogger.d(TAG) { "Would send analytics event: $eventName" }
+            log(TAG, null) { "Would send analytics event: $eventName" }
         } else {
-            AppLogger.d(TAG) { "Would send analytics event: $eventName, params=$params" }
+            log(TAG, null) { "Would send analytics event: $eventName, params=$params" }
         }
     }
 
@@ -23,8 +23,16 @@ internal class LogcatAnalyticsTracker @Inject constructor() : AnalyticsTracker {
     ) {
         val message = message.trim()
         if (message.isEmpty()) return
-        AppLogger.d(TAG, throwable) {
+        log(TAG, throwable) {
             "Would send analytics error: message=$message, group=$groupIdentifier"
+        }
+    }
+
+    override fun log(tag: String, throwable: Throwable?, message: () -> String) {
+        if (throwable == null) {
+            Log.println(Log.DEBUG, tag, message())
+        } else {
+            Log.println(Log.DEBUG, tag, "${message()}\n${Log.getStackTraceString(throwable)}")
         }
     }
 

@@ -10,17 +10,18 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.BaseViewModelNew
-import su.afk.yummy.tv.core.error.IErrorHandlerUseCase
-import su.afk.yummy.tv.core.error.storage.RetryStorage
+import su.afk.yummy.tv.core.error.api.IErrorHandlerUseCase
+import su.afk.yummy.tv.core.error.api.RetryStorage
 import su.afk.yummy.tv.core.model.anime.AnimeVideo
-import su.afk.yummy.tv.core.navigation.NavigationManager
-import su.afk.yummy.tv.core.preferences.settings.PreferredPlayer
-import su.afk.yummy.tv.core.preferences.settings.SettingsStore
+import su.afk.yummy.tv.core.navigation.manager.INavigationManager
+import su.afk.yummy.tv.core.preferences.settings.PlayerSettingsStore
+import su.afk.yummy.tv.core.preferences.settings.model.PreferredPlayer
 import su.afk.yummy.tv.domain.anime.usecase.GetAnimeDetailsUseCase
 import su.afk.yummy.tv.domain.anime.usecase.GetAnimeVideosUseCase
 import su.afk.yummy.tv.feature.details.DetailsAnalytics
 import su.afk.yummy.tv.feature.details.details.DetailsPlayerSelection
 import su.afk.yummy.tv.feature.details.details.handler.DetailsPlayerNavigationHandler
+import su.afk.yummy.tv.feature.details.mapper.episodeDubbingItems
 
 @HiltViewModel(assistedFactory = EpisodeDubbingsViewModel.Factory::class)
 class EpisodeDubbingsViewModel @AssistedInject internal constructor(
@@ -28,10 +29,10 @@ class EpisodeDubbingsViewModel @AssistedInject internal constructor(
     @Assisted private val episode: String,
     override val errorHandler: IErrorHandlerUseCase,
     override val retryStorage: RetryStorage,
-    private val nav: NavigationManager,
+    private val nav: INavigationManager,
     private val getAnimeDetails: GetAnimeDetailsUseCase,
     private val getAnimeVideos: GetAnimeVideosUseCase,
-    private val settingsStore: SettingsStore,
+    private val settingsStore: PlayerSettingsStore,
     private val playerNavigationHandler: DetailsPlayerNavigationHandler,
     private val analytics: DetailsAnalytics,
 ) : BaseViewModelNew<EpisodeDubbingsState.State, EpisodeDubbingsState.Event, EpisodeDubbingsState.Effect>() {

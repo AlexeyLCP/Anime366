@@ -1,5 +1,7 @@
 package su.afk.yummy.tv.feature.player
 
+import su.afk.yummy.tv.core.utils.episode.isPlaceholderEpisode
+
 /** Player source selected for a continue-watching action. */
 data class ContinueWatchingTarget(
     val video: PlayerVideoSource,

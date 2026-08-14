@@ -30,11 +30,11 @@ import androidx.paging.compose.itemKey
 import kotlinx.coroutines.flow.Flow
 import su.afk.yummy.tv.core.designsystem.presenter.baseScreen.BaseScreen
 import su.afk.yummy.tv.core.designsystem.presenter.components.StateMessage
-import su.afk.yummy.tv.core.designsystem.presenter.mobile.MobileAppendError
-import su.afk.yummy.tv.core.designsystem.presenter.mobile.MobileSectionLoading
 import su.afk.yummy.tv.core.designsystem.presenter.mobile.MobileSwipeableTabsPager
-import su.afk.yummy.tv.core.designsystem.presenter.mobile.MobileTopBar
+import su.afk.yummy.tv.core.designsystem.presenter.mobile.bar.MobileTopBar
 import su.afk.yummy.tv.core.designsystem.presenter.mobile.rememberMobileSwipeableTabsState
+import su.afk.yummy.tv.core.designsystem.presenter.mobile.state.MobileAppendError
+import su.afk.yummy.tv.core.designsystem.presenter.mobile.state.MobileSectionLoading
 import su.afk.yummy.tv.domain.posts.model.PostSort
 import su.afk.yummy.tv.domain.posts.model.PostSummary
 import su.afk.yummy.tv.feature.posts.list.PostsListState

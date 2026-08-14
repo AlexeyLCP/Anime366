@@ -12,14 +12,14 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.BaseViewModelNew
-import su.afk.yummy.tv.core.error.IErrorHandlerUseCase
-import su.afk.yummy.tv.core.error.StringProvider
-import su.afk.yummy.tv.core.error.storage.RetryStorage
-import su.afk.yummy.tv.core.navigation.NavigationManager
-import su.afk.yummy.tv.core.preferences.settings.PlayerMobileVideoTransformSettings
-import su.afk.yummy.tv.core.preferences.settings.PlayerResizeMode
-import su.afk.yummy.tv.core.preferences.settings.PlayerResizeSettings
-import su.afk.yummy.tv.core.preferences.settings.PlayerZoomLevel
+import su.afk.yummy.tv.core.error.api.IErrorHandlerUseCase
+import su.afk.yummy.tv.core.error.api.RetryStorage
+import su.afk.yummy.tv.core.error.api.StringProvider
+import su.afk.yummy.tv.core.navigation.manager.INavigationManager
+import su.afk.yummy.tv.core.preferences.settings.model.PlayerMobileVideoTransformSettings
+import su.afk.yummy.tv.core.preferences.settings.model.PlayerResizeMode
+import su.afk.yummy.tv.core.preferences.settings.model.PlayerResizeSettings
+import su.afk.yummy.tv.core.preferences.settings.model.PlayerZoomLevel
 import su.afk.yummy.tv.domain.videodownload.usecase.GetVideoDownloadUseCase
 import su.afk.yummy.tv.feature.details.IDetailsNavigator
 import su.afk.yummy.tv.feature.player.PlayerViewModel.Companion.CHANGE_PLAYER_HINT_DELAY_MS
@@ -47,7 +47,7 @@ class PlayerViewModel @AssistedInject internal constructor(
     @Assisted private val dest: PlayerDestination,
     override val errorHandler: IErrorHandlerUseCase,
     override val retryStorage: RetryStorage,
-    private val nav: NavigationManager,
+    private val nav: INavigationManager,
     private val detailsNavigator: IDetailsNavigator,
     private val sourceStreamHandler: PlayerSourceStreamHandler,
     private val playbackProgressHandler: PlayerPlaybackProgressHandler,

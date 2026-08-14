@@ -1,6 +1,6 @@
 package su.afk.yummy.tv.data.posts.repository
 
-import su.afk.yummy.tv.core.network.UserScopedCache
+import su.afk.yummy.tv.core.network.cache.UserScopedCache
 import su.afk.yummy.tv.data.posts.dto.YaniPostCategoriesResponseDto
 import su.afk.yummy.tv.data.posts.dto.YaniPostCategoryDto
 import su.afk.yummy.tv.data.posts.dto.YaniPostDetailsResponseDto

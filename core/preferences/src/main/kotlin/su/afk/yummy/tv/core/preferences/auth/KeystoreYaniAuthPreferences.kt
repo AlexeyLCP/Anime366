@@ -14,7 +14,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
-import su.afk.yummy.tv.core.preferences.settings.SettingsStore
+import su.afk.yummy.tv.core.preferences.settings.YaniAccountSettingsStore
 import java.nio.ByteBuffer
 import java.nio.charset.StandardCharsets
 import java.security.KeyStore
@@ -22,10 +22,12 @@ import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
 import javax.crypto.spec.GCMParameterSpec
+import javax.inject.Inject
 
-class KeystoreYaniAuthPreferences(
+/** При первом чтении once чистит легаси access-token, мигрировавший из [YaniAccountSettingsStore]. */
+internal class KeystoreYaniAuthPreferences @Inject constructor(
     @ApplicationContext context: Context,
-    private val settingsStore: SettingsStore,
+    private val settingsStore: YaniAccountSettingsStore,
 ) : YaniAuthPreferences {
     private val appContext = context.applicationContext
     private val prefs: SharedPreferences by lazy(LazyThreadSafetyMode.SYNCHRONIZED) {

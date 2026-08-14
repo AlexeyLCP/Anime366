@@ -3,7 +3,7 @@ package su.afk.yummy.tv.data.top.storage.mapper
 import su.afk.yummy.tv.core.storage.top.AnimeTopItemEntry
 import su.afk.yummy.tv.core.storage.top.AnimeTopPageCache
 import su.afk.yummy.tv.core.storage.top.AnimeTopPageEntry
-import su.afk.yummy.tv.core.utils.toHttpsUrl
+import su.afk.yummy.tv.core.utils.network.toHttpsUrl
 import su.afk.yummy.tv.data.top.dto.YaniAnimeTopItemDto
 import su.afk.yummy.tv.domain.top.model.AnimeTopItem
 import su.afk.yummy.tv.domain.top.model.AnimeTopPage

@@ -33,4 +33,8 @@ internal class AppMetricaAnalyticsTracker @Inject constructor() : AnalyticsTrack
         }
         AppMetrica.sendEventsBuffer()
     }
+
+    override fun log(tag: String, throwable: Throwable?, message: () -> String) {
+        // Free-form debug diagnostics are not forwarded to production analytics.
+    }
 }

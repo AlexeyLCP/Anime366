@@ -12,9 +12,9 @@ import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.itemKey
-import su.afk.yummy.tv.core.designsystem.presenter.components.loader.TvLoadingFooter
 import su.afk.yummy.tv.core.designsystem.presenter.focus.tvFocusRestorer
 import su.afk.yummy.tv.core.designsystem.presenter.tv.TvAppendErrorFooter
+import su.afk.yummy.tv.core.designsystem.presenter.tv.TvLoadingFooter
 import su.afk.yummy.tv.domain.comments.model.CommentVote
 import su.afk.yummy.tv.feature.comments.CommentsState
 import su.afk.yummy.tv.feature.comments.tv.utils.resolve

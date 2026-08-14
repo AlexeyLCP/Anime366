@@ -4,7 +4,7 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
-import su.afk.yummy.tv.core.preferences.settings.SettingsStore
+import su.afk.yummy.tv.core.preferences.settings.YaniAccountSettingsStore
 import su.afk.yummy.tv.core.storage.schedule.AnimeScheduleStore
 import su.afk.yummy.tv.core.storage.schedule.isFresh
 import su.afk.yummy.tv.data.schedule.network.YaniScheduleApi
@@ -18,7 +18,7 @@ private const val SCHEDULE_TTL_MS = 60 * 60 * 1000L
 class YaniScheduleRepository(
     private val api: YaniScheduleApi,
     private val scheduleStore: AnimeScheduleStore,
-    private val settingsStore: SettingsStore,
+    private val settingsStore: YaniAccountSettingsStore,
 ) : AnimeScheduleRepository {
 
     override suspend fun getSchedule(): List<AnimeScheduleDay> = withContext(Dispatchers.IO) {

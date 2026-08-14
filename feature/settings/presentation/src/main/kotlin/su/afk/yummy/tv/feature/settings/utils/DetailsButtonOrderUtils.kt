@@ -1,6 +1,6 @@
 package su.afk.yummy.tv.feature.settings.utils
 
-import su.afk.yummy.tv.core.preferences.settings.DetailsButtonAction
+import su.afk.yummy.tv.core.preferences.settings.model.DetailsButtonAction
 import su.afk.yummy.tv.feature.settings.model.DetailsButtonMoveDirection
 
 internal fun List<DetailsButtonAction>.moved(

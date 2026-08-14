@@ -1,7 +1,7 @@
 package su.afk.yummy.tv.domain.watching.usecase
 
 import su.afk.yummy.tv.core.model.anime.AnimeVideo
-import su.afk.yummy.tv.core.model.anime.utils.episodeNumberOrNull
+import su.afk.yummy.tv.core.utils.episode.episodeNumberOrNull
 import su.afk.yummy.tv.domain.watching.mapper.toContinueWatchingPlaybackVideo
 import javax.inject.Inject
 

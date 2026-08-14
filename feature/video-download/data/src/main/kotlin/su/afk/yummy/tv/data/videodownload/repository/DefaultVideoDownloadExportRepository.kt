@@ -17,7 +17,8 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import su.afk.yummy.tv.core.preferences.settings.SettingsStore
+import su.afk.yummy.tv.core.analytics.api.AnalyticsTracker
+import su.afk.yummy.tv.core.preferences.settings.VideoExportSettingsStore
 import su.afk.yummy.tv.core.storage.videodownload.VideoDownloadStore
 import su.afk.yummy.tv.data.videodownload.R
 import su.afk.yummy.tv.data.videodownload.mapper.toDomain
@@ -34,9 +35,10 @@ import javax.inject.Inject
 
 class DefaultVideoDownloadExportRepository @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val settingsStore: SettingsStore,
+    private val settingsStore: VideoExportSettingsStore,
     private val store: VideoDownloadStore,
     private val analytics: VideoExportAnalytics,
+    private val analyticsTracker: AnalyticsTracker,
 ) : VideoDownloadExportRepository {
     private val orphanReconciliationMutex = Mutex()
 
@@ -63,7 +65,7 @@ class DefaultVideoDownloadExportRepository @Inject constructor(
         )
         val metadata = runCatching { readDirectoryMetadata(parsedUri) }
             .onFailure { throwable ->
-                logDownloadWarning(throwable) { "Failed to read export directory metadata" }
+                analyticsTracker.logDownloadWarning(throwable) { "Failed to read export directory metadata" }
             }
             .getOrNull()
         if (metadata == null || !metadata.supportsCreate) {
@@ -187,7 +189,7 @@ class DefaultVideoDownloadExportRepository @Inject constructor(
         val uri = settingsStore.videoExportDirectoryUri.first()
         if (uri.isBlank()) return
         if (!isDestinationWritable(uri)) {
-            logDownloadWarning { "Auto export skipped: no access to export directory" }
+            analyticsTracker.logDownloadWarning { "Auto export skipped: no access to export directory" }
             analytics.reportDirectoryRejected(reason = REASON_ACCESS_LOST)
             return
         }

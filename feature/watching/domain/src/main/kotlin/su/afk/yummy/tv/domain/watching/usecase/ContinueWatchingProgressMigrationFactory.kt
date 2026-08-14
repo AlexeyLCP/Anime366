@@ -1,8 +1,8 @@
 package su.afk.yummy.tv.domain.watching.usecase
 
+import su.afk.yummy.tv.core.utils.episode.isPlaceholderEpisode
 import su.afk.yummy.tv.domain.home.model.ContinueWatchingProgressMigration
 import su.afk.yummy.tv.domain.home.model.HomeContinueWatchingItem
-import su.afk.yummy.tv.core.model.anime.utils.isPlaceholderEpisode
 import javax.inject.Inject
 
 internal class ContinueWatchingProgressMigrationFactory @Inject constructor() {

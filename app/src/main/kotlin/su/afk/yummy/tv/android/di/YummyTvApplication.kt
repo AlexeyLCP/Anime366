@@ -10,8 +10,8 @@ import su.afk.yummy.tv.android.lifecycle.OnlineStatusCoordinator
 import su.afk.yummy.tv.android.startup.AppStartupMaintenanceRunner
 import su.afk.yummy.tv.android.startup.CoilImageLoaderInstaller
 import su.afk.yummy.tv.core.analytics.api.initialize.AnalyticsInitializer
-import su.afk.yummy.tv.core.featuretoggle.FeatureToggleInitializer
 import su.afk.yummy.tv.core.featuretoggle.FeatureToggleRefreshCoordinator
+import su.afk.yummy.tv.core.featuretoggle.api.FeatureToggleInitializer
 import su.afk.yummy.tv.core.tv.HomeFeedRefreshScheduler
 import javax.inject.Inject
 

@@ -4,9 +4,9 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.toImmutableSet
 import kotlinx.coroutines.launch
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.BaseViewModelNew
-import su.afk.yummy.tv.core.error.IErrorHandlerUseCase
-import su.afk.yummy.tv.core.error.storage.RetryStorage
-import su.afk.yummy.tv.core.navigation.NavigationManager
+import su.afk.yummy.tv.core.error.api.IErrorHandlerUseCase
+import su.afk.yummy.tv.core.error.api.RetryStorage
+import su.afk.yummy.tv.core.navigation.manager.INavigationManager
 import su.afk.yummy.tv.domain.account.model.EditableProfile
 import su.afk.yummy.tv.domain.account.model.ProfileUpdate
 import su.afk.yummy.tv.feature.account.profileedit.handler.ProfileEditHandler
@@ -17,7 +17,7 @@ import javax.inject.Inject
 class ProfileEditViewModel @Inject constructor(
     override val errorHandler: IErrorHandlerUseCase,
     override val retryStorage: RetryStorage,
-    private val nav: NavigationManager,
+    private val nav: INavigationManager,
     private val handler: ProfileEditHandler,
 ) : BaseViewModelNew<ProfileEditState.State, ProfileEditState.Event, ProfileEditState.Effect>() {
     override fun createInitialState() = ProfileEditState.State()

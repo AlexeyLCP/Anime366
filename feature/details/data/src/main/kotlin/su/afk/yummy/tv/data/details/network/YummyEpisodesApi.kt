@@ -5,8 +5,8 @@ import io.ktor.client.request.get
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.isSuccess
-import su.afk.yummy.tv.core.network.YUMMY_TV_API_BASE_URL
-import su.afk.yummy.tv.core.network.YaniHttpClientProvider
+import su.afk.yummy.tv.core.network.yani.YaniHttpClientProvider
+import su.afk.yummy.tv.core.network.yummy.YUMMY_TV_API_BASE_URL
 import su.afk.yummy.tv.data.details.dto.YummyEpisodesDto
 
 /**

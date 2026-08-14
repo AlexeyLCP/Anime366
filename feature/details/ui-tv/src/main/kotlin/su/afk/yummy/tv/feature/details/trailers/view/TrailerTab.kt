@@ -36,7 +36,7 @@ import su.afk.yummy.tv.core.designsystem.presenter.dimensions.TvCardSpacing
 import su.afk.yummy.tv.core.designsystem.presenter.focus.tvFocusRestorer
 import su.afk.yummy.tv.core.designsystem.presenter.focus.tvFocusableClick
 import su.afk.yummy.tv.core.model.anime.AnimeTrailer
-import su.afk.yummy.tv.core.utils.openExternalUri
+import su.afk.yummy.tv.core.utils.system.openExternalUri
 import su.afk.yummy.tv.feature.details.R
 
 @Composable

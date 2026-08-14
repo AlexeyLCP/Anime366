@@ -10,7 +10,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import su.afk.yummy.tv.core.designsystem.presenter.mobile.MobilePosterCard
+import su.afk.yummy.tv.core.designsystem.presenter.mobile.cards.MobilePosterCard
 import su.afk.yummy.tv.domain.home.model.HomeFeedItem
 import su.afk.yummy.tv.feature.home.mobile.utils.bestUrl
 

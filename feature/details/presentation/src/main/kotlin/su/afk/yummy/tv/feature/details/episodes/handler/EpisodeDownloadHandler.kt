@@ -2,10 +2,10 @@ package su.afk.yummy.tv.feature.details.episodes.handler
 
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CancellationException
-import su.afk.yummy.tv.core.error.StringProvider
+import su.afk.yummy.tv.core.error.api.StringProvider
 import su.afk.yummy.tv.core.model.anime.AnimeVideo
 import su.afk.yummy.tv.core.model.anime.kodikThumbnailIframeUrl
-import su.afk.yummy.tv.core.utils.ResolveKodikThumbnailUrlUseCase
+import su.afk.yummy.tv.core.utils.kodik.ResolveKodikThumbnailUrlUseCase
 import su.afk.yummy.tv.domain.player.model.PlayerStreamRequest
 import su.afk.yummy.tv.domain.player.model.PlayerStreamResolveResult
 import su.afk.yummy.tv.domain.player.usecase.ResolvePlayerStreamUseCase

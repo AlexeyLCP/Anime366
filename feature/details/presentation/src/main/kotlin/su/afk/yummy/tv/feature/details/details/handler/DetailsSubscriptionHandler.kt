@@ -9,10 +9,10 @@ import su.afk.yummy.tv.domain.account.usecase.SetVideoSubscriptionUseCase
 import su.afk.yummy.tv.domain.anime.usecase.GetAnimeDetailsUseCase
 import su.afk.yummy.tv.domain.anime.usecase.GetAnimeVideosUseCase
 import su.afk.yummy.tv.feature.details.details.model.SubscriptionOption
+import su.afk.yummy.tv.feature.details.mapper.toSubscriptionOptions
 import su.afk.yummy.tv.feature.details.utils.SUBSCRIPTION_REFRESH_DELAY
 import su.afk.yummy.tv.feature.details.utils.matchesCurrentAnime
 import su.afk.yummy.tv.feature.details.utils.subscriptionMatchKeys
-import su.afk.yummy.tv.feature.details.utils.toSubscriptionOptions
 import javax.inject.Inject
 import javax.inject.Singleton
 

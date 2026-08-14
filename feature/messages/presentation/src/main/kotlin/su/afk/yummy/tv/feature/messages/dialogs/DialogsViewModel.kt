@@ -7,11 +7,11 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.BaseViewModelNew
-import su.afk.yummy.tv.core.error.IErrorHandlerUseCase
-import su.afk.yummy.tv.core.error.storage.RetryStorage
-import su.afk.yummy.tv.core.navigation.NavigationManager
-import su.afk.yummy.tv.core.utils.PagedSource
-import su.afk.yummy.tv.core.utils.pagingSource
+import su.afk.yummy.tv.core.error.api.IErrorHandlerUseCase
+import su.afk.yummy.tv.core.error.api.RetryStorage
+import su.afk.yummy.tv.core.navigation.manager.INavigationManager
+import su.afk.yummy.tv.core.utils.paging.PagedSource
+import su.afk.yummy.tv.core.utils.paging.pagingSource
 import su.afk.yummy.tv.domain.account.usecase.ObserveAccountSessionUseCase
 import su.afk.yummy.tv.domain.messages.MessagesMutationNotifier
 import su.afk.yummy.tv.domain.messages.model.DialogSummary
@@ -27,7 +27,7 @@ private const val DIALOGS_PAGE_SIZE = 20
 class DialogsViewModel @Inject constructor(
     override val errorHandler: IErrorHandlerUseCase,
     override val retryStorage: RetryStorage,
-    private val nav: NavigationManager,
+    private val nav: INavigationManager,
     private val navigator: IMessagesNavigator,
     private val accountNavigator: IAccountNavigator,
     private val observeAccountSession: ObserveAccountSessionUseCase,

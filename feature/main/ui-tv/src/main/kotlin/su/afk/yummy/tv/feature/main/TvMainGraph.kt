@@ -33,10 +33,10 @@ import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.ScreenNavigator
 import su.afk.yummy.tv.core.designsystem.presenter.locals.LocalPosterCardSize
 import su.afk.yummy.tv.core.designsystem.presenter.locals.LocalPosterQuality
 import su.afk.yummy.tv.core.designsystem.presenter.theme.YummyTvTheme
-import su.afk.yummy.tv.core.navigation.AppNavHost
-import su.afk.yummy.tv.core.navigation.NavRegistrar
-import su.afk.yummy.tv.core.navigation.NavigationManager
-import su.afk.yummy.tv.core.navigation.TvUi
+import su.afk.yummy.tv.core.navigation.host.AppNavHost
+import su.afk.yummy.tv.core.navigation.manager.INavigationManager
+import su.afk.yummy.tv.core.navigation.registrar.NavRegistrar
+import su.afk.yummy.tv.core.navigation.registrar.TvUi
 import su.afk.yummy.tv.core.navigation.root.RootTab
 import su.afk.yummy.tv.core.update.nav.UpdateDestination
 import su.afk.yummy.tv.feature.main.api.IMainGraph
@@ -49,7 +49,7 @@ import kotlin.time.Duration.Companion.seconds
 
 @Singleton
 class TvMainGraph @Inject constructor(
-    private val navManager: NavigationManager,
+    private val navManager: INavigationManager,
     private val commonRegistrars: Set<@JvmSuppressWildcards NavRegistrar>,
     @param:TvUi private val tvRegistrars: Set<@JvmSuppressWildcards NavRegistrar>,
 ) : IMainGraph {
@@ -103,6 +103,7 @@ class TvMainGraph @Inject constructor(
                                 navManager.navigate(destination)
                             }
                         }
+
                         is MainState.Effect.ShowToast -> {
                             toastMessage = eff.message
                             toastJob?.cancel()

@@ -2,83 +2,101 @@ package su.afk.yummy.tv.core.preferences.settings
 
 import android.content.Context
 import android.os.Build
+import androidx.datastore.core.CorruptionException
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.intPreferencesKey
-import androidx.datastore.preferences.core.longPreferencesKey
+import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.stringPreferencesKey
-import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import su.afk.yummy.tv.core.model.settings.AppTheme
+import su.afk.yummy.tv.core.model.settings.BackgroundStyle
+import su.afk.yummy.tv.core.model.settings.PosterCardSize
+import su.afk.yummy.tv.core.model.settings.PosterQuality
+import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.advancedPlayerVolumeEnabledKey
+import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.advancedPlayerVolumePercentKey
+import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.appThemeKey
+import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.askDubbingOnWatchKey
+import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.autoPlayNextEpisodeKey
+import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.autoSkipOpeningsEndingsKey
+import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.backgroundStyleKey
+import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.detailsButtonOrderKey
+import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.hiddenRecommendationIdsKey
+import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.lastSeenAnnouncementIdKey
+import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.lastStartedVersionCodeKey
+import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.legacyStreamingCachePrunedKey
+import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.libraryContinueWatchingCardSizeKey
+import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.mobilePlayerGestureTutorialDismissedKey
+import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.pictureInPictureEnabledKey
+import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.playerOrientationModeKey
+import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.playerResizeModeKey
+import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.playerZoomLevelKey
+import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.posterCardSizeKey
+import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.posterQualityKey
+import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.preferredPlayerKey
+import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.preferredVideoQualityKey
+import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.previewCacheSizeKey
+import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.refreshContinueWatchingProgressOnLaunchKey
+import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.showOpeningOnTimelineKey
+import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.showTopTitleYearKey
+import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.suggestNextEpisodeOnWatchedKey
+import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.supportPromptDismissedKey
+import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.supportPromptFirstInstallTimeMsKey
+import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.tvPlayerControlsTutorialDismissedKey
+import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.tvPlayerVolumeKeysEnabledKey
+import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.videoExportAutoEnabledKey
+import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.videoExportDirectoryNameKey
+import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.videoExportDirectoryUriKey
+import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.volumeStabilizationEnabledKey
+import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.watchNextEnabledKey
+import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.yaniAccessTokenKey
+import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.yaniApplicationTokenKey
+import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.yaniAvatarUrlKey
+import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.yaniContentLanguageKey
+import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.yaniNicknameKey
+import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.yaniTokenRefreshAtKey
+import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.yaniUnreadNotificationsCountKey
+import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.yaniUserIdKey
+import su.afk.yummy.tv.core.preferences.settings.model.DetailsButtonAction
+import su.afk.yummy.tv.core.preferences.settings.model.LibraryContinueWatchingCardSize
+import su.afk.yummy.tv.core.preferences.settings.model.MainSettingsSnapshot
+import su.afk.yummy.tv.core.preferences.settings.model.PlayerMobileVideoTransformSettings
+import su.afk.yummy.tv.core.preferences.settings.model.PlayerOrientationMode
+import su.afk.yummy.tv.core.preferences.settings.model.PlayerResizeMode
+import su.afk.yummy.tv.core.preferences.settings.model.PlayerResizeSettings
+import su.afk.yummy.tv.core.preferences.settings.model.PlayerZoomLevel
+import su.afk.yummy.tv.core.preferences.settings.model.PreferredPlayer
+import su.afk.yummy.tv.core.preferences.settings.model.PreferredVideoQuality
+import su.afk.yummy.tv.core.preferences.settings.model.PreviewCacheSize
+import su.afk.yummy.tv.core.preferences.settings.model.SettingsSnapshot
+import su.afk.yummy.tv.core.preferences.settings.model.SupportPromptSnapshot
+import su.afk.yummy.tv.core.preferences.settings.model.YaniApplicationTokenState
+import su.afk.yummy.tv.core.preferences.settings.model.YaniContentLanguage
+import su.afk.yummy.tv.core.utils.coroutines.di.IoApplicationScope
+import java.io.IOException
+import javax.inject.Inject
 
 private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "app_settings")
 
-class DataStoreSettingsStore(
-    private val context: Context,
-    private val scope: CoroutineScope,
+internal class DataStoreSettingsStore @Inject constructor(
+    @ApplicationContext private val context: Context,
+    @IoApplicationScope private val scope: CoroutineScope,
 ) : SettingsStore {
 
-    private val posterQualityKey = stringPreferencesKey("poster_quality")
-    private val posterCardSizeKey = stringPreferencesKey("poster_card_size")
-    private val showTopTitleYearKey = booleanPreferencesKey("show_top_title_year")
-    private val libraryContinueWatchingCardSizeKey =
-        stringPreferencesKey("library_continue_watching_card_size")
-    private val preferredPlayerKey = stringPreferencesKey("preferred_player")
-    private val preferredVideoQualityKey = stringPreferencesKey("preferred_video_quality")
-    private val watchNextEnabledKey = booleanPreferencesKey("watch_next_enabled")
-    private val previewCacheSizeKey = intPreferencesKey("preview_cache_size")
-    private val autoSkipOpeningsEndingsKey = booleanPreferencesKey("auto_skip_openings_endings")
-    private val showOpeningOnTimelineKey = booleanPreferencesKey("show_opening_on_timeline_enabled")
-    private val autoPlayNextEpisodeKey = booleanPreferencesKey("auto_play_next_episode")
-    private val askDubbingOnWatchKey = booleanPreferencesKey("ask_dubbing_on_watch")
-    private val pictureInPictureEnabledKey = booleanPreferencesKey("picture_in_picture_enabled")
-    private val playerOrientationModeKey = stringPreferencesKey("player_orientation_mode")
-    private val suggestNextEpisodeOnWatchedKey =
-        booleanPreferencesKey("suggest_next_episode_on_watched")
-    private val refreshContinueWatchingProgressOnLaunchKey =
-        booleanPreferencesKey("refresh_continue_watching_progress_on_launch")
-    private val mobilePlayerGestureTutorialDismissedKey =
-        booleanPreferencesKey("player_mobile_gesture_tutorial_dismissed")
-    private val tvPlayerControlsTutorialDismissedKey =
-        booleanPreferencesKey("player_tv_controls_tutorial_dismissed")
-    private val tvPlayerVolumeKeysEnabledKey =
-        booleanPreferencesKey("tv_player_volume_keys_enabled")
-    private val advancedPlayerVolumeEnabledKey =
-        booleanPreferencesKey("advanced_player_volume_enabled")
-    private val advancedPlayerVolumePercentKey =
-        intPreferencesKey("advanced_player_volume_percent")
-    private val volumeStabilizationEnabledKey =
-        booleanPreferencesKey("volume_stabilization_enabled")
-    private val playerResizeModeKey = stringPreferencesKey("player_resize_mode")
-    private val playerZoomLevelKey = stringPreferencesKey("player_zoom_level")
-    private val detailsButtonOrderKey = stringPreferencesKey("details_button_order")
-    private val hiddenRecommendationIdsKey = stringSetPreferencesKey("hidden_recommendation_ids")
-    private val appThemeKey = stringPreferencesKey("app_theme")
-    private val backgroundStyleKey = stringPreferencesKey("background_style")
-    private val yaniApplicationTokenKey = stringPreferencesKey("yani_application_token")
-    private val yaniAccessTokenKey = stringPreferencesKey("yani_access_token")
-    private val yaniUserIdKey = intPreferencesKey("yani_user_id")
-    private val yaniNicknameKey = stringPreferencesKey("yani_nickname")
-    private val yaniAvatarUrlKey = stringPreferencesKey("yani_avatar_url")
-    private val yaniTokenRefreshAtKey = stringPreferencesKey("yani_token_refresh_at")
-    private val yaniUnreadNotificationsCountKey =
-        intPreferencesKey("yani_unread_notifications_count")
-    private val lastStartedVersionCodeKey = intPreferencesKey("last_started_version_code")
-    private val yaniContentLanguageKey = stringPreferencesKey("yani_content_language")
-    private val supportPromptDismissedKey = booleanPreferencesKey("support_prompt_dismissed")
-    private val supportPromptFirstInstallTimeMsKey =
-        longPreferencesKey("support_prompt_first_install_time_ms")
-    private val lastSeenAnnouncementIdKey = stringPreferencesKey("last_seen_announcement_id")
-    private val legacyStreamingCachePrunedKey =
-        booleanPreferencesKey("legacy_streaming_cache_pruned")
-    private val videoExportDirectoryUriKey = stringPreferencesKey("video_export_directory_uri")
-    private val videoExportDirectoryNameKey = stringPreferencesKey("video_export_directory_name")
-    private val videoExportAutoEnabledKey = booleanPreferencesKey("video_export_auto_enabled")
+    /** Подменяет повреждённый/нечитаемый DataStore пустыми настройками вместо падения потока. */
+    private val safeData: Flow<Preferences> = context.dataStore.data.catch { cause ->
+        if (cause is IOException || cause is CorruptionException) {
+            emit(emptyPreferences())
+        } else {
+            throw cause
+        }
+    }
 
     @Volatile
     private var previewCacheSizeSnapshot = PreviewCacheSize.MB_100
@@ -94,7 +112,7 @@ class DataStoreSettingsStore(
     override val posterCardSize: Flow<PosterCardSize> =
         enumFlow(posterCardSizeKey, PosterCardSize.STANDARD)
 
-    override val showTopTitleYear: Flow<Boolean> = context.dataStore.data.map { prefs ->
+    override val showTopTitleYear: Flow<Boolean> = safeData.map { prefs ->
         prefs[showTopTitleYearKey] ?: false
     }
 
@@ -107,70 +125,70 @@ class DataStoreSettingsStore(
     override val preferredVideoQuality: Flow<PreferredVideoQuality> =
         enumFlow(preferredVideoQualityKey, PreferredVideoQuality.BEST)
 
-    override val watchNextEnabled: Flow<Boolean> = context.dataStore.data.map { prefs ->
+    override val watchNextEnabled: Flow<Boolean> = safeData.map { prefs ->
         prefs[watchNextEnabledKey] ?: true
     }
 
-    override val previewCacheSize: Flow<PreviewCacheSize> = context.dataStore.data.map { prefs ->
+    override val previewCacheSize: Flow<PreviewCacheSize> = safeData.map { prefs ->
         val mb = prefs[previewCacheSizeKey] ?: PreviewCacheSize.MB_100.megabytes
         PreviewCacheSize.entries.firstOrNull { it.megabytes == mb } ?: PreviewCacheSize.MB_100
     }
 
-    override val autoSkipOpeningsEndings: Flow<Boolean> = context.dataStore.data.map { prefs ->
+    override val autoSkipOpeningsEndings: Flow<Boolean> = safeData.map { prefs ->
         prefs[autoSkipOpeningsEndingsKey] ?: false
     }
 
-    override val showOpeningOnTimeline: Flow<Boolean> = context.dataStore.data.map { prefs ->
+    override val showOpeningOnTimeline: Flow<Boolean> = safeData.map { prefs ->
         prefs[showOpeningOnTimelineKey] ?: false
     }
 
-    override val autoPlayNextEpisode: Flow<Boolean> = context.dataStore.data.map { prefs ->
+    override val autoPlayNextEpisode: Flow<Boolean> = safeData.map { prefs ->
         prefs[autoPlayNextEpisodeKey] ?: false
     }
 
-    override val askDubbingOnWatch: Flow<Boolean> = context.dataStore.data.map { prefs ->
+    override val askDubbingOnWatch: Flow<Boolean> = safeData.map { prefs ->
         prefs[askDubbingOnWatchKey] ?: false
     }
 
-    override val pictureInPictureEnabled: Flow<Boolean> = context.dataStore.data.map { prefs ->
+    override val pictureInPictureEnabled: Flow<Boolean> = safeData.map { prefs ->
         prefs[pictureInPictureEnabledKey] ?: true
     }
 
     override val playerOrientationMode: Flow<PlayerOrientationMode> =
         enumFlow(playerOrientationModeKey, PlayerOrientationMode.SYSTEM)
 
-    override val suggestNextEpisodeOnWatched: Flow<Boolean> = context.dataStore.data.map { prefs ->
+    override val suggestNextEpisodeOnWatched: Flow<Boolean> = safeData.map { prefs ->
         prefs[suggestNextEpisodeOnWatchedKey] ?: true
     }
 
     override val refreshContinueWatchingProgressOnLaunch: Flow<Boolean> =
-        context.dataStore.data.map { prefs ->
+        safeData.map { prefs ->
             prefs[refreshContinueWatchingProgressOnLaunchKey] ?: false
         }
 
     override val mobilePlayerGestureTutorialDismissed: Flow<Boolean> =
-        context.dataStore.data.map { prefs ->
+        safeData.map { prefs ->
             prefs[mobilePlayerGestureTutorialDismissedKey] ?: false
         }
 
     override val tvPlayerControlsTutorialDismissed: Flow<Boolean> =
-        context.dataStore.data.map { prefs ->
+        safeData.map { prefs ->
             prefs[tvPlayerControlsTutorialDismissedKey] ?: false
         }
 
-    override val tvPlayerVolumeKeysEnabled: Flow<Boolean> = context.dataStore.data.map { prefs ->
+    override val tvPlayerVolumeKeysEnabled: Flow<Boolean> = safeData.map { prefs ->
         prefs[tvPlayerVolumeKeysEnabledKey] ?: false
     }
 
-    override val advancedPlayerVolumeEnabled: Flow<Boolean> = context.dataStore.data.map { prefs ->
+    override val advancedPlayerVolumeEnabled: Flow<Boolean> = safeData.map { prefs ->
         prefs[advancedPlayerVolumeEnabledKey] ?: false
     }
 
-    override val advancedPlayerVolumePercent: Flow<Int> = context.dataStore.data.map { prefs ->
+    override val advancedPlayerVolumePercent: Flow<Int> = safeData.map { prefs ->
         (prefs[advancedPlayerVolumePercentKey] ?: 100).coerceIn(0, 100)
     }
 
-    override val volumeStabilizationEnabled: Flow<Boolean> = context.dataStore.data.map { prefs ->
+    override val volumeStabilizationEnabled: Flow<Boolean> = safeData.map { prefs ->
         prefs[volumeStabilizationEnabledKey] ?: false
     }
 
@@ -186,7 +204,7 @@ class DataStoreSettingsStore(
         playerName: String,
     ): Flow<PlayerResizeSettings> {
         val key = playerScopedResizeSettingsKey(animeId, animeTitle, playerName)
-        return context.dataStore.data.map { prefs ->
+        return safeData.map { prefs ->
             prefs[key]?.toPlayerResizeSettings() ?: PlayerResizeSettings()
         }
     }
@@ -197,7 +215,7 @@ class DataStoreSettingsStore(
         playerName: String,
     ): Flow<PlayerMobileVideoTransformSettings> {
         val key = playerScopedMobileVideoTransformSettingsKey(animeId, animeTitle, playerName)
-        return context.dataStore.data.map { prefs ->
+        return safeData.map { prefs ->
             prefs[key]?.toPlayerMobileVideoTransformSettings()
                 ?: PlayerMobileVideoTransformSettings()
         }
@@ -209,50 +227,50 @@ class DataStoreSettingsStore(
         enumFlow(backgroundStyleKey, BackgroundStyle.DARK)
 
     override val detailsButtonOrder: Flow<List<DetailsButtonAction>> =
-        context.dataStore.data.map { prefs ->
+        safeData.map { prefs ->
             prefs[detailsButtonOrderKey].toDetailsButtonOrder()
         }
 
-    override val hiddenRecommendationIds: Flow<Set<Int>> = context.dataStore.data.map { prefs ->
+    override val hiddenRecommendationIds: Flow<Set<Int>> = safeData.map { prefs ->
         prefs[hiddenRecommendationIdsKey].orEmpty().mapNotNull(String::toIntOrNull).toSet()
     }
 
-    override val yaniApplicationToken: Flow<String> = context.dataStore.data.map { prefs ->
+    override val yaniApplicationToken: Flow<String> = safeData.map { prefs ->
         prefs.yaniApplicationToken()
     }
 
     override val yaniApplicationTokenState: Flow<YaniApplicationTokenState> =
-        context.dataStore.data.map { prefs ->
+        safeData.map { prefs ->
             prefs.yaniApplicationTokenState()
         }
 
-    override val yaniUserId: Flow<Int> = context.dataStore.data.map { prefs ->
+    override val yaniUserId: Flow<Int> = safeData.map { prefs ->
         prefs[yaniUserIdKey] ?: 0
     }
 
-    override val yaniNickname: Flow<String> = context.dataStore.data.map { prefs ->
+    override val yaniNickname: Flow<String> = safeData.map { prefs ->
         prefs[yaniNicknameKey].orEmpty()
     }
 
-    override val yaniAvatarUrl: Flow<String> = context.dataStore.data.map { prefs ->
+    override val yaniAvatarUrl: Flow<String> = safeData.map { prefs ->
         prefs[yaniAvatarUrlKey].orEmpty()
     }
 
-    override val yaniTokenRefreshAt: Flow<Long> = context.dataStore.data.map { prefs ->
+    override val yaniTokenRefreshAt: Flow<Long> = safeData.map { prefs ->
         prefs[yaniTokenRefreshAtKey]?.toLongOrNull() ?: 0L
     }
 
-    override val yaniUnreadNotificationsCount: Flow<Int> = context.dataStore.data.map { prefs ->
+    override val yaniUnreadNotificationsCount: Flow<Int> = safeData.map { prefs ->
         prefs[yaniUnreadNotificationsCountKey] ?: 0
     }
 
     override val yaniContentLanguage: Flow<YaniContentLanguage> =
-        context.dataStore.data.map { prefs ->
+        safeData.map { prefs ->
             YaniContentLanguage.fromPreferenceValue(prefs[yaniContentLanguageKey])
-                ?: YaniContentLanguage.fromSystemLocale(context)
+                ?: resolveSystemContentLanguage()
         }
 
-    override val settingsSnapshot: Flow<SettingsSnapshot> = context.dataStore.data.map { prefs ->
+    override val settingsSnapshot: Flow<SettingsSnapshot> = safeData.map { prefs ->
         SettingsSnapshot(
             appTheme = prefs.enum(appThemeKey, AppTheme.WARM_AMBER),
             backgroundStyle = prefs.enum(backgroundStyleKey, BackgroundStyle.DARK),
@@ -296,13 +314,13 @@ class DataStoreSettingsStore(
             videoExportAutoEnabled = prefs[videoExportAutoEnabledKey] ?: false,
             yaniApplicationToken = prefs.yaniApplicationToken(),
             contentLanguage = YaniContentLanguage.fromPreferenceValue(prefs[yaniContentLanguageKey])
-                ?: YaniContentLanguage.fromSystemLocale(context),
+                ?: resolveSystemContentLanguage(),
             detailsButtonOrder = prefs[detailsButtonOrderKey].toDetailsButtonOrder(),
         )
     }
 
     override val mainSettingsSnapshot: Flow<MainSettingsSnapshot> =
-        context.dataStore.data.map { prefs ->
+        safeData.map { prefs ->
             MainSettingsSnapshot(
                 appTheme = prefs.enum(appThemeKey, AppTheme.WARM_AMBER),
                 backgroundStyle = prefs.enum(backgroundStyleKey, BackgroundStyle.DARK),
@@ -318,7 +336,7 @@ class DataStoreSettingsStore(
         }
 
     override val supportPromptSnapshot: Flow<SupportPromptSnapshot> =
-        context.dataStore.data.map { prefs ->
+        safeData.map { prefs ->
             SupportPromptSnapshot(
                 dismissed = prefs[supportPromptDismissedKey] ?: false,
                 firstEligibleTimeMs = prefs[supportPromptFirstInstallTimeMsKey]
@@ -326,19 +344,19 @@ class DataStoreSettingsStore(
             )
         }
 
-    override val lastSeenAnnouncementId: Flow<String> = context.dataStore.data.map { prefs ->
+    override val lastSeenAnnouncementId: Flow<String> = safeData.map { prefs ->
         prefs[lastSeenAnnouncementIdKey].orEmpty()
     }
 
-    override val videoExportDirectoryUri: Flow<String> = context.dataStore.data.map { prefs ->
+    override val videoExportDirectoryUri: Flow<String> = safeData.map { prefs ->
         prefs[videoExportDirectoryUriKey].orEmpty()
     }
 
-    override val videoExportDirectoryName: Flow<String> = context.dataStore.data.map { prefs ->
+    override val videoExportDirectoryName: Flow<String> = safeData.map { prefs ->
         prefs[videoExportDirectoryNameKey].orEmpty()
     }
 
-    override val videoExportAutoEnabled: Flow<Boolean> = context.dataStore.data.map { prefs ->
+    override val videoExportAutoEnabled: Flow<Boolean> = safeData.map { prefs ->
         prefs[videoExportAutoEnabledKey] ?: false
     }
 
@@ -570,7 +588,7 @@ class DataStoreSettingsStore(
     override suspend fun ensureYaniContentLanguageInitialized() {
         context.dataStore.edit { prefs ->
             if (YaniContentLanguage.fromPreferenceValue(prefs[yaniContentLanguageKey]) == null) {
-                prefs[yaniContentLanguageKey] = YaniContentLanguage.fromSystemLocale(context).name
+                prefs[yaniContentLanguageKey] = resolveSystemContentLanguage().name
             }
         }
     }
@@ -658,7 +676,7 @@ class DataStoreSettingsStore(
     private inline fun <reified T : Enum<T>> enumFlow(
         key: Preferences.Key<String>,
         default: T,
-    ): Flow<T> = context.dataStore.data.map { prefs -> prefs.enum(key, default) }
+    ): Flow<T> = safeData.map { prefs -> prefs.enum(key, default) }
 
     /**
      * Пишет enum по имени константы. Здесь `reified` не нужен — для записи хватает `value.name`,
@@ -762,6 +780,23 @@ class DataStoreSettingsStore(
             offsetX = offsetX,
             offsetY = offsetY,
         )
+    }
+
+    /**
+     * Системный язык как [YaniContentLanguage] по умолчанию, когда язык контента ещё не выбран
+     * пользователем. Живёт здесь (а не в [YaniContentLanguage]), чтобы enum оставался чистым
+     * Kotlin-типом без зависимости на [Context].
+     */
+    private fun resolveSystemContentLanguage(): YaniContentLanguage {
+        val languageCode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            context.resources.configuration.locales.get(0)?.language
+        } else {
+            @Suppress("DEPRECATION")
+            context.resources.configuration.locale?.language
+        }
+        return YaniContentLanguage.entries.firstOrNull {
+            it.apiCode.equals(languageCode, ignoreCase = true)
+        } ?: YaniContentLanguage.DEFAULT
     }
 
     companion object {

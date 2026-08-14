@@ -1,6 +1,6 @@
 package su.afk.yummy.tv.feature.account.account.handler
 
-import su.afk.yummy.tv.core.preferences.settings.SettingsStore
+import su.afk.yummy.tv.core.preferences.settings.YaniAccountSettingsStore
 import su.afk.yummy.tv.domain.account.usecase.DeleteAllNotificationsUseCase
 import su.afk.yummy.tv.domain.account.usecase.DeleteNotificationUseCase
 import su.afk.yummy.tv.domain.account.usecase.MarkAllNotificationsReadUseCase
@@ -10,7 +10,7 @@ import javax.inject.Inject
 
 /** Performs notification actions and resolves notification navigation targets. */
 internal class AccountNotificationHandler @Inject constructor(
-    private val settingsStore: SettingsStore,
+    private val settingsStore: YaniAccountSettingsStore,
     private val resolveNotificationAnimeId: ResolveNotificationAnimeIdUseCase,
     private val markNotificationReadUseCase: MarkNotificationReadUseCase,
     private val markAllNotificationsReadUseCase: MarkAllNotificationsReadUseCase,

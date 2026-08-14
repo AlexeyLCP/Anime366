@@ -2,7 +2,7 @@ package su.afk.yummy.tv.feature.account.account.handler
 
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
-import su.afk.yummy.tv.core.preferences.settings.SettingsStore
+import su.afk.yummy.tv.core.preferences.settings.YaniAccountSettingsStore
 import su.afk.yummy.tv.domain.account.model.NotificationCount
 import su.afk.yummy.tv.domain.account.model.ProfileNotification
 import su.afk.yummy.tv.domain.account.model.UserProfileSummary
@@ -17,7 +17,7 @@ import javax.inject.Inject
 
 /** Loads account hub data and keeps unread notification count preferences in sync. */
 internal class AccountHubHandler @Inject constructor(
-    private val settingsStore: SettingsStore,
+    private val settingsStore: YaniAccountSettingsStore,
     private val getUserProfileSummary: GetUserProfileSummaryUseCase,
     private val getUserStats: GetUserStatsUseCase,
     private val getNotifications: GetProfileNotificationsUseCase,

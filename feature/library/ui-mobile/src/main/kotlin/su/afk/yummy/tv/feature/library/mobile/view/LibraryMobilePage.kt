@@ -16,8 +16,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import su.afk.yummy.tv.core.designsystem.presenter.mobile.MobileBottomBarDefaults
-import su.afk.yummy.tv.core.designsystem.presenter.mobile.MobileTitleListCard
+import su.afk.yummy.tv.core.designsystem.presenter.mobile.bar.MobileBottomBarDefaults
+import su.afk.yummy.tv.core.designsystem.presenter.mobile.cards.MobileTitleListCard
 import su.afk.yummy.tv.feature.library.LibraryState
 import su.afk.yummy.tv.feature.library.mobile.R
 import su.afk.yummy.tv.feature.library.mobile.model.PendingLibraryMobileRemoval

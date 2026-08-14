@@ -14,7 +14,6 @@ dependencies {
     implementation(project(":core:designsystem"))
     implementation(project(":core:error"))
     implementation(project(":core:featuretoggle"))
-    implementation(project(":core:logger"))
     implementation(project(":core:navigation"))
     implementation(project(":core:preferences"))
     implementation(project(":core:storage"))

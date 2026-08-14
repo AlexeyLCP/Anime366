@@ -3,9 +3,9 @@ package su.afk.yummy.tv.feature.player
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiEffect
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiEvent
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiState
-import su.afk.yummy.tv.core.preferences.settings.PlayerOrientationMode
-import su.afk.yummy.tv.core.preferences.settings.PlayerResizeMode
-import su.afk.yummy.tv.core.preferences.settings.PlayerZoomLevel
+import su.afk.yummy.tv.core.preferences.settings.model.PlayerOrientationMode
+import su.afk.yummy.tv.core.preferences.settings.model.PlayerResizeMode
+import su.afk.yummy.tv.core.preferences.settings.model.PlayerZoomLevel
 import su.afk.yummy.tv.feature.player.model.PlayerFinalEpisodeAction
 import su.afk.yummy.tv.feature.player.model.PlayerNextEpisodeSource
 import su.afk.yummy.tv.feature.player.model.PlayerProgressSnapshot

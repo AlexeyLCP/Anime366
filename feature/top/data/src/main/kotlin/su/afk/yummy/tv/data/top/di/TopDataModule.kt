@@ -4,8 +4,8 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import su.afk.yummy.tv.core.network.YaniHttpClientProvider
-import su.afk.yummy.tv.core.preferences.settings.SettingsStore
+import su.afk.yummy.tv.core.network.yani.YaniHttpClientProvider
+import su.afk.yummy.tv.core.preferences.settings.YaniAccountSettingsStore
 import su.afk.yummy.tv.core.storage.top.AnimeTopStore
 import su.afk.yummy.tv.data.top.network.YaniAnimeTopApi
 import su.afk.yummy.tv.data.top.repository.YaniAnimeTopRepository
@@ -26,7 +26,7 @@ object TopDataModule {
     fun provideAnimeTopRepository(
         api: YaniAnimeTopApi,
         topStore: AnimeTopStore,
-        settingsStore: SettingsStore,
+        settingsStore: YaniAccountSettingsStore,
     ): AnimeTopRepository =
         YaniAnimeTopRepository(api, topStore, settingsStore)
 }

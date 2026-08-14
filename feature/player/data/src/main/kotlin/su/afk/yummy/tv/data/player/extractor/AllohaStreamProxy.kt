@@ -13,7 +13,7 @@ import kotlinx.coroutines.launch
 import okhttp3.ConnectionPool
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import su.afk.yummy.tv.core.utils.ioScope
+import su.afk.yummy.tv.core.utils.coroutines.ioScope
 import java.io.OutputStream
 import java.net.ServerSocket
 import java.net.Socket

@@ -30,7 +30,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import su.afk.yummy.tv.core.designsystem.presenter.components.CachedAsyncImage
 import su.afk.yummy.tv.core.designsystem.presenter.focus.tvFocusableClick
-import su.afk.yummy.tv.core.utils.formatFeedDateTime
+import su.afk.yummy.tv.core.utils.formatting.formatFeedDateTime
 import su.afk.yummy.tv.domain.posts.model.PostSummary
 
 private val CardShape = RoundedCornerShape(16.dp)

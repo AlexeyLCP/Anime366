@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.withContext
 import su.afk.yummy.tv.core.preferences.auth.YaniAuthPreferences
-import su.afk.yummy.tv.core.preferences.settings.SettingsStore
+import su.afk.yummy.tv.core.preferences.settings.YaniAccountSettingsStore
 import su.afk.yummy.tv.core.storage.account.ACCOUNT_PROFILE_KEY_CURRENT
 import su.afk.yummy.tv.core.storage.account.AccountStorageStore
 import su.afk.yummy.tv.core.storage.account.accountProfileUserKey
@@ -32,7 +32,7 @@ import su.afk.yummy.tv.data.account.storage.mapper.toAccount as toStoredAccount
 
 class YaniAccountRepository(
     private val api: YaniAccountApi,
-    private val settingsStore: SettingsStore,
+    private val settingsStore: YaniAccountSettingsStore,
     private val yaniAuthPreferences: YaniAuthPreferences,
     private val accountStorage: AccountStorageStore,
     private val documentCache: DocumentCacheStore,

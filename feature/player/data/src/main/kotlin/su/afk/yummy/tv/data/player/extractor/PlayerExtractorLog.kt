@@ -1,17 +1,17 @@
 package su.afk.yummy.tv.data.player.extractor
 
-import su.afk.yummy.tv.core.logger.AppLogger
+import su.afk.yummy.tv.core.analytics.api.AnalyticsTracker
 import java.net.URI
 
 private const val TAG = "PlayerExtractor"
 
-internal fun logExtractorFailure(
+internal fun AnalyticsTracker.logExtractorFailure(
     extractor: String,
     url: String,
     reason: String,
     throwable: Throwable? = null,
 ) {
-    AppLogger.w(TAG, throwable) {
+    log(TAG, throwable) {
         "$extractor failed at ${url.safeUrlForLog()}: $reason"
     }
 }

@@ -1,6 +1,6 @@
 package su.afk.yummy.tv.data.home.storage.mapper
 
-import su.afk.yummy.tv.core.error.StringProvider
+import su.afk.yummy.tv.core.error.api.StringProvider
 import su.afk.yummy.tv.core.storage.home.HOME_FEED_ACTION_COLLECTION
 import su.afk.yummy.tv.core.storage.home.HOME_FEED_ACTION_SERIES
 import su.afk.yummy.tv.core.storage.home.HOME_FEED_ACTION_VIDEO
@@ -14,7 +14,7 @@ import su.afk.yummy.tv.core.storage.home.HomeFeedCache
 import su.afk.yummy.tv.core.storage.home.HomeFeedCacheEntry
 import su.afk.yummy.tv.core.storage.home.HomeFeedItemEntry
 import su.afk.yummy.tv.core.storage.watchprogress.WatchProgressEntry
-import su.afk.yummy.tv.core.utils.toHttpsUrl
+import su.afk.yummy.tv.core.utils.network.toHttpsUrl
 import su.afk.yummy.tv.data.home.R
 import su.afk.yummy.tv.data.home.dto.YaniAnimeDto
 import su.afk.yummy.tv.data.home.dto.YaniCollectionDto

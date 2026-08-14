@@ -8,7 +8,7 @@ import su.afk.yummy.tv.core.storage.search.SearchItemEntry
 import su.afk.yummy.tv.core.storage.search.SearchPageCache
 import su.afk.yummy.tv.core.storage.search.SearchPageEntry
 import su.afk.yummy.tv.core.storage.search.SearchTypeEntry
-import su.afk.yummy.tv.core.utils.toHttpsUrl
+import su.afk.yummy.tv.core.utils.network.toHttpsUrl
 import su.afk.yummy.tv.data.search.dto.YaniSearchCatalogDto
 import su.afk.yummy.tv.data.search.dto.YaniSearchGenresDto
 import su.afk.yummy.tv.data.search.dto.YaniSearchItemDto

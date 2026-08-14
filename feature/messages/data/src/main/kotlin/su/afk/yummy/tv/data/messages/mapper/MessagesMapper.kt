@@ -1,6 +1,6 @@
 package su.afk.yummy.tv.data.messages.mapper
 
-import su.afk.yummy.tv.core.utils.toHttpsUrl
+import su.afk.yummy.tv.core.utils.network.toHttpsUrl
 import su.afk.yummy.tv.data.messages.dto.YaniDialogDto
 import su.afk.yummy.tv.data.messages.dto.YaniMessageAvatarDto
 import su.afk.yummy.tv.data.messages.dto.YaniMessageDto

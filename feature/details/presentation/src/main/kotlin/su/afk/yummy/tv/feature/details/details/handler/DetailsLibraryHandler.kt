@@ -9,8 +9,8 @@ import su.afk.yummy.tv.domain.account.usecase.SetAnimeListUseCase
 import su.afk.yummy.tv.domain.library.usecase.RemoveLibraryItemUseCase
 import su.afk.yummy.tv.domain.library.usecase.SetLibraryFavoriteUseCase
 import su.afk.yummy.tv.domain.library.usecase.UpsertLibraryItemUseCase
+import su.afk.yummy.tv.feature.details.mapper.toLibraryPoster
 import su.afk.yummy.tv.feature.details.utils.toLibraryItem
-import su.afk.yummy.tv.feature.details.utils.toLibraryPoster
 import javax.inject.Inject
 
 /** Applies details-screen library and favorite mutations with local-first rollback support. */

@@ -11,7 +11,5 @@ android {
 }
 
 dependencies {
-    implementation(project(":core:logger"))
-
     implementation(libs.appmetrica.analytics)
 }

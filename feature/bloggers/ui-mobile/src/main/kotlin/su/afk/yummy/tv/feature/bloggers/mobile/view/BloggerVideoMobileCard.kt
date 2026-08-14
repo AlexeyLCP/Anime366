@@ -34,8 +34,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import su.afk.yummy.tv.core.designsystem.presenter.theme.YummySemanticColors
-import su.afk.yummy.tv.core.utils.formatFeedDateTime
-import su.afk.yummy.tv.core.utils.toCompactCount
+import su.afk.yummy.tv.core.utils.formatting.formatFeedDateTime
+import su.afk.yummy.tv.core.utils.formatting.toCompactCount
 import su.afk.yummy.tv.domain.bloggers.model.BloggerVideo
 import su.afk.yummy.tv.feature.bloggers.mobile.R
 

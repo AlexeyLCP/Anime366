@@ -16,9 +16,9 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.BaseViewModelNew
-import su.afk.yummy.tv.core.error.IErrorHandlerUseCase
-import su.afk.yummy.tv.core.error.storage.RetryStorage
-import su.afk.yummy.tv.core.navigation.NavigationManager
+import su.afk.yummy.tv.core.error.api.IErrorHandlerUseCase
+import su.afk.yummy.tv.core.error.api.RetryStorage
+import su.afk.yummy.tv.core.navigation.manager.INavigationManager
 import su.afk.yummy.tv.domain.account.usecase.ObserveAccountSessionUseCase
 import su.afk.yummy.tv.domain.messages.MessagesMutationNotifier
 import su.afk.yummy.tv.domain.messages.model.ChatMessage
@@ -39,7 +39,7 @@ class ChatViewModel @AssistedInject constructor(
     private val savedStateHandle: SavedStateHandle,
     override val errorHandler: IErrorHandlerUseCase,
     override val retryStorage: RetryStorage,
-    private val nav: NavigationManager,
+    private val nav: INavigationManager,
     private val accountNavigator: IAccountNavigator,
     private val observeAccountSession: ObserveAccountSessionUseCase,
     private val getDialogs: GetDialogsUseCase,
@@ -111,6 +111,7 @@ class ChatViewModel @AssistedInject constructor(
                 setState { copy(draft = event.text) }
                 savedStateHandle[draftKey] = event.text
             }
+
             ChatState.Event.SendSelected -> send()
             is ChatState.Event.ReplySelected -> beginReply(event.messageId)
             ChatState.Event.ReplyCancelled -> setState { copy(replyingTo = null) }

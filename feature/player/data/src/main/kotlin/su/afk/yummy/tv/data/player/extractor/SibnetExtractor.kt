@@ -2,6 +2,7 @@ package su.afk.yummy.tv.data.player.extractor
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import su.afk.yummy.tv.core.analytics.api.AnalyticsTracker
 import su.afk.yummy.tv.data.player.utils.CHROME_UA
 import su.afk.yummy.tv.domain.player.isSibnetPlayerUrl
 import su.afk.yummy.tv.domain.player.model.PlayerStreamRequest
@@ -11,6 +12,7 @@ import javax.inject.Inject
 
 internal class SibnetExtractor @Inject constructor(
     private val httpClient: PlayerHttpClient,
+    private val analyticsTracker: AnalyticsTracker,
 ) : PlayerStreamExtractor {
 
     override fun supports(url: String): Boolean = url.isSibnetPlayerUrl()
@@ -23,7 +25,11 @@ internal class SibnetExtractor @Inject constructor(
         try {
             val page = fetchPlayerPage(playerUrl)
             val streamUrl = extractStreamUrl(page, playerUrl) ?: run {
-                logExtractorFailure("Sibnet", playerUrl, "MP4 source was not found")
+                analyticsTracker.logExtractorFailure(
+                    "Sibnet",
+                    playerUrl,
+                    "MP4 source was not found"
+                )
                 return@withContext PlayerStreamResolveResult.Failed
             }
 
@@ -36,7 +42,12 @@ internal class SibnetExtractor @Inject constructor(
                 ),
             )
         } catch (e: Exception) {
-            logExtractorFailure("Sibnet", playerUrl, "unexpected extractor error", e)
+            analyticsTracker.logExtractorFailure(
+                "Sibnet",
+                playerUrl,
+                "unexpected extractor error",
+                e
+            )
             PlayerStreamResolveResult.Failed
         }
     }

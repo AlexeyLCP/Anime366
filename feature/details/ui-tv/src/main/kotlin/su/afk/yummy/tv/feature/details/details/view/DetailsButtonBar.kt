@@ -68,8 +68,8 @@ import su.afk.yummy.tv.core.designsystem.presenter.focus.requestFocusUntilTimeou
 import su.afk.yummy.tv.core.designsystem.presenter.focus.tvFocusableClick
 import su.afk.yummy.tv.core.designsystem.presenter.theme.YummySemanticColors
 import su.afk.yummy.tv.core.model.anime.AnimeDetails
-import su.afk.yummy.tv.core.preferences.settings.DetailsButtonAction
 import su.afk.yummy.tv.core.preferences.settings.SettingsStore
+import su.afk.yummy.tv.core.preferences.settings.model.DetailsButtonAction
 import su.afk.yummy.tv.domain.account.model.UserAnimeList
 import su.afk.yummy.tv.feature.details.R
 import su.afk.yummy.tv.feature.details.details.model.ButtonData

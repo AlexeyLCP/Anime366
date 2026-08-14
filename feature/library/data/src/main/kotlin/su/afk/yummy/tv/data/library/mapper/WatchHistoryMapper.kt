@@ -1,6 +1,6 @@
 package su.afk.yummy.tv.data.library.mapper
 
-import su.afk.yummy.tv.core.utils.toHttpsUrlOrNull
+import su.afk.yummy.tv.core.utils.network.toHttpsUrlOrNull
 import su.afk.yummy.tv.data.library.dto.YaniWatchHistoryDto
 import su.afk.yummy.tv.domain.library.model.WatchHistoryEntry
 

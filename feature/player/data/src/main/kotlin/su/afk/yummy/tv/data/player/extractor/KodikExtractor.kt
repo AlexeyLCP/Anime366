@@ -3,6 +3,7 @@ package su.afk.yummy.tv.data.player.extractor
 import android.util.Base64
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import su.afk.yummy.tv.core.analytics.api.AnalyticsTracker
 import org.json.JSONObject
 import su.afk.yummy.tv.data.player.utils.BROWSER_STREAM_HEADERS
 import su.afk.yummy.tv.data.player.utils.CHROME_UA
@@ -29,6 +30,7 @@ internal sealed interface KodikResult {
 
 internal class KodikExtractor @Inject constructor(
     private val httpClient: PlayerHttpClient,
+    private val analyticsTracker: AnalyticsTracker,
 ) : PlayerStreamExtractor {
 
     private val QUALITY_ORDER = listOf(240, 360, 480, 720, 1080)
@@ -65,28 +67,44 @@ internal class KodikExtractor @Inject constructor(
 
                 val urlParamsStr = Regex("""\burlParams\s*=\s*'([^']+)'""").find(flat)
                     ?.groupValues?.get(1) ?: run {
-                    logExtractorFailure("Kodik", fullUrl, "urlParams were not found")
+                    analyticsTracker.logExtractorFailure(
+                        "Kodik",
+                        fullUrl,
+                        "urlParams were not found"
+                    )
                     return@withContext KodikResult.Failed
                 }
                 val type = Regex("""\b(?:videoInfo|vInfo)\.type\s*=\s*'([^']+)'""").find(flat)
                     ?.groupValues?.get(1) ?: run {
-                    logExtractorFailure("Kodik", fullUrl, "video type was not found")
+                    analyticsTracker.logExtractorFailure(
+                        "Kodik",
+                        fullUrl,
+                        "video type was not found"
+                    )
                     return@withContext KodikResult.Failed
                 }
                 val hash = Regex("""\b(?:videoInfo|vInfo)\.hash\s*=\s*'([^']+)'""").find(flat)
                     ?.groupValues?.get(1) ?: run {
-                    logExtractorFailure("Kodik", fullUrl, "video hash was not found")
+                    analyticsTracker.logExtractorFailure(
+                        "Kodik",
+                        fullUrl,
+                        "video hash was not found"
+                    )
                     return@withContext KodikResult.Failed
                 }
                 val id = Regex("""\b(?:videoInfo|vInfo)\.id\s*=\s*'([^']+)'""").find(flat)
                     ?.groupValues?.get(1) ?: run {
-                    logExtractorFailure("Kodik", fullUrl, "video id was not found")
+                    analyticsTracker.logExtractorFailure("Kodik", fullUrl, "video id was not found")
                     return@withContext KodikResult.Failed
                 }
 
                 val playerSrc = Regex("""src="((?://[^"]+)?/assets/js/app\.player_single[^"]+)"""")
                     .find(flat)?.groupValues?.get(1) ?: run {
-                    logExtractorFailure("Kodik", fullUrl, "player script URL was not found")
+                    analyticsTracker.logExtractorFailure(
+                        "Kodik",
+                        fullUrl,
+                        "player script URL was not found"
+                    )
                     return@withContext KodikResult.Failed
                 }
 
@@ -150,7 +168,7 @@ internal class KodikExtractor @Inject constructor(
                         qualities = qualities,
                     )
                 } else {
-                    logExtractorFailure(
+                    analyticsTracker.logExtractorFailure(
                         "Kodik",
                         endpointUrl,
                         "stream URL was not found in endpoint response"
@@ -163,7 +181,12 @@ internal class KodikExtractor @Inject constructor(
                     statusCode = e.statusCode,
                 )
             } catch (e: Exception) {
-                logExtractorFailure("Kodik", fullUrl, "unexpected extractor error", e)
+                analyticsTracker.logExtractorFailure(
+                    "Kodik",
+                    fullUrl,
+                    "unexpected extractor error",
+                    e
+                )
                 KodikResult.Failed
             }
         }

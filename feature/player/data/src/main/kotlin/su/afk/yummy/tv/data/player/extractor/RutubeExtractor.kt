@@ -2,6 +2,7 @@ package su.afk.yummy.tv.data.player.extractor
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import su.afk.yummy.tv.core.analytics.api.AnalyticsTracker
 import org.json.JSONObject
 import su.afk.yummy.tv.data.player.utils.CHROME_UA
 import su.afk.yummy.tv.domain.player.isRutubePlayerUrl
@@ -18,6 +19,7 @@ internal data class RutubeResult(
 
 internal class RutubeExtractor @Inject constructor(
     private val httpClient: PlayerHttpClient,
+    private val analyticsTracker: AnalyticsTracker,
 ) : PlayerStreamExtractor {
 
     private val RUTUBE_ORIGIN = "https://rutube.ru"
@@ -46,7 +48,7 @@ internal class RutubeExtractor @Inject constructor(
 
         try {
             val videoId = extractVideoId(normalizedUrl) ?: run {
-                logExtractorFailure("Rutube", normalizedUrl, "video id not found")
+                analyticsTracker.logExtractorFailure("Rutube", normalizedUrl, "video id not found")
                 return@withContext null
             }
             val headers = streamHeaders(normalizedUrl)
@@ -58,7 +60,11 @@ internal class RutubeExtractor @Inject constructor(
                         .takeIf { it.isNotBlank() && !it.equals("null", ignoreCase = true) }
                 }
                 ?: run {
-                    logExtractorFailure("Rutube", normalizedUrl, "video_balancer stream not found")
+                    analyticsTracker.logExtractorFailure(
+                        "Rutube",
+                        normalizedUrl,
+                        "video_balancer stream not found"
+                    )
                     return@withContext null
                 }
 
@@ -74,7 +80,12 @@ internal class RutubeExtractor @Inject constructor(
                 qualities = qualities,
             )
         } catch (e: Exception) {
-            logExtractorFailure("Rutube", normalizedUrl, "unexpected extractor error", e)
+            analyticsTracker.logExtractorFailure(
+                "Rutube",
+                normalizedUrl,
+                "unexpected extractor error",
+                e
+            )
             null
         }
     }
@@ -87,7 +98,7 @@ internal class RutubeExtractor @Inject constructor(
         val candidates = linkedMapOf("auto" to streamUrl)
         val masterPlaylist = runCatching { fetchText(streamUrl, referer) }
             .getOrElse {
-                logExtractorFailure(
+                analyticsTracker.logExtractorFailure(
                     "Rutube",
                     streamUrl,
                     "failed to load master playlist, fallback to auto",

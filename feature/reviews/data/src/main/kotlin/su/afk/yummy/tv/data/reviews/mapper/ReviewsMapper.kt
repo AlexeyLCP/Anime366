@@ -2,7 +2,7 @@ package su.afk.yummy.tv.data.reviews.mapper
 
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.doubleOrNull
-import su.afk.yummy.tv.core.utils.toHttpsUrlOrNull
+import su.afk.yummy.tv.core.utils.network.toHttpsUrlOrNull
 import su.afk.yummy.tv.data.reviews.dto.YaniReviewDto
 import su.afk.yummy.tv.domain.reviews.model.AnimeReviewSummary
 import su.afk.yummy.tv.domain.reviews.model.ReviewAuthor

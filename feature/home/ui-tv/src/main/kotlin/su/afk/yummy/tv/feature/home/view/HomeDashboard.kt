@@ -42,7 +42,6 @@ import kotlinx.coroutines.withTimeoutOrNull
 import su.afk.yummy.tv.core.designsystem.presenter.focus.tvFocusRestorer
 import su.afk.yummy.tv.core.designsystem.presenter.locals.LocalMainMenuFocusRequester
 import su.afk.yummy.tv.core.designsystem.presenter.locals.LocalPreferredContentFocusRequester
-import su.afk.yummy.tv.core.logger.AppLogger
 import su.afk.yummy.tv.domain.home.model.HomeContinueWatchingItem
 import su.afk.yummy.tv.domain.home.model.HomeFeed
 import su.afk.yummy.tv.domain.home.model.HomeFeedItem
@@ -191,9 +190,6 @@ internal fun HomeDashboard(
                 true
             } ?: false
             if (!focused) {
-                AppLogger.w(TAG) {
-                    "requestRowFocus: не удалось сфокусировать ряд $targetRowKey (index=$target)"
-                }
                 // Фокус фактически остался в прежнем ряду — возвращаем ключ, иначе подсветка
                 // заголовков и fallback восстановления будут указывать не на тот ряд.
                 if (lastFocusedRowKey == targetRowKey) {
@@ -428,4 +424,3 @@ private const val SECTION_HERO = "__hero"
 private const val ROW_CONTINUE_WATCHING = "continue_watching"
 private const val ROW_HERO = "hero_carousel"
 private const val ROW_FOCUS_TIMEOUT_MILLIS = 500L
-private const val TAG = "TvHomeFocus"

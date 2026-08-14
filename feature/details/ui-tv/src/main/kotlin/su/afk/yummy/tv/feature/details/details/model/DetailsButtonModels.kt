@@ -2,7 +2,7 @@ package su.afk.yummy.tv.feature.details.details.model
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import su.afk.yummy.tv.core.preferences.settings.DetailsButtonAction
+import su.afk.yummy.tv.core.preferences.settings.model.DetailsButtonAction
 
 internal enum class ButtonStyle { Filled, Outlined, Normal }
 

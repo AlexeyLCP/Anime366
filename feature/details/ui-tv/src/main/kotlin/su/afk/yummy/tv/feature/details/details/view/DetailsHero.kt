@@ -40,7 +40,7 @@ import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import su.afk.yummy.tv.core.designsystem.presenter.components.MarqueeTitleText
 import su.afk.yummy.tv.core.model.anime.AnimeDetails
-import su.afk.yummy.tv.core.preferences.settings.DetailsButtonAction
+import su.afk.yummy.tv.core.preferences.settings.model.DetailsButtonAction
 import su.afk.yummy.tv.domain.account.model.UserAnimeList
 import su.afk.yummy.tv.feature.details.details.model.VideosUiState
 import su.afk.yummy.tv.feature.details.model.DetailsWatchProgressIndex

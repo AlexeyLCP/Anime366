@@ -4,9 +4,9 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.BaseViewModelNew
-import su.afk.yummy.tv.core.error.IErrorHandlerUseCase
-import su.afk.yummy.tv.core.error.storage.RetryStorage
-import su.afk.yummy.tv.core.navigation.NavigationManager
+import su.afk.yummy.tv.core.error.api.IErrorHandlerUseCase
+import su.afk.yummy.tv.core.error.api.RetryStorage
+import su.afk.yummy.tv.core.navigation.manager.INavigationManager
 import su.afk.yummy.tv.feature.commonscreen.CommonScreenAnalytics
 import su.afk.yummy.tv.feature.commonscreen.navigator.CommonScreenDestination
 
@@ -14,7 +14,7 @@ internal class ErrorViewModel @AssistedInject constructor(
     @Assisted private val dest: CommonScreenDestination.ErrorNavigatorDest,
     override val errorHandler: IErrorHandlerUseCase,
     override val retryStorage: RetryStorage,
-    private val navManager: NavigationManager,
+    private val navManager: INavigationManager,
     private val analytics: CommonScreenAnalytics,
 ) : BaseViewModelNew<ErrorScreenState.State, ErrorScreenState.Event, ErrorScreenState.Effect>() {
 

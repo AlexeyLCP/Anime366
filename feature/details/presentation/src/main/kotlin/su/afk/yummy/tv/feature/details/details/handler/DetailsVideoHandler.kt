@@ -6,10 +6,10 @@ import su.afk.yummy.tv.domain.anime.usecase.GetCachedAnimeVideosUseCase
 import su.afk.yummy.tv.domain.anime.usecase.RefreshAnimeVideosUseCase
 import su.afk.yummy.tv.feature.details.details.model.SubscriptionOption
 import su.afk.yummy.tv.feature.details.details.model.VideosUiState
+import su.afk.yummy.tv.feature.details.mapper.toDetailsVideosResult
 import su.afk.yummy.tv.feature.details.model.DetailsWatchProgressIndex
 import su.afk.yummy.tv.feature.details.utils.resolveDetailsContinueTarget
 import su.afk.yummy.tv.feature.details.utils.selectInitialDetailsVideo
-import su.afk.yummy.tv.feature.details.utils.toDetailsVideosResult
 import su.afk.yummy.tv.feature.player.PlayerVideoSource
 import javax.inject.Inject
 

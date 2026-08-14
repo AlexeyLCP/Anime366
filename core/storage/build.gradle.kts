@@ -9,6 +9,7 @@ android {
 
 dependencies {
     implementation(project(":core:model"))
+    implementation(project(":core:utils"))
 
     implementation(libs.bundles.room)
 

@@ -5,7 +5,7 @@ import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import dagger.multibindings.IntoSet
-import su.afk.yummy.tv.core.navigation.NavRegistrar
+import su.afk.yummy.tv.core.navigation.registrar.NavRegistrar
 import su.afk.yummy.tv.feature.commonscreen.errorScreen.ErrorNavigator
 import su.afk.yummy.tv.feature.commonscreen.errorScreen.ErrorNavigatorRegister
 import su.afk.yummy.tv.feature.commonscreen.navigator.ImageViewNavigator

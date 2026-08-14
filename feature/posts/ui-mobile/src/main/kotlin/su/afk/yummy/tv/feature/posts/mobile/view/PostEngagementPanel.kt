@@ -16,7 +16,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import su.afk.yummy.tv.core.designsystem.presenter.mobile.MobileReactionSelection
 import su.afk.yummy.tv.core.designsystem.presenter.mobile.MobileReactionsCard
-import su.afk.yummy.tv.core.utils.toCompactCount
+import su.afk.yummy.tv.core.utils.formatting.toCompactCount
 import su.afk.yummy.tv.domain.posts.model.PostReaction
 import su.afk.yummy.tv.domain.posts.model.PostVote
 import su.afk.yummy.tv.feature.posts.mobile.R

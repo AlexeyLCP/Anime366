@@ -3,10 +3,11 @@ package su.afk.yummy.tv.feature.details.utils
 import su.afk.yummy.tv.core.model.anime.AnimeVideo
 import su.afk.yummy.tv.core.model.anime.AnimeWatchProgress
 import su.afk.yummy.tv.core.model.anime.isContinueWatchingProgress
+import su.afk.yummy.tv.core.utils.episode.isPlaceholderEpisode
+import su.afk.yummy.tv.feature.details.mapper.toPlayerVideoSource
 import su.afk.yummy.tv.feature.details.model.DetailsContinueTarget
 import su.afk.yummy.tv.feature.details.model.DetailsWatchProgressIndex
 import su.afk.yummy.tv.feature.player.PlayerVideoSource
-import su.afk.yummy.tv.feature.player.isPlaceholderEpisode
 import su.afk.yummy.tv.feature.player.isSupportedPlayerUrl
 import su.afk.yummy.tv.feature.player.selectContinueWatchingVideo
 

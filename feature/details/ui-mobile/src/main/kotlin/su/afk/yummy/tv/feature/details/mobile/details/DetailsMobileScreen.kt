@@ -25,8 +25,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.launch
 import su.afk.yummy.tv.core.designsystem.presenter.baseScreen.BaseScreen
-import su.afk.yummy.tv.core.designsystem.presenter.mobile.MobileMessage
-import su.afk.yummy.tv.core.designsystem.presenter.mobile.MobileTopBar
+import su.afk.yummy.tv.core.designsystem.presenter.mobile.bar.MobileTopBar
+import su.afk.yummy.tv.core.designsystem.presenter.mobile.state.MobileMessage
 import su.afk.yummy.tv.core.designsystem.presenter.preview.ScreenPreviewTheme
 import su.afk.yummy.tv.core.model.ErrorItem
 import su.afk.yummy.tv.feature.details.details.DetailsState

@@ -1,6 +1,6 @@
 package su.afk.yummy.tv.data.bloggers.mapper
 
-import su.afk.yummy.tv.core.utils.toHttpsUrl
+import su.afk.yummy.tv.core.utils.network.toHttpsUrl
 import su.afk.yummy.tv.data.bloggers.dto.BloggerDetailsDto
 import su.afk.yummy.tv.data.bloggers.dto.BloggerDto
 import su.afk.yummy.tv.data.bloggers.dto.BloggerVideoCategoryDto

@@ -26,7 +26,6 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.res.stringResource
 import kotlinx.coroutines.Job
-import su.afk.yummy.tv.core.designsystem.presenter.components.TvTitleCard
 import su.afk.yummy.tv.core.designsystem.presenter.dimensions.TvCardSpacing
 import su.afk.yummy.tv.core.designsystem.presenter.dimensions.TvScreenPadding
 import su.afk.yummy.tv.core.designsystem.presenter.dimensions.currentTvTitleCardDimensions
@@ -35,6 +34,7 @@ import su.afk.yummy.tv.core.designsystem.presenter.focus.launchTvLazyGridKeyFocu
 import su.afk.yummy.tv.core.designsystem.presenter.focus.rememberTvLazyFocusRestoreState
 import su.afk.yummy.tv.core.designsystem.presenter.focus.tvFocusRestorer
 import su.afk.yummy.tv.core.designsystem.presenter.locals.LocalPosterQuality
+import su.afk.yummy.tv.core.designsystem.presenter.tv.TvTitleCard
 import su.afk.yummy.tv.domain.account.model.AnimeCollectionSummary
 import su.afk.yummy.tv.feature.details.R
 import su.afk.yummy.tv.feature.details.collections.utils.posterUrl

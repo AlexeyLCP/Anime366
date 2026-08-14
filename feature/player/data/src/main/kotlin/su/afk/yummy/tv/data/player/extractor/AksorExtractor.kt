@@ -3,6 +3,7 @@ package su.afk.yummy.tv.data.player.extractor
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
+import su.afk.yummy.tv.core.analytics.api.AnalyticsTracker
 import su.afk.yummy.tv.data.player.utils.CHROME_UA
 import su.afk.yummy.tv.domain.player.isAksorPlayerUrl
 import su.afk.yummy.tv.domain.player.model.PlayerStreamRequest
@@ -18,6 +19,7 @@ internal data class AksorResult(
 
 internal class AksorExtractor @Inject constructor(
     private val httpClient: PlayerHttpClient,
+    private val analyticsTracker: AnalyticsTracker,
 ) : PlayerStreamExtractor {
 
     private val PLAYER_ORIGIN = "https://player.aksor.tv"
@@ -58,7 +60,12 @@ internal class AksorExtractor @Inject constructor(
                     qualities = qualities,
                 )
             } catch (e: Exception) {
-                logExtractorFailure("Aksor", iframeUrl, "unexpected extractor error", e)
+                analyticsTracker.logExtractorFailure(
+                    "Aksor",
+                    iframeUrl,
+                    "unexpected extractor error",
+                    e
+                )
                 null
             }
         }
@@ -142,10 +149,19 @@ internal class AksorExtractor @Inject constructor(
                     ?.groupValues
                     ?.get(1)
             }.onFailure { e ->
-                logExtractorFailure("Aksor", scriptUrl, "failed to inspect player script", e)
+                analyticsTracker.logExtractorFailure(
+                    "Aksor",
+                    scriptUrl,
+                    "failed to inspect player script",
+                    e
+                )
             }.getOrNull()
         } ?: run {
-            logExtractorFailure("Aksor", playerUrl, "API path was not found in player scripts")
+            analyticsTracker.logExtractorFailure(
+                "Aksor",
+                playerUrl,
+                "API path was not found in player scripts"
+            )
             return null
         }
 

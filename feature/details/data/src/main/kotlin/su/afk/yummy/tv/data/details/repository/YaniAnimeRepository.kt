@@ -15,8 +15,8 @@ import su.afk.yummy.tv.core.model.anime.AnimeRecommendationVote
 import su.afk.yummy.tv.core.model.anime.AnimeTrailer
 import su.afk.yummy.tv.core.model.anime.AnimeVideo
 import su.afk.yummy.tv.core.model.anime.AnimeWatchProgress
-import su.afk.yummy.tv.core.network.getOrFetchJson
-import su.afk.yummy.tv.core.preferences.settings.SettingsStore
+import su.afk.yummy.tv.core.network.cache.getOrFetchJson
+import su.afk.yummy.tv.core.preferences.settings.YaniAccountSettingsStore
 import su.afk.yummy.tv.core.storage.account.AccountStorageStore
 import su.afk.yummy.tv.core.storage.anime.AnimeStorageStore
 import su.afk.yummy.tv.core.storage.anime.isFresh
@@ -60,7 +60,7 @@ class YaniAnimeRepository(
     private val episodesApi: YummyEpisodesApi,
     private val animeStorage: AnimeStorageStore,
     private val accountStorage: AccountStorageStore,
-    private val settingsStore: SettingsStore,
+    private val settingsStore: YaniAccountSettingsStore,
     private val watchProgressStore: WatchProgressStore,
     private val documentCache: DocumentCacheStore,
 ) : AnimeRepository {

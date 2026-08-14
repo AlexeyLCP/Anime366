@@ -36,7 +36,6 @@ dependencyResolutionManagement {
 include(":app")
 
 include(":core:navigation")
-include(":core:logger")
 include(":core:analytics")
 include(":core:utils")
 include(":core:designsystem")
@@ -45,9 +44,8 @@ include(":core:preferences")
 include(":core:storage")
 include(":core:update")
 include(":core:featuretoggle")
-include(":core:tv:tv-api")
+include(":core:tv")
 include(":core:deeplink")
-include(":core:tv:tv-impl")
 include(":core:model")
 include(":core:error")
 

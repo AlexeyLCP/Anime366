@@ -1,6 +1,6 @@
 package su.afk.yummy.tv.feature.details.collections.utils
 
-import su.afk.yummy.tv.core.preferences.settings.PosterQuality
+import su.afk.yummy.tv.core.model.settings.PosterQuality
 import su.afk.yummy.tv.domain.account.model.AnimeCollectionSummary
 
 internal fun AnimeCollectionSummary.posterUrl(quality: PosterQuality): String? = when (quality) {

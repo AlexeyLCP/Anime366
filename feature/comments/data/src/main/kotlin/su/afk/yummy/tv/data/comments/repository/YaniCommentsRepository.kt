@@ -4,7 +4,7 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
-import su.afk.yummy.tv.core.preferences.settings.SettingsStore
+import su.afk.yummy.tv.core.preferences.settings.YaniAccountSettingsStore
 import su.afk.yummy.tv.core.storage.comments.CommentsStorageStore
 import su.afk.yummy.tv.core.storage.comments.isFresh
 import su.afk.yummy.tv.data.comments.dto.YaniClaimCommentBodyDto
@@ -33,7 +33,7 @@ private const val COMMENT_CACHE_PRUNE_AGE_MS = 24 * 60 * 60 * 1000L
 class YaniCommentsRepository(
     private val api: YaniCommentsApi,
     private val commentsStorage: CommentsStorageStore,
-    private val settingsStore: SettingsStore,
+    private val settingsStore: YaniAccountSettingsStore,
 ) : CommentsRepository {
 
     override suspend fun getComments(

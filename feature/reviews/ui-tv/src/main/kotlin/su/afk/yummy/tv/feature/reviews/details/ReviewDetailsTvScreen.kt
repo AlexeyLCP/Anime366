@@ -31,14 +31,14 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.flow.Flow
-import su.afk.yummy.tv.core.designsystem.presenter.components.loader.TvLoadingScreen
 import su.afk.yummy.tv.core.designsystem.presenter.dimensions.TvScreenPadding
 import su.afk.yummy.tv.core.designsystem.presenter.focus.TvFocusedGridBringIntoViewSpec
 import su.afk.yummy.tv.core.designsystem.presenter.focus.tvFocusHighlight
 import su.afk.yummy.tv.core.designsystem.presenter.focus.tvFocusIndicator
 import su.afk.yummy.tv.core.designsystem.presenter.theme.YummySemanticColors
+import su.afk.yummy.tv.core.designsystem.presenter.tv.TvLoadingScreen
 import su.afk.yummy.tv.core.designsystem.presenter.tv.TvStateMessage
-import su.afk.yummy.tv.core.utils.toCompactCount
+import su.afk.yummy.tv.core.utils.formatting.toCompactCount
 import su.afk.yummy.tv.domain.reviews.model.ReviewVote
 import su.afk.yummy.tv.feature.reviews.model.ReviewContentBlock
 import su.afk.yummy.tv.feature.reviews.tv.R
@@ -92,120 +92,124 @@ fun ReviewDetailsTvScreen(
             CompositionLocalProvider(
                 LocalBringIntoViewSpec provides TvFocusedGridBringIntoViewSpec,
             ) {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(TvScreenPadding.Horizontal),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-            ) {
-                item {
-                    Text(
-                        text = details.review.author.nickname,
-                        style = MaterialTheme.typography.headlineLarge,
-                        color = MaterialTheme.colorScheme.onBackground,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .focusRequester(topFocus)
-                            .tvFocusHighlight(
-                                onClick = {
-                                    onEvent(ReviewDetailsState.Event.AuthorSelected(details.review.author.id))
-                                },
-                            ),
-                    )
-                }
-                item {
-                    Text(
-                        details.review.status.reviewStatusLabel(),
-                        color = details.review.status.reviewStatusColor(),
-                        modifier = Modifier.tvFocusHighlight(),
-                    )
-                }
-                details.review.rating?.let { rating ->
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(TvScreenPadding.Horizontal),
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                ) {
                     item {
-                        Box(Modifier.tvFocusHighlight()) {
-                            Column {
-                                Text(
-                                    "${rating.average ?: 0} / 10",
-                                    style = MaterialTheme.typography.headlineMedium,
-                                    color = MaterialTheme.colorScheme.onBackground,
-                                )
-                                rating.categories.forEach {
+                        Text(
+                            text = details.review.author.nickname,
+                            style = MaterialTheme.typography.headlineLarge,
+                            color = MaterialTheme.colorScheme.onBackground,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .focusRequester(topFocus)
+                                .tvFocusHighlight(
+                                    onClick = {
+                                        onEvent(ReviewDetailsState.Event.AuthorSelected(details.review.author.id))
+                                    },
+                                ),
+                        )
+                    }
+                    item {
+                        Text(
+                            details.review.status.reviewStatusLabel(),
+                            color = details.review.status.reviewStatusColor(),
+                            modifier = Modifier.tvFocusHighlight(),
+                        )
+                    }
+                    details.review.rating?.let { rating ->
+                        item {
+                            Box(Modifier.tvFocusHighlight()) {
+                                Column {
                                     Text(
-                                        "${it.name}: ${it.score}/10",
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        "${rating.average ?: 0} / 10",
+                                        style = MaterialTheme.typography.headlineMedium,
+                                        color = MaterialTheme.colorScheme.onBackground,
                                     )
+                                    rating.categories.forEach {
+                                        Text(
+                                            "${it.name}: ${it.score}/10",
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        )
+                                    }
                                 }
                             }
                         }
                     }
-                }
-                details.review.checkComment?.takeIf { it.isNotBlank() }?.let { comment ->
+                    details.review.checkComment?.takeIf { it.isNotBlank() }?.let { comment ->
+                        item {
+                            Text(
+                                comment,
+                                color = MaterialTheme.colorScheme.error,
+                                modifier = Modifier.tvFocusHighlight(),
+                            )
+                        }
+                    }
+                    items(blocks, key = { it.id }) { block ->
+                        val focusModifier = when (block) {
+                            is ReviewContentBlock.Image -> Modifier.tvFocusIndicator()
+                            is ReviewContentBlock.Paragraph -> Modifier.tvFocusHighlight()
+                        }
+                        Box(
+                            Modifier
+                                .fillMaxWidth()
+                                .then(focusModifier)
+                        ) {
+                            when (block) {
+                                is ReviewContentBlock.Image -> ReviewRemoteImage(
+                                    block.url,
+                                    block.alt
+                                )
+
+                                is ReviewContentBlock.Paragraph -> ReviewRichParagraph(block)
+                            }
+                        }
+                    }
                     item {
-                        Text(
-                            comment,
-                            color = MaterialTheme.colorScheme.error,
-                            modifier = Modifier.tvFocusHighlight(),
-                        )
+                        val reactions = details.review.reactions
+                        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                            ReviewReactionButton(
+                                icon = Icons.Filled.ThumbUp,
+                                count = reactions.likes,
+                                color = YummySemanticColors.Like,
+                                selected = reactions.vote == ReviewVote.LIKE,
+                                onClick = {
+                                    onEvent(
+                                        ReviewDetailsState.Event.VoteSelected(
+                                            if (reactions.vote == ReviewVote.LIKE) ReviewVote.NONE else ReviewVote.LIKE,
+                                        ),
+                                    )
+                                },
+                            )
+                            ReviewReactionButton(
+                                icon = Icons.Filled.ThumbDown,
+                                count = reactions.dislikes,
+                                color = YummySemanticColors.Dislike,
+                                selected = reactions.vote == ReviewVote.DISLIKE,
+                                onClick = {
+                                    onEvent(
+                                        ReviewDetailsState.Event.VoteSelected(
+                                            if (reactions.vote == ReviewVote.DISLIKE) ReviewVote.NONE else ReviewVote.DISLIKE,
+                                        ),
+                                    )
+                                },
+                            )
+                        }
                     }
-                }
-                items(blocks, key = { it.id }) { block ->
-                    val focusModifier = when (block) {
-                        is ReviewContentBlock.Image -> Modifier.tvFocusIndicator()
-                        is ReviewContentBlock.Paragraph -> Modifier.tvFocusHighlight()
-                    }
-                    Box(
-                        Modifier
-                            .fillMaxWidth()
-                            .then(focusModifier)
-                    ) {
-                        when (block) {
-                            is ReviewContentBlock.Image -> ReviewRemoteImage(block.url, block.alt)
-                            is ReviewContentBlock.Paragraph -> ReviewRichParagraph(block)
+                    if (details.review.commentable) {
+                        item {
+                            ReviewActionButton(
+                                label = stringResource(
+                                    R.string.review_comments_tv,
+                                    details.commentsCount.toCompactCount(),
+                                ),
+                                onClick = { onEvent(ReviewDetailsState.Event.CommentsSelected) },
+                            )
                         }
                     }
                 }
-                item {
-                    val reactions = details.review.reactions
-                    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                        ReviewReactionButton(
-                            icon = Icons.Filled.ThumbUp,
-                            count = reactions.likes,
-                            color = YummySemanticColors.Like,
-                            selected = reactions.vote == ReviewVote.LIKE,
-                            onClick = {
-                                onEvent(
-                                    ReviewDetailsState.Event.VoteSelected(
-                                        if (reactions.vote == ReviewVote.LIKE) ReviewVote.NONE else ReviewVote.LIKE,
-                                    ),
-                                )
-                            },
-                        )
-                        ReviewReactionButton(
-                            icon = Icons.Filled.ThumbDown,
-                            count = reactions.dislikes,
-                            color = YummySemanticColors.Dislike,
-                            selected = reactions.vote == ReviewVote.DISLIKE,
-                            onClick = {
-                                onEvent(
-                                    ReviewDetailsState.Event.VoteSelected(
-                                        if (reactions.vote == ReviewVote.DISLIKE) ReviewVote.NONE else ReviewVote.DISLIKE,
-                                    ),
-                                )
-                            },
-                        )
-                    }
-                }
-                if (details.review.commentable) {
-                    item {
-                        ReviewActionButton(
-                            label = stringResource(
-                                R.string.review_comments_tv,
-                                details.commentsCount.toCompactCount(),
-                            ),
-                            onClick = { onEvent(ReviewDetailsState.Event.CommentsSelected) },
-                        )
-                    }
-                }
-            }
             }
         }
     }

@@ -4,7 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import su.afk.yummy.tv.core.model.anime.AnimeTrailer
-import su.afk.yummy.tv.core.utils.openExternalUri
+import su.afk.yummy.tv.core.utils.system.openExternalUri
 import su.afk.yummy.tv.feature.details.mobile.R
 import su.afk.yummy.tv.feature.details.mobile.view.DetailsMediaCard
 import su.afk.yummy.tv.feature.details.mobile.view.DetailsPlayIcon

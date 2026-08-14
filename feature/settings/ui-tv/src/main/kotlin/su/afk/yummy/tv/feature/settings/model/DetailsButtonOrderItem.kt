@@ -1,6 +1,6 @@
 package su.afk.yummy.tv.feature.settings.model
 
-import su.afk.yummy.tv.core.preferences.settings.DetailsButtonAction
+import su.afk.yummy.tv.core.preferences.settings.model.DetailsButtonAction
 
 internal data class DetailsButtonOrderItem(
     val key: String,

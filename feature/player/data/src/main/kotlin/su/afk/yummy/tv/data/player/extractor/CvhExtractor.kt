@@ -2,6 +2,7 @@ package su.afk.yummy.tv.data.player.extractor
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import su.afk.yummy.tv.core.analytics.api.AnalyticsTracker
 import org.json.JSONObject
 import su.afk.yummy.tv.data.player.utils.BROWSER_STREAM_HEADERS
 import su.afk.yummy.tv.data.player.utils.CHROME_UA
@@ -18,6 +19,7 @@ import javax.inject.Inject
 // Flow: playlist API → find vkId by episode+voice → video API → hlsUrl
 internal class CvhExtractor @Inject constructor(
     private val httpClient: PlayerHttpClient,
+    private val analyticsTracker: AnalyticsTracker,
 ) : PlayerStreamExtractor {
 
     private val PLAYLIST_URL = "https://plapi.cdnvideohub.com/api/v1/player/sv/playlist"
@@ -106,7 +108,7 @@ internal class CvhExtractor @Inject constructor(
             }
             qualities
         } catch (e: Exception) {
-            logExtractorFailure("CVH", iframeUrl, "unexpected extractor error", e)
+            analyticsTracker.logExtractorFailure("CVH", iframeUrl, "unexpected extractor error", e)
             null
         }
     }

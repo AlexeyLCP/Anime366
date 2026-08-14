@@ -6,7 +6,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import kotlinx.serialization.json.Json
 import okhttp3.OkHttpClient
-import su.afk.yummy.tv.core.network.YaniApiJson
+import su.afk.yummy.tv.core.network.yani.YaniApiJson
 import javax.inject.Singleton
 
 @Module
@@ -17,7 +17,6 @@ object NetworkModule {
     @Singleton
     fun provideJson(): Json = YaniApiJson
 
-    // Общий пул соединений для API и картинок; таймауты настраиваются в Ktor HttpTimeout.
     @Provides
     @Singleton
     fun provideOkHttpClient(): OkHttpClient = OkHttpClient()

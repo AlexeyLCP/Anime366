@@ -2,17 +2,17 @@ package su.afk.yummy.tv.feature.player.handler
 
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
-import su.afk.yummy.tv.core.preferences.settings.PlayerMobileVideoTransformSettings
-import su.afk.yummy.tv.core.preferences.settings.PlayerOrientationMode
-import su.afk.yummy.tv.core.preferences.settings.PlayerResizeSettings
-import su.afk.yummy.tv.core.preferences.settings.SettingsStore
+import su.afk.yummy.tv.core.preferences.settings.PlayerSettingsStore
+import su.afk.yummy.tv.core.preferences.settings.model.PlayerMobileVideoTransformSettings
+import su.afk.yummy.tv.core.preferences.settings.model.PlayerOrientationMode
+import su.afk.yummy.tv.core.preferences.settings.model.PlayerResizeSettings
 import su.afk.yummy.tv.feature.player.utils.PlayerResizeSettingsScope
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.milliseconds
 
 /** Coordinates player-specific settings flows and persistence for the active anime/player scope. */
 internal class PlayerSettingsHandler @Inject constructor(
-    private val settingsStore: SettingsStore,
+    private val settingsStore: PlayerSettingsStore,
 ) {
     val autoSkipOpeningsEndings: Flow<Boolean> = settingsStore.autoSkipOpeningsEndings
     val showOpeningOnTimeline: Flow<Boolean> = settingsStore.showOpeningOnTimeline

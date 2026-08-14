@@ -11,8 +11,8 @@ import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import su.afk.yummy.tv.core.preferences.settings.SettingsStore
-import su.afk.yummy.tv.core.utils.di.DefaultApplicationScope
+import su.afk.yummy.tv.core.preferences.settings.PlayerSettingsStore
+import su.afk.yummy.tv.core.utils.coroutines.di.DefaultApplicationScope
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.math.roundToInt
@@ -29,7 +29,7 @@ import kotlin.math.roundToInt
 @OptIn(FlowPreview::class)
 @Singleton
 class PlayerVolumeController @Inject constructor(
-    settingsStore: SettingsStore,
+    settingsStore: PlayerSettingsStore,
     @DefaultApplicationScope private val scope: CoroutineScope,
 ) {
     private val _volume = MutableStateFlow(DEFAULT_VOLUME)

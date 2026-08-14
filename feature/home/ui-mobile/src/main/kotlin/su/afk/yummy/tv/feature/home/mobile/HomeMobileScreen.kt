@@ -35,13 +35,13 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.launch
 import su.afk.yummy.tv.core.designsystem.presenter.baseScreen.BaseScreen
-import su.afk.yummy.tv.core.designsystem.presenter.mobile.LocalMobileMainActions
-import su.afk.yummy.tv.core.designsystem.presenter.mobile.MobileBottomBarDefaults
-import su.afk.yummy.tv.core.designsystem.presenter.mobile.MobileMessage
 import su.afk.yummy.tv.core.designsystem.presenter.mobile.MobileSectionHeader
+import su.afk.yummy.tv.core.designsystem.presenter.mobile.bar.LocalMobileMainActions
+import su.afk.yummy.tv.core.designsystem.presenter.mobile.bar.MobileBottomBarDefaults
+import su.afk.yummy.tv.core.designsystem.presenter.mobile.state.MobileMessage
 import su.afk.yummy.tv.core.designsystem.presenter.preview.ScreenPreviewTheme
 import su.afk.yummy.tv.core.model.ErrorItem
-import su.afk.yummy.tv.core.utils.openExternalUri
+import su.afk.yummy.tv.core.utils.system.openExternalUri
 import su.afk.yummy.tv.domain.home.model.HomeFeedItem
 import su.afk.yummy.tv.domain.home.model.HomeFeedSectionType
 import su.afk.yummy.tv.feature.home.HomeState

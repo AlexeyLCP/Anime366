@@ -1,217 +1,30 @@
 package su.afk.yummy.tv.core.preferences.settings
 
 import kotlinx.coroutines.flow.Flow
+import su.afk.yummy.tv.core.preferences.settings.model.DetailsButtonAction
+import su.afk.yummy.tv.core.preferences.settings.model.MainSettingsSnapshot
+import su.afk.yummy.tv.core.preferences.settings.model.SettingsSnapshot
 
-data class SettingsSnapshot(
-    val appTheme: AppTheme,
-    val backgroundStyle: BackgroundStyle,
-    val posterQuality: PosterQuality,
-    val posterCardSize: PosterCardSize,
-    val showTopTitleYear: Boolean,
-    val libraryContinueWatchingCardSize: LibraryContinueWatchingCardSize,
-    val preferredPlayer: PreferredPlayer,
-    val preferredVideoQuality: PreferredVideoQuality,
-    val watchNextEnabled: Boolean,
-    val previewCacheSize: PreviewCacheSize,
-    val autoSkipOpeningsEndings: Boolean,
-    val showOpeningOnTimeline: Boolean,
-    val autoPlayNextEpisode: Boolean,
-    val askDubbingOnWatch: Boolean,
-    val pictureInPictureEnabled: Boolean,
-    val playerOrientationMode: PlayerOrientationMode,
-    val suggestNextEpisodeOnWatched: Boolean,
-    val refreshContinueWatchingProgressOnLaunch: Boolean,
-    val tvPlayerVolumeKeysEnabled: Boolean,
-    val advancedPlayerVolumeEnabled: Boolean,
-    val volumeStabilizationEnabled: Boolean,
-    val videoExportAutoEnabled: Boolean,
-    val yaniApplicationToken: String,
-    val contentLanguage: YaniContentLanguage,
-    val detailsButtonOrder: List<DetailsButtonAction>,
-)
+/**
+ * Фасад над доменными хранилищами настроек ([YaniAccountSettingsStore], [PlayerSettingsStore],
+ * [AppearanceSettingsStore], [CacheSettingsStore], [VideoExportSettingsStore],
+ * [AppLifecycleSettingsStore]) для кода, которому нужны поля сразу нескольких доменов
+ * (например, [settingsSnapshot]/[mainSettingsSnapshot] агрегируют их). Однодоменным
+ * потребителям следует зависеть от узкого интерфейса напрямую.
+ */
+interface SettingsStore :
+    YaniAccountSettingsStore,
+    PlayerSettingsStore,
+    AppearanceSettingsStore,
+    CacheSettingsStore,
+    VideoExportSettingsStore,
+    AppLifecycleSettingsStore {
 
-data class MainSettingsSnapshot(
-    val appTheme: AppTheme,
-    val backgroundStyle: BackgroundStyle,
-    val posterQuality: PosterQuality,
-    val posterCardSize: PosterCardSize,
-    val yaniNickname: String,
-    val yaniAvatarUrl: String,
-    val yaniUnreadNotificationsCount: Int,
-)
-
-data class SupportPromptSnapshot(
-    val dismissed: Boolean,
-    val firstEligibleTimeMs: Long,
-)
-
-interface SettingsStore {
-
-    val currentPreviewCacheSize: PreviewCacheSize
-
-    val posterQuality: Flow<PosterQuality>
-    val posterCardSize: Flow<PosterCardSize>
-    val showTopTitleYear: Flow<Boolean>
-    val libraryContinueWatchingCardSize: Flow<LibraryContinueWatchingCardSize>
-    val preferredPlayer: Flow<PreferredPlayer>
-    val preferredVideoQuality: Flow<PreferredVideoQuality>
-    val watchNextEnabled: Flow<Boolean>
-    val previewCacheSize: Flow<PreviewCacheSize>
-    val autoSkipOpeningsEndings: Flow<Boolean>
-
-    /** Показывать участок опенинга на полосе прогресса плеера. */
-    val showOpeningOnTimeline: Flow<Boolean>
-    val autoPlayNextEpisode: Flow<Boolean>
-
-    /** Спрашивать озвучку при нажатии "Смотреть", вместо автовыбора самой популярной. */
-    val askDubbingOnWatch: Flow<Boolean>
-    val pictureInPictureEnabled: Flow<Boolean>
-
-    /** Принудительная альбомная ориентация плеера, не зависящая от системной блокировки поворота. */
-    val playerOrientationMode: Flow<PlayerOrientationMode>
-    val suggestNextEpisodeOnWatched: Flow<Boolean>
-    val refreshContinueWatchingProgressOnLaunch: Flow<Boolean>
-    val mobilePlayerGestureTutorialDismissed: Flow<Boolean>
-    val tvPlayerControlsTutorialDismissed: Flow<Boolean>
-    val tvPlayerVolumeKeysEnabled: Flow<Boolean>
-    val advancedPlayerVolumeEnabled: Flow<Boolean>
-    val advancedPlayerVolumePercent: Flow<Int>
-
-    /** Стабилизация громкости (сжатие динамического диапазона аудио). */
-    val volumeStabilizationEnabled: Flow<Boolean>
-    val playerResizeMode: Flow<PlayerResizeMode>
-    val playerZoomLevel: Flow<PlayerZoomLevel>
-    val appTheme: Flow<AppTheme>
-    val backgroundStyle: Flow<BackgroundStyle>
-    val detailsButtonOrder: Flow<List<DetailsButtonAction>>
-
-    /** Тайтлы, которые пользователь попросил больше не рекомендовать. */
-    val hiddenRecommendationIds: Flow<Set<Int>>
-
-    val yaniApplicationToken: Flow<String>
-    val yaniApplicationTokenState: Flow<YaniApplicationTokenState>
-    val yaniUserId: Flow<Int>
-    val yaniNickname: Flow<String>
-    val yaniAvatarUrl: Flow<String>
-    val yaniTokenRefreshAt: Flow<Long>
-    val yaniUnreadNotificationsCount: Flow<Int>
-    val yaniContentLanguage: Flow<YaniContentLanguage>
     val settingsSnapshot: Flow<SettingsSnapshot>
     val mainSettingsSnapshot: Flow<MainSettingsSnapshot>
-    val supportPromptSnapshot: Flow<SupportPromptSnapshot>
-
-    /** Идентификатор последнего объявления, которое пользователь закрыл кнопкой ОК. */
-    val lastSeenAnnouncementId: Flow<String>
-    val videoExportDirectoryUri: Flow<String>
-    val videoExportDirectoryName: Flow<String>
-    val videoExportAutoEnabled: Flow<Boolean>
-
-    fun playerResizeSettings(
-        animeId: Int,
-        animeTitle: String,
-        playerName: String,
-    ): Flow<PlayerResizeSettings>
-
-    fun playerMobileVideoTransformSettings(
-        animeId: Int,
-        animeTitle: String,
-        playerName: String,
-    ): Flow<PlayerMobileVideoTransformSettings>
-
-    suspend fun setPosterQuality(quality: PosterQuality)
-    suspend fun setPosterCardSize(size: PosterCardSize)
-    suspend fun setShowTopTitleYear(enabled: Boolean)
-    suspend fun setLibraryContinueWatchingCardSize(size: LibraryContinueWatchingCardSize)
-    suspend fun setPreferredPlayer(player: PreferredPlayer)
-    suspend fun setPreferredVideoQuality(quality: PreferredVideoQuality)
-    suspend fun setWatchNextEnabled(enabled: Boolean)
-    suspend fun setPreviewCacheSize(size: PreviewCacheSize)
-    suspend fun setAutoSkipOpeningsEndings(enabled: Boolean)
-    suspend fun setShowOpeningOnTimeline(enabled: Boolean)
-    suspend fun setAutoPlayNextEpisode(enabled: Boolean)
-    suspend fun setAskDubbingOnWatch(enabled: Boolean)
-    suspend fun setPictureInPictureEnabled(enabled: Boolean)
-    suspend fun setPlayerOrientationMode(mode: PlayerOrientationMode)
-    suspend fun setSuggestNextEpisodeOnWatched(enabled: Boolean)
-    suspend fun setRefreshContinueWatchingProgressOnLaunch(enabled: Boolean)
-    suspend fun dismissMobilePlayerGestureTutorial()
-    suspend fun resetMobilePlayerGestureTutorial()
-    suspend fun dismissTvPlayerControlsTutorial()
-    suspend fun resetTvPlayerControlsTutorial()
-    suspend fun setTvPlayerVolumeKeysEnabled(enabled: Boolean)
-    suspend fun setAdvancedPlayerVolumeEnabled(enabled: Boolean)
-    suspend fun setAdvancedPlayerVolumePercent(percent: Int)
-    suspend fun setVolumeStabilizationEnabled(enabled: Boolean)
-    suspend fun setPlayerResizeMode(mode: PlayerResizeMode)
-    suspend fun setPlayerZoomLevel(level: PlayerZoomLevel)
-
-    suspend fun setPlayerResizeSettings(
-        animeId: Int,
-        animeTitle: String,
-        playerName: String,
-        settings: PlayerResizeSettings,
-    )
-
-    suspend fun setPlayerMobileVideoTransformSettings(
-        animeId: Int,
-        animeTitle: String,
-        playerName: String,
-        settings: PlayerMobileVideoTransformSettings,
-    )
-
-    suspend fun setAppTheme(theme: AppTheme)
-    suspend fun setBackgroundStyle(style: BackgroundStyle)
-    suspend fun setDetailsButtonOrder(order: List<DetailsButtonAction>)
-    suspend fun setYaniApplicationToken(token: String)
-
-    suspend fun setYaniAccount(
-        userId: Int,
-        nickname: String,
-        avatarUrl: String?,
-        refreshedAt: Long = System.currentTimeMillis(),
-    )
-
-    suspend fun clearLegacyYaniAccessToken()
-    suspend fun setRecommendationHidden(animeId: Int, hidden: Boolean)
-    suspend fun clearYaniAccount()
-    suspend fun setYaniUnreadNotificationsCount(count: Int)
-    suspend fun setYaniContentLanguage(language: YaniContentLanguage)
-    suspend fun ensureYaniContentLanguageInitialized()
-    suspend fun ensureSupportPromptInstallTimeInitialized()
-    suspend fun dismissSupportPrompt()
-
-    /** Помечает объявление [id] как просмотренное, чтобы больше его не показывать. */
-    suspend fun markAnnouncementSeen(id: String)
-    suspend fun setVideoExportDirectory(uri: String, displayName: String)
-    suspend fun setVideoExportAutoEnabled(enabled: Boolean)
-
-    /** Returns `true` when [versionCode] differs from the previously started one. */
-    suspend fun markStartedVersion(versionCode: Int): Boolean
-
-    /**
-     * Returns `true` exactly once: the first time this is called after the streaming/download
-     * cache split, so callers can prune the now-unbounded-legacy entries a single time. Every
-     * later call returns `false`.
-     */
-    suspend fun consumeLegacyStreamingCachePruneFlag(): Boolean
 
     companion object {
-        val defaultDetailsButtonOrder: List<DetailsButtonAction> = listOf(
-            DetailsButtonAction.WATCH,
-            DetailsButtonAction.LIBRARY,
-            DetailsButtonAction.FAVORITE,
-            DetailsButtonAction.EPISODES,
-            DetailsButtonAction.FULL_DETAILS,
-            DetailsButtonAction.SUBSCRIPTIONS,
-            DetailsButtonAction.TRAILERS,
-            DetailsButtonAction.SIMILAR,
-            DetailsButtonAction.VIEWING_ORDER,
-            DetailsButtonAction.RATING,
-            DetailsButtonAction.COLLECTIONS,
-            DetailsButtonAction.COMMENTS,
-            DetailsButtonAction.REVIEWS,
-            DetailsButtonAction.BLOGGER_VIDEOS,
-            DetailsButtonAction.SCREENSHOTS,
-        )
+        val defaultDetailsButtonOrder: List<DetailsButtonAction>
+            get() = AppearanceSettingsStore.defaultDetailsButtonOrder
     }
 }

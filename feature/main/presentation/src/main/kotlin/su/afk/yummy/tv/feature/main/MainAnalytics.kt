@@ -2,7 +2,7 @@ package su.afk.yummy.tv.feature.main
 
 import su.afk.yummy.tv.core.analytics.api.AnalyticsTracker
 import su.afk.yummy.tv.core.analytics.utils.analyticsParamsOf
-import su.afk.yummy.tv.core.preferences.settings.YaniApplicationTokenState
+import su.afk.yummy.tv.core.preferences.settings.model.YaniApplicationTokenState
 import javax.inject.Inject
 
 internal class MainAnalytics @Inject constructor(

@@ -15,13 +15,13 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.BaseViewModelNew
-import su.afk.yummy.tv.core.error.IErrorHandlerUseCase
-import su.afk.yummy.tv.core.error.StringProvider
-import su.afk.yummy.tv.core.error.storage.RetryStorage
+import su.afk.yummy.tv.core.error.api.IErrorHandlerUseCase
+import su.afk.yummy.tv.core.error.api.RetryStorage
+import su.afk.yummy.tv.core.error.api.StringProvider
 import su.afk.yummy.tv.core.model.anime.AnimeVideo
 import su.afk.yummy.tv.core.model.anime.AnimeWatchProgress
-import su.afk.yummy.tv.core.navigation.NavigationManager
-import su.afk.yummy.tv.core.preferences.settings.PreferredPlayer
+import su.afk.yummy.tv.core.navigation.manager.INavigationManager
+import su.afk.yummy.tv.core.preferences.settings.model.PreferredPlayer
 import su.afk.yummy.tv.domain.account.model.UserAnimeList
 import su.afk.yummy.tv.feature.bloggers.IBloggerVideosNavigator
 import su.afk.yummy.tv.feature.comments.ICommentsNavigator
@@ -39,12 +39,12 @@ import su.afk.yummy.tv.feature.details.details.model.BalancerPickerState
 import su.afk.yummy.tv.feature.details.details.model.DubbingOption
 import su.afk.yummy.tv.feature.details.details.model.DubbingPickerState
 import su.afk.yummy.tv.feature.details.details.model.VideosUiState
-import su.afk.yummy.tv.feature.details.episodes.dubbings.episodeDubbingItems
 import su.afk.yummy.tv.feature.details.episodes.dubbings.selectEpisodeDubbingLaunchVideo
+import su.afk.yummy.tv.feature.details.mapper.episodeDubbingItems
+import su.afk.yummy.tv.feature.details.mapper.toLibraryPoster
 import su.afk.yummy.tv.feature.details.model.DetailsWatchProgressIndex
 import su.afk.yummy.tv.feature.details.presentation.R
 import su.afk.yummy.tv.feature.details.utils.subscribedKeys
-import su.afk.yummy.tv.feature.details.utils.toLibraryPoster
 import su.afk.yummy.tv.feature.player.PlayerVideoSource
 import su.afk.yummy.tv.feature.reviews.IReviewsNavigator
 
@@ -53,7 +53,7 @@ class DetailsViewModel @AssistedInject internal constructor(
     @Assisted private val animeId: Int,
     override val errorHandler: IErrorHandlerUseCase,
     override val retryStorage: RetryStorage,
-    private val nav: NavigationManager,
+    private val nav: INavigationManager,
     private val detailsNavigator: IDetailsNavigator,
     private val commentsNavigator: ICommentsNavigator,
     private val reviewsNavigator: IReviewsNavigator,

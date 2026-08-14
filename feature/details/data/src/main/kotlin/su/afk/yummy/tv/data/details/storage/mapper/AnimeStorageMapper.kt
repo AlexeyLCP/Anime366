@@ -38,7 +38,7 @@ import su.afk.yummy.tv.core.storage.anime.AnimeVideoCacheEntry
 import su.afk.yummy.tv.core.storage.anime.AnimeVideoEntry
 import su.afk.yummy.tv.core.storage.anime.AnimeVideosCache
 import su.afk.yummy.tv.core.storage.anime.AnimeViewingOrderEntry
-import su.afk.yummy.tv.core.utils.toHttpsUrl
+import su.afk.yummy.tv.core.utils.network.toHttpsUrl
 import su.afk.yummy.tv.data.details.dto.YaniAgeRatingDto
 import su.afk.yummy.tv.data.details.dto.YaniAnimeDetailsDto
 import su.afk.yummy.tv.data.details.dto.YaniAnimeVideoDto

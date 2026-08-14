@@ -11,8 +11,8 @@ import androidx.navigation3.runtime.NavKey
 import dagger.hilt.android.EntryPointAccessors
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.ScreenNavigator
 import su.afk.yummy.tv.core.model.ErrorItem
-import su.afk.yummy.tv.core.navigation.NavRegistrar
-import su.afk.yummy.tv.core.navigation.NavigationManager
+import su.afk.yummy.tv.core.navigation.manager.INavigationManager
+import su.afk.yummy.tv.core.navigation.registrar.NavRegistrar
 import su.afk.yummy.tv.feature.commonscreen.di.ErrorNavigatorEntryPoint
 import su.afk.yummy.tv.feature.commonscreen.navigator.CommonScreenDestination
 import su.afk.yummy.tv.feature.commonscreen.navigator.IErrorNavigator
@@ -24,7 +24,7 @@ class ErrorNavigator @Inject constructor() : IErrorNavigator {
 }
 
 class ErrorNavigatorRegister @Inject constructor() : NavRegistrar {
-    override fun register(builder: EntryProviderScope<NavKey>, nav: NavigationManager) =
+    override fun register(builder: EntryProviderScope<NavKey>, nav: INavigationManager) =
         with(builder) {
             entry<CommonScreenDestination.ErrorNavigatorDest> { dest ->
                 ErrorNavigatorEntry(dest)

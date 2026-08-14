@@ -1,6 +1,6 @@
 package su.afk.yummy.tv.feature.home.utils
 
-import su.afk.yummy.tv.core.preferences.settings.PosterQuality
+import su.afk.yummy.tv.core.model.settings.PosterQuality
 import su.afk.yummy.tv.domain.home.model.HomeFeedItem
 import su.afk.yummy.tv.domain.home.model.HomeFeedItemAction
 import su.afk.yummy.tv.domain.home.model.HomePoster

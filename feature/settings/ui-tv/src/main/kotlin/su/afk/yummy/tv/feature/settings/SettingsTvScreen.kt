@@ -28,7 +28,7 @@ import su.afk.yummy.tv.core.designsystem.presenter.locals.LocalMainMenuFocusRequ
 import su.afk.yummy.tv.core.designsystem.presenter.locals.LocalPreferredContentFocusRequester
 import su.afk.yummy.tv.core.designsystem.presenter.preview.ScreenPreviewTheme
 import su.afk.yummy.tv.core.preferences.interface_mode.AppInterfaceMode
-import su.afk.yummy.tv.core.utils.restartApplication
+import su.afk.yummy.tv.core.utils.system.restartApplication
 import su.afk.yummy.tv.feature.settings.model.SettingsTab
 import su.afk.yummy.tv.feature.settings.utils.label
 import su.afk.yummy.tv.feature.settings.view.SettingsTvCategoryList

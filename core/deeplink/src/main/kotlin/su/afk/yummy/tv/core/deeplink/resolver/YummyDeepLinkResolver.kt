@@ -2,7 +2,7 @@ package su.afk.yummy.tv.core.deeplink.resolver
 
 import android.net.Uri
 import androidx.navigation3.runtime.NavKey
-import su.afk.yummy.tv.core.navigation.NavigationManager
+import su.afk.yummy.tv.core.navigation.manager.INavigationManager
 import su.afk.yummy.tv.core.navigation.root.RootTab
 import su.afk.yummy.tv.feature.details.IDetailsNavigator
 import su.afk.yummy.tv.feature.videodownload.IVideoDownloadNavigator
@@ -11,7 +11,7 @@ import javax.inject.Inject
 internal class YummyDeepLinkResolver @Inject constructor(
     private val detailsNavigator: IDetailsNavigator,
     private val videoDownloadNavigator: IVideoDownloadNavigator,
-    private val navManager: NavigationManager,
+    private val navManager: INavigationManager,
 ) {
 
     fun resolve(uri: Uri): NavKey? {

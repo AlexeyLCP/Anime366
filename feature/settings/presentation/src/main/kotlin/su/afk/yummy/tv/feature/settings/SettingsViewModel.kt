@@ -6,14 +6,14 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.BaseViewModelNew
-import su.afk.yummy.tv.core.error.IErrorHandlerUseCase
-import su.afk.yummy.tv.core.error.storage.RetryStorage
-import su.afk.yummy.tv.core.navigation.NavigationManager
+import su.afk.yummy.tv.core.error.api.IErrorHandlerUseCase
+import su.afk.yummy.tv.core.error.api.RetryStorage
+import su.afk.yummy.tv.core.navigation.manager.INavigationManager
 import su.afk.yummy.tv.core.preferences.interface_mode.AppInterfaceMode
 import su.afk.yummy.tv.core.preferences.interface_mode.AppInterfaceModePreferences
 import su.afk.yummy.tv.core.preferences.settings.SettingsStore
 import su.afk.yummy.tv.core.tv.api.ITvIntegration
-import su.afk.yummy.tv.core.utils.CacheStorageInspector
+import su.afk.yummy.tv.core.utils.system.CacheStorageInspector
 import su.afk.yummy.tv.domain.videodownload.usecase.ObserveVideoExportDestinationUseCase
 import su.afk.yummy.tv.domain.videodownload.usecase.SelectVideoExportDestinationUseCase
 import su.afk.yummy.tv.feature.settings.navigator.SettingsDetailsButtonOrderDestination
@@ -27,7 +27,7 @@ class SettingsViewModel @Inject internal constructor(
     private val settingsStore: SettingsStore,
     private val interfaceModePreferences: AppInterfaceModePreferences,
     private val tvIntegration: ITvIntegration,
-    private val nav: NavigationManager,
+    private val nav: INavigationManager,
     private val analytics: SettingsAnalytics,
     private val observeVideoExportDestination: ObserveVideoExportDestinationUseCase,
     private val selectVideoExportDestination: SelectVideoExportDestinationUseCase,

@@ -1,0 +1,80 @@
+package su.afk.yummy.tv.core.network.yani
+
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import su.afk.yummy.tv.core.preferences.auth.YaniAuthPreferences
+import su.afk.yummy.tv.core.preferences.settings.YaniAccountSettingsStore
+
+internal class YaniRequestHeaderCache(
+    private val settingsStore: YaniAccountSettingsStore,
+    private val yaniAuthPreferences: YaniAuthPreferences,
+    private val scope: CoroutineScope,
+) {
+    private val initialLoadMutex = Mutex()
+
+    @Volatile
+    private var loaded = false
+
+    @Volatile
+    private var applicationToken = ""
+
+    @Volatile
+    private var refreshToken = ""
+
+    @Volatile
+    private var contentLanguageCode = ""
+
+    init {
+        scope.launch {
+            settingsStore.yaniApplicationToken.collectLatest { token ->
+                applicationToken = token
+            }
+        }
+        scope.launch {
+            yaniAuthPreferences.refreshToken.collectLatest { token ->
+                refreshToken = token
+            }
+        }
+        scope.launch {
+            settingsStore.yaniContentLanguage.collectLatest { language ->
+                contentLanguageCode = language.apiCode
+            }
+        }
+    }
+
+    suspend fun current(): YaniRequestHeaders {
+        if (!loaded) loadInitialValues()
+        return YaniRequestHeaders(
+            applicationToken = applicationToken,
+            refreshToken = refreshToken,
+            contentLanguageCode = contentLanguageCode,
+        )
+    }
+
+    private suspend fun loadInitialValues() {
+        initialLoadMutex.withLock {
+            if (loaded) return
+            coroutineScope {
+                val applicationTokenDeferred = async { settingsStore.yaniApplicationToken.first() }
+                val refreshTokenDeferred = async { yaniAuthPreferences.refreshToken.first() }
+                val contentLanguageDeferred = async { settingsStore.yaniContentLanguage.first() }
+                applicationToken = applicationTokenDeferred.await()
+                refreshToken = refreshTokenDeferred.await()
+                contentLanguageCode = contentLanguageDeferred.await().apiCode
+            }
+            loaded = true
+        }
+    }
+}
+
+internal data class YaniRequestHeaders(
+    val applicationToken: String,
+    val refreshToken: String,
+    val contentLanguageCode: String,
+)

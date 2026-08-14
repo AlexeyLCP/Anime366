@@ -17,15 +17,15 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.BaseViewModelNew
-import su.afk.yummy.tv.core.error.IErrorHandlerUseCase
-import su.afk.yummy.tv.core.error.StringProvider
-import su.afk.yummy.tv.core.error.storage.RetryStorage
+import su.afk.yummy.tv.core.error.api.IErrorHandlerUseCase
+import su.afk.yummy.tv.core.error.api.RetryStorage
+import su.afk.yummy.tv.core.error.api.StringProvider
 import su.afk.yummy.tv.core.model.anime.AnimeVideo
 import su.afk.yummy.tv.core.model.anime.AnimeWatchProgress
-import su.afk.yummy.tv.core.model.anime.utils.episodeGroupKey
-import su.afk.yummy.tv.core.navigation.NavigationManager
-import su.afk.yummy.tv.core.preferences.settings.PreferredPlayer
-import su.afk.yummy.tv.core.preferences.settings.SettingsStore
+import su.afk.yummy.tv.core.navigation.manager.INavigationManager
+import su.afk.yummy.tv.core.preferences.settings.PlayerSettingsStore
+import su.afk.yummy.tv.core.preferences.settings.model.PreferredPlayer
+import su.afk.yummy.tv.core.utils.episode.episodeGroupKey
 import su.afk.yummy.tv.domain.account.usecase.ObserveAccountSessionUseCase
 import su.afk.yummy.tv.domain.anime.usecase.GetAnimeDetailsUseCase
 import su.afk.yummy.tv.domain.anime.usecase.GetAnimeEpisodeInfoUseCase
@@ -38,7 +38,6 @@ import su.afk.yummy.tv.feature.details.details.DetailsPlayerSelection
 import su.afk.yummy.tv.feature.details.details.handler.DetailsPlayerNavigationHandler
 import su.afk.yummy.tv.feature.details.details.model.BalancerPickerState
 import su.afk.yummy.tv.feature.details.details.model.VideosUiState
-import su.afk.yummy.tv.feature.details.episodes.dubbings.episodeDubbingItems
 import su.afk.yummy.tv.feature.details.episodes.dubbings.selectEpisodeDubbingLaunchVideo
 import su.afk.yummy.tv.feature.details.episodes.handler.EpisodeDownloadEnqueueResult
 import su.afk.yummy.tv.feature.details.episodes.handler.EpisodeDownloadHandler
@@ -46,8 +45,9 @@ import su.afk.yummy.tv.feature.details.episodes.handler.EpisodeDownloadPrepareRe
 import su.afk.yummy.tv.feature.details.episodes.utils.buildEpisodeGroups
 import su.afk.yummy.tv.feature.details.episodes.utils.isActive
 import su.afk.yummy.tv.feature.details.episodes.utils.resolveDownloadStatuses
-import su.afk.yummy.tv.feature.details.episodes.utils.toUiState
 import su.afk.yummy.tv.feature.details.episodes.utils.uiStatusKey
+import su.afk.yummy.tv.feature.details.mapper.episodeDubbingItems
+import su.afk.yummy.tv.feature.details.mapper.toUiState
 import su.afk.yummy.tv.feature.details.model.DetailsWatchProgressIndex
 import su.afk.yummy.tv.feature.details.presentation.R
 import su.afk.yummy.tv.feature.player.isKodikPlayerUrl
@@ -59,14 +59,14 @@ class EpisodesViewModel @AssistedInject internal constructor(
     @Assisted private val pendingEpisode: String?,
     override val errorHandler: IErrorHandlerUseCase,
     override val retryStorage: RetryStorage,
-    private val nav: NavigationManager,
+    private val nav: INavigationManager,
     private val videoDownloadNavigator: IVideoDownloadNavigator,
     private val getAnimeDetails: GetAnimeDetailsUseCase,
     private val getAnimeVideos: GetAnimeVideosUseCase,
     private val getAnimeEpisodeInfo: GetAnimeEpisodeInfoUseCase,
     private val refreshAnimeVideos: RefreshAnimeVideosUseCase,
     private val observeAnimeWatchProgress: ObserveAnimeWatchProgressUseCase,
-    private val settingsStore: SettingsStore,
+    private val settingsStore: PlayerSettingsStore,
     private val observeAccountSession: ObserveAccountSessionUseCase,
     private val playerNavigationHandler: DetailsPlayerNavigationHandler,
     private val downloadHandler: EpisodeDownloadHandler,

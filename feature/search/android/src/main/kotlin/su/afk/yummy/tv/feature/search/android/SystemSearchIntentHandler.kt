@@ -2,13 +2,13 @@ package su.afk.yummy.tv.feature.search.android
 
 import android.app.SearchManager
 import android.content.Intent
-import su.afk.yummy.tv.core.navigation.NavigationManager
+import su.afk.yummy.tv.core.navigation.manager.INavigationManager
 import su.afk.yummy.tv.core.navigation.root.RootTab
 import su.afk.yummy.tv.feature.search.ISearchNavigator
 import javax.inject.Inject
 
 class SystemSearchIntentHandler @Inject constructor(
-    private val nav: NavigationManager,
+    private val nav: INavigationManager,
     private val searchNavigator: ISearchNavigator,
 ) {
     fun handle(intent: Intent): Boolean {

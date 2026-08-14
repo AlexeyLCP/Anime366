@@ -4,7 +4,7 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
-import su.afk.yummy.tv.core.preferences.settings.SettingsStore
+import su.afk.yummy.tv.core.preferences.settings.YaniAccountSettingsStore
 import su.afk.yummy.tv.core.storage.account.AccountStorageStore
 import su.afk.yummy.tv.core.storage.account.AccountUserListCache
 import su.afk.yummy.tv.core.storage.account.isFresh
@@ -24,7 +24,7 @@ private val ALL_LIST_IDS = UserAnimeList.entries.map(UserAnimeList::id) + FAVORI
 class YaniUserListsRepository(
     private val api: YaniAccountApi,
     private val accountStorage: AccountStorageStore,
-    private val settingsStore: SettingsStore,
+    private val settingsStore: YaniAccountSettingsStore,
 ) : UserListsRepository {
 
     override suspend fun getAllUserLists(

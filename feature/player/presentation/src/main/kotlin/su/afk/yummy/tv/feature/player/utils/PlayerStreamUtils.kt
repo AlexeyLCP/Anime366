@@ -1,6 +1,6 @@
 package su.afk.yummy.tv.feature.player.utils
 
-import su.afk.yummy.tv.core.error.StringProvider
+import su.afk.yummy.tv.core.error.api.StringProvider
 import su.afk.yummy.tv.domain.player.model.PlayerStreamResolveResult
 import su.afk.yummy.tv.feature.player.presentation.R
 

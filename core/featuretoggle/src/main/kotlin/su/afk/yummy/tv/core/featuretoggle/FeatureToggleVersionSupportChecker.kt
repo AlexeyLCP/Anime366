@@ -1,6 +1,9 @@
 package su.afk.yummy.tv.core.featuretoggle
 
-import su.afk.yummy.tv.core.logger.AppLogger
+import su.afk.yummy.tv.core.analytics.api.AnalyticsTracker
+import su.afk.yummy.tv.core.featuretoggle.api.FeatureFlags
+import su.afk.yummy.tv.core.featuretoggle.api.FeatureToggleProvider
+import su.afk.yummy.tv.core.featuretoggle.api.VersionSupportChecker
 import javax.inject.Inject
 import javax.inject.Named
 import javax.inject.Singleton
@@ -9,6 +12,7 @@ import javax.inject.Singleton
 internal class FeatureToggleVersionSupportChecker @Inject constructor(
     private val featureToggleProvider: FeatureToggleProvider,
     @param:Named("appVersionName") private val versionName: String,
+    private val analyticsTracker: AnalyticsTracker,
 ) : VersionSupportChecker {
 
     override fun isCurrentVersionSupported(): Boolean {
@@ -18,7 +22,7 @@ internal class FeatureToggleVersionSupportChecker @Inject constructor(
             currentVersion = versionName,
             minSupportedVersion = minSupportedVersion,
         )
-        AppLogger.d(TAG) {
+        analyticsTracker.log(TAG) {
             "Version support current=$versionName minSupported=$minSupportedVersion supported=$isSupported"
         }
         return isSupported

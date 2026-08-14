@@ -10,7 +10,7 @@ import su.afk.yummy.tv.core.storage.account.AccountUserRatingStatEntry
 import su.afk.yummy.tv.core.storage.account.AccountUserStatsCache
 import su.afk.yummy.tv.core.storage.account.AccountUserStatsCacheEntry
 import su.afk.yummy.tv.core.storage.account.AccountUserTypeStatEntry
-import su.afk.yummy.tv.core.utils.toHttpsUrl
+import su.afk.yummy.tv.core.utils.network.toHttpsUrl
 import su.afk.yummy.tv.data.account.dto.YaniUserAnimeTypeStatDto
 import su.afk.yummy.tv.data.account.dto.YaniUserGenreStatDto
 import su.afk.yummy.tv.data.account.dto.YaniUserListWatchStatDto

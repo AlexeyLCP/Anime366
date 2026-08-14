@@ -1,7 +1,7 @@
 package su.afk.yummy.tv.data.details.mapper
 
 import kotlinx.serialization.Serializable
-import su.afk.yummy.tv.core.utils.toHttpsUrl
+import su.afk.yummy.tv.core.utils.network.toHttpsUrl
 import su.afk.yummy.tv.data.details.dto.YaniDirectorResponseDto
 import su.afk.yummy.tv.data.details.dto.YaniGenreResponseDto
 import su.afk.yummy.tv.data.details.dto.YaniRelatedAnimeDto

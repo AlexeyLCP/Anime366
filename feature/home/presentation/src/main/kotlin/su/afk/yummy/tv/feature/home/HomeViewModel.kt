@@ -12,18 +12,18 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import su.afk.yummy.tv.core.analytics.api.AnalyticsTracker
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.BaseViewModelNew
-import su.afk.yummy.tv.core.error.IErrorHandlerUseCase
-import su.afk.yummy.tv.core.error.StringProvider
-import su.afk.yummy.tv.core.error.storage.RetryStorage
-import su.afk.yummy.tv.core.featuretoggle.FeatureFlags
-import su.afk.yummy.tv.core.featuretoggle.FeatureToggleProvider
-import su.afk.yummy.tv.core.featuretoggle.FeatureToggleUpdateObserver
-import su.afk.yummy.tv.core.logger.AppLogger
-import su.afk.yummy.tv.core.navigation.NavigationManager
+import su.afk.yummy.tv.core.error.api.IErrorHandlerUseCase
+import su.afk.yummy.tv.core.error.api.RetryStorage
+import su.afk.yummy.tv.core.error.api.StringProvider
+import su.afk.yummy.tv.core.featuretoggle.api.FeatureFlags
+import su.afk.yummy.tv.core.featuretoggle.api.FeatureToggleProvider
+import su.afk.yummy.tv.core.featuretoggle.api.FeatureToggleUpdateObserver
+import su.afk.yummy.tv.core.navigation.manager.INavigationManager
 import su.afk.yummy.tv.core.preferences.settings.SettingsStore
-import su.afk.yummy.tv.core.preferences.settings.SupportPromptSnapshot
-import su.afk.yummy.tv.core.utils.runSuspendCatching
+import su.afk.yummy.tv.core.preferences.settings.model.SupportPromptSnapshot
+import su.afk.yummy.tv.core.utils.coroutines.runSuspendCatching
 import su.afk.yummy.tv.domain.anime.usecase.SetAnimeRecommendationIgnoredUseCase
 import su.afk.yummy.tv.domain.bloggers.usecase.GetBloggerVideosUseCase
 import su.afk.yummy.tv.domain.home.model.HomeContinueWatchingItem
@@ -55,7 +55,7 @@ import kotlin.time.Duration.Companion.milliseconds
 class HomeViewModel @Inject internal constructor(
     override val errorHandler: IErrorHandlerUseCase,
     override val retryStorage: RetryStorage,
-    private val nav: NavigationManager,
+    private val nav: INavigationManager,
     private val detailsNavigator: IDetailsNavigator,
     private val collectionNavigator: ICollectionNavigator,
     private val reviewsNavigator: IReviewsNavigator,
@@ -74,6 +74,7 @@ class HomeViewModel @Inject internal constructor(
     private val featureToggleProvider: FeatureToggleProvider,
     private val featureToggleUpdateObserver: FeatureToggleUpdateObserver,
     private val analytics: HomeAnalytics,
+    private val analyticsTracker: AnalyticsTracker,
 ) : BaseViewModelNew<HomeState.State, HomeState.Event, HomeState.Effect>() {
 
     override fun createInitialState() = HomeState.State()
@@ -313,7 +314,7 @@ class HomeViewModel @Inject internal constructor(
             val message = featureToggleProvider.getString(FeatureFlags.announcementMessage).trim()
             // Пустой id/сообщение или id == "0" означают, что объявление выключено.
             if (id.isBlank() || id == "0" || message.isBlank()) {
-                AppLogger.d(TAG_ANNOUNCEMENT) {
+                analyticsTracker.log(TAG_ANNOUNCEMENT) {
                     "Skipped: id='$id' message.isBlank=${message.isBlank()}"
                 }
                 setState { copy(announcement = null) }
@@ -321,12 +322,12 @@ class HomeViewModel @Inject internal constructor(
             }
             val lastSeenId = settingsStore.lastSeenAnnouncementId.first()
             if (id == lastSeenId) {
-                AppLogger.d(TAG_ANNOUNCEMENT) { "Skipped: id='$id' already seen" }
+                analyticsTracker.log(TAG_ANNOUNCEMENT) { "Skipped: id='$id' already seen" }
                 return@launch
             }
             val title = featureToggleProvider.getString(FeatureFlags.announcementTitle).trim()
             val button = featureToggleProvider.getString(FeatureFlags.announcementButton).trim()
-            AppLogger.d(TAG_ANNOUNCEMENT) {
+            analyticsTracker.log(TAG_ANNOUNCEMENT) {
                 "Showing: id='$id' lastSeenId='$lastSeenId' title.isBlank=${title.isBlank()} button.isBlank=${button.isBlank()}"
             }
             setState {

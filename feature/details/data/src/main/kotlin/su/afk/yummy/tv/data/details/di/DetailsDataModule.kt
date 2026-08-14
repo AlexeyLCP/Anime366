@@ -4,8 +4,8 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import su.afk.yummy.tv.core.network.YaniHttpClientProvider
-import su.afk.yummy.tv.core.preferences.settings.SettingsStore
+import su.afk.yummy.tv.core.network.yani.YaniHttpClientProvider
+import su.afk.yummy.tv.core.preferences.settings.YaniAccountSettingsStore
 import su.afk.yummy.tv.core.storage.account.AccountStorageStore
 import su.afk.yummy.tv.core.storage.anime.AnimeStorageStore
 import su.afk.yummy.tv.core.storage.document.DocumentCacheStore
@@ -37,7 +37,7 @@ object DetailsDataModule {
         episodesApi: YummyEpisodesApi,
         animeStorage: AnimeStorageStore,
         accountStorage: AccountStorageStore,
-        settingsStore: SettingsStore,
+        settingsStore: YaniAccountSettingsStore,
         watchProgressStore: WatchProgressStore,
         documentCache: DocumentCacheStore,
     ): AnimeRepository =

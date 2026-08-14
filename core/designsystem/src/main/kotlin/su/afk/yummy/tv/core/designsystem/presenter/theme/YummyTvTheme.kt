@@ -14,8 +14,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
-import su.afk.yummy.tv.core.preferences.settings.AppTheme
-import su.afk.yummy.tv.core.preferences.settings.BackgroundStyle
+import su.afk.yummy.tv.core.model.settings.AppTheme
+import su.afk.yummy.tv.core.model.settings.BackgroundStyle
 
 private data class YummyTvPalette(
     val background: Color,

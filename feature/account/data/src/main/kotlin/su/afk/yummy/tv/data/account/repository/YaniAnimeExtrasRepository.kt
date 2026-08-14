@@ -4,7 +4,7 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
-import su.afk.yummy.tv.core.preferences.settings.SettingsStore
+import su.afk.yummy.tv.core.preferences.settings.YaniAccountSettingsStore
 import su.afk.yummy.tv.core.storage.account.AccountStorageStore
 import su.afk.yummy.tv.core.storage.account.isFresh
 import su.afk.yummy.tv.data.account.dto.YaniCollectionSummaryDto
@@ -25,7 +25,7 @@ import su.afk.yummy.tv.domain.account.repository.AnimeExtrasRepository
 class YaniAnimeExtrasRepository(
     private val api: YaniAccountApi,
     private val accountStorage: AccountStorageStore,
-    private val settingsStore: SettingsStore,
+    private val settingsStore: YaniAccountSettingsStore,
 ) : AnimeExtrasRepository {
 
     override suspend fun getRatingSummary(animeId: Int): AnimeRatingSummary =

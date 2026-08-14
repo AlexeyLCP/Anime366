@@ -3,7 +3,7 @@ package su.afk.yummy.tv.feature.posts.utils
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
 import org.jsoup.safety.Safelist
-import su.afk.yummy.tv.core.utils.toHttpsUrl
+import su.afk.yummy.tv.core.utils.network.toHttpsUrl
 import su.afk.yummy.tv.feature.posts.model.PostContentBlock
 
 private val postSafeList = Safelist.none()

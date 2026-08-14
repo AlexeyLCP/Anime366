@@ -4,8 +4,8 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import su.afk.yummy.tv.core.network.YaniHttpClientProvider
-import su.afk.yummy.tv.core.preferences.settings.SettingsStore
+import su.afk.yummy.tv.core.network.yani.YaniHttpClientProvider
+import su.afk.yummy.tv.core.preferences.settings.YaniAccountSettingsStore
 import su.afk.yummy.tv.core.storage.comments.CommentsStorageStore
 import su.afk.yummy.tv.data.comments.network.YaniCommentsApi
 import su.afk.yummy.tv.data.comments.repository.YaniCommentsRepository
@@ -26,7 +26,7 @@ object CommentsDataModule {
     fun provideCommentsRepository(
         api: YaniCommentsApi,
         commentsStorage: CommentsStorageStore,
-        settingsStore: SettingsStore,
+        settingsStore: YaniAccountSettingsStore,
     ): CommentsRepository =
         YaniCommentsRepository(api, commentsStorage, settingsStore)
 }

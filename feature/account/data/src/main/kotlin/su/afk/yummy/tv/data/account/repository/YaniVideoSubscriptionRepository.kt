@@ -4,7 +4,7 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
-import su.afk.yummy.tv.core.preferences.settings.SettingsStore
+import su.afk.yummy.tv.core.preferences.settings.YaniAccountSettingsStore
 import su.afk.yummy.tv.core.storage.account.AccountStorageStore
 import su.afk.yummy.tv.core.storage.account.isFresh
 import su.afk.yummy.tv.data.account.network.YaniAccountApi
@@ -16,7 +16,7 @@ import su.afk.yummy.tv.domain.account.repository.VideoSubscriptionRepository
 class YaniVideoSubscriptionRepository(
     private val api: YaniAccountApi,
     private val accountStorage: AccountStorageStore,
-    private val settingsStore: SettingsStore,
+    private val settingsStore: YaniAccountSettingsStore,
 ) : VideoSubscriptionRepository {
 
     override suspend fun getSubscriptions(userId: Int): List<VideoSubscription> =

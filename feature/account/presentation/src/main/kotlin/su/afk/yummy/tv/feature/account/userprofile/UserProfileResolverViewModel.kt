@@ -6,9 +6,9 @@ import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.BaseViewModelNew
-import su.afk.yummy.tv.core.error.IErrorHandlerUseCase
-import su.afk.yummy.tv.core.error.storage.RetryStorage
-import su.afk.yummy.tv.core.navigation.NavigationManager
+import su.afk.yummy.tv.core.error.api.IErrorHandlerUseCase
+import su.afk.yummy.tv.core.error.api.RetryStorage
+import su.afk.yummy.tv.core.navigation.manager.INavigationManager
 import su.afk.yummy.tv.domain.account.usecase.GetUserProfileByNicknameUseCase
 import su.afk.yummy.tv.feature.account.IAccountNavigator
 
@@ -17,7 +17,7 @@ class UserProfileResolverViewModel @AssistedInject constructor(
     @Assisted private val nickname: String,
     override val errorHandler: IErrorHandlerUseCase,
     override val retryStorage: RetryStorage,
-    private val nav: NavigationManager,
+    private val nav: INavigationManager,
     private val accountNavigator: IAccountNavigator,
     private val getProfile: GetUserProfileByNicknameUseCase,
 ) : BaseViewModelNew<UserProfileResolverState.State, UserProfileResolverState.Event, UserProfileResolverState.Effect>() {

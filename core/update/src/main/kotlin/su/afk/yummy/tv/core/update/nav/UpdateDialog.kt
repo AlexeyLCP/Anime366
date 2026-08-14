@@ -53,7 +53,7 @@ import kotlinx.coroutines.launch
 import su.afk.yummy.tv.core.designsystem.presenter.focus.tvFocusableClick
 import su.afk.yummy.tv.core.update.R
 import su.afk.yummy.tv.core.update.UpdateState
-import su.afk.yummy.tv.core.utils.openExternalUri
+import su.afk.yummy.tv.core.utils.system.openExternalUri
 
 @Composable
 fun UpdateDialog(

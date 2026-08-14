@@ -6,7 +6,7 @@ import android.content.Intent
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import su.afk.yummy.tv.core.utils.di.IoApplicationScope
+import su.afk.yummy.tv.core.utils.coroutines.di.IoApplicationScope
 import su.afk.yummy.tv.domain.videodownload.usecase.PauseVideoDownloadUseCase
 import su.afk.yummy.tv.domain.videodownload.usecase.RestartVideoDownloadUseCase
 import javax.inject.Inject

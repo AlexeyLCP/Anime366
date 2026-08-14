@@ -5,10 +5,9 @@ import kotlinx.collections.immutable.ImmutableMap
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.collections.immutable.toImmutableMap
 import su.afk.yummy.tv.core.model.anime.AnimeVideo
-import su.afk.yummy.tv.core.model.anime.utils.episodeGroupKey
-import su.afk.yummy.tv.core.model.anime.utils.episodeNumberOrNull
+import su.afk.yummy.tv.core.utils.episode.episodeGroupKey
+import su.afk.yummy.tv.core.utils.episode.episodeNumberOrNull
 import su.afk.yummy.tv.domain.videodownload.model.VideoDownloadItem
-import su.afk.yummy.tv.domain.videodownload.model.VideoDownloadStatus
 import su.afk.yummy.tv.feature.details.episodes.EpisodesState
 
 internal fun AnimeVideo.toDownloadStatusKey(): String =
@@ -46,30 +45,6 @@ internal fun resolveDownloadStatuses(
 
 internal val VideoDownloadItem.uiStatusKey: String
     get() = listOf(videoId.toString(), iframeUrl).joinToString("|")
-
-internal fun VideoDownloadItem.toUiState(): EpisodesState.EpisodeDownloadUiState =
-    EpisodesState.EpisodeDownloadUiState(
-        downloadId = id,
-        dubbing = dubbing.ifBlank { playerName },
-        playerName = playerName,
-        qualityLabel = qualityLabel,
-        bytesDownloaded = bytesDownloaded,
-        status = when (status) {
-            VideoDownloadStatus.Queued,
-            VideoDownloadStatus.Resolving -> EpisodesState.EpisodeDownloadUiStatus.Queued
-
-            VideoDownloadStatus.Downloading,
-            VideoDownloadStatus.Deleting -> EpisodesState.EpisodeDownloadUiStatus.Downloading
-
-            VideoDownloadStatus.Paused -> EpisodesState.EpisodeDownloadUiStatus.Paused
-            VideoDownloadStatus.Downloaded -> EpisodesState.EpisodeDownloadUiStatus.Downloaded
-            VideoDownloadStatus.Failed -> EpisodesState.EpisodeDownloadUiStatus.Failed
-            VideoDownloadStatus.Idle,
-            VideoDownloadStatus.Deleted -> EpisodesState.EpisodeDownloadUiStatus.Failed
-        },
-        progress = progress.coerceIn(0f, 1f),
-        errorMessage = errorMessage?.takeIf { it.isNotBlank() },
-    )
 
 internal val EpisodesState.EpisodeDownloadUiStatus.isActive: Boolean
     get() = this != EpisodesState.EpisodeDownloadUiStatus.Failed

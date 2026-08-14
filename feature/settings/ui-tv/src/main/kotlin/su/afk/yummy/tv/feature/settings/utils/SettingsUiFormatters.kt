@@ -5,17 +5,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.res.stringResource
+import su.afk.yummy.tv.core.model.settings.AppTheme
+import su.afk.yummy.tv.core.model.settings.BackgroundStyle
+import su.afk.yummy.tv.core.model.settings.PosterCardSize
+import su.afk.yummy.tv.core.model.settings.PosterQuality
 import su.afk.yummy.tv.core.preferences.interface_mode.AppInterfaceMode
-import su.afk.yummy.tv.core.preferences.settings.AppTheme
-import su.afk.yummy.tv.core.preferences.settings.BackgroundStyle
-import su.afk.yummy.tv.core.preferences.settings.DetailsButtonAction
-import su.afk.yummy.tv.core.preferences.settings.LibraryContinueWatchingCardSize
-import su.afk.yummy.tv.core.preferences.settings.PosterCardSize
-import su.afk.yummy.tv.core.preferences.settings.PosterQuality
-import su.afk.yummy.tv.core.preferences.settings.PreferredPlayer
-import su.afk.yummy.tv.core.preferences.settings.PreferredVideoQuality
-import su.afk.yummy.tv.core.preferences.settings.PreviewCacheSize
-import su.afk.yummy.tv.core.preferences.settings.YaniContentLanguage
+import su.afk.yummy.tv.core.preferences.settings.model.DetailsButtonAction
+import su.afk.yummy.tv.core.preferences.settings.model.LibraryContinueWatchingCardSize
+import su.afk.yummy.tv.core.preferences.settings.model.PreferredPlayer
+import su.afk.yummy.tv.core.preferences.settings.model.PreferredVideoQuality
+import su.afk.yummy.tv.core.preferences.settings.model.PreviewCacheSize
+import su.afk.yummy.tv.core.preferences.settings.model.YaniContentLanguage
 import su.afk.yummy.tv.feature.settings.R
 import su.afk.yummy.tv.feature.settings.model.DetailsButtonOrderItem
 
