@@ -41,7 +41,7 @@ import su.afk.yummy.tv.core.designsystem.presenter.focus.tvFocusableClick
 @Composable
 internal fun LibraryTopTabItem(
     label: String,
-    count: Int,
+    count: Int?,
     color: Color,
     selected: Boolean,
     onActivated: () -> Unit,
@@ -133,12 +133,14 @@ internal fun LibraryTopTabItem(
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
-            LibraryTopTabCountBadge(
-                count = count,
-                color = color,
-                selected = selected,
-                focused = focused,
-            )
+            if (count != null) {
+                LibraryTopTabCountBadge(
+                    count = count,
+                    color = color,
+                    selected = selected,
+                    focused = focused,
+                )
+            }
         }
         Spacer(modifier = Modifier.height(4.dp))
         Box(

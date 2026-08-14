@@ -19,6 +19,7 @@ import su.afk.yummy.tv.domain.home.model.HomeContinueWatchingItem
 import su.afk.yummy.tv.domain.home.usecase.GetCachedHomeFeedUseCase
 import su.afk.yummy.tv.domain.home.usecase.ObserveContinueWatchingUseCase
 import su.afk.yummy.tv.domain.home.usecase.RemoveCachedContinueWatchingUseCase
+import su.afk.yummy.tv.domain.library.model.WatchHistoryEntry
 import su.afk.yummy.tv.domain.library.usecase.GetWatchHistoryPageUseCase
 import su.afk.yummy.tv.domain.library.usecase.ObserveLibraryItemsUseCase
 import su.afk.yummy.tv.domain.library.usecase.RemoteLibrarySyncResult
@@ -26,7 +27,6 @@ import su.afk.yummy.tv.domain.library.usecase.RemoveLibraryItemUseCase
 import su.afk.yummy.tv.domain.library.usecase.SetLibraryFavoriteUseCase
 import su.afk.yummy.tv.domain.watching.usecase.ResolveContinueWatchingLaunchUseCase
 import su.afk.yummy.tv.feature.details.IDetailsNavigator
-import su.afk.yummy.tv.feature.library.handler.HistoryLaunchHandler
 import su.afk.yummy.tv.feature.library.handler.RemoteLibrarySyncHandler
 import su.afk.yummy.tv.feature.library.model.LibraryRemoveTarget
 import su.afk.yummy.tv.feature.library.model.LibraryTab
@@ -56,7 +56,6 @@ class LibraryViewModel @Inject internal constructor(
     private val resolveContinueWatchingLaunch: ResolveContinueWatchingLaunchUseCase,
     private val playerNavigator: IPlayerNavigator,
     private val getWatchHistoryPage: GetWatchHistoryPageUseCase,
-    private val historyLaunchHandler: HistoryLaunchHandler,
     private val stringProvider: StringProvider,
     private val analytics: LibraryAnalytics,
 ) : BaseViewModelNew<LibraryState.State, LibraryState.Event, LibraryState.Effect>() {
@@ -292,18 +291,8 @@ class LibraryViewModel @Inject internal constructor(
         }
     }
 
-    private fun launchHistory(entry: su.afk.yummy.tv.domain.library.model.WatchHistoryEntry) {
-        viewModelScope.launch {
-            runCatching { historyLaunchHandler.destination(entry) }
-                .onSuccess(nav::navigate)
-                .onFailure {
-                    setEffect(
-                        LibraryState.Effect.ShowToast(
-                            stringProvider.get(R.string.library_history_launch_error),
-                        ),
-                    )
-                }
-        }
+    private fun launchHistory(entry: WatchHistoryEntry) {
+        nav.navigate(detailsNavigator.getEpisodesDest(entry.animeId, entry.episode))
     }
 
     private fun createWatchHistoryFlow() =

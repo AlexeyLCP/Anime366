@@ -22,6 +22,7 @@ import su.afk.yummy.tv.core.error.StringProvider
 import su.afk.yummy.tv.core.error.storage.RetryStorage
 import su.afk.yummy.tv.core.model.anime.AnimeVideo
 import su.afk.yummy.tv.core.model.anime.AnimeWatchProgress
+import su.afk.yummy.tv.core.model.anime.utils.episodeGroupKey
 import su.afk.yummy.tv.core.navigation.NavigationManager
 import su.afk.yummy.tv.core.preferences.settings.PreferredPlayer
 import su.afk.yummy.tv.core.preferences.settings.SettingsStore
@@ -55,6 +56,7 @@ import su.afk.yummy.tv.feature.videodownload.IVideoDownloadNavigator
 @HiltViewModel(assistedFactory = EpisodesViewModel.Factory::class)
 class EpisodesViewModel @AssistedInject internal constructor(
     @Assisted private val animeId: Int,
+    @Assisted private val pendingEpisode: String?,
     override val errorHandler: IErrorHandlerUseCase,
     override val retryStorage: RetryStorage,
     private val nav: NavigationManager,
@@ -75,7 +77,7 @@ class EpisodesViewModel @AssistedInject internal constructor(
 
     @AssistedFactory
     interface Factory {
-        fun create(animeId: Int): EpisodesViewModel
+        fun create(animeId: Int, pendingEpisode: String?): EpisodesViewModel
     }
 
     override fun createInitialState() = EpisodesState.State()
@@ -91,6 +93,7 @@ class EpisodesViewModel @AssistedInject internal constructor(
     private var screenshotsByEpisode: Map<String, String> = emptyMap()
     private var localWatchProgress: List<AnimeWatchProgress> = emptyList()
     private var isSignedIn = false
+    private var pendingEpisodeHandled = false
 
     init {
         analytics.eventEpisodesScreenOpened(animeId)
@@ -276,6 +279,7 @@ class EpisodesViewModel @AssistedInject internal constructor(
         runCatching { getAnimeVideos(animeId) }.fold(
             onSuccess = { videos ->
                 setVideos(videos)
+                consumePendingEpisode(videos)
                 if (isSignedIn) {
                     refreshVideosFromNetwork()
                 }
@@ -289,6 +293,24 @@ class EpisodesViewModel @AssistedInject internal constructor(
                 }
             },
         )
+    }
+
+    /**
+     * Автозапуск/пикер для эпизода, с которым открыли экран (например, из истории просмотров).
+     * `episodeGroupKey()`, а не точное сравнение строк — [pendingEpisode] приходит из другого API
+     * (история), где нормализация номера серии может отличаться от `/anime/{id}/videos`.
+     */
+    private fun consumePendingEpisode(videos: List<AnimeVideo>) {
+        if (pendingEpisodeHandled) return
+        val target = pendingEpisode ?: return
+        pendingEpisodeHandled = true
+        val candidates = videos.filter { it.episode.episodeGroupKey() == target.episodeGroupKey() }
+        val video = candidates.firstOrNull() ?: return
+        if (candidates.size <= 1) {
+            navigateToPlayer(video)
+        } else {
+            showEpisodeDubbingPicker(video, restrictToBalancer = false)
+        }
     }
 
     private suspend fun refreshVideosFromNetwork() {

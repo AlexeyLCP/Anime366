@@ -18,6 +18,9 @@ import su.afk.yummy.tv.core.preferences.settings.SettingsStore
 import su.afk.yummy.tv.core.utils.KodikThumbnailFetcher
 import su.afk.yummy.tv.core.utils.KodikThumbnailKeyer
 import su.afk.yummy.tv.core.utils.ResolveKodikThumbnailUrlUseCase
+import su.afk.yummy.tv.domain.anime.usecase.GetAnimeVideosUseCase
+import su.afk.yummy.tv.feature.library.thumbnail.HistoryEpisodeThumbnailFetcher
+import su.afk.yummy.tv.feature.library.thumbnail.HistoryEpisodeThumbnailKeyer
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -32,6 +35,7 @@ class CoilImageLoaderInstaller @Inject constructor(
     private val okHttpClient: OkHttpClient,
     private val settingsStore: SettingsStore,
     private val resolveKodikThumbnailUrl: ResolveKodikThumbnailUrlUseCase,
+    private val getAnimeVideos: GetAnimeVideosUseCase,
 ) {
 
     @OptIn(ExperimentalCoilApi::class)
@@ -64,6 +68,13 @@ class CoilImageLoaderInstaller @Inject constructor(
                 .components {
                     add(KodikThumbnailKeyer())
                     add(KodikThumbnailFetcher.Factory(resolveKodikThumbnailUrl))
+                    add(HistoryEpisodeThumbnailKeyer())
+                    add(
+                        HistoryEpisodeThumbnailFetcher.Factory(
+                            getAnimeVideos,
+                            resolveKodikThumbnailUrl
+                        )
+                    )
                     add(KtorNetworkFetcherFactory(httpClient = imageHttpClient))
                 }
                 .build()

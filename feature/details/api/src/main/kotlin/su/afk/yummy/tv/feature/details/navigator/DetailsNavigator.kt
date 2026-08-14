@@ -7,7 +7,8 @@ import javax.inject.Inject
 class DetailsNavigator @Inject constructor() : IDetailsNavigator {
     override fun getDetailsDest(animeId: Int): NavKey = DetailsDestination(animeId)
     override fun getFullDetailsDest(animeId: Int): NavKey = DetailsFullDestination(animeId)
-    override fun getEpisodesDest(animeId: Int): NavKey = DetailsEpisodesDestination(animeId)
+    override fun getEpisodesDest(animeId: Int, pendingEpisode: String?): NavKey =
+        DetailsEpisodesDestination(animeId, pendingEpisode)
     override fun getEpisodeDubbingsDest(animeId: Int, episode: String): NavKey =
         DetailsEpisodeDubbingsDestination(animeId = animeId, episode = episode)
     override fun getSubscriptionsDest(animeId: Int): NavKey =

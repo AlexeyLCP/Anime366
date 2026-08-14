@@ -1,6 +1,5 @@
 package su.afk.yummy.tv.feature.library.view
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,20 +16,31 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.LoadState
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import coil3.compose.AsyncImage
+import coil3.compose.AsyncImagePainter
+import coil3.compose.SubcomposeAsyncImage
+import coil3.compose.SubcomposeAsyncImageContent
 import kotlinx.coroutines.flow.Flow
+import su.afk.yummy.tv.core.designsystem.presenter.focus.tvFocusableClick
 import su.afk.yummy.tv.domain.library.model.WatchHistoryEntry
 import su.afk.yummy.tv.feature.library.R
+import su.afk.yummy.tv.feature.library.thumbnail.HistoryEpisodeThumbnail
+import su.afk.yummy.tv.feature.library.utils.timingLabel
+import su.afk.yummy.tv.feature.library.utils.watchedAtLabel
 
 @Composable
 internal fun LibraryTvHistoryPage(
@@ -54,44 +64,79 @@ internal fun LibraryTvHistoryPage(
             contentPadding = PaddingValues(32.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            items(items.itemCount, key = { index -> items[index]?.videoId ?: index }) { index ->
+            items(
+                items.itemCount,
+                key = { index ->
+                    items[index]?.let { "${it.animeId}_${it.episode}_${it.watchedAtSeconds}" }
+                        ?: index
+                },
+            ) { index ->
                 items[index]?.let { entry ->
+                    val cardFocusRequester =
+                        remember { if (index == 0) gridFocusRequester else FocusRequester() }
+                    val detailsFocusRequester = remember { FocusRequester() }
                     Surface(
                         shape = MaterialTheme.shapes.medium,
                         tonalElevation = 2.dp,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .then(if (index == 0) Modifier.focusRequester(gridFocusRequester) else Modifier)
-                            .clickable { onEntrySelected(entry) },
+                            .focusRequester(cardFocusRequester)
+                            .focusProperties { right = detailsFocusRequester }
+                            .tvFocusableClick(onClick = { onEntrySelected(entry) }),
                     ) {
                         Row(
                             Modifier.padding(14.dp),
                             horizontalArrangement = Arrangement.spacedBy(16.dp)
                         ) {
-                            AsyncImage(
-                                model = entry.screenshotUrl ?: entry.posterUrl,
+                            SubcomposeAsyncImage(
+                                model = entry.screenshotUrl
+                                    ?: HistoryEpisodeThumbnail(entry.animeId, entry.episode),
                                 contentDescription = entry.title,
                                 contentScale = ContentScale.Crop,
                                 modifier = Modifier
                                     .width(160.dp)
                                     .height(90.dp),
-                            )
+                            ) {
+                                val state by painter.state.collectAsStateWithLifecycle()
+                                if (state is AsyncImagePainter.State.Success) {
+                                    SubcomposeAsyncImageContent()
+                                } else {
+                                    AsyncImage(
+                                        model = entry.posterUrl,
+                                        contentDescription = entry.title,
+                                        contentScale = ContentScale.Crop,
+                                        modifier = Modifier.fillMaxSize(),
+                                    )
+                                }
+                            }
                             Column(Modifier.weight(1f)) {
                                 Text(entry.title, style = MaterialTheme.typography.titleLarge)
-                                val episode = entry.episode.ifBlank { entry.episodeTitle }
-                                if (episode.isNotBlank()) Text(
+                                if (entry.episode.isNotBlank()) Text(
                                     stringResource(
                                         R.string.library_history_episode,
-                                        episode
+                                        entry.episode
                                     )
                                 )
-                                Text(
-                                    stringResource(R.string.library_history_details),
-                                    color = MaterialTheme.colorScheme.primary,
-                                    modifier = Modifier
-                                        .clickable { onDetailsSelected(entry) }
+                                entry.timingLabel()?.let { Text(it) }
+                                Row(
+                                    Modifier
+                                        .fillMaxWidth()
                                         .padding(top = 8.dp),
-                                )
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically,
+                                ) {
+                                    Text(
+                                        entry.watchedAtLabel().orEmpty(),
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    )
+                                    LibraryDetailsButton(
+                                        onClick = { onDetailsSelected(entry) },
+                                        modifier = Modifier
+                                            .focusRequester(detailsFocusRequester)
+                                            .focusProperties { left = cardFocusRequester },
+                                    )
+                                }
                             }
                         }
                     }

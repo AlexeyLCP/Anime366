@@ -12,13 +12,9 @@ data class YaniWatchHistoryDto(
     @SerialName("end_time") val endTime: Int = 0,
     val duration: Int = 0,
     @SerialName("anime_id") val animeId: Int = 0,
-    @SerialName("video_id") val videoId: Int = 0,
     @SerialName("anime_url") val animeUrl: String = "",
     val title: String = "",
-    @SerialName("ep_title") val episodeTitle: String = "",
-    val episode: String? = null,
-    @SerialName("dub_title") val dubbing: String? = null,
-    @SerialName("player_title") val player: String? = null,
+    @SerialName("ep_title") val episode: String = "",
     val poster: YaniWatchPosterDto? = null,
     val screenshot: YaniWatchScreenshotDto? = null,
 )
@@ -35,6 +31,8 @@ data class YaniWatchPosterDto(
 
 @Serializable
 data class YaniWatchScreenshotDto(
+    val time: Int = 0,
+    val id: Int = 0,
     val episode: String? = null,
     val sizes: YaniWatchScreenshotSizesDto? = null,
 )

@@ -1,6 +1,5 @@
 package su.afk.yummy.tv.feature.comments.tv.utils
 
-import android.text.format.DateUtils
 import kotlinx.collections.immutable.toImmutableList
 import su.afk.yummy.tv.feature.comments.CommentsState
 import su.afk.yummy.tv.feature.comments.tv.model.CommentTextPart
@@ -29,13 +28,6 @@ private val spoilerRegex = Regex(
     options = setOf(RegexOption.IGNORE_CASE, RegexOption.DOT_MATCHES_ALL),
 )
 private val bbCodeRegex = Regex("\\[/?[^\\]]+]")
-
-internal fun Long.formatCommentDate(): String =
-    DateUtils.getRelativeTimeSpanString(
-        this * 1_000L,
-        System.currentTimeMillis(),
-        DateUtils.MINUTE_IN_MILLIS,
-    ).toString()
 
 internal fun Throwable.uiMessage(): String = message ?: localizedMessage ?: toString()
 

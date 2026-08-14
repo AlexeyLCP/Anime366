@@ -24,7 +24,7 @@ import su.afk.yummy.tv.feature.library.utils.tabColor
 @Composable
 internal fun LibraryTopTabs(
     selectedTab: LibraryTab,
-    tabCounts: Map<LibraryTab, Int>,
+    tabCounts: Map<LibraryTab, Int?>,
     contentCanFocus: Boolean,
     onTabSelected: (LibraryTab) -> Unit,
     contentFocusRequester: FocusRequester,
@@ -63,7 +63,7 @@ internal fun LibraryTopTabs(
             val selected = selectedTab == tab
             LibraryTopTabItem(
                 label = tab.label(),
-                count = tabCounts[tab] ?: 0,
+                count = tabCounts[tab],
                 color = tab.tabColor(),
                 selected = selected,
                 onActivated = {

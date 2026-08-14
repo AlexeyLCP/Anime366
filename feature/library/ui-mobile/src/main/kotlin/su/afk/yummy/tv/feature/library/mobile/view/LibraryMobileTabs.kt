@@ -31,7 +31,7 @@ import su.afk.yummy.tv.feature.library.model.LibraryTab
 @Composable
 internal fun LibraryMobileTabs(
     selectedTab: LibraryTab,
-    tabCounts: Map<LibraryTab, Int>,
+    tabCounts: Map<LibraryTab, Int?>,
     onSelected: (LibraryTab) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -55,7 +55,7 @@ internal fun LibraryMobileTabs(
             items(libraryMobileTabs, key = { it.name }) { tab ->
                 LibraryMobileTabChip(
                     title = tab.mobileTitle(),
-                    count = tabCounts[tab] ?: 0,
+                    count = tabCounts[tab],
                     color = tab.tabColor(),
                     selected = tab == selectedTab,
                     onClick = { onSelected(tab) },
@@ -68,7 +68,7 @@ internal fun LibraryMobileTabs(
 @Composable
 private fun LibraryMobileTabChip(
     title: String,
-    count: Int,
+    count: Int?,
     color: Color,
     selected: Boolean,
     onClick: () -> Unit,
@@ -102,7 +102,9 @@ private fun LibraryMobileTabChip(
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
-            LibraryMobileTabCountBadge(count = count, color = color, selected = selected)
+            if (count != null) {
+                LibraryMobileTabCountBadge(count = count, color = color, selected = selected)
+            }
         }
     }
 }

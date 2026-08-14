@@ -25,4 +25,5 @@ dependencies {
 
     implementation(libs.androidx.paging.runtime)
     implementation(libs.bundles.compose.presentation)
+    implementation(libs.coil.core)
 }

@@ -1,0 +1,13 @@
+package su.afk.yummy.tv.feature.library.thumbnail
+
+import su.afk.yummy.tv.core.model.anime.utils.episodeGroupKey
+
+/**
+ * Модель для Coil: превью серии из истории просмотров по animeId+episode.
+ * В отличие от [su.afk.yummy.tv.core.utils.KodikThumbnail] здесь ещё нет iframe-урла —
+ * его резолвит [HistoryEpisodeThumbnailFetcher] через список видео аниме.
+ */
+data class HistoryEpisodeThumbnail(val animeId: Int, val episode: String) {
+    val cacheKey: String
+        get() = "history_thumb:$animeId:${episode.episodeGroupKey()}"
+}

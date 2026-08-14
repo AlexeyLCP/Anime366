@@ -71,7 +71,12 @@ class DetailsNavRegistrar @Inject constructor() : NavRegistrar {
             entry<DetailsEpisodesDestination> { dest ->
                 val viewModel = hiltViewModel<EpisodesViewModel, EpisodesViewModel.Factory>(
                     key = "episodes-${dest.animeId}",
-                    creationCallback = { factory -> factory.create(dest.animeId) },
+                    creationCallback = { factory ->
+                        factory.create(
+                            dest.animeId,
+                            dest.pendingEpisode
+                        )
+                    },
                 )
                 ScreenNavigator(viewModel) { state, effect, onEvent ->
                     EpisodesTvScreen(state = state, effect = effect, onEvent = onEvent)

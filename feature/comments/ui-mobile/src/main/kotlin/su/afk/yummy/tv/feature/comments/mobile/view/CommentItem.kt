@@ -29,10 +29,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
+import su.afk.yummy.tv.core.utils.formatRelativeDateTime
 import su.afk.yummy.tv.domain.comments.model.Comment
 import su.afk.yummy.tv.domain.comments.model.CommentVote
 import su.afk.yummy.tv.feature.comments.mobile.R
-import su.afk.yummy.tv.feature.comments.mobile.utils.formatCommentDate
 
 @Composable
 internal fun CommentItem(
@@ -94,7 +94,7 @@ internal fun CommentItem(
                     )
                     Spacer(Modifier.width(6.dp))
                     Text(
-                        text = comment.createdAtEpochSeconds.formatCommentDate(),
+                        text = comment.createdAtEpochSeconds.formatRelativeDateTime(),
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.68f),
                     )

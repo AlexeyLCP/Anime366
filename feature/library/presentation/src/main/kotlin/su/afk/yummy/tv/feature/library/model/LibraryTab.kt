@@ -1,8 +1,8 @@
 package su.afk.yummy.tv.feature.library.model
 
 enum class LibraryTab {
-    CONTINUE_WATCHING,
     HISTORY,
+    CONTINUE_WATCHING,
     FAVORITES,
     WATCHING,
     PLANNED,
@@ -13,6 +13,6 @@ enum class LibraryTab {
     ;
 
     companion object {
-        val visibleEntries: List<LibraryTab> = entries.filterNot { it == HISTORY }
+        val visibleEntries: List<LibraryTab> = entries
     }
 }

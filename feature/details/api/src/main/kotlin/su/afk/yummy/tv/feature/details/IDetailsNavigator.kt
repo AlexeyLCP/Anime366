@@ -6,7 +6,7 @@ import su.afk.yummy.tv.feature.details.navigator.DetailsRelationKind
 interface IDetailsNavigator {
     fun getDetailsDest(animeId: Int): NavKey
     fun getFullDetailsDest(animeId: Int): NavKey
-    fun getEpisodesDest(animeId: Int): NavKey
+    fun getEpisodesDest(animeId: Int, pendingEpisode: String? = null): NavKey
     fun getEpisodeDubbingsDest(animeId: Int, episode: String): NavKey
     fun getSubscriptionsDest(animeId: Int): NavKey
     fun getTrailersDest(animeId: Int): NavKey

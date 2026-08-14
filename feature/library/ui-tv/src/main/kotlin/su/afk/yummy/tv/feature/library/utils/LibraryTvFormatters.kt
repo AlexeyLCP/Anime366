@@ -1,7 +1,9 @@
 package su.afk.yummy.tv.feature.library.utils
 
+import su.afk.yummy.tv.core.utils.formatRelativeDateTime
 import su.afk.yummy.tv.domain.home.model.HomeContinueWatchingItem
 import su.afk.yummy.tv.domain.library.model.LibraryItem
+import su.afk.yummy.tv.domain.library.model.WatchHistoryEntry
 import su.afk.yummy.tv.feature.library.model.LibraryTab
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -32,6 +34,24 @@ internal fun HomeContinueWatchingItem.timingLabel(): String? =
 
 private fun Long.toTimeString(): String {
     val totalSec = coerceAtLeast(0L) / 1000
+    val h = totalSec / 3600
+    val m = (totalSec % 3600) / 60
+    val s = totalSec % 60
+    return if (h > 0) "%d:%02d:%02d".format(h, m, s) else "%d:%02d".format(m, s)
+}
+
+internal fun WatchHistoryEntry.watchedAtLabel(): String? =
+    watchedAtSeconds.takeIf { it > 0 }?.formatRelativeDateTime()
+
+internal fun WatchHistoryEntry.timingLabel(): String? =
+    if (durationSeconds > 0) {
+        "${positionSeconds.toSecondsTimeString()} / ${durationSeconds.toSecondsTimeString()}"
+    } else {
+        null
+    }
+
+private fun Int.toSecondsTimeString(): String {
+    val totalSec = coerceAtLeast(0)
     val h = totalSec / 3600
     val m = (totalSec % 3600) / 60
     val s = totalSec % 60

@@ -33,9 +33,9 @@ internal fun LibraryState.State.shouldShowRemoteLoader(tab: LibraryTab): Boolean
     }
 }
 
-internal fun LibraryState.State.mobileTabItemCount(tab: LibraryTab): Int = when (tab) {
+internal fun LibraryState.State.mobileTabItemCount(tab: LibraryTab): Int? = when (tab) {
     LibraryTab.CONTINUE_WATCHING -> continueWatching.size
-    LibraryTab.HISTORY -> 0
+    LibraryTab.HISTORY -> null
     else -> tabItems[tab]?.size ?: 0
 }
 

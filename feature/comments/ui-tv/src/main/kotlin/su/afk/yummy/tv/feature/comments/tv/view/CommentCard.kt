@@ -39,10 +39,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import su.afk.yummy.tv.core.designsystem.presenter.theme.YummySemanticColors
+import su.afk.yummy.tv.core.utils.formatRelativeDateTime
 import su.afk.yummy.tv.domain.comments.model.CommentVote
 import su.afk.yummy.tv.feature.comments.CommentsState
 import su.afk.yummy.tv.feature.comments.tv.R
-import su.afk.yummy.tv.feature.comments.tv.utils.formatCommentDate
 
 @Composable
 @OptIn(ExperimentalLayoutApi::class)
@@ -98,7 +98,7 @@ internal fun CommentCard(
                     modifier = Modifier.weight(1f),
                 )
                 Text(
-                    text = comment.createdAtEpochSeconds.formatCommentDate(),
+                    text = comment.createdAtEpochSeconds.formatRelativeDateTime(),
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )

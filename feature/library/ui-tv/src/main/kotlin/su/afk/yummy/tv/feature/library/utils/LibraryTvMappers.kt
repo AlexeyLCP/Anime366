@@ -11,9 +11,9 @@ import su.afk.yummy.tv.domain.library.model.LibraryPoster
 import su.afk.yummy.tv.feature.library.LibraryState
 import su.afk.yummy.tv.feature.library.model.LibraryTab
 
-internal fun LibraryState.State.tvTabItemCount(tab: LibraryTab): Int = when (tab) {
+internal fun LibraryState.State.tvTabItemCount(tab: LibraryTab): Int? = when (tab) {
     LibraryTab.CONTINUE_WATCHING -> continueWatching.size
-    LibraryTab.HISTORY -> 0
+    LibraryTab.HISTORY -> null
     else -> tabItems[tab]?.size ?: 0
 }
 

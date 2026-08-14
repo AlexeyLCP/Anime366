@@ -4,7 +4,6 @@
     <string name="library_mobile_history_sign_in">Sign in to see watch history</string>
     <string name="library_mobile_history_empty">Watch history is empty</string>
     <string name="library_mobile_history_error">Could not load watch history</string>
-    <string name="library_mobile_history_details">Details</string>
     <string name="library_mobile_history_episode">Episode %1$s</string>
     <string name="library_mobile_title">Library</string>
     <string name="library_mobile_tab_continue_watching">Continue</string>

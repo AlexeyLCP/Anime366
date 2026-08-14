@@ -2,9 +2,7 @@ package su.afk.yummy.tv.feature.library.mobile.view
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -20,6 +18,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import su.afk.yummy.tv.core.designsystem.presenter.mobile.MobileProgressMediaCard
 import su.afk.yummy.tv.core.utils.KodikThumbnail
@@ -54,39 +53,40 @@ internal fun LibraryMobileContinueWatchingCard(
         progress = entry.watchProgress(),
         modifier = modifier,
         imageOverlay = {
-            Row(
+            ContinueWatchingOverlayButton(
+                contentDescription = stringResource(
+                    R.string.library_mobile_remove_content_description
+                ),
+                onClick = onDelete,
+                isError = true,
+                size = 36.dp,
                 modifier = Modifier
                     .align(Alignment.TopEnd)
                     .padding(5.dp),
-                horizontalArrangement = Arrangement.spacedBy(4.dp),
             ) {
-                ContinueWatchingOverlayButton(
-                    contentDescription = stringResource(
-                        R.string.library_mobile_details_content_description
-                    ),
-                    onClick = onDetails,
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.Info,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onPrimary,
-                        modifier = Modifier.size(15.dp),
-                    )
-                }
-                ContinueWatchingOverlayButton(
-                    contentDescription = stringResource(
-                        R.string.library_mobile_remove_content_description
-                    ),
-                    onClick = onDelete,
-                    isError = true,
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.Delete,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onError,
-                        modifier = Modifier.size(15.dp),
-                    )
-                }
+                Icon(
+                    imageVector = Icons.Filled.Delete,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onError,
+                    modifier = Modifier.size(20.dp),
+                )
+            }
+            ContinueWatchingOverlayButton(
+                contentDescription = stringResource(
+                    R.string.library_mobile_details_content_description
+                ),
+                onClick = onDetails,
+                size = 36.dp,
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(5.dp),
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Info,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onPrimary,
+                    modifier = Modifier.size(20.dp),
+                )
             }
         },
         onClick = onClick,
@@ -94,10 +94,12 @@ internal fun LibraryMobileContinueWatchingCard(
 }
 
 @Composable
-private fun ContinueWatchingOverlayButton(
+internal fun ContinueWatchingOverlayButton(
     contentDescription: String,
     onClick: () -> Unit,
     isError: Boolean = false,
+    size: Dp = 28.dp,
+    modifier: Modifier = Modifier,
     icon: @Composable () -> Unit,
 ) {
     val containerColor = if (isError) {
@@ -106,8 +108,8 @@ private fun ContinueWatchingOverlayButton(
         MaterialTheme.colorScheme.primary.copy(alpha = 0.92f)
     }
     Box(
-        modifier = Modifier
-            .size(28.dp)
+        modifier = modifier
+            .size(size)
             .clip(CircleShape)
             .background(containerColor)
             .clickable(onClick = onClick)
