@@ -5,6 +5,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import su.afk.yummy.tv.domain.player.model.AllohaStreamSession
+import su.afk.yummy.tv.domain.player.model.PlayerStreamResolveResult
 import su.afk.yummy.tv.domain.player.session.AllohaPlaybackSessionManager
 import javax.inject.Inject
 
@@ -52,6 +53,16 @@ internal class PlayerAllohaSessionHandler @Inject constructor(
 
     fun selectQuality(quality: String) {
         activeSession?.selectQuality(quality)
+    }
+
+    /**
+     * Switches the Alloha dubbing inside the live session and returns the resulting stream (new URL
+     * and quality ladder), so the caller can swap the MediaItem without re-extracting.
+     */
+    fun selectAudioTrack(audioId: String): PlayerStreamResolveResult.Stream? {
+        val session = activeSession ?: return null
+        session.selectAudioTrack(audioId)
+        return runCatching { session.initialStream }.getOrNull()
     }
 
     fun close(immediately: Boolean = true) {

@@ -33,6 +33,10 @@
     <string name="player_speed_title">Скорость</string>
     <string name="player_resize_title">Масштаб</string>
     <string name="player_volume_title">Громкость</string>
+    <string name="player_audio_track_title">Alloha</string>
+    <string name="player_subtitles_title">Субтитры</string>
+    <string name="player_subtitles_off">Выключено</string>
+    <string name="player_track_fallback">Дорожка %1$d</string>
     <string name="player_volume_hint">← / → — на 1%%, ↓ — закрыть</string>
     <string name="player_quality_meta">Поток видео</string>
     <string name="player_dubbing_meta">Дорожка озвучки</string>

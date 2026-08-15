@@ -34,9 +34,12 @@ import su.afk.yummy.tv.core.designsystem.presenter.locals.LocalResolveKodikThumb
 import su.afk.yummy.tv.core.preferences.settings.model.PlayerResizeMode
 import su.afk.yummy.tv.core.utils.kodik.resolveContinueWatchingImage
 import su.afk.yummy.tv.feature.player.PlayerState
+import su.afk.yummy.tv.feature.player.common.PlayerAllohaTracks
 import su.afk.yummy.tv.feature.player.common.PlayerBlackBackdrop
 import su.afk.yummy.tv.feature.player.common.PlayerBufferingIndicator
 import su.afk.yummy.tv.feature.player.common.PlayerKeepScreenOnEffect
+import su.afk.yummy.tv.feature.player.common.PlayerSubtitleOverlay
+import su.afk.yummy.tv.feature.player.common.PlayerTrackOption
 import su.afk.yummy.tv.feature.player.common.model.PlayerEndPromptState
 import su.afk.yummy.tv.feature.player.common.model.PlayerProgressSource
 import su.afk.yummy.tv.feature.player.common.rememberPlayerBufferingState
@@ -46,6 +49,7 @@ import su.afk.yummy.tv.feature.player.common.rememberPlayerPlaybackUiState
 import su.afk.yummy.tv.feature.player.common.rememberPlayerProgressReporter
 import su.afk.yummy.tv.feature.player.common.rememberPlayerStepSeekToastState
 import su.afk.yummy.tv.feature.player.common.rememberPlayerSystemVolumeController
+import su.afk.yummy.tv.feature.player.common.rememberPlayerTrackSelection
 import su.afk.yummy.tv.feature.player.common.rememberPlayerVolumeController
 import su.afk.yummy.tv.feature.player.common.service.PlayerMediaItemUpdater
 import su.afk.yummy.tv.feature.player.common.service.rememberPlayerMediaController
@@ -74,6 +78,7 @@ import su.afk.yummy.tv.feature.player.model.PlayerNextEpisodeSource
 import su.afk.yummy.tv.feature.player.presentation.R
 import su.afk.yummy.tv.feature.player.view.deriveQualityUrls
 import kotlin.math.roundToInt
+import su.afk.yummy.tv.feature.player.mobile.R as UiR
 
 @OptIn(UnstableApi::class)
 @Composable
@@ -121,7 +126,13 @@ internal fun MobileNativePlayer(
     var bufferedProgress by remember(streamUrl, ui.activeIframeUrl) { mutableFloatStateOf(0f) }
     val skippedSegments = remember(streamUrl) { mutableStateListOf<String>() }
     val currentUrl = selectedQuality?.let(qualities::get) ?: streamUrl
-    val playbackConfigKey = remember(currentUrl, state.streamHeaders, state.retryKey) {
+    val playbackConfigKey = remember(
+        currentUrl,
+        state.streamHeaders,
+        state.retryKey,
+        // Side-loaded subtitles are part of the MediaItem, so a new pick has to rebuild the key.
+        state.selectedAllohaSubtitleIndex,
+    ) {
         buildMobilePlayerPlaybackKey(state = state, url = currentUrl)
     }
     val mediaController = rememberPlayerMediaController()
@@ -260,6 +271,31 @@ internal fun MobileNativePlayer(
         PlayerBlackBackdrop()
         return
     }
+
+    val subtitlesOffLabel = stringResource(UiR.string.player_mobile_subtitles_off)
+    val trackFallbackTemplate = stringResource(UiR.string.player_mobile_track_fallback)
+    val trackSelection = rememberPlayerTrackSelection(
+        player = player,
+        offLabel = subtitlesOffLabel,
+        fallbackLabel = { index -> trackFallbackTemplate.format(index + 1) },
+    )
+    val alloha = remember(
+        state.allohaAudioTracks,
+        state.selectedAllohaAudioId,
+        state.allohaSubtitles,
+        state.selectedAllohaSubtitleIndex,
+        subtitlesOffLabel,
+    ) {
+        PlayerAllohaTracks(
+            audioTracks = state.allohaAudioTracks,
+            selectedAudioId = state.selectedAllohaAudioId,
+            subtitles = state.allohaSubtitles,
+            selectedSubtitleIndex = state.selectedAllohaSubtitleIndex,
+            subtitlesOffLabel = subtitlesOffLabel,
+        )
+    }
+    // Alloha reports its own dubbing/subtitle lists; everything else falls back to in-stream tracks.
+    val usesAlloha = alloha.isAvailable
 
     LaunchedEffect(tutorialBlocksPlayback, isInPictureInPictureMode, player) {
         if (tutorialBlocksPlayback) {
@@ -459,6 +495,8 @@ internal fun MobileNativePlayer(
                 },
             )
         }
+
+        PlayerSubtitleOverlay(player = player, modifier = Modifier.fillMaxSize())
 
         PlayerBufferingIndicator(
             visible = isBuffering || state.isPlaybackRecovering,
@@ -728,6 +766,53 @@ internal fun MobileNativePlayer(
                             player.currentPosition
                         )
                     )
+                },
+                audioTrackNames = (if (usesAlloha) alloha.audioOptions else trackSelection.audioOptions)
+                    .map(PlayerTrackOption::label),
+                selectedAudioTrackIndex = if (usesAlloha) {
+                    alloha.selectedAudioIndex
+                } else {
+                    trackSelection.selectedAudioIndex
+                },
+                onAudioTrackSelected = { index ->
+                    if (usesAlloha) {
+                        alloha.audioIdAt(index)?.let { id ->
+                            onEvent(
+                                PlayerState.Event.AllohaAudioTrackSelected(
+                                    id,
+                                    player.currentPosition.coerceAtLeast(0L),
+                                )
+                            )
+                        }
+                    } else {
+                        trackSelection.selectAudio(index)
+                    }
+                },
+                showAudioSection = if (usesAlloha) {
+                    alloha.hasAudioChoice
+                } else {
+                    trackSelection.hasSelectableAudio
+                },
+                subtitleTrackNames = (if (usesAlloha) alloha.subtitleOptions else trackSelection.textOptions)
+                    .map(PlayerTrackOption::label),
+                selectedSubtitleTrackIndex = if (usesAlloha) {
+                    alloha.selectedSubtitleOptionIndex
+                } else {
+                    trackSelection.selectedTextIndex
+                },
+                onSubtitleTrackSelected = { index ->
+                    if (usesAlloha) {
+                        onEvent(
+                            PlayerState.Event.AllohaSubtitleSelected(alloha.subtitleIndexAt(index))
+                        )
+                    } else {
+                        trackSelection.selectText(index)
+                    }
+                },
+                showSubtitleSection = if (usesAlloha) {
+                    alloha.hasSubtitleChoice
+                } else {
+                    trackSelection.hasSelectableText
                 },
                 onDismiss = { settingsMode = null },
                 initialTrackTab = settingsTrackTab,

@@ -49,7 +49,7 @@ internal data class AllohaStreamState(
  */
 internal class AllohaStreamProxy(
     private val streamStateProvider: () -> AllohaStreamState,
-    private val qualityMasterProvider: (String) -> String?,
+    private val masterProvider: (audioId: String?, quality: String?) -> String?,
     private val requestSessionRefresh: () -> Unit,
 ) : AutoCloseable {
     private val scope = ioScope()
@@ -99,8 +99,26 @@ internal class AllohaStreamProxy(
         }
     }
 
-    fun qualityUrl(label: String): String =
-        "$playbackUrl?quality=${URLEncoder.encode(label, "UTF-8")}"
+    /**
+     * Playback URL for a specific dubbing/quality pair. Both selections travel in the loopback URL
+     * so switching either one is just a MediaItem swap against the same live session.
+     */
+    fun streamUrl(audioId: String?, quality: String?): String = buildString {
+        append(playbackUrl)
+        val params = buildList {
+            audioId?.takeIf(String::isNotBlank)
+                ?.let { add("audio=${URLEncoder.encode(it, "UTF-8")}") }
+            quality?.takeIf(String::isNotBlank)
+                ?.let { add("quality=${URLEncoder.encode(it, "UTF-8")}") }
+        }
+        if (params.isNotEmpty()) append("?").append(params.joinToString("&"))
+    }
+
+    /** Proxies an arbitrary session URL (e.g. a subtitle file) through this session's headers. */
+    fun sideloadUrl(url: String): String {
+        val encoded = Base64.encodeToString(url.toByteArray(), Base64.URL_SAFE or Base64.NO_WRAP)
+        return "http://127.0.0.1:${server.localPort}/proxy?url=$encoded"
+    }
 
     private fun buildConnectionPool(): ConnectionPool = ConnectionPool(5, 20, TimeUnit.SECONDS)
 
@@ -158,10 +176,10 @@ internal class AllohaStreamProxy(
             noteActiveState(state)
             val path = requestLine.split(' ').getOrNull(1) ?: return
             val target = if (path.startsWith("/master.m3u8")) {
-                val quality = path.substringAfter("quality=", "")
+                fun param(name: String): String? = path.substringAfter("$name=", "")
                     .takeIf(String::isNotBlank)
                     ?.let { encoded -> URLDecoder.decode(encoded.substringBefore('&'), "UTF-8") }
-                quality?.let(qualityMasterProvider) ?: state.masterUrl
+                masterProvider(param("audio"), param("quality")) ?: state.masterUrl
             } else {
                 path.substringAfter("url=", "").takeIf(String::isNotBlank)
                     ?.let { encoded ->

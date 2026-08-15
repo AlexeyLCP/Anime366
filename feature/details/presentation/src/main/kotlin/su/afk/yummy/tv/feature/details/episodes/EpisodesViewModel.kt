@@ -15,7 +15,6 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.BaseViewModelNew
 import su.afk.yummy.tv.core.error.api.IErrorHandlerUseCase
 import su.afk.yummy.tv.core.error.api.RetryStorage
@@ -517,20 +516,16 @@ class EpisodesViewModel @AssistedInject internal constructor(
     }
 
     private fun navigateToPlayer(video: AnimeVideo) {
-        val title = animeTitle
-        val poster = posterUrl
-        val screenshots = screenshotsByEpisode
-        viewModelScope.launch(Dispatchers.Default) {
-            val destination = playerNavigationHandler.getPlayerDestination(
+        nav.navigate(
+            playerNavigationHandler.getPlayerDestination(
                 video = video,
-                animeTitle = title,
+                animeTitle = animeTitle,
                 animeId = animeId,
-                posterUrl = poster,
-                screenshotByEpisode = screenshots,
+                posterUrl = posterUrl,
+                screenshotByEpisode = screenshotsByEpisode,
                 resumeFromMs = currentState.watchProgress.resumeFromMsFor(video),
             )
-            withContext(Dispatchers.Main) { nav.navigate(destination) }
-        }
+        )
     }
 
 }

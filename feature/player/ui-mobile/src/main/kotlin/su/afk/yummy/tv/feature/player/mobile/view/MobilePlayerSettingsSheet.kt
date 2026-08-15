@@ -1,6 +1,7 @@
 package su.afk.yummy.tv.feature.player.mobile.view
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
@@ -62,10 +63,22 @@ internal fun MobilePlayerSettingsSheet(
     balancerAvailability: List<Boolean>,
     selectedBalancerIndex: Int,
     onBalancerSelected: (Int) -> Unit,
+    audioTrackNames: List<String>,
+    selectedAudioTrackIndex: Int,
+    onAudioTrackSelected: (Int) -> Unit,
+    showAudioSection: Boolean,
+    subtitleTrackNames: List<String>,
+    selectedSubtitleTrackIndex: Int,
+    onSubtitleTrackSelected: (Int) -> Unit,
+    showSubtitleSection: Boolean,
     onDismiss: () -> Unit,
     initialTrackTab: MobilePlayerTrackSettingsTab = MobilePlayerTrackSettingsTab.Dubbing,
 ) {
-    val trackTabs = MobilePlayerTrackSettingsTab.entries
+    val trackTabs = buildList {
+        add(MobilePlayerTrackSettingsTab.Dubbing)
+        add(MobilePlayerTrackSettingsTab.Player)
+        if (showAudioSection || showSubtitleSection) add(MobilePlayerTrackSettingsTab.Alloha)
+    }
     val trackPagerState = rememberPagerState(
         initialPage = trackTabs.indexOf(initialTrackTab).coerceAtLeast(0),
         pageCount = { trackTabs.size },
@@ -145,10 +158,19 @@ internal fun MobilePlayerSettingsSheet(
             }
             if (mode == MobilePlayerSettingsMode.Track) {
                 item {
+                    val dubbingLabel = stringResource(UiR.string.player_mobile_dubbing)
+                    val playerLabel = stringResource(UiR.string.player_mobile_player)
+                    val allohaLabel = stringResource(UiR.string.player_mobile_audio_track)
                     MobilePlayerTrackSettingsTabs(
+                        tabs = trackTabs,
                         selectedTab = trackTabs[trackPagerState.currentPage],
-                        dubbingLabel = stringResource(UiR.string.player_mobile_dubbing),
-                        playerLabel = stringResource(UiR.string.player_mobile_player),
+                        labelFor = { tab ->
+                            when (tab) {
+                                MobilePlayerTrackSettingsTab.Dubbing -> dubbingLabel
+                                MobilePlayerTrackSettingsTab.Player -> playerLabel
+                                MobilePlayerTrackSettingsTab.Alloha -> allohaLabel
+                            }
+                        },
                         onTabSelected = { tab ->
                             scope.launch { trackPagerState.animateScrollToPage(trackTabs.indexOf(tab)) }
                         },
@@ -214,6 +236,38 @@ internal fun MobilePlayerSettingsSheet(
                                             },
                                             onClick = { onBalancerSelected(index) },
                                         )
+                                    }
+                                }
+
+                            // Alloha reports dubbings and subtitles together, so they share one
+                            // tab as two sections rather than splitting into sibling tabs.
+                            MobilePlayerTrackSettingsTab.Alloha ->
+                                Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
+                                    if (showAudioSection) {
+                                        MobilePlayerSettingsSection(
+                                            title = stringResource(UiR.string.player_mobile_dubbing),
+                                        ) {
+                                            audioTrackNames.forEachIndexed { index, name ->
+                                                MobilePlayerSelectionRow(
+                                                    label = name,
+                                                    selected = index == selectedAudioTrackIndex,
+                                                    onClick = { onAudioTrackSelected(index) },
+                                                )
+                                            }
+                                        }
+                                    }
+                                    if (showSubtitleSection) {
+                                        MobilePlayerSettingsSection(
+                                            title = stringResource(UiR.string.player_mobile_subtitles),
+                                        ) {
+                                            subtitleTrackNames.forEachIndexed { index, name ->
+                                                MobilePlayerSelectionRow(
+                                                    label = name,
+                                                    selected = index == selectedSubtitleTrackIndex,
+                                                    onClick = { onSubtitleTrackSelected(index) },
+                                                )
+                                            }
+                                        }
                                     }
                                 }
                         }

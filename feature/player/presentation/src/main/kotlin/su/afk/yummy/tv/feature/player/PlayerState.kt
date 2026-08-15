@@ -6,6 +6,8 @@ import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiState
 import su.afk.yummy.tv.core.preferences.settings.model.PlayerOrientationMode
 import su.afk.yummy.tv.core.preferences.settings.model.PlayerResizeMode
 import su.afk.yummy.tv.core.preferences.settings.model.PlayerZoomLevel
+import su.afk.yummy.tv.domain.player.model.AllohaAudioTrack
+import su.afk.yummy.tv.domain.player.model.AllohaSubtitleTrack
 import su.afk.yummy.tv.feature.player.model.PlayerFinalEpisodeAction
 import su.afk.yummy.tv.feature.player.model.PlayerNextEpisodeSource
 import su.afk.yummy.tv.feature.player.model.PlayerProgressSnapshot
@@ -25,6 +27,11 @@ class PlayerState {
         val streamHeaders: Map<String, String> = emptyMap(),
         val streamQualityMap: LinkedHashMap<String, String>? = null,
         val selectedQuality: String? = null,
+        val allohaAudioTracks: List<AllohaAudioTrack> = emptyList(),
+        val selectedAllohaAudioId: String? = null,
+        val allohaSubtitles: List<AllohaSubtitleTrack> = emptyList(),
+        /** Index into [allohaSubtitles]; null means subtitles are off. */
+        val selectedAllohaSubtitleIndex: Int? = null,
         val selectedSpeed: Float = 1f,
         val resizeMode: PlayerResizeMode = PlayerResizeMode.FIT,
         val zoomLevel: PlayerZoomLevel = PlayerZoomLevel.PERCENT_10,
@@ -89,6 +96,15 @@ class PlayerState {
 
         /** Пользователь выбрал качество потока, сохранив текущую позицию. */
         data class QualitySelected(val quality: String, val currentPosMs: Long) : Event
+
+        /**
+         * Пользователь выбрал озвучку из собственного списка Alloha (шестерёнка её плеера) —
+         * переключение потока внутри той же сессии, как смена качества.
+         */
+        data class AllohaAudioTrackSelected(val audioId: String, val currentPosMs: Long) : Event
+
+        /** Пользователь выбрал субтитры Alloha (индекс в списке) или выключил их (null). */
+        data class AllohaSubtitleSelected(val index: Int?) : Event
 
         /** Пользователь выбрал скорость воспроизведения. */
         data class SpeedSelected(val speed: Float) : Event

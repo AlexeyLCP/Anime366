@@ -108,7 +108,6 @@ class PlayerMediaSessionService : MediaSessionService() {
                 trackSelector.setParameters(
                     trackSelector.buildUponParameters()
                         .setPreferredAudioLanguage(ALLOHA_AUDIO_LANGUAGE)
-                        .setPreferredTextLanguage(ALLOHA_AUDIO_LANGUAGE)
                         .setPreferredVideoMimeType(MimeTypes.VIDEO_H264)
                         .setRendererDisabled(AUDIO_RENDERER_INDEX, false)
                         .setOverrideForType(TrackSelectionOverride(firstAudioGroup, 0))

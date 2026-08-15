@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import su.afk.yummy.tv.feature.player.PlayerState
 import su.afk.yummy.tv.feature.player.common.buildPlayerPlaybackKey
+import su.afk.yummy.tv.feature.player.common.mediaMimeType
 import su.afk.yummy.tv.feature.player.common.playerAudioTrackPolicyFor
 import su.afk.yummy.tv.feature.player.common.playerSilentReconnectEnabled
 import su.afk.yummy.tv.feature.player.common.playerUseRotatingHlsCacheKeys
@@ -11,6 +12,7 @@ import su.afk.yummy.tv.feature.player.common.service.PlayerMediaItemConfig
 import su.afk.yummy.tv.feature.player.mobile.model.MobilePlayerNotificationMeta
 import su.afk.yummy.tv.feature.player.model.PlayerPlaybackUiState
 import su.afk.yummy.tv.feature.player.presentation.R
+import su.afk.yummy.tv.feature.player.utils.selectedAllohaSubtitle
 
 @Composable
 internal fun mobilePlayerNotificationMeta(ui: PlayerPlaybackUiState): MobilePlayerNotificationMeta {
@@ -44,6 +46,9 @@ internal fun buildMobilePlayerPlaybackKey(state: PlayerState.State, url: String)
         url = url,
         retryKey = state.retryKey,
         headers = state.streamHeaders,
+        // Side-loaded subtitles live on the MediaItem itself, so a different pick must produce a
+        // different playback key for the player to re-prepare with it.
+        offlineCacheKeySegment = "sub=${state.selectedAllohaSubtitle()?.url.orEmpty()}",
     )
 
 internal fun buildMobileMediaItemKey(
@@ -91,6 +96,10 @@ internal fun buildMobilePlayerMediaItemConfig(
     audioTrackPolicy = playerAudioTrackPolicyFor(episodeUrl),
     playbackPositionMs = state.playbackPositionMs,
     resumeFromMs = state.resumeFromMs,
+    subtitleUrl = state.selectedAllohaSubtitle()?.url,
+    subtitleMimeType = state.selectedAllohaSubtitle()?.mediaMimeType(),
+    subtitleLanguage = state.selectedAllohaSubtitle()?.language,
+    subtitleLabel = state.selectedAllohaSubtitle()?.label,
     silentReconnectEnabled = playerSilentReconnectEnabled(
         episodeUrl = episodeUrl,
         isOfflinePlayback = state.isOfflinePlayback,

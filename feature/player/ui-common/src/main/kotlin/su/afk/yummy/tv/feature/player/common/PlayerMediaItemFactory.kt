@@ -1,6 +1,7 @@
 package su.afk.yummy.tv.feature.player.common
 
 import android.net.Uri
+import androidx.media3.common.C
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import androidx.media3.common.MimeTypes
@@ -16,6 +17,10 @@ object PlayerMediaItemFactory {
         artworkUri: String? = null,
         durationMs: Long? = null,
         customCacheKey: String? = null,
+        subtitleUrl: String? = null,
+        subtitleMimeType: String? = null,
+        subtitleLanguage: String? = null,
+        subtitleLabel: String? = null,
     ): MediaItem {
         val cleanUrl = url.substringBefore('?').substringBefore('#')
         val mimeType = when {
@@ -37,6 +42,22 @@ object PlayerMediaItemFactory {
             .setMediaMetadata(mediaMetadata)
             .setCustomCacheKey(customCacheKey.nonBlank())
             .apply { if (mimeType != null) setMimeType(mimeType) }
+            .apply {
+                // Alloha ships subtitles as a standalone file rather than an in-stream track, so
+                // they are side-loaded here and selected via SELECTION_FLAG_DEFAULT.
+                subtitleUrl.nonBlank()?.let { url ->
+                    setSubtitleConfigurations(
+                        listOf(
+                            MediaItem.SubtitleConfiguration.Builder(Uri.parse(url))
+                                .setMimeType(subtitleMimeType ?: MimeTypes.TEXT_VTT)
+                                .setLanguage(subtitleLanguage.nonBlank())
+                                .setLabel(subtitleLabel.nonBlank())
+                                .setSelectionFlags(C.SELECTION_FLAG_DEFAULT)
+                                .build()
+                        )
+                    )
+                }
+            }
             .build()
     }
 }

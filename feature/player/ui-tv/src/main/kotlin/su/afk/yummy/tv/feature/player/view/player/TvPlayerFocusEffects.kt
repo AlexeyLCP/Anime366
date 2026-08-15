@@ -104,4 +104,9 @@ internal fun TvPlayerFocusEffects(
             requestFocusUntilTimeout(focus.selectedVolume)
         }
     }
+    LaunchedEffect(panels.isOpen(TvPlayerPanel.Alloha)) {
+        if (panels.isOpen(TvPlayerPanel.Alloha)) {
+            requestFocusUntilTimeout(focus.selectedAlloha)
+        }
+    }
 }

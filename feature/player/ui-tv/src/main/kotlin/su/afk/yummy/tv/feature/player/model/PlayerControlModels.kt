@@ -11,6 +11,7 @@ internal enum class PanelReturnFocusTarget {
     Resize,
     Speed,
     Volume,
+    Alloha,
 }
 
 internal data class ActiveSkip(

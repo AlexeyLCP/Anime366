@@ -8,6 +8,10 @@
     <string name="player_mobile_episode_number">%1$s Серия</string>
     <string name="player_mobile_dubbing">Озвучка</string>
     <string name="player_mobile_player">Плеер</string>
+    <string name="player_mobile_audio_track">Alloha</string>
+    <string name="player_mobile_subtitles">Субтитры</string>
+    <string name="player_mobile_subtitles_off">Выключено</string>
+    <string name="player_mobile_track_fallback">Дорожка %1$d</string>
     <string name="player_mobile_done">Готово</string>
     <string name="player_mobile_previous_episode">Предыдущая</string>
     <string name="player_mobile_next_episode">Следующая</string>

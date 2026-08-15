@@ -205,6 +205,10 @@ internal class PlayerSourceStreamHandler @Inject constructor(
                         streamHeaders = result.headers,
                         streamQualityMap = result.qualities,
                         selectedQuality = result.selectedQuality,
+                        allohaAudioTracks = result.allohaAudioTracks,
+                        selectedAllohaAudioId = result.selectedAllohaAudioId,
+                        allohaSubtitles = result.allohaSubtitles,
+                        selectedAllohaSubtitleIndex = null,
                         streamUrl = result.url,
                         resumeFromMs = result.resumeFromMs,
                         dubbingResumeMs = if (result.consumedPendingResume) {

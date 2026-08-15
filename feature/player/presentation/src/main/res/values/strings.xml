@@ -33,6 +33,10 @@
     <string name="player_speed_title">Speed</string>
     <string name="player_resize_title">Scale</string>
     <string name="player_volume_title">Volume</string>
+    <string name="player_audio_track_title">Alloha</string>
+    <string name="player_subtitles_title">Subtitles</string>
+    <string name="player_subtitles_off">Off</string>
+    <string name="player_track_fallback">Track %1$d</string>
     <string name="player_volume_hint">← / → — adjust by 1%%, ↓ — close</string>
     <string name="player_quality_meta">Video stream</string>
     <string name="player_dubbing_meta">Dubbing track</string>

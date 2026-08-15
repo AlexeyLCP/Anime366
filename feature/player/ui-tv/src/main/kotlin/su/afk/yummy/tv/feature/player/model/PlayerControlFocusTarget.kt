@@ -7,4 +7,5 @@ internal enum class PlayerControlFocusTarget {
     Resize,
     Speed,
     Volume,
+    Alloha,
 }

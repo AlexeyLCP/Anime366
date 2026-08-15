@@ -26,6 +26,11 @@ data class PlayerMediaItemConfig(
     val audioTrackPolicy: PlayerAudioTrackPolicy,
     val playbackPositionMs: Long,
     val resumeFromMs: Long,
+    /** Side-loaded Alloha subtitle file, if the user picked one. */
+    val subtitleUrl: String? = null,
+    val subtitleMimeType: String? = null,
+    val subtitleLanguage: String? = null,
+    val subtitleLabel: String? = null,
     val silentReconnectEnabled: Boolean = false,
 )
 
@@ -48,6 +53,10 @@ class PlayerMediaItemUpdater {
             artworkUri = config.artworkUrl,
             durationMs = config.durationMs,
             customCacheKey = config.offlineCacheKey,
+            subtitleUrl = config.subtitleUrl,
+            subtitleMimeType = config.subtitleMimeType,
+            subtitleLanguage = config.subtitleLanguage,
+            subtitleLabel = config.subtitleLabel,
         )
         playbackConfig.updateStream(
             headers = config.headers,

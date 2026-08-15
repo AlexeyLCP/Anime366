@@ -102,24 +102,38 @@ internal class AllohaExtractor @Inject constructor(
                 liveSession.refresh()
             }
         }
+
+        // Starting the proxy binds a ServerSocket and builds an OkHttp client, so it stays off the
+        // main thread. The `delivered` flag and the timeout cleanup still happen on the handler,
+        // which is what keeps this exclusive with fail()/the timeouts.
+        fun resumeWithProxy() {
+            extractorScope.launch {
+                liveSession.startProxy()
+                if (continuation.isActive) {
+                    continuation.resume(AllohaOpenResult.Ready(liveSession))
+                } else {
+                    // Cancelled while the proxy was coming up - nothing will close it for us.
+                    liveSession.close()
+                }
+            }
+        }
+
         lateinit var timeout: Runnable
         val masterWaitTimeout = Runnable {
             if (!delivered && streamReady) {
                 Log.w(LOG_TAG, "refreshed master timeout, using captured quality playlist")
-                liveSession.startProxy()
                 delivered = true
                 handler.removeCallbacks(timeout)
-                if (continuation.isActive) continuation.resume(AllohaOpenResult.Ready(liveSession))
+                resumeWithProxy()
             }
         }
 
         fun deliverWhenReady() {
             if (delivered || !streamReady || !refreshedMasterReady) return
-            liveSession.startProxy()
             delivered = true
             handler.removeCallbacks(timeout)
             handler.removeCallbacks(masterWaitTimeout)
-            if (continuation.isActive) continuation.resume(AllohaOpenResult.Ready(liveSession))
+            resumeWithProxy()
         }
 
         fun fail(reason: AllohaOpenResult = AllohaOpenResult.Failed) {
@@ -145,15 +159,13 @@ internal class AllohaExtractor @Inject constructor(
             fun onReady(responseJson: String, headersJson: String) {
                 extractorScope.launch {
                     val parsed = runCatching {
-                        Pair(
-                            parseResult(responseJson, headersJson, preferredQualityLabel),
-                            parseHeaders(headersJson),
-                        )
+                        Pair(parseSources(responseJson), parseHeaders(headersJson))
                     }
                     handler.post {
-                        parsed.onSuccess { (stream, headers) ->
+                        parsed.onSuccess { (sources, headers) ->
                             CookieManager.getInstance().flush()
-                            liveSession.initialize(stream)
+                            liveSession.initialize(sources, headers)
+                            liveSession.preselectQuality(preferredQualityLabel)
                             liveSession.updateHeaders(headers)
                             fallbackTtlSeconds?.let(liveSession::ensureFallbackExpiry)
                             streamReady = true

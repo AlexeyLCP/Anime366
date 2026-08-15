@@ -12,6 +12,7 @@ import androidx.compose.material.icons.filled.AspectRatio
 import androidx.compose.material.icons.filled.GraphicEq
 import androidx.compose.material.icons.filled.SkipNext
 import androidx.compose.material.icons.filled.SkipPrevious
+import androidx.compose.material.icons.filled.Subtitles
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -48,6 +49,8 @@ internal fun TvPlayerEpisodeRow(
     speedFocusRequester: FocusRequester? = null,
     volumeFocusRequester: FocusRequester? = null,
     showVolumeButton: Boolean = false,
+    allohaFocusRequester: FocusRequester? = null,
+    showAllohaButton: Boolean = false,
     upFocusRequester: FocusRequester,
     onInteraction: () -> Unit,
     onPrevEpisode: () -> Unit,
@@ -60,6 +63,7 @@ internal fun TvPlayerEpisodeRow(
     onToggleResize: () -> Unit,
     onToggleSpeed: () -> Unit,
     onToggleVolume: () -> Unit = {},
+    onToggleAlloha: () -> Unit = {},
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -141,6 +145,25 @@ internal fun TvPlayerEpisodeRow(
                     color = color,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
+                )
+            }
+            Spacer(Modifier.width(8.dp))
+        }
+        if (showAllohaButton) {
+            TvControlButton(
+                onClick = onToggleAlloha,
+                onFocused = onInteraction,
+                focusRequester = allohaFocusRequester,
+                modifier = Modifier
+                    .focusProperties { up = upFocusRequester }
+                    .width(48.dp),
+                contentPadding = PaddingValues(horizontal = 0.dp, vertical = 9.dp),
+            ) { color ->
+                Icon(
+                    imageVector = Icons.Filled.Subtitles,
+                    contentDescription = stringResource(R.string.player_audio_track_title),
+                    tint = color,
+                    modifier = Modifier.size(20.dp),
                 )
             }
             Spacer(Modifier.width(8.dp))

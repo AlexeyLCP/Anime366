@@ -147,7 +147,7 @@ internal fun TvPlayerSelectionPanel(
 }
 
 @Composable
-private fun PlayerSelectionItem(
+internal fun PlayerSelectionItem(
     label: String,
     metaContent: @Composable (contentColor: Color) -> Unit,
     selected: Boolean,

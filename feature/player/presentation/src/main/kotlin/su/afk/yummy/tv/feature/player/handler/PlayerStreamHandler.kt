@@ -5,7 +5,9 @@ import su.afk.yummy.tv.core.error.api.StringProvider
 import su.afk.yummy.tv.core.model.anime.isContinueWatchingProgress
 import su.afk.yummy.tv.core.preferences.settings.PlayerSettingsStore
 import su.afk.yummy.tv.domain.player.isAllohaPlayerUrl
+import su.afk.yummy.tv.domain.player.model.AllohaAudioTrack
 import su.afk.yummy.tv.domain.player.model.AllohaStreamSession
+import su.afk.yummy.tv.domain.player.model.AllohaSubtitleTrack
 import su.afk.yummy.tv.domain.player.model.PlayerStreamRequest
 import su.afk.yummy.tv.domain.player.model.PlayerStreamResolveResult
 import su.afk.yummy.tv.domain.player.repository.WatchProgressRepository
@@ -62,6 +64,9 @@ internal class PlayerStreamHandler @Inject constructor(
                     resumeFromMs = resume,
                     consumedPendingResume = pendingResumeMs != null,
                     allohaSession = session,
+                    allohaAudioTracks = result.allohaAudioTracks,
+                    selectedAllohaAudioId = result.selectedAllohaAudioId,
+                    allohaSubtitles = result.allohaSubtitles,
                 )
             }
 
@@ -150,6 +155,9 @@ internal sealed interface PlayerStreamResult {
         val resumeFromMs: Long,
         val consumedPendingResume: Boolean,
         val allohaSession: AllohaStreamSession?,
+        val allohaAudioTracks: List<AllohaAudioTrack> = emptyList(),
+        val selectedAllohaAudioId: String? = null,
+        val allohaSubtitles: List<AllohaSubtitleTrack> = emptyList(),
     ) : PlayerStreamResult
 
     data class KodikBlocked(val message: String) : PlayerStreamResult

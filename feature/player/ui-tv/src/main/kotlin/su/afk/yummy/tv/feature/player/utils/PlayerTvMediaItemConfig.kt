@@ -2,6 +2,7 @@ package su.afk.yummy.tv.feature.player.utils
 
 import su.afk.yummy.tv.feature.player.PlayerState
 import su.afk.yummy.tv.feature.player.common.buildPlayerPlaybackKey
+import su.afk.yummy.tv.feature.player.common.mediaMimeType
 import su.afk.yummy.tv.feature.player.common.playerAudioTrackPolicyFor
 import su.afk.yummy.tv.feature.player.common.playerSilentReconnectEnabled
 import su.afk.yummy.tv.feature.player.common.playerUseRotatingHlsCacheKeys
@@ -13,7 +14,10 @@ internal fun buildTvPlayerPlaybackKey(state: PlayerState.State, url: String): St
         url = url,
         retryKey = state.retryKey,
         headers = state.streamHeaders,
-        offlineCacheKeySegment = state.offlineCacheKey.orEmpty(),
+        // Side-loaded subtitles live on the MediaItem itself, so a different pick must produce a
+        // different playback key for the player to re-prepare with it.
+        offlineCacheKeySegment = state.offlineCacheKey.orEmpty() +
+                "|sub=${state.selectedAllohaSubtitle()?.url.orEmpty()}",
     )
 
 internal fun buildTvMediaItemKey(
@@ -56,6 +60,10 @@ internal fun buildTvPlayerMediaItemConfig(
     audioTrackPolicy = playerAudioTrackPolicyFor(playback.activeIframeUrl),
     playbackPositionMs = playbackPositionMs,
     resumeFromMs = state.resumeFromMs,
+    subtitleUrl = state.selectedAllohaSubtitle()?.url,
+    subtitleMimeType = state.selectedAllohaSubtitle()?.mediaMimeType(),
+    subtitleLanguage = state.selectedAllohaSubtitle()?.language,
+    subtitleLabel = state.selectedAllohaSubtitle()?.label,
     silentReconnectEnabled = playerSilentReconnectEnabled(
         episodeUrl = playback.activeIframeUrl,
         isOfflinePlayback = state.isOfflinePlayback,

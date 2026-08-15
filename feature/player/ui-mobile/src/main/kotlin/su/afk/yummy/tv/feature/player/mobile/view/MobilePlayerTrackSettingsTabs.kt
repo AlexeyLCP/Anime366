@@ -20,9 +20,9 @@ import su.afk.yummy.tv.feature.player.mobile.model.MobilePlayerTrackSettingsTab
 
 @Composable
 internal fun MobilePlayerTrackSettingsTabs(
+    tabs: List<MobilePlayerTrackSettingsTab>,
     selectedTab: MobilePlayerTrackSettingsTab,
-    dubbingLabel: String,
-    playerLabel: String,
+    labelFor: (MobilePlayerTrackSettingsTab) -> String,
     onTabSelected: (MobilePlayerTrackSettingsTab) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -36,18 +36,14 @@ internal fun MobilePlayerTrackSettingsTabs(
             horizontalArrangement = Arrangement.spacedBy(4.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            MobilePlayerTrackSettingsTabItem(
-                label = dubbingLabel,
-                selected = selectedTab == MobilePlayerTrackSettingsTab.Dubbing,
-                onClick = { onTabSelected(MobilePlayerTrackSettingsTab.Dubbing) },
-                modifier = Modifier.weight(1f),
-            )
-            MobilePlayerTrackSettingsTabItem(
-                label = playerLabel,
-                selected = selectedTab == MobilePlayerTrackSettingsTab.Player,
-                onClick = { onTabSelected(MobilePlayerTrackSettingsTab.Player) },
-                modifier = Modifier.weight(1f),
-            )
+            tabs.forEach { tab ->
+                MobilePlayerTrackSettingsTabItem(
+                    label = labelFor(tab),
+                    selected = tab == selectedTab,
+                    onClick = { onTabSelected(tab) },
+                    modifier = Modifier.weight(1f),
+                )
+            }
         }
     }
 }

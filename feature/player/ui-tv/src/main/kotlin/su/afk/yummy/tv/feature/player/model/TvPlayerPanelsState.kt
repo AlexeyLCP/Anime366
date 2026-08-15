@@ -13,6 +13,9 @@ internal enum class TvPlayerPanel {
     Speed,
     Resize,
     Volume,
+
+    /** Alloha's own dubbings and subtitles, shown as two sections in one panel. */
+    Alloha,
 }
 
 internal class TvPlayerPanelsState {

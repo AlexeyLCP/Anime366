@@ -28,6 +28,7 @@ import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.media3.common.util.UnstableApi
@@ -35,9 +36,12 @@ import androidx.media3.ui.compose.ContentFrame
 import androidx.media3.ui.compose.SURFACE_TYPE_SURFACE_VIEW
 import su.afk.yummy.tv.core.preferences.settings.model.PlayerResizeMode
 import su.afk.yummy.tv.feature.player.PlayerState
+import su.afk.yummy.tv.feature.player.common.PlayerAllohaTracks
 import su.afk.yummy.tv.feature.player.common.PlayerBlackBackdrop
 import su.afk.yummy.tv.feature.player.common.PlayerBufferingIndicator
 import su.afk.yummy.tv.feature.player.common.PlayerKeepScreenOnEffect
+import su.afk.yummy.tv.feature.player.common.PlayerSubtitleOverlay
+import su.afk.yummy.tv.feature.player.common.PlayerTrackOption
 import su.afk.yummy.tv.feature.player.common.model.PlayerEndPromptState
 import su.afk.yummy.tv.feature.player.common.model.PlayerProgressSource
 import su.afk.yummy.tv.feature.player.common.model.StepSeekDirection
@@ -48,6 +52,7 @@ import su.afk.yummy.tv.feature.player.common.rememberPlayerMediaReadyState
 import su.afk.yummy.tv.feature.player.common.rememberPlayerProgressReporter
 import su.afk.yummy.tv.feature.player.common.rememberPlayerStepSeekToastState
 import su.afk.yummy.tv.feature.player.common.rememberPlayerSystemVolumeController
+import su.afk.yummy.tv.feature.player.common.rememberPlayerTrackSelection
 import su.afk.yummy.tv.feature.player.common.rememberPlayerVolumeController
 import su.afk.yummy.tv.feature.player.common.service.PlayerMediaItemUpdater
 import su.afk.yummy.tv.feature.player.common.service.rememberPlayerPlaybackConfig
@@ -70,6 +75,7 @@ import su.afk.yummy.tv.feature.player.model.rememberTvPlayerPromptsState
 import su.afk.yummy.tv.feature.player.model.rememberTvPlayerSeekController
 import su.afk.yummy.tv.feature.player.model.rememberTvPlayerSkipUiState
 import su.afk.yummy.tv.feature.player.model.rememberTvPlayerVolumeKeysState
+import su.afk.yummy.tv.feature.player.presentation.R
 import su.afk.yummy.tv.feature.player.utils.buildTvMediaItemKey
 import su.afk.yummy.tv.feature.player.utils.buildTvPlayerMediaItemConfig
 import su.afk.yummy.tv.feature.player.utils.buildTvPlayerPlaybackKey
@@ -162,7 +168,14 @@ internal fun TvExoPlayerView(
     val playbackConfig = rememberPlayerPlaybackConfig()
     val mediaItemUpdater = remember { PlayerMediaItemUpdater() }
     val playbackKey =
-        remember(currentUrl, state.streamHeaders, state.offlineCacheKey, state.retryKey) {
+        remember(
+            currentUrl,
+            state.streamHeaders,
+            state.offlineCacheKey,
+            state.retryKey,
+            // Side-loaded subtitles are part of the MediaItem, so a new pick has to rebuild the key.
+            state.selectedAllohaSubtitleIndex,
+        ) {
             buildTvPlayerPlaybackKey(state = state, url = currentUrl)
         }
     val isMediaReady = rememberPlayerMediaReadyState(player, playbackKey)
@@ -238,6 +251,41 @@ internal fun TvExoPlayerView(
     }
 
     PlayerKeepScreenOnEffect()
+
+    val subtitlesOffLabel = stringResource(R.string.player_subtitles_off)
+    val trackFallbackTemplate = stringResource(R.string.player_track_fallback)
+    val trackSelection = rememberPlayerTrackSelection(
+        player = player,
+        offLabel = subtitlesOffLabel,
+        fallbackLabel = { index -> trackFallbackTemplate.format(index + 1) },
+    )
+    val alloha = remember(
+        state.allohaAudioTracks,
+        state.selectedAllohaAudioId,
+        state.allohaSubtitles,
+        state.selectedAllohaSubtitleIndex,
+        subtitlesOffLabel,
+    ) {
+        PlayerAllohaTracks(
+            audioTracks = state.allohaAudioTracks,
+            selectedAudioId = state.selectedAllohaAudioId,
+            subtitles = state.allohaSubtitles,
+            selectedSubtitleIndex = state.selectedAllohaSubtitleIndex,
+            subtitlesOffLabel = subtitlesOffLabel,
+        )
+    }
+    // Alloha reports its own dubbing/subtitle lists; everything else falls back to in-stream tracks.
+    val usesAlloha = alloha.isAvailable
+    val hasSelectableAudio =
+        if (usesAlloha) alloha.hasAudioChoice else trackSelection.hasSelectableAudio
+    val hasSelectableSubtitles =
+        if (usesAlloha) alloha.hasSubtitleChoice else trackSelection.hasSelectableText
+    val audioTrackNames = if (usesAlloha) alloha.audioOptions else trackSelection.audioOptions
+    val subtitleTrackNames = if (usesAlloha) alloha.subtitleOptions else trackSelection.textOptions
+    val selectedAudioIndex =
+        if (usesAlloha) alloha.selectedAudioIndex else trackSelection.selectedAudioIndex
+    val selectedSubtitleIndex =
+        if (usesAlloha) alloha.selectedSubtitleOptionIndex else trackSelection.selectedTextIndex
 
     LaunchedEffect(pausedForTutorial) {
         if (pausedForTutorial) player.pause()
@@ -451,6 +499,7 @@ internal fun TvExoPlayerView(
                     TvPlayerPanel.Speed -> PanelReturnFocusTarget.Speed
                     TvPlayerPanel.Resize -> PanelReturnFocusTarget.Resize
                     TvPlayerPanel.Volume -> PanelReturnFocusTarget.Volume
+                    TvPlayerPanel.Alloha -> PanelReturnFocusTarget.Alloha
                     null -> null
                 }
             )
@@ -504,6 +553,8 @@ internal fun TvExoPlayerView(
                 .fillMaxSize()
                 .focusProperties { canFocus = false },
         )
+
+        PlayerSubtitleOverlay(player = player, modifier = Modifier.fillMaxSize())
 
         TvPlayerPointerOverlay(
             enabled = !panels.isAnyOpen && !prompts.anyVisible && !recoveryHintVisible,
@@ -579,6 +630,7 @@ internal fun TvExoPlayerView(
             currentQualityLabel = activeQuality.orEmpty(),
             currentSpeedLabel = activeSpeed.speedLabel(),
             showVolumeButton = advancedVolumeEnabled,
+            showAllohaButton = hasSelectableAudio || hasSelectableSubtitles,
             onPlayPause = { if (wantsPlay) player.pause() else player.play() },
             onSeekTo = seekController::seekTo,
             onInteraction = ::onInteraction,
@@ -607,6 +659,9 @@ internal fun TvExoPlayerView(
             onToggleVolume = {
                 togglePanel(TvPlayerPanel.Volume, PanelReturnFocusTarget.Volume)
             },
+            onToggleAlloha = {
+                togglePanel(TvPlayerPanel.Alloha, PanelReturnFocusTarget.Alloha)
+            },
         )
 
         TvPlayerPanelsHost(
@@ -620,6 +675,10 @@ internal fun TvExoPlayerView(
             resizeMode = state.resizeMode,
             zoomLevel = state.zoomLevel,
             volumePercent = playerVolumePercent,
+            audioTrackNames = audioTrackNames.map(PlayerTrackOption::label),
+            selectedAudioTrackIndex = selectedAudioIndex,
+            subtitleTrackNames = subtitleTrackNames.map(PlayerTrackOption::label),
+            selectedSubtitleTrackIndex = selectedSubtitleIndex,
             onQualitySelected = { idx ->
                 val quality = qualities.keys.toList()[idx]
                 if (quality != activeQuality) {
@@ -660,6 +719,33 @@ internal fun TvExoPlayerView(
                 onInteraction()
             },
             onVolumeChange = { volumeController.setPercent(it) },
+            onAudioTrackSelected = { idx ->
+                if (usesAlloha) {
+                    alloha.audioIdAt(idx)?.let { id ->
+                        val position = player.currentPosition.coerceAtLeast(0L)
+                        seekOnSwitch = position
+                        onPlayerEvent(
+                            PlayerState.Event.AllohaAudioTrackSelected(id, position)
+                        )
+                    }
+                } else {
+                    trackSelection.selectAudio(idx)
+                }
+                panels.close(PanelReturnFocusTarget.Alloha)
+                onInteraction()
+            },
+            onSubtitleTrackSelected = { idx ->
+                if (usesAlloha) {
+                    seekOnSwitch = player.currentPosition.coerceAtLeast(0L)
+                    onPlayerEvent(
+                        PlayerState.Event.AllohaSubtitleSelected(alloha.subtitleIndexAt(idx))
+                    )
+                } else {
+                    trackSelection.selectText(idx)
+                }
+                panels.close(PanelReturnFocusTarget.Alloha)
+                onInteraction()
+            },
             onExitPanelDown = ::exitPanelDown,
         )
 

@@ -12,5 +12,8 @@ interface AllohaStreamSession : AutoCloseable {
     fun expiresAtMs(): Long?
     fun refresh()
     fun selectQuality(label: String)
+
+    /** Switches the active dubbing; [initialStream] then reflects the new URL and quality ladder. */
+    fun selectAudioTrack(id: String)
     override fun close()
 }

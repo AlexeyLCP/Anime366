@@ -1,5 +1,6 @@
 package su.afk.yummy.tv.feature.player.utils
 
+import su.afk.yummy.tv.domain.player.model.AllohaSubtitleTrack
 import su.afk.yummy.tv.feature.player.PlayerSourceBalancer
 import su.afk.yummy.tv.feature.player.PlayerSourceDubbing
 import su.afk.yummy.tv.feature.player.PlayerSourceEpisode
@@ -17,6 +18,10 @@ internal fun PlayerState.State.withEpisodeSelection(
     resumeFromMs = 0L,
     playbackPositionMs = 0L,
     playbackDurationMs = 0L,
+    allohaAudioTracks = emptyList(),
+    selectedAllohaAudioId = null,
+    allohaSubtitles = emptyList(),
+    selectedAllohaSubtitleIndex = null,
 )
 
 internal fun PlayerSourceSelection.toDubbingSource(): DubbingSource =
@@ -61,6 +66,10 @@ internal fun activeDubbingEpisodes(state: PlayerState.State): List<PlayerSourceE
 
 internal fun activeIframeUrl(state: PlayerState.State): String =
     activeEpisodeSource(state)?.iframeUrl.orEmpty()
+
+/** The Alloha subtitle file the user picked, or null when subtitles are off. */
+fun PlayerState.State.selectedAllohaSubtitle(): AllohaSubtitleTrack? =
+    selectedAllohaSubtitleIndex?.let(allohaSubtitles::getOrNull)
 
 internal fun activeEpisode(state: PlayerState.State): String =
     activeEpisodeSource(state)?.number.orEmpty()

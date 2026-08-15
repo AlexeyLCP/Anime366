@@ -5,6 +5,7 @@ import android.util.Log
 import android.webkit.CookieManager
 import android.webkit.WebView
 import su.afk.yummy.tv.domain.player.model.AllohaStreamSession
+import su.afk.yummy.tv.domain.player.model.AllohaSubtitleTrack
 import su.afk.yummy.tv.domain.player.model.PlayerStreamResolveResult
 import java.net.URL
 import java.security.MessageDigest
@@ -32,10 +33,11 @@ internal class LiveAllohaStreamSession(
     private val generation = AtomicLong(0L)
     private val expiry = AtomicLong(0L)
     private val view = AtomicReference<WebView?>(null)
-    private val stream = AtomicReference<PlayerStreamResolveResult.Stream?>(null)
     private val refreshAction = AtomicReference<(() -> Unit)?>(null)
     private val releaseAction = AtomicReference<((WebView) -> Unit)?>(null)
-    private val qualityMasters = ConcurrentHashMap<String, String>()
+    private val audioTracks = AtomicReference<List<AllohaParsedAudioTrack>>(emptyList())
+    private val subtitles = AtomicReference<List<AllohaSubtitleTrack>>(emptyList())
+    private val selectedAudioId = AtomicReference<String?>(null)
     private val selectedQuality = AtomicReference<String?>(null)
     private val proxy = AtomicReference<AllohaStreamProxy?>(null)
     private val streamStateLock = Any()
@@ -53,8 +55,7 @@ internal class LiveAllohaStreamSession(
         val headers = mutableMapOf<String, String>()
         var masterUrl: String? = null
         var expiry: Long = 0L
-        var stream: PlayerStreamResolveResult.Stream? = null
-        var qualities: Map<String, String>? = null
+        var sources: AllohaParsedSources? = null
         var hasReady = false
         var hasRefreshedMaster = false
         var hasConfigUpdate = false
@@ -77,34 +78,73 @@ internal class LiveAllohaStreamSession(
         }
     }
 
+    /** The dubbing currently selected, falling back to Alloha's own default. */
+    private fun currentTrack(): AllohaParsedAudioTrack? {
+        val tracks = audioTracks.get()
+        val id = selectedAudioId.get()
+        return tracks.firstOrNull { it.track.id == id }
+            ?: tracks.firstOrNull { it.track.isDefault }
+            ?: tracks.firstOrNull()
+    }
+
+    /** Resolves the real CDN master for a (dubbing, quality) pair - the proxy's lookup. */
+    private fun masterFor(audioId: String?, quality: String?): String? {
+        val tracks = audioTracks.get()
+        val track = tracks.firstOrNull { it.track.id == audioId } ?: currentTrack() ?: return null
+        val label = quality ?: selectedQuality.get()
+        return label?.let(track.qualities::get) ?: track.qualities.values.lastOrNull()
+    }
+
     override val initialStream: PlayerStreamResolveResult.Stream
         get() {
-            val value = checkNotNull(stream.get())
-            val selectedPlaybackUrl = selectedQuality.get()
-                ?.let { checkNotNull(proxy.get()).qualityUrl(it) }
-                ?: playbackUrl
-            return value.copy(
-                url = selectedPlaybackUrl,
+            val activeProxy = checkNotNull(proxy.get())
+            val track = checkNotNull(currentTrack())
+            return PlayerStreamResolveResult.Stream(
+                url = activeProxy.streamUrl(track.track.id, selectedQuality.get()),
                 headers = emptyMap(),
-                qualities = qualityUrls,
+                qualities = track.qualities.keys.associateTo(linkedMapOf()) { label ->
+                    label to activeProxy.streamUrl(track.track.id, label)
+                },
                 qualityHeaders = emptyMap(),
+                allohaAudioTracks = audioTracks.get().map(AllohaParsedAudioTrack::track),
+                selectedAllohaAudioId = track.track.id,
+                // Subtitles ride the same loopback proxy so the CDN sees this session's headers.
+                allohaSubtitles = subtitles.get()
+                    .map { it.copy(url = activeProxy.sideloadUrl(it.url)) },
             )
         }
+
+    /** Direct CDN stream (no proxy) - used by the one-shot extract path, e.g. downloads. */
     val directStream: PlayerStreamResolveResult.Stream
         get() {
-            val value = checkNotNull(stream.get())
+            val track = checkNotNull(currentTrack())
             val currentHeaders = currentHeaders()
-            return value.copy(
+            val label = selectedQuality.get()
+            return PlayerStreamResolveResult.Stream(
+                url = label?.let(track.qualities::get) ?: track.qualities.values.last(),
                 headers = currentHeaders,
-                qualityHeaders = value.qualities.orEmpty().keys.associateWith { currentHeaders },
+                qualities = track.qualities,
+                qualityHeaders = track.qualities.keys.associateWith { currentHeaders },
+                allohaAudioTracks = audioTracks.get().map(AllohaParsedAudioTrack::track),
+                selectedAllohaAudioId = track.track.id,
+                allohaSubtitles = subtitles.get(),
             )
         }
+
     override val playbackUrl: String
-        get() = checkNotNull(proxy.get()).playbackUrl
+        get() = checkNotNull(proxy.get()).streamUrl(
+            currentTrack()?.track?.id,
+            selectedQuality.get()
+        )
+
     override val qualityUrls: LinkedHashMap<String, String>
-        get() = qualityMasters.keys
-            .sortedBy { it.filter(Char::isDigit).toIntOrNull() ?: 0 }
-            .associateTo(linkedMapOf()) { it to checkNotNull(proxy.get()).qualityUrl(it) }
+        get() {
+            val activeProxy = checkNotNull(proxy.get())
+            val track = currentTrack() ?: return linkedMapOf()
+            return track.qualities.keys.associateTo(linkedMapOf()) { label ->
+                label to activeProxy.streamUrl(track.track.id, label)
+            }
+        }
 
     fun attach(webView: WebView, refresh: () -> Unit, release: (WebView) -> Unit) {
         view.set(webView)
@@ -112,30 +152,45 @@ internal class LiveAllohaStreamSession(
         releaseAction.set(release)
     }
 
-    fun initialize(value: PlayerStreamResolveResult.Stream) {
+    fun initialize(sources: AllohaParsedSources, streamHeaders: Map<String, String>) {
         synchronized(streamStateLock) {
             val staged = staging
             if (staged != null) {
-                staged.stream = value
-                staged.masterUrl = value.url
-                staged.qualities = value.qualities
+                staged.sources = sources
+                staged.masterUrl =
+                    sources.audioTracks.firstOrNull()?.qualities?.values?.lastOrNull()
                 staged.headers.clear()
-                staged.headers.putAll(value.headers.mapKeys { it.key.lowercase() })
+                staged.headers.putAll(streamHeaders.mapKeys { it.key.lowercase() })
                 staged.hasReady = true
                 commitStagedIfReadyLocked()
                 return
             }
-            stream.set(value)
-            masterUrl.set(value.url)
-            qualityMasters.clear()
-            value.qualities?.let(qualityMasters::putAll)
-            selectedQuality.set(
-                value.qualities?.entries?.firstOrNull { it.value == value.url }?.key
-            )
+            applySourcesLocked(sources)
+            masterUrl.set(masterFor(selectedAudioId.get(), selectedQuality.get()).orEmpty())
             headers.clear()
-            headers.putAll(value.headers.mapKeys { it.key.lowercase() })
+            headers.putAll(streamHeaders.mapKeys { it.key.lowercase() })
             generation.incrementAndGet()
         }
+    }
+
+    /** Applies a freshly parsed source set, carrying the user's dubbing/quality choice across. */
+    private fun applySourcesLocked(sources: AllohaParsedSources) {
+        audioTracks.set(sources.audioTracks)
+        subtitles.set(sources.subtitles)
+        val previousAudio = selectedAudioId.get()
+        selectedAudioId.set(
+            previousAudio?.takeIf { id -> sources.audioTracks.any { it.track.id == id } }
+                ?: sources.audioTracks.firstOrNull { it.track.isDefault }?.track?.id
+                ?: sources.audioTracks.firstOrNull()?.track?.id
+        )
+        val available = currentTrack()?.qualities.orEmpty()
+        selectedQuality.set(selectedQuality.get()?.takeIf(available::containsKey))
+    }
+
+    /** Picks the preferred quality once, right after the first parse. */
+    fun preselectQuality(label: String?) {
+        val available = currentTrack()?.qualities.orEmpty()
+        if (label != null && available.containsKey(label)) selectedQuality.set(label)
     }
 
     fun startProxy() {
@@ -145,7 +200,7 @@ internal class LiveAllohaStreamSession(
             null,
             AllohaStreamProxy(
                 streamStateProvider = ::currentStreamState,
-                qualityMasterProvider = qualityMasters::get,
+                masterProvider = ::masterFor,
                 requestSessionRefresh = ::refresh,
             )
         )
@@ -216,23 +271,14 @@ internal class LiveAllohaStreamSession(
         staging = null
         handler.removeCallbacks(stagedCommitTimeout)
 
-        staged.stream?.let(stream::set)
+        // Carry the selection across by id/label: the rotated session serves the same dubbing and
+        // quality ladder behind fresh URLs, so matching on URL would lose the choice.
+        staged.sources?.let(::applySourcesLocked)
         staged.masterUrl?.takeIf(String::isNotBlank)?.let(masterUrl::set)
         if (staged.expiry > 0L) expiry.set(staged.expiry)
         if (staged.headers.isNotEmpty()) {
             headers.clear()
             headers.putAll(staged.headers)
-        }
-        staged.qualities?.takeIf { it.isNotEmpty() }?.let { qualities ->
-            // Carry the selection across by label: the rotated session serves the same
-            // quality ladder behind fresh URLs, so matching on URL would lose the choice.
-            val previousLabel = selectedQuality.get()
-            qualityMasters.clear()
-            qualityMasters.putAll(qualities)
-            selectedQuality.set(
-                previousLabel?.takeIf(qualities::containsKey)
-                    ?: qualities.entries.firstOrNull { it.value == staged.masterUrl }?.key
-            )
         }
         generation.incrementAndGet()
         Log.i(LOG_TAG, "staged session committed ${safeHeaderStateLocked()}")
@@ -295,7 +341,19 @@ internal class LiveAllohaStreamSession(
     }
 
     override fun selectQuality(label: String) {
-        if (qualityMasters.containsKey(label)) selectedQuality.set(label)
+        if (currentTrack()?.qualities?.containsKey(label) == true) selectedQuality.set(label)
+    }
+
+    override fun selectAudioTrack(id: String) {
+        synchronized(streamStateLock) {
+            if (audioTracks.get().none { it.track.id == id }) return
+            selectedAudioId.set(id)
+            // Keep the quality choice only if the new dubbing actually offers it.
+            val available = currentTrack()?.qualities.orEmpty()
+            selectedQuality.set(selectedQuality.get()?.takeIf(available::containsKey))
+            masterFor(id, selectedQuality.get())?.let(masterUrl::set)
+            Log.i(LOG_TAG, "audio track selected id=$id")
+        }
     }
 
     override fun close() {

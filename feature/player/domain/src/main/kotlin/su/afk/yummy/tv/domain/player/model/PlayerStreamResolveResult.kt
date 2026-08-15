@@ -6,6 +6,9 @@ sealed interface PlayerStreamResolveResult {
         val headers: Map<String, String> = emptyMap(),
         val qualities: LinkedHashMap<String, String>? = null,
         val qualityHeaders: Map<String, Map<String, String>> = emptyMap(),
+        val allohaAudioTracks: List<AllohaAudioTrack> = emptyList(),
+        val selectedAllohaAudioId: String? = null,
+        val allohaSubtitles: List<AllohaSubtitleTrack> = emptyList(),
     ) : PlayerStreamResolveResult
 
     data class KodikBlocked(

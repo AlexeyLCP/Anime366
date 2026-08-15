@@ -31,6 +31,10 @@ internal fun BoxScope.TvPlayerPanelsHost(
     resizeMode: PlayerResizeMode,
     zoomLevel: PlayerZoomLevel,
     volumePercent: Int,
+    audioTrackNames: List<String>,
+    selectedAudioTrackIndex: Int,
+    subtitleTrackNames: List<String>,
+    selectedSubtitleTrackIndex: Int,
     onQualitySelected: (index: Int) -> Unit,
     onDubbingSelected: (index: Int) -> Unit,
     onBalancerSelected: (index: Int) -> Unit,
@@ -38,6 +42,8 @@ internal fun BoxScope.TvPlayerPanelsHost(
     onResizeModeSelected: (PlayerResizeMode) -> Unit,
     onZoomLevelSelected: (PlayerZoomLevel) -> Unit,
     onVolumeChange: (Int) -> Unit,
+    onAudioTrackSelected: (index: Int) -> Unit,
+    onSubtitleTrackSelected: (index: Int) -> Unit,
     onExitPanelDown: (PanelReturnFocusTarget) -> Unit,
 ) {
     val resizeModes = PlayerResizeMode.entries.toList()
@@ -138,5 +144,20 @@ internal fun BoxScope.TvPlayerPanelsHost(
         modifier = Modifier
             .align(Alignment.BottomEnd)
             .padding(end = 48.dp, bottom = 72.dp),
+    )
+
+    TvPlayerAllohaPanel(
+        visible = panels.isOpen(TvPlayerPanel.Alloha),
+        audioTrackNames = audioTrackNames,
+        selectedAudioTrackIndex = selectedAudioTrackIndex,
+        onAudioTrackSelected = onAudioTrackSelected,
+        subtitleTrackNames = subtitleTrackNames,
+        selectedSubtitleTrackIndex = selectedSubtitleTrackIndex,
+        onSubtitleTrackSelected = onSubtitleTrackSelected,
+        selectedFocusRequester = focus.selectedAlloha,
+        modifier = Modifier
+            .align(Alignment.BottomEnd)
+            .padding(end = 48.dp, bottom = 72.dp),
+        onExitDown = { onExitPanelDown(PanelReturnFocusTarget.Alloha) },
     )
 }

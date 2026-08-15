@@ -435,6 +435,33 @@ class PlayerViewModel @AssistedInject internal constructor(
                 }
             }
 
+            is PlayerState.Event.AllohaAudioTrackSelected -> {
+                val position = event.currentPosMs.coerceAtLeast(0L)
+                // Same live session, different stream URL - no re-extraction, like quality.
+                val stream = allohaSession.selectAudioTrack(event.audioId) ?: return
+                setState {
+                    copy(
+                        selectedAllohaAudioId = stream.selectedAllohaAudioId,
+                        streamQualityMap = stream.qualities,
+                        selectedQuality = selectedQuality?.takeIf {
+                            stream.qualities?.containsKey(it) == true
+                        },
+                        streamUrl = stream.url,
+                        resumeFromMs = position,
+                        playbackPositionMs = position,
+                    )
+                }
+            }
+
+            is PlayerState.Event.AllohaSubtitleSelected -> {
+                setState {
+                    copy(
+                        selectedAllohaSubtitleIndex = event.index
+                            ?.takeIf { it in allohaSubtitles.indices },
+                    )
+                }
+            }
+
             is PlayerState.Event.SpeedSelected -> {
                 analytics.eventSpeedSelected(currentState.animeId, event.speed)
                 setState { copy(selectedSpeed = event.speed.coerceAtLeast(0.1f)) }
@@ -561,6 +588,10 @@ class PlayerViewModel @AssistedInject internal constructor(
                     streamUrl = item.streamUrl,
                     streamHeaders = item.headers,
                     selectedQuality = item.qualityLabel,
+                    allohaAudioTracks = emptyList(),
+                    selectedAllohaAudioId = null,
+                    allohaSubtitles = emptyList(),
+                    selectedAllohaSubtitleIndex = null,
                     isOfflinePlayback = true,
                     offlineCacheKey = item.cacheKey,
                     playerError = null,
@@ -612,6 +643,10 @@ class PlayerViewModel @AssistedInject internal constructor(
                 streamHeaders = emptyMap(),
                 streamQualityMap = null,
                 selectedQuality = null,
+                allohaAudioTracks = emptyList(),
+                selectedAllohaAudioId = null,
+                allohaSubtitles = emptyList(),
+                selectedAllohaSubtitleIndex = null,
                 isOfflinePlayback = true,
                 isLocalFile = true,
                 offlineCacheKey = null,
@@ -1000,6 +1035,10 @@ class PlayerViewModel @AssistedInject internal constructor(
                             streamHeaders = result.state.streamHeaders,
                             streamQualityMap = result.state.streamQualityMap,
                             selectedQuality = result.state.selectedQuality,
+                            allohaAudioTracks = result.state.allohaAudioTracks,
+                            selectedAllohaAudioId = result.state.selectedAllohaAudioId,
+                            allohaSubtitles = result.state.allohaSubtitles,
+                            selectedAllohaSubtitleIndex = result.state.selectedAllohaSubtitleIndex,
                             playerError = result.state.playerError,
                             kodikBlockedError = result.state.kodikBlockedError,
                             resumeFromMs = result.state.resumeFromMs,

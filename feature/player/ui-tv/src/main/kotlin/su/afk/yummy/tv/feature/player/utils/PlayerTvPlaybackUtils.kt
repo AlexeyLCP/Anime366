@@ -28,6 +28,7 @@ internal fun PanelReturnFocusTarget.toPlayerControlFocusTarget(): PlayerControlF
         PanelReturnFocusTarget.Resize -> PlayerControlFocusTarget.Resize
         PanelReturnFocusTarget.Speed -> PlayerControlFocusTarget.Speed
         PanelReturnFocusTarget.Volume -> PlayerControlFocusTarget.Volume
+        PanelReturnFocusTarget.Alloha -> PlayerControlFocusTarget.Alloha
     }
 
 internal fun formatTime(ms: Long): String {

@@ -13,11 +13,11 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.BaseViewModelNew
 import su.afk.yummy.tv.core.error.api.IErrorHandlerUseCase
 import su.afk.yummy.tv.core.error.api.RetryStorage
 import su.afk.yummy.tv.core.error.api.StringProvider
+import su.afk.yummy.tv.core.model.anime.AnimeDetails
 import su.afk.yummy.tv.core.model.anime.AnimeVideo
 import su.afk.yummy.tv.core.model.anime.AnimeWatchProgress
 import su.afk.yummy.tv.core.navigation.manager.INavigationManager
@@ -644,36 +644,35 @@ class DetailsViewModel @AssistedInject internal constructor(
 
     private fun navigateToPlayer(video: AnimeVideo) {
         val details = currentState.details
-        viewModelScope.launch(Dispatchers.Default) {
-            val destination = playerNavigationHandler.getPlayerDestination(
+        nav.navigate(
+            playerNavigationHandler.getPlayerDestination(
                 video = video,
                 animeTitle = details?.title ?: "",
                 animeId = animeId,
                 posterUrl = details?.poster?.run { medium ?: big ?: fullsize ?: small } ?: "",
-                screenshotByEpisode = details?.screenshots.orEmpty().mapNotNull { screenshot ->
-                    screenshot.episode?.let { episode -> episode to screenshot.small.orEmpty() }
-                }.toMap(),
+                screenshotByEpisode = details.screenshotByEpisode(),
                 resumeFromMs = currentState.watchProgress.resumeFromMsFor(video),
             )
-            withContext(Dispatchers.Main) { nav.navigate(destination) }
-        }
+        )
     }
 
     private fun navigateToPlayer(video: PlayerVideoSource) {
         val details = currentState.details
-        viewModelScope.launch(Dispatchers.Default) {
-            val destination = playerNavigationHandler.getPlayerDestination(
+        nav.navigate(
+            playerNavigationHandler.getPlayerDestination(
                 video = video,
                 animeTitle = details?.title ?: "",
                 animeId = animeId,
                 posterUrl = details?.poster?.run { medium ?: big ?: fullsize ?: small } ?: "",
-                screenshotByEpisode = details?.screenshots.orEmpty().mapNotNull { screenshot ->
-                    screenshot.episode?.let { episode -> episode to screenshot.small.orEmpty() }
-                }.toMap(),
+                screenshotByEpisode = details.screenshotByEpisode(),
                 resumeFromMs = currentState.watchProgress.resumeFromMsFor(video),
             )
-            withContext(Dispatchers.Main) { nav.navigate(destination) }
-        }
+        )
     }
+
+    private fun AnimeDetails?.screenshotByEpisode(): Map<String, String> =
+        this?.screenshots.orEmpty().mapNotNull { screenshot ->
+            screenshot.episode?.let { episode -> episode to screenshot.small.orEmpty() }
+        }.toMap()
 
 }
