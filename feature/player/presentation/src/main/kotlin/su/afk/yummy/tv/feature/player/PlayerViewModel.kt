@@ -172,6 +172,9 @@ class PlayerViewModel @AssistedInject internal constructor(
         settingsHandler.advancedPlayerVolumeEnabled
             .onEach { enabled -> setState { copy(advancedPlayerVolumeEnabled = enabled) } }
             .launchIn(viewModelScope)
+        settingsHandler.playerSubtitleStyle
+            .onEach { style -> setState { copy(subtitleStyle = style) } }
+            .launchIn(viewModelScope)
         if (dest.downloadId > 0L) {
             loadDownloadedDestination(dest.downloadId)
         } else if (dest.localFileUri.isNotBlank()) {

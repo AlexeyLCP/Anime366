@@ -17,6 +17,7 @@ import su.afk.yummy.tv.core.preferences.settings.SettingsStore
 import su.afk.yummy.tv.core.preferences.settings.model.DetailsButtonAction
 import su.afk.yummy.tv.core.preferences.settings.model.LibraryContinueWatchingCardSize
 import su.afk.yummy.tv.core.preferences.settings.model.PlayerOrientationMode
+import su.afk.yummy.tv.core.preferences.settings.model.PlayerSubtitleStyleSettings
 import su.afk.yummy.tv.core.preferences.settings.model.PreferredPlayer
 import su.afk.yummy.tv.core.preferences.settings.model.PreferredVideoQuality
 import su.afk.yummy.tv.core.preferences.settings.model.PreviewCacheSize
@@ -46,6 +47,7 @@ class SettingsState {
         val askDubbingOnWatch: Boolean = false,
         val pictureInPictureEnabled: Boolean = true,
         val playerOrientationMode: PlayerOrientationMode = PlayerOrientationMode.SYSTEM,
+        val subtitleStyle: PlayerSubtitleStyleSettings = PlayerSubtitleStyleSettings(),
         val mobilePlayerGestureTutorialDismissed: Boolean = false,
         val tvPlayerControlsTutorialDismissed: Boolean = false,
         val suggestNextEpisodeOnWatched: Boolean = true,
@@ -126,6 +128,9 @@ class SettingsState {
 
         /** Пользователь выбрал режим принудительной ориентации плеера. */
         data class PlayerOrientationModeSelected(val mode: PlayerOrientationMode) : Event
+
+        /** Пользователь изменил оформление субтитров (размер, цвет, фон, отступ снизу). */
+        data class SubtitleStyleSelected(val settings: PlayerSubtitleStyleSettings) : Event
 
         /** Пользователь переключил перехват кнопок громкости в ТВ-плеере. */
         data object TvPlayerVolumeKeysToggled : Event

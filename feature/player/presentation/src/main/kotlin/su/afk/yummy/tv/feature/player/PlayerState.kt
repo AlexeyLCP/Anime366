@@ -5,6 +5,7 @@ import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiEvent
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiState
 import su.afk.yummy.tv.core.preferences.settings.model.PlayerOrientationMode
 import su.afk.yummy.tv.core.preferences.settings.model.PlayerResizeMode
+import su.afk.yummy.tv.core.preferences.settings.model.PlayerSubtitleStyleSettings
 import su.afk.yummy.tv.core.preferences.settings.model.PlayerZoomLevel
 import su.afk.yummy.tv.domain.player.model.AllohaAudioTrack
 import su.afk.yummy.tv.domain.player.model.AllohaSubtitleTrack
@@ -35,6 +36,7 @@ class PlayerState {
         val selectedSpeed: Float = 1f,
         val resizeMode: PlayerResizeMode = PlayerResizeMode.FIT,
         val zoomLevel: PlayerZoomLevel = PlayerZoomLevel.PERCENT_10,
+        val subtitleStyle: PlayerSubtitleStyleSettings = PlayerSubtitleStyleSettings(),
         val playerError: String? = null,
         val kodikBlockedError: String? = null,
         val resumeFromMs: Long = 0L,

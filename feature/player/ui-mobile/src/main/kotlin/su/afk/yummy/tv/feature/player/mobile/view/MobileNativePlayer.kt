@@ -496,7 +496,11 @@ internal fun MobileNativePlayer(
             )
         }
 
-        PlayerSubtitleOverlay(player = player, modifier = Modifier.fillMaxSize())
+        PlayerSubtitleOverlay(
+            player = player,
+            style = state.subtitleStyle,
+            modifier = Modifier.fillMaxSize(),
+        )
 
         PlayerBufferingIndicator(
             visible = isBuffering || state.isPlaybackRecovering,

@@ -5,6 +5,7 @@ import su.afk.yummy.tv.core.preferences.settings.model.PlayerMobileVideoTransfor
 import su.afk.yummy.tv.core.preferences.settings.model.PlayerOrientationMode
 import su.afk.yummy.tv.core.preferences.settings.model.PlayerResizeMode
 import su.afk.yummy.tv.core.preferences.settings.model.PlayerResizeSettings
+import su.afk.yummy.tv.core.preferences.settings.model.PlayerSubtitleStyleSettings
 import su.afk.yummy.tv.core.preferences.settings.model.PlayerZoomLevel
 import su.afk.yummy.tv.core.preferences.settings.model.PreferredPlayer
 import su.afk.yummy.tv.core.preferences.settings.model.PreferredVideoQuality
@@ -39,6 +40,9 @@ interface PlayerSettingsStore {
     val playerResizeMode: Flow<PlayerResizeMode>
     val playerZoomLevel: Flow<PlayerZoomLevel>
 
+    /** Оформление субтитров: размер, цвет, фон, смещение по вертикали. */
+    val playerSubtitleStyle: Flow<PlayerSubtitleStyleSettings>
+
     fun playerResizeSettings(
         animeId: Int,
         animeTitle: String,
@@ -71,6 +75,7 @@ interface PlayerSettingsStore {
     suspend fun setVolumeStabilizationEnabled(enabled: Boolean)
     suspend fun setPlayerResizeMode(mode: PlayerResizeMode)
     suspend fun setPlayerZoomLevel(level: PlayerZoomLevel)
+    suspend fun setPlayerSubtitleStyle(settings: PlayerSubtitleStyleSettings)
 
     suspend fun setPlayerResizeSettings(
         animeId: Int,

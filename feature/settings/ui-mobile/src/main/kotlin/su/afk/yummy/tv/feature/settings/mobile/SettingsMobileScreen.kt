@@ -39,6 +39,10 @@ import su.afk.yummy.tv.core.model.settings.PosterQuality
 import su.afk.yummy.tv.core.preferences.interface_mode.AppInterfaceMode
 import su.afk.yummy.tv.core.preferences.settings.model.LibraryContinueWatchingCardSize
 import su.afk.yummy.tv.core.preferences.settings.model.PlayerOrientationMode
+import su.afk.yummy.tv.core.preferences.settings.model.PlayerSubtitleBackground
+import su.afk.yummy.tv.core.preferences.settings.model.PlayerSubtitleOffset
+import su.afk.yummy.tv.core.preferences.settings.model.PlayerSubtitleTextColor
+import su.afk.yummy.tv.core.preferences.settings.model.PlayerSubtitleTextSize
 import su.afk.yummy.tv.core.preferences.settings.model.PreferredPlayer
 import su.afk.yummy.tv.core.preferences.settings.model.PreferredVideoQuality
 import su.afk.yummy.tv.core.preferences.settings.model.PreviewCacheSize
@@ -256,6 +260,37 @@ fun SettingsMobileScreen(
                         onClick = { onEvent(SettingsState.Event.AskDubbingOnWatchToggled) },
                     )
                     SettingsMobileToggleRow(
+                        label = stringResource(R.string.settings_suggest_next_episode_on_watched_label),
+                        hint = if (state.suggestNextEpisodeOnWatched) {
+                            stringResource(R.string.settings_suggest_next_episode_on_watched_enabled)
+                        } else {
+                            stringResource(R.string.settings_disabled)
+                        },
+                        enabled = state.suggestNextEpisodeOnWatched,
+                        onClick = {
+                            onEvent(SettingsState.Event.SuggestNextEpisodeOnWatchedToggled)
+                        },
+                    )
+                    SettingsMobileToggleRow(
+                        label = stringResource(R.string.settings_refresh_continue_watching_progress_label),
+                        hint = if (state.refreshContinueWatchingProgressOnLaunch) {
+                            stringResource(R.string.settings_refresh_continue_watching_progress_enabled)
+                        } else {
+                            stringResource(R.string.settings_disabled)
+                        },
+                        enabled = state.refreshContinueWatchingProgressOnLaunch,
+                        onClick = {
+                            onEvent(
+                                SettingsState.Event.RefreshContinueWatchingProgressOnLaunchToggled,
+                            )
+                        },
+                    )
+                }
+            }
+
+            item {
+                SettingsMobileSection(title = stringResource(R.string.settings_mobile_section_player_advanced)) {
+                    SettingsMobileToggleRow(
                         label = stringResource(R.string.settings_picture_in_picture_label),
                         hint = if (state.pictureInPictureEnabled) {
                             stringResource(R.string.settings_picture_in_picture_enabled)
@@ -299,31 +334,35 @@ fun SettingsMobileScreen(
                             onEvent(SettingsState.Event.MobilePlayerGestureTutorialReset)
                         },
                     )
-                    SettingsMobileToggleRow(
-                        label = stringResource(R.string.settings_suggest_next_episode_on_watched_label),
-                        hint = if (state.suggestNextEpisodeOnWatched) {
-                            stringResource(R.string.settings_suggest_next_episode_on_watched_enabled)
-                        } else {
-                            stringResource(R.string.settings_disabled)
-                        },
-                        enabled = state.suggestNextEpisodeOnWatched,
-                        onClick = {
-                            onEvent(SettingsState.Event.SuggestNextEpisodeOnWatchedToggled)
-                        },
+                }
+            }
+
+            item {
+                SettingsMobileSection(
+                    title = stringResource(R.string.settings_tab_player_subtitles),
+                    subtitle = stringResource(R.string.settings_subtitle_style_alloha_hint),
+                ) {
+                    SettingsMobileOptionRow(
+                        label = stringResource(R.string.settings_subtitle_size_title),
+                        value = state.subtitleStyle.textSize.label(),
+                        hint = state.subtitleStyle.textSize.hint(),
+                        onClick = { activePicker = SettingsMobilePicker.SUBTITLE_SIZE },
                     )
-                    SettingsMobileToggleRow(
-                        label = stringResource(R.string.settings_refresh_continue_watching_progress_label),
-                        hint = if (state.refreshContinueWatchingProgressOnLaunch) {
-                            stringResource(R.string.settings_refresh_continue_watching_progress_enabled)
-                        } else {
-                            stringResource(R.string.settings_disabled)
-                        },
-                        enabled = state.refreshContinueWatchingProgressOnLaunch,
-                        onClick = {
-                            onEvent(
-                                SettingsState.Event.RefreshContinueWatchingProgressOnLaunchToggled,
-                            )
-                        },
+                    SettingsMobileOptionRow(
+                        label = stringResource(R.string.settings_subtitle_color_title),
+                        value = state.subtitleStyle.textColor.label(),
+                        onClick = { activePicker = SettingsMobilePicker.SUBTITLE_COLOR },
+                    )
+                    SettingsMobileOptionRow(
+                        label = stringResource(R.string.settings_subtitle_background_title),
+                        value = state.subtitleStyle.background.label(),
+                        onClick = { activePicker = SettingsMobilePicker.SUBTITLE_BACKGROUND },
+                    )
+                    SettingsMobileOptionRow(
+                        label = stringResource(R.string.settings_subtitle_offset_title),
+                        value = state.subtitleStyle.offset.label(),
+                        hint = state.subtitleStyle.offset.hint(),
+                        onClick = { activePicker = SettingsMobilePicker.SUBTITLE_OFFSET },
                     )
                 }
             }
@@ -573,6 +612,74 @@ fun SettingsMobileScreen(
             onDismiss = { activePicker = null },
             onSelected = {
                 onEvent(SettingsState.Event.PreferredVideoQualitySelected(it))
+                activePicker = null
+            },
+        )
+
+        SettingsMobilePicker.SUBTITLE_SIZE -> SettingsMobilePickerSheet(
+            title = stringResource(R.string.settings_subtitle_size_title),
+            selectedValue = state.subtitleStyle.textSize,
+            options = PlayerSubtitleTextSize.entries.map {
+                SettingsMobilePickerOption(it, it.label(), it.hint())
+            },
+            onDismiss = { activePicker = null },
+            onSelected = {
+                onEvent(
+                    SettingsState.Event.SubtitleStyleSelected(
+                        state.subtitleStyle.copy(textSize = it),
+                    ),
+                )
+                activePicker = null
+            },
+        )
+
+        SettingsMobilePicker.SUBTITLE_COLOR -> SettingsMobilePickerSheet(
+            title = stringResource(R.string.settings_subtitle_color_title),
+            selectedValue = state.subtitleStyle.textColor,
+            options = PlayerSubtitleTextColor.entries.map {
+                SettingsMobilePickerOption(it, it.label())
+            },
+            onDismiss = { activePicker = null },
+            onSelected = {
+                onEvent(
+                    SettingsState.Event.SubtitleStyleSelected(
+                        state.subtitleStyle.copy(textColor = it),
+                    ),
+                )
+                activePicker = null
+            },
+        )
+
+        SettingsMobilePicker.SUBTITLE_BACKGROUND -> SettingsMobilePickerSheet(
+            title = stringResource(R.string.settings_subtitle_background_title),
+            selectedValue = state.subtitleStyle.background,
+            options = PlayerSubtitleBackground.entries.map {
+                SettingsMobilePickerOption(it, it.label())
+            },
+            onDismiss = { activePicker = null },
+            onSelected = {
+                onEvent(
+                    SettingsState.Event.SubtitleStyleSelected(
+                        state.subtitleStyle.copy(background = it),
+                    ),
+                )
+                activePicker = null
+            },
+        )
+
+        SettingsMobilePicker.SUBTITLE_OFFSET -> SettingsMobilePickerSheet(
+            title = stringResource(R.string.settings_subtitle_offset_title),
+            selectedValue = state.subtitleStyle.offset,
+            options = PlayerSubtitleOffset.entries.map {
+                SettingsMobilePickerOption(it, it.label(), it.hint())
+            },
+            onDismiss = { activePicker = null },
+            onSelected = {
+                onEvent(
+                    SettingsState.Event.SubtitleStyleSelected(
+                        state.subtitleStyle.copy(offset = it),
+                    ),
+                )
                 activePicker = null
             },
         )

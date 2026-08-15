@@ -554,7 +554,11 @@ internal fun TvExoPlayerView(
                 .focusProperties { canFocus = false },
         )
 
-        PlayerSubtitleOverlay(player = player, modifier = Modifier.fillMaxSize())
+        PlayerSubtitleOverlay(
+            player = player,
+            style = state.subtitleStyle,
+            modifier = Modifier.fillMaxSize(),
+        )
 
         TvPlayerPointerOverlay(
             enabled = !panels.isAnyOpen && !prompts.anyVisible && !recoveryHintVisible,

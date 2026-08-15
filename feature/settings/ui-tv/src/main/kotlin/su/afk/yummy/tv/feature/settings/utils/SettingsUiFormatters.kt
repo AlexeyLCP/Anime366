@@ -12,6 +12,10 @@ import su.afk.yummy.tv.core.model.settings.PosterQuality
 import su.afk.yummy.tv.core.preferences.interface_mode.AppInterfaceMode
 import su.afk.yummy.tv.core.preferences.settings.model.DetailsButtonAction
 import su.afk.yummy.tv.core.preferences.settings.model.LibraryContinueWatchingCardSize
+import su.afk.yummy.tv.core.preferences.settings.model.PlayerSubtitleBackground
+import su.afk.yummy.tv.core.preferences.settings.model.PlayerSubtitleOffset
+import su.afk.yummy.tv.core.preferences.settings.model.PlayerSubtitleTextColor
+import su.afk.yummy.tv.core.preferences.settings.model.PlayerSubtitleTextSize
 import su.afk.yummy.tv.core.preferences.settings.model.PreferredPlayer
 import su.afk.yummy.tv.core.preferences.settings.model.PreferredVideoQuality
 import su.afk.yummy.tv.core.preferences.settings.model.PreviewCacheSize
@@ -296,3 +300,38 @@ internal fun Modifier.restoreCategoryFocusOnLeft(
 } else {
     this
 }
+
+@Composable
+internal fun PlayerSubtitleTextSize.label(): String =
+    stringResource(R.string.settings_subtitle_percent, percent)
+
+@Composable
+internal fun PlayerSubtitleTextSize.hint(): String =
+    stringResource(R.string.settings_subtitle_size_hint, percent)
+
+@Composable
+internal fun PlayerSubtitleOffset.label(): String =
+    stringResource(R.string.settings_subtitle_percent, percent)
+
+@Composable
+internal fun PlayerSubtitleOffset.hint(): String =
+    stringResource(R.string.settings_subtitle_offset_hint, percent)
+
+@Composable
+internal fun PlayerSubtitleTextColor.label(): String = stringResource(
+    when (this) {
+        PlayerSubtitleTextColor.WHITE -> R.string.settings_subtitle_color_white
+        PlayerSubtitleTextColor.YELLOW -> R.string.settings_subtitle_color_yellow
+        PlayerSubtitleTextColor.CYAN -> R.string.settings_subtitle_color_cyan
+        PlayerSubtitleTextColor.GREEN -> R.string.settings_subtitle_color_green
+    },
+)
+
+@Composable
+internal fun PlayerSubtitleBackground.label(): String = stringResource(
+    when (this) {
+        PlayerSubtitleBackground.NONE -> R.string.settings_subtitle_background_none
+        PlayerSubtitleBackground.TRANSLUCENT -> R.string.settings_subtitle_background_translucent
+        PlayerSubtitleBackground.SOLID -> R.string.settings_subtitle_background_solid
+    },
+)

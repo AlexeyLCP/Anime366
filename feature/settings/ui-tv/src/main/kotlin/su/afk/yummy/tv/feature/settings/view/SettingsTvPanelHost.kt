@@ -39,6 +39,10 @@ import su.afk.yummy.tv.core.model.settings.PosterCardSize
 import su.afk.yummy.tv.core.model.settings.PosterQuality
 import su.afk.yummy.tv.core.preferences.interface_mode.AppInterfaceMode
 import su.afk.yummy.tv.core.preferences.settings.model.LibraryContinueWatchingCardSize
+import su.afk.yummy.tv.core.preferences.settings.model.PlayerSubtitleBackground
+import su.afk.yummy.tv.core.preferences.settings.model.PlayerSubtitleOffset
+import su.afk.yummy.tv.core.preferences.settings.model.PlayerSubtitleTextColor
+import su.afk.yummy.tv.core.preferences.settings.model.PlayerSubtitleTextSize
 import su.afk.yummy.tv.core.preferences.settings.model.PreferredPlayer
 import su.afk.yummy.tv.core.preferences.settings.model.PreferredVideoQuality
 import su.afk.yummy.tv.core.preferences.settings.model.PreviewCacheSize
@@ -321,6 +325,76 @@ internal fun SettingsTvPanelHost(
                                 SettingsDivider()
                             }
                         }
+                    }
+
+                    SettingsTab.PLAYER_SUBTITLES -> {
+                        SettingsSectionTitle(text = stringResource(R.string.settings_subtitle_style_title))
+                        Text(
+                            text = stringResource(R.string.settings_subtitle_style_alloha_hint),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
+                        )
+                        // Первая группа держит фокус входа в категорию, остальные — обычные ряды.
+                        SubtitleStyleGroup(
+                            title = stringResource(R.string.settings_subtitle_size_title),
+                            values = PlayerSubtitleTextSize.entries,
+                            selected = state.subtitleStyle.textSize,
+                            labelOf = { it.label() },
+                            hintOf = { it.hint() },
+                            tabFocusRequester = tabFocusRequester,
+                            firstRowFocusRequester = tabContentFocusRequester,
+                            onSelected = {
+                                onEvent(
+                                    SettingsState.Event.SubtitleStyleSelected(
+                                        state.subtitleStyle.copy(textSize = it),
+                                    ),
+                                )
+                            },
+                        )
+                        SubtitleStyleGroup(
+                            title = stringResource(R.string.settings_subtitle_color_title),
+                            values = PlayerSubtitleTextColor.entries,
+                            selected = state.subtitleStyle.textColor,
+                            labelOf = { it.label() },
+                            tabFocusRequester = tabFocusRequester,
+                            onSelected = {
+                                onEvent(
+                                    SettingsState.Event.SubtitleStyleSelected(
+                                        state.subtitleStyle.copy(textColor = it),
+                                    ),
+                                )
+                            },
+                        )
+                        SubtitleStyleGroup(
+                            title = stringResource(R.string.settings_subtitle_background_title),
+                            values = PlayerSubtitleBackground.entries,
+                            selected = state.subtitleStyle.background,
+                            labelOf = { it.label() },
+                            tabFocusRequester = tabFocusRequester,
+                            onSelected = {
+                                onEvent(
+                                    SettingsState.Event.SubtitleStyleSelected(
+                                        state.subtitleStyle.copy(background = it),
+                                    ),
+                                )
+                            },
+                        )
+                        SubtitleStyleGroup(
+                            title = stringResource(R.string.settings_subtitle_offset_title),
+                            values = PlayerSubtitleOffset.entries,
+                            selected = state.subtitleStyle.offset,
+                            labelOf = { it.label() },
+                            hintOf = { it.hint() },
+                            tabFocusRequester = tabFocusRequester,
+                            onSelected = {
+                                onEvent(
+                                    SettingsState.Event.SubtitleStyleSelected(
+                                        state.subtitleStyle.copy(offset = it),
+                                    ),
+                                )
+                            },
+                        )
                     }
 
                     SettingsTab.PLAYER -> {
@@ -629,4 +703,43 @@ private fun SettingsDivider() {
         modifier = Modifier.padding(horizontal = 8.dp),
         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f),
     )
+}
+
+/**
+ * Одна группа оформления субтитров: заголовок и радио-ряды вариантов.
+ * [firstRowFocusRequester] передают только первой группе категории — она принимает фокус
+ * при входе в категорию; «влево» с первого ряда любой группы возвращает в список категорий.
+ */
+@Composable
+private fun <T> SubtitleStyleGroup(
+    title: String,
+    values: List<T>,
+    selected: T,
+    labelOf: @Composable (T) -> String,
+    tabFocusRequester: FocusRequester,
+    onSelected: (T) -> Unit,
+    hintOf: (@Composable (T) -> String)? = null,
+    firstRowFocusRequester: FocusRequester? = null,
+) {
+    SettingsSectionTitle(text = title)
+    values.forEachIndexed { index, value ->
+        QualityRow(
+            label = labelOf(value),
+            hint = hintOf?.invoke(value).orEmpty(),
+            selected = value == selected,
+            onClick = { onSelected(value) },
+            modifier = Modifier
+                .then(
+                    if (index == 0 && firstRowFocusRequester != null) {
+                        Modifier.focusRequester(firstRowFocusRequester)
+                    } else {
+                        Modifier
+                    },
+                )
+                .restoreCategoryFocusOnLeft(tabFocusRequester, index == 0),
+        )
+        if (index < values.lastIndex) {
+            SettingsDivider()
+        }
+    }
 }

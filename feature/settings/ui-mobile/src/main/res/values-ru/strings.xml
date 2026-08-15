@@ -4,6 +4,7 @@
     <string name="settings_mobile_section_interface">Интерфейс</string>
     <string name="settings_mobile_section_appearance">Внешний вид</string>
     <string name="settings_mobile_section_player">Плеер</string>
+    <string name="settings_mobile_section_player_advanced">Плеер (расширенные)</string>
     <string name="settings_mobile_section_details">Деталка</string>
     <string name="settings_mobile_section_tv_home">TV Home</string>
     <string name="settings_mobile_section_cache">Кэш</string>
@@ -168,4 +169,21 @@
     <string name="settings_video_export_auto_label">Выгружать после скачивания</string>
     <string name="settings_video_export_auto_enabled">Копировать серию в выбранную папку сразу после загрузки</string>
     <string name="settings_video_export_directory_error">Не удалось получить доступ на запись к выбранной папке</string>
+    <string name="settings_tab_player_subtitles">Субтитры</string>
+    <string name="settings_subtitle_style_title">Оформление субтитров</string>
+    <string name="settings_subtitle_style_alloha_hint">Субтитры отдаёт только плеер Alloha</string>
+    <string name="settings_subtitle_size_title">Размер текста</string>
+    <string name="settings_subtitle_color_title">Цвет текста</string>
+    <string name="settings_subtitle_background_title">Фон</string>
+    <string name="settings_subtitle_offset_title">Отступ снизу</string>
+    <string name="settings_subtitle_percent">%1$d%%</string>
+    <string name="settings_subtitle_size_hint">%1$d%% от стандартного размера</string>
+    <string name="settings_subtitle_offset_hint">%1$d%% от высоты кадра</string>
+    <string name="settings_subtitle_color_white">Белый</string>
+    <string name="settings_subtitle_color_yellow">Жёлтый</string>
+    <string name="settings_subtitle_color_cyan">Голубой</string>
+    <string name="settings_subtitle_color_green">Зелёный</string>
+    <string name="settings_subtitle_background_none">Нет</string>
+    <string name="settings_subtitle_background_translucent">Полупрозрачный</string>
+    <string name="settings_subtitle_background_solid">Чёрный</string>
 </resources>

@@ -3,7 +3,7 @@
     <string name="settings_tab_posters">Постеры</string>
     <string name="settings_tab_interface">Интерфейс</string>
     <string name="settings_tab_poster_size">Размер постеров</string>
-    <string name="settings_tab_poster_quality">Качество</string>
+    <string name="settings_tab_poster_quality">Качество постеров</string>
     <string name="settings_tab_continue_watching">Продолжить</string>
     <string name="settings_tab_theme">Тема</string>
     <string name="settings_tab_background">Фон</string>
@@ -177,4 +177,21 @@
     <string name="settings_version_label">Версия</string>
     <string name="settings_feedback_label">Вопросы/Идеи/Предложения</string>
     <string name="settings_repository_url">https://github.com/Helandy/YummyTV</string>
+    <string name="settings_tab_player_subtitles">Субтитры</string>
+    <string name="settings_subtitle_style_title">Оформление субтитров</string>
+    <string name="settings_subtitle_style_alloha_hint">Субтитры отдаёт только плеер Alloha</string>
+    <string name="settings_subtitle_size_title">Размер текста</string>
+    <string name="settings_subtitle_color_title">Цвет текста</string>
+    <string name="settings_subtitle_background_title">Фон</string>
+    <string name="settings_subtitle_offset_title">Отступ снизу</string>
+    <string name="settings_subtitle_percent">%1$d%%</string>
+    <string name="settings_subtitle_size_hint">%1$d%% от стандартного размера</string>
+    <string name="settings_subtitle_offset_hint">%1$d%% от высоты кадра</string>
+    <string name="settings_subtitle_color_white">Белый</string>
+    <string name="settings_subtitle_color_yellow">Жёлтый</string>
+    <string name="settings_subtitle_color_cyan">Голубой</string>
+    <string name="settings_subtitle_color_green">Зелёный</string>
+    <string name="settings_subtitle_background_none">Нет</string>
+    <string name="settings_subtitle_background_translucent">Полупрозрачный</string>
+    <string name="settings_subtitle_background_solid">Чёрный</string>
 </resources>

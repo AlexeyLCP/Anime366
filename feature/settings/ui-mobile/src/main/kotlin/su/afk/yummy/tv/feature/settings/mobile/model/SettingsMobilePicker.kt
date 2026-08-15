@@ -10,6 +10,10 @@ internal enum class SettingsMobilePicker {
     PLAYER,
     PLAYER_ORIENTATION,
     VIDEO_QUALITY,
+    SUBTITLE_SIZE,
+    SUBTITLE_COLOR,
+    SUBTITLE_BACKGROUND,
+    SUBTITLE_OFFSET,
     CACHE,
     CONTENT_LANGUAGE,
 }

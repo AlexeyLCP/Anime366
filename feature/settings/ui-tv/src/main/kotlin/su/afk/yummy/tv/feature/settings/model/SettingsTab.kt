@@ -10,6 +10,7 @@ internal enum class SettingsTab(@param:StringRes val labelRes: Int) {
     PLAYER(R.string.settings_tab_player),
     PLAYER_QUALITY(R.string.settings_tab_player_quality),
     PLAYER_SOURCE(R.string.settings_tab_player_source),
+    PLAYER_SUBTITLES(R.string.settings_tab_player_subtitles),
     POSTER_SIZE(R.string.settings_tab_poster_size),
     POSTERS(R.string.settings_tab_poster_quality),
     TOP_TITLE_YEAR(R.string.settings_tab_top_title_year),

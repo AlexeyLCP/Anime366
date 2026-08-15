@@ -4,6 +4,7 @@
     <string name="settings_mobile_section_interface">Interface</string>
     <string name="settings_mobile_section_appearance">Appearance</string>
     <string name="settings_mobile_section_player">Player</string>
+    <string name="settings_mobile_section_player_advanced">Player (Advanced)</string>
     <string name="settings_mobile_section_details">Details</string>
     <string name="settings_mobile_section_tv_home">TV Home</string>
     <string name="settings_mobile_section_cache">Cache</string>
@@ -180,4 +181,21 @@
     <string name="settings_video_export_auto_label">Export after download</string>
     <string name="settings_video_export_auto_enabled">Copy an episode to the selected folder as soon as it finishes downloading</string>
     <string name="settings_video_export_directory_error">Unable to write to the selected folder</string>
+    <string name="settings_tab_player_subtitles">Subtitles</string>
+    <string name="settings_subtitle_style_title">Subtitle look</string>
+    <string name="settings_subtitle_style_alloha_hint">Subtitles are provided by the Alloha player only</string>
+    <string name="settings_subtitle_size_title">Text size</string>
+    <string name="settings_subtitle_color_title">Text color</string>
+    <string name="settings_subtitle_background_title">Background</string>
+    <string name="settings_subtitle_offset_title">Bottom offset</string>
+    <string name="settings_subtitle_percent">%1$d%%</string>
+    <string name="settings_subtitle_size_hint">%1$d%% of the default size</string>
+    <string name="settings_subtitle_offset_hint">%1$d%% of the frame height</string>
+    <string name="settings_subtitle_color_white">White</string>
+    <string name="settings_subtitle_color_yellow">Yellow</string>
+    <string name="settings_subtitle_color_cyan">Cyan</string>
+    <string name="settings_subtitle_color_green">Green</string>
+    <string name="settings_subtitle_background_none">None</string>
+    <string name="settings_subtitle_background_translucent">Dimmed</string>
+    <string name="settings_subtitle_background_solid">Solid black</string>
 </resources>

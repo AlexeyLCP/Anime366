@@ -74,6 +74,9 @@ class SettingsViewModel @Inject internal constructor(
                 }
             }
             .launchIn(viewModelScope)
+        settingsStore.playerSubtitleStyle
+            .onEach { style -> setState { copy(subtitleStyle = style) } }
+            .launchIn(viewModelScope)
         settingsStore.mobilePlayerGestureTutorialDismissed
             .onEach { dismissed ->
                 setState { copy(mobilePlayerGestureTutorialDismissed = dismissed) }
@@ -160,6 +163,10 @@ class SettingsViewModel @Inject internal constructor(
             is SettingsState.Event.PreferredVideoQualitySelected -> viewModelScope.launch {
                 analytics.eventPreferredVideoQualitySelected(event.quality)
                 settingsStore.setPreferredVideoQuality(event.quality)
+            }
+
+            is SettingsState.Event.SubtitleStyleSelected -> viewModelScope.launch {
+                settingsStore.setPlayerSubtitleStyle(event.settings)
             }
 
             SettingsState.Event.RequestPreviewChannelBrowsable -> {

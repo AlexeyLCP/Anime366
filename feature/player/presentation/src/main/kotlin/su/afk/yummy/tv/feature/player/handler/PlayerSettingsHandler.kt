@@ -6,6 +6,7 @@ import su.afk.yummy.tv.core.preferences.settings.PlayerSettingsStore
 import su.afk.yummy.tv.core.preferences.settings.model.PlayerMobileVideoTransformSettings
 import su.afk.yummy.tv.core.preferences.settings.model.PlayerOrientationMode
 import su.afk.yummy.tv.core.preferences.settings.model.PlayerResizeSettings
+import su.afk.yummy.tv.core.preferences.settings.model.PlayerSubtitleStyleSettings
 import su.afk.yummy.tv.feature.player.utils.PlayerResizeSettingsScope
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.milliseconds
@@ -25,6 +26,7 @@ internal class PlayerSettingsHandler @Inject constructor(
         settingsStore.tvPlayerControlsTutorialDismissed
     val tvPlayerVolumeKeysEnabled: Flow<Boolean> = settingsStore.tvPlayerVolumeKeysEnabled
     val advancedPlayerVolumeEnabled: Flow<Boolean> = settingsStore.advancedPlayerVolumeEnabled
+    val playerSubtitleStyle: Flow<PlayerSubtitleStyleSettings> = settingsStore.playerSubtitleStyle
 
     suspend fun dismissMobilePlayerGestureTutorial() {
         settingsStore.dismissMobilePlayerGestureTutorial()
