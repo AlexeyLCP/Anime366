@@ -19,6 +19,9 @@ import su.afk.yummy.tv.core.utils.kodik.KodikThumbnailCacheIO
 import su.afk.yummy.tv.core.utils.kodik.KodikThumbnailFetcher
 import su.afk.yummy.tv.core.utils.kodik.KodikThumbnailKeyer
 import su.afk.yummy.tv.core.utils.kodik.ResolveKodikThumbnailUrlUseCase
+import su.afk.yummy.tv.domain.anime.usecase.GetCachedAnimeVideosUseCase
+import su.afk.yummy.tv.feature.library.thumbnail.HistoryEpisodeThumbnailFetcher
+import su.afk.yummy.tv.feature.library.thumbnail.HistoryEpisodeThumbnailKeyer
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -36,6 +39,7 @@ class CoilImageLoaderInstaller @Inject constructor(
     private val settingsStore: CacheSettingsStore,
     private val resolveKodikThumbnailUrl: ResolveKodikThumbnailUrlUseCase,
     private val kodikThumbnailCacheIO: KodikThumbnailCacheIO,
+    private val getCachedAnimeVideos: GetCachedAnimeVideosUseCase,
 ) {
 
     @OptIn(ExperimentalCoilApi::class)
@@ -71,6 +75,14 @@ class CoilImageLoaderInstaller @Inject constructor(
                         KodikThumbnailFetcher.Factory(
                             resolveKodikThumbnailUrl,
                             kodikThumbnailCacheIO
+                        )
+                    )
+                    add(HistoryEpisodeThumbnailKeyer())
+                    add(
+                        HistoryEpisodeThumbnailFetcher.Factory(
+                            getCachedAnimeVideos,
+                            resolveKodikThumbnailUrl,
+                            kodikThumbnailCacheIO,
                         )
                     )
                     add(KtorNetworkFetcherFactory(httpClient = imageHttpClient))

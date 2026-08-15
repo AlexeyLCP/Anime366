@@ -43,6 +43,7 @@ import su.afk.yummy.tv.core.utils.kodik.KodikThumbnail
 import su.afk.yummy.tv.core.utils.kodik.resolveContinueWatchingImageModel
 import su.afk.yummy.tv.domain.library.model.WatchHistoryEntry
 import su.afk.yummy.tv.feature.library.R
+import su.afk.yummy.tv.feature.library.thumbnail.HistoryEpisodeThumbnail
 import su.afk.yummy.tv.feature.library.utils.timingLabel
 import su.afk.yummy.tv.feature.library.utils.watchedAtLabel
 
@@ -100,11 +101,11 @@ internal fun LibraryTvHistoryPage(
                                             resolveContinueWatchingImageModel(
                                                 screenshotUrl = it.screenshotUrl,
                                                 episodeUrl = it.episodeUrl,
-                                                posterUrl = entry.posterUrl,
+                                                posterUrl = null,
                                                 kodikThumbnailModel = ::KodikThumbnail,
                                             )
                                         }
-                                    ?: entry.posterUrl,
+                                    ?: HistoryEpisodeThumbnail(entry.animeId, entry.episode),
                                 contentDescription = entry.title,
                                 contentScale = ContentScale.Crop,
                                 modifier = Modifier
