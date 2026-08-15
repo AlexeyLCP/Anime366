@@ -7,6 +7,7 @@ import android.content.Context
 import android.content.ContextWrapper
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -15,16 +16,16 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.core.app.ActivityCompat
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlinx.coroutines.launch
 import su.afk.yummy.tv.core.designsystem.R
-
-private const val NOTIFICATION_PERMISSION_PREFERENCES = "notification_permission_gate"
-private const val NOTIFICATION_PERMISSION_REQUESTED_KEY = "notification_permission_requested"
+import su.afk.yummy.tv.core.designsystem.presenter.locals.LocalMarkNotificationPermissionRequested
+import su.afk.yummy.tv.core.designsystem.presenter.locals.LocalNotificationPermissionRequested
 
 @Composable
 fun NotificationPermissionGateHost(
@@ -32,15 +33,10 @@ fun NotificationPermissionGateHost(
 ) {
     val context = LocalContext.current
     val activity = remember(context) { context.findActivity() }
-    val preferences = remember(context) {
-        context.applicationContext.getSharedPreferences(
-            NOTIFICATION_PERMISSION_PREFERENCES,
-            Context.MODE_PRIVATE,
-        )
-    }
-    var permissionWasRequested by remember(preferences) {
-        mutableStateOf(preferences.getBoolean(NOTIFICATION_PERMISSION_REQUESTED_KEY, false))
-    }
+    val permissionWasRequested by LocalNotificationPermissionRequested.current
+        .collectAsStateWithLifecycle(initialValue = false)
+    val markNotificationPermissionRequested = LocalMarkNotificationPermissionRequested.current
+    val coroutineScope = rememberCoroutineScope()
     val permissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) {
@@ -48,6 +44,7 @@ fun NotificationPermissionGateHost(
     }
 
     fun requestPermissionOrOpenSettings() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return
         state.hideDialogForPermissionRequest()
         val canRequestAgain = activity?.let {
             ActivityCompat.shouldShowRequestPermissionRationale(
@@ -63,10 +60,7 @@ fun NotificationPermissionGateHost(
                 state.complete()
             }
         } else {
-            permissionWasRequested = true
-            preferences.edit()
-                .putBoolean(NOTIFICATION_PERMISSION_REQUESTED_KEY, true)
-                .apply()
+            coroutineScope.launch { markNotificationPermissionRequested() }
             permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
         }
     }

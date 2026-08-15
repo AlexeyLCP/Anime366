@@ -3,6 +3,7 @@ package su.afk.yummy.tv.feature.library
 import androidx.lifecycle.SavedStateHandle
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.toImmutableList
+import kotlinx.collections.immutable.toImmutableMap
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
@@ -14,6 +15,7 @@ import su.afk.yummy.tv.core.error.api.RetryStorage
 import su.afk.yummy.tv.core.error.api.StringProvider
 import su.afk.yummy.tv.core.navigation.manager.INavigationManager
 import su.afk.yummy.tv.core.preferences.settings.SettingsStore
+import su.afk.yummy.tv.core.utils.episode.episodeGroupKey
 import su.afk.yummy.tv.core.utils.paging.pagingFlow
 import su.afk.yummy.tv.domain.home.model.HomeContinueWatchingItem
 import su.afk.yummy.tv.domain.home.usecase.GetCachedHomeFeedUseCase
@@ -25,6 +27,7 @@ import su.afk.yummy.tv.domain.library.usecase.ObserveLibraryItemsUseCase
 import su.afk.yummy.tv.domain.library.usecase.RemoteLibrarySyncResult
 import su.afk.yummy.tv.domain.library.usecase.RemoveLibraryItemUseCase
 import su.afk.yummy.tv.domain.library.usecase.SetLibraryFavoriteUseCase
+import su.afk.yummy.tv.domain.player.repository.WatchProgressRepository
 import su.afk.yummy.tv.domain.watching.usecase.ResolveContinueWatchingLaunchUseCase
 import su.afk.yummy.tv.feature.details.IDetailsNavigator
 import su.afk.yummy.tv.feature.library.handler.RemoteLibrarySyncHandler
@@ -56,6 +59,7 @@ class LibraryViewModel @Inject internal constructor(
     private val resolveContinueWatchingLaunch: ResolveContinueWatchingLaunchUseCase,
     private val playerNavigator: IPlayerNavigator,
     private val getWatchHistoryPage: GetWatchHistoryPageUseCase,
+    private val watchProgressRepository: WatchProgressRepository,
     private val stringProvider: StringProvider,
     private val analytics: LibraryAnalytics,
 ) : BaseViewModelNew<LibraryState.State, LibraryState.Event, LibraryState.Effect>() {
@@ -94,6 +98,7 @@ class LibraryViewModel @Inject internal constructor(
             }
             .launchIn(viewModelScope)
         loadCachedContinueWatching()
+        loadHistoryLocalProgress()
         settingsStore.yaniUserId
             .onEach { userId ->
                 signedInUserId = userId
@@ -154,6 +159,7 @@ class LibraryViewModel @Inject internal constructor(
             LibraryState.Event.ScreenResumed -> {
                 refreshRemoteLists(forceRefresh = true)
                 loadCachedContinueWatching()
+                loadHistoryLocalProgress()
             }
 
             LibraryState.Event.RetrySelected -> {
@@ -186,6 +192,15 @@ class LibraryViewModel @Inject internal constructor(
 
     private suspend fun suppressContinueWatchingLocally(animeId: Int) {
         removeCachedContinueWatching(animeId)
+    }
+
+    private fun loadHistoryLocalProgress() {
+        viewModelScope.launch {
+            val lookup = watchProgressRepository.allMeaningfulVideoProgress()
+                .associateBy { "${it.animeId}:${it.episode.episodeGroupKey()}" }
+                .toImmutableMap()
+            setState { copy(historyLocalProgress = lookup) }
+        }
     }
 
     private fun openDetails(animeId: Int) {

@@ -46,6 +46,7 @@ import su.afk.yummy.tv.feature.player.mobile.view.MobileNativePlayer
 import su.afk.yummy.tv.feature.player.mobile.view.MobilePlayerBalancerSheet
 import su.afk.yummy.tv.feature.player.mobile.view.MobilePlayerDubbingSheet
 import su.afk.yummy.tv.feature.player.mobile.view.MobilePlayerMessage
+import su.afk.yummy.tv.feature.player.navigator.PlayerDestination
 import su.afk.yummy.tv.feature.player.presentation.R
 
 @OptIn(UnstableApi::class)
@@ -53,11 +54,22 @@ import su.afk.yummy.tv.feature.player.presentation.R
 @Composable
 private fun PlayerMobileScreenDefaultPreview() =
     ScreenPreviewTheme {
-        PlayerMobileScreen(PlayerState.State(), emptyFlow()) {}
+        PlayerMobileScreen(
+            dest = PlayerDestination(
+                iframeUrl = "",
+                animeTitle = "",
+                episode = "",
+                playerName = ""
+            ),
+            state = PlayerState.State(),
+            effect = emptyFlow(),
+            onEvent = {},
+        )
     }
 
 @Composable
 fun PlayerMobileScreen(
+    dest: PlayerDestination,
     state: PlayerState.State,
     effect: Flow<PlayerState.Effect>,
     onEvent: (PlayerState.Event) -> Unit,
@@ -66,6 +78,10 @@ fun PlayerMobileScreen(
     var showErrorBalancerSheet by rememberSaveable { mutableStateOf(false) }
     var showErrorDubbingSheet by rememberSaveable { mutableStateOf(false) }
     val context = LocalContext.current
+
+    LaunchedEffect(dest) {
+        onEvent(PlayerState.Event.NavigateToDestination(dest))
+    }
 
     LaunchedEffect(Unit) {
         effect.collect { playerEffect ->

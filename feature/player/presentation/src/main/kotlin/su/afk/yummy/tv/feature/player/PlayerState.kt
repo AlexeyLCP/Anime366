@@ -10,6 +10,7 @@ import su.afk.yummy.tv.feature.player.model.PlayerFinalEpisodeAction
 import su.afk.yummy.tv.feature.player.model.PlayerNextEpisodeSource
 import su.afk.yummy.tv.feature.player.model.PlayerProgressSnapshot
 import su.afk.yummy.tv.feature.player.model.PlayerSkipType
+import su.afk.yummy.tv.feature.player.navigator.PlayerDestination
 
 class PlayerState {
     data class State(
@@ -56,6 +57,9 @@ class PlayerState {
 
     /** Пользовательские действия и события воспроизведения на экране плеера. */
     sealed interface Event : UiEvent {
+        /** Экран плеера переиспользуется для нового пункта назначения (навигация без пересоздания VM). */
+        data class NavigateToDestination(val destination: PlayerDestination) : Event
+
         /** Пользователь нажал кнопку возврата. */
         data object Back : Event
 

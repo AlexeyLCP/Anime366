@@ -17,11 +17,11 @@ import su.afk.yummy.tv.core.model.anime.AnimeVideo
 import su.afk.yummy.tv.core.model.anime.AnimeWatchProgress
 import su.afk.yummy.tv.core.network.cache.getOrFetchJson
 import su.afk.yummy.tv.core.preferences.settings.YaniAccountSettingsStore
-import su.afk.yummy.tv.core.storage.account.AccountStorageStore
-import su.afk.yummy.tv.core.storage.anime.AnimeStorageStore
+import su.afk.yummy.tv.core.storage.account.AccountStorage
+import su.afk.yummy.tv.core.storage.anime.AnimeStorage
 import su.afk.yummy.tv.core.storage.anime.isFresh
-import su.afk.yummy.tv.core.storage.document.DocumentCacheStore
-import su.afk.yummy.tv.core.storage.watchprogress.WatchProgressStore
+import su.afk.yummy.tv.core.storage.document.DocumentCacheStorage
+import su.afk.yummy.tv.core.storage.watchprogress.WatchProgressStorage
 import su.afk.yummy.tv.data.details.dto.YaniAnimeDetailsDto
 import su.afk.yummy.tv.data.details.dto.YaniRecommendationItemDto
 import su.afk.yummy.tv.data.details.dto.YaniRecommendationsDto
@@ -58,11 +58,11 @@ private const val ANIME_EPISODE_INFO_TTL_MS = 7 * 24 * 60 * 60 * 1000L
 class YaniAnimeRepository(
     private val api: YaniAnimeApi,
     private val episodesApi: YummyEpisodesApi,
-    private val animeStorage: AnimeStorageStore,
-    private val accountStorage: AccountStorageStore,
+    private val animeStorage: AnimeStorage,
+    private val accountStorage: AccountStorage,
     private val settingsStore: YaniAccountSettingsStore,
-    private val watchProgressStore: WatchProgressStore,
-    private val documentCache: DocumentCacheStore,
+    private val watchProgressStore: WatchProgressStorage,
+    private val documentCache: DocumentCacheStorage,
 ) : AnimeRepository {
 
     override suspend fun getAnimeDetails(animeId: Int): AnimeDetails = withContext(Dispatchers.IO) {

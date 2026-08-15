@@ -5,7 +5,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import su.afk.yummy.tv.core.preferences.settings.YaniAccountSettingsStore
-import su.afk.yummy.tv.core.storage.schedule.AnimeScheduleStore
+import su.afk.yummy.tv.core.storage.schedule.AnimeScheduleStorage
 import su.afk.yummy.tv.core.storage.schedule.isFresh
 import su.afk.yummy.tv.data.schedule.network.YaniScheduleApi
 import su.afk.yummy.tv.data.schedule.storage.mapper.toAnimeScheduleCache
@@ -17,7 +17,7 @@ private const val SCHEDULE_TTL_MS = 60 * 60 * 1000L
 
 class YaniScheduleRepository(
     private val api: YaniScheduleApi,
-    private val scheduleStore: AnimeScheduleStore,
+    private val scheduleStore: AnimeScheduleStorage,
     private val settingsStore: YaniAccountSettingsStore,
 ) : AnimeScheduleRepository {
 

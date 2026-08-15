@@ -15,7 +15,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import su.afk.yummy.tv.core.analytics.api.coroutine.ErrorCoroutineAnalytics
 import su.afk.yummy.tv.core.preferences.settings.AppLifecycleSettingsStore
-import su.afk.yummy.tv.core.storage.watchprogress.WatchProgressStore
+import su.afk.yummy.tv.core.storage.watchprogress.WatchProgressStorage
 import su.afk.yummy.tv.core.tv.api.ITvIntegration
 import su.afk.yummy.tv.core.utils.coroutines.di.IoApplicationScope
 import su.afk.yummy.tv.domain.home.model.HomeFeedSectionType
@@ -26,7 +26,7 @@ import kotlin.time.Duration.Companion.seconds
 
 @Singleton
 internal class TvIntegration @Inject constructor(
-    private val watchProgressStore: WatchProgressStore,
+    private val watchProgressStore: WatchProgressStorage,
     private val watchNextManager: WatchNextManager,
     private val previewChannelManager: PreviewChannelManager,
     private val getHomeFeed: GetHomeFeedUseCase,

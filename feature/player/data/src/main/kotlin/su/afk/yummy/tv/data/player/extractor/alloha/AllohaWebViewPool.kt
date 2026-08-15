@@ -1,0 +1,54 @@
+package su.afk.yummy.tv.data.player.extractor.alloha
+
+import android.annotation.SuppressLint
+import android.content.Context
+import android.webkit.CookieManager
+import android.webkit.WebView
+import android.webkit.WebViewClient
+import su.afk.yummy.tv.data.player.extractor.alloha.AllohaWebViewPool.Companion.MAX_IDLE_WEB_VIEWS
+import java.util.concurrent.ConcurrentLinkedQueue
+
+/**
+ * Booting a fresh WebView (and its underlying Chromium renderer) is the single most expensive
+ * step in opening an Alloha session - a cold start that retries 2-3x (each retry tearing down
+ * and recreating the WebView from scratch) pays that cost every time. The reference
+ * implementation avoids this by keeping one WebView alive for the whole activity lifetime.
+ * We use a small pool (capped at [MAX_IDLE_WEB_VIEWS]) instead of a single shared instance so a
+ * second concurrent caller (e.g. a background download running while an episode is playing)
+ * can't collide with an in-use WebView - it simply gets its own fresh instance, which it
+ * destroys again on release instead of returning it to an already-full pool.
+ */
+internal class AllohaWebViewPool {
+    private val idleWebViews = ConcurrentLinkedQueue<WebView>()
+
+    @SuppressLint("SetJavaScriptEnabled")
+    fun acquire(context: Context, userAgent: String): WebView {
+        val webView = idleWebViews.poll() ?: WebView(context).apply {
+            settings.javaScriptEnabled = true
+            settings.domStorageEnabled = true
+            settings.mediaPlaybackRequiresUserGesture = false
+            webViewClient = WebViewClient()
+        }
+        webView.settings.userAgentString = userAgent
+        CookieManager.getInstance().apply {
+            setAcceptCookie(true)
+            setAcceptThirdPartyCookies(webView, true)
+        }
+        return webView
+    }
+
+    fun release(webView: WebView) {
+        if (idleWebViews.size >= MAX_IDLE_WEB_VIEWS) {
+            webView.destroy()
+        } else {
+            idleWebViews.offer(webView)
+        }
+    }
+
+    private companion object {
+        // How many idle WebViews acquire()/release() keep warm for reuse. 1 covers the common
+        // case (sequential recovery retries / episode switches); extra concurrent callers get
+        // their own instance and destroy it on release rather than growing the pool.
+        const val MAX_IDLE_WEB_VIEWS = 1
+    }
+}

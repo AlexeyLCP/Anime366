@@ -12,12 +12,18 @@ interface AppLifecycleSettingsStore {
     /** Идентификатор последнего объявления, которое пользователь закрыл кнопкой ОК. */
     val lastSeenAnnouncementId: Flow<String>
 
+    /** Запрашивалось ли уже разрешение на уведомления через гейт (чтобы не спрашивать повторно). */
+    val notificationPermissionRequested: Flow<Boolean>
+
     suspend fun setWatchNextEnabled(enabled: Boolean)
     suspend fun ensureSupportPromptInstallTimeInitialized()
     suspend fun dismissSupportPrompt()
 
     /** Помечает объявление [id] как просмотренное, чтобы больше его не показывать. */
     suspend fun markAnnouncementSeen(id: String)
+
+    /** Помечает, что разрешение на уведомления уже запрашивалось. */
+    suspend fun markNotificationPermissionRequested()
 
     /** Returns `true` when [versionCode] differs from the previously started one. */
     suspend fun markStartedVersion(versionCode: Int): Boolean

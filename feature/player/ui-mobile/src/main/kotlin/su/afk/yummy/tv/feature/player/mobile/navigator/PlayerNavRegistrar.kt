@@ -1,6 +1,5 @@
 package su.afk.yummy.tv.feature.player.mobile.navigator
 
-import androidx.compose.runtime.LaunchedEffect
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
@@ -20,9 +19,13 @@ class PlayerNavRegistrar @Inject constructor() : NavRegistrar {
                     key = "player",
                     creationCallback = { factory -> factory.create(dest) },
                 )
-                LaunchedEffect(dest) { viewModel.loadDestination(dest) }
                 ScreenNavigator(viewModel) { state, effect, onEvent ->
-                    PlayerMobileScreen(state = state, effect = effect, onEvent = onEvent)
+                    PlayerMobileScreen(
+                        dest = dest,
+                        state = state,
+                        effect = effect,
+                        onEvent = onEvent
+                    )
                 }
             }
         }

@@ -19,7 +19,7 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import su.afk.yummy.tv.core.analytics.api.AnalyticsTracker
 import su.afk.yummy.tv.core.preferences.settings.VideoExportSettingsStore
-import su.afk.yummy.tv.core.storage.videodownload.VideoDownloadStore
+import su.afk.yummy.tv.core.storage.videodownload.VideoDownloadStorage
 import su.afk.yummy.tv.data.videodownload.R
 import su.afk.yummy.tv.data.videodownload.mapper.toDomain
 import su.afk.yummy.tv.data.videodownload.utils.treeDocumentUri
@@ -36,7 +36,7 @@ import javax.inject.Inject
 class DefaultVideoDownloadExportRepository @Inject constructor(
     @ApplicationContext private val context: Context,
     private val settingsStore: VideoExportSettingsStore,
-    private val store: VideoDownloadStore,
+    private val store: VideoDownloadStorage,
     private val analytics: VideoExportAnalytics,
     private val analyticsTracker: AnalyticsTracker,
 ) : VideoDownloadExportRepository {
@@ -156,7 +156,7 @@ class DefaultVideoDownloadExportRepository @Inject constructor(
         var enqueuedCount = 0
         var firstItem: VideoDownloadItem? = null
         downloadIds.distinct().forEach { id ->
-            val entry = store.dao.getById(id) ?: return@forEach
+            val entry = store.getById(id) ?: return@forEach
             if (entry.status != "Downloaded") return@forEach
             enqueuedCount += 1
             if (firstItem == null) firstItem = entry.toDomain()
@@ -220,8 +220,8 @@ class DefaultVideoDownloadExportRepository @Inject constructor(
         exportedFileUri: String?,
         errorMessage: String?,
     ) {
-        val entry = store.dao.getById(downloadId) ?: return
-        store.dao.update(
+        val entry = store.getById(downloadId) ?: return
+        store.update(
             entry.copy(
                 exportStatus = status.name,
                 exportProgress = progress?.coerceIn(0f, 1f) ?: entry.exportProgress,
@@ -245,7 +245,7 @@ class DefaultVideoDownloadExportRepository @Inject constructor(
     private suspend fun reconcileOrphanedExports() = orphanReconciliationMutex.withLock {
         val workManager = WorkManager.getInstance(context)
         val now = System.currentTimeMillis()
-        store.dao.getUnfinishedExports()
+        store.getUnfinishedExports()
             .filter { now - it.updatedAt >= ORPHAN_GRACE_PERIOD_MS }
             .forEach { entry ->
                 val workInfos = runCatching {

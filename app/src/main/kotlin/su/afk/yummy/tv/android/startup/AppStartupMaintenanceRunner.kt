@@ -6,7 +6,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import su.afk.yummy.tv.BuildConfig
 import su.afk.yummy.tv.core.preferences.settings.SettingsStore
-import su.afk.yummy.tv.core.storage.maintenance.StorageCleanupStore
+import su.afk.yummy.tv.core.storage.maintenance.StorageCleanup
 import su.afk.yummy.tv.core.utils.coroutines.di.DefaultApplicationScope
 import su.afk.yummy.tv.data.videodownload.cache.LegacyStreamingCachePruner
 import java.io.File
@@ -22,7 +22,7 @@ class AppStartupMaintenanceRunner @Inject constructor(
     @param:ApplicationContext private val context: Context,
     private val settingsStore: SettingsStore,
     private val legacyStreamingCachePruner: LegacyStreamingCachePruner,
-    private val storageCleanupStore: StorageCleanupStore,
+    private val storageCleanupStore: StorageCleanup,
     @DefaultApplicationScope private val scope: CoroutineScope,
 ) {
 

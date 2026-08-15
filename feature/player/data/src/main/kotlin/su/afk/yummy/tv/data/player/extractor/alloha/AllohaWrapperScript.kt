@@ -1,0 +1,249 @@
+package su.afk.yummy.tv.data.player.extractor.alloha
+
+/** Name the WebView's `@JavascriptInterface` bridge is registered under - referenced by the JS below. */
+internal const val BRIDGE_NAME = "AndroidBridge"
+
+/**
+ * HTML/JS shell that wraps the Alloha iframe and observes its own network stack (XHR/fetch/
+ * WebSocket) to capture the signed HLS session - see [BRIDGE_NAME] for the Kotlin-side bridge this
+ * talks to.
+ */
+internal fun wrapperHtml(iframeUrl: String): String = """
+    <html><body style="margin:0;background:black">
+    <iframe id="alloha" src="${iframeUrl.escapeHtml()}" width="100%" height="100%" frameborder="0" allowfullscreen></iframe>
+    <script>
+    try {
+      Object.defineProperty(document, 'visibilityState', {get:function(){return 'visible'}});
+      Object.defineProperty(document, 'hidden', {get:function(){return false}});
+    } catch(e) {}
+    document.getElementById('alloha').onload = function() {
+      try {
+        var w = this.contentWindow, bnsi = null, headers = {}, done = false;
+        try {
+          Object.defineProperty(w.document, 'visibilityState', {get:function(){return 'visible'}});
+          Object.defineProperty(w.document, 'hidden', {get:function(){return false}});
+        } catch(e) {}
+        var pushTimer = null;
+        function put(k,v) {
+          if(!k || !v) return;
+          headers[String(k).toLowerCase()] = String(v);
+          if(done) {
+            if(pushTimer) clearTimeout(pushTimer);
+            pushTimer = setTimeout(function(){ AndroidBridge.onStreamHeaders(JSON.stringify(headers)); }, 40);
+          }
+        }
+        function ready() {
+          if(done || !bnsi || !headers['authorizations'] || !headers['accepts-controls']) return;
+          done = true;
+          AndroidBridge.onReady(bnsi, JSON.stringify(headers));
+        }
+        put('origin', w.location.origin); put('referer', w.location.origin + '/');
+        put('user-agent', w.navigator.userAgent); put('accept', '*/*');
+        put('sec-fetch-dest', 'empty'); put('sec-fetch-mode', 'cors'); put('sec-fetch-site', 'cross-site');
+
+        var lastMasterUrl = null;
+        // Hand the proxy the correctly-signed master.m3u8 the player itself requests, even when
+        // the browser blocks that request. The player fetches master with custom headers
+        // (accepts-controls/authorizations) -> CORS preflight the CDN never answers -> the
+        // request is blocked and 'load'/'ok' never fire, so only the requested URL is available.
+        // Our server-side proxy isn't subject to CORS, so this up-to-date URL streams fine,
+        // unlike the stale bnsi URL that the CDN 403s with token_decrypt.
+        function isCdnMaster(url) {
+          return !!url && url.indexOf('http') === 0 && url.indexOf('master.m3u8') !== -1;
+        }
+        function reportMaster(url) {
+          if(!done || !url) return;
+          if(!isCdnMaster(url)) return;
+          if(url === lastMasterUrl) return;
+          lastMasterUrl = url;
+          AndroidBridge.onM3u8Refreshed(url, JSON.stringify(headers));
+        }
+        var primaryHost = null, fallbackHost = null, fallbackMasterUrl = null;
+        function extractCdnHosts() {
+          if(primaryHost || !bnsi) return;
+          try {
+            var data = JSON.parse(bnsi), sources = data.hlsSource;
+            if(!sources || !sources[0] || !sources[0].quality) return;
+            var quality = sources[0].quality, key = Object.keys(quality)[0];
+            var urls = quality[key].split(' or ');
+            if(urls.length < 2) return;
+            var primary = urls[0].match(/https?:\/\/([^\/]+)/);
+            var fallback = urls[1].trim().match(/https?:\/\/([^\/]+)/);
+            if(primary) primaryHost = primary[1];
+            if(fallback) {
+              fallbackHost = fallback[1];
+              fallbackMasterUrl = urls[1].trim();
+            }
+            AndroidBridge.onLog('CDN candidates captured');
+          } catch(e) { AndroidBridge.onLog('CDN candidate parse failed'); }
+        }
+
+        var open = w.XMLHttpRequest.prototype.open;
+        w.XMLHttpRequest.prototype.open = function(method,url) {
+          this.__allohaUrl = url;
+          this.addEventListener('load', function() {
+            var url = this.responseURL || this.__allohaUrl || '';
+            if(url.indexOf('/bnsi/') !== -1) {
+              bnsi = this.responseText;
+              extractCdnHosts();
+              ready();
+            }
+            reportMaster(url);
+          });
+          // Fallback capture: loadend fires on success and on failure. The send() hook below is
+          // the primary capture point (and blocks CDN-master requests); this only covers any
+          // request that reaches loadend without having passed through our send() override.
+          this.addEventListener('loadend', function() {
+            reportMaster(this.__allohaUrl || this.responseURL || '');
+          });
+          return open.apply(this, arguments);
+        };
+        var setHeader = w.XMLHttpRequest.prototype.setRequestHeader;
+        w.XMLHttpRequest.prototype.setRequestHeader = function(k,v) {
+          put(k,v); ready(); return setHeader.apply(this, arguments);
+        };
+        // The CDN token baked into the master path is single-use: whoever GETs it first wins,
+        // the loser gets 403 token_decrypt. The player's own master XHR is native and already
+        // in flight from this same JS tick, so it always beats our JSBridge->OkHttp proxy and
+        // burns the token before the proxy can use it (its response is CORS-blocked from JS
+        // anyway, so the player gains nothing from it). We therefore CAPTURE the master URL +
+        // headers here but never let the request reach the network, leaving the token fresh for
+        // the proxy - the sole consumer. A blocked XHR is failed asynchronously so the player's
+        // error path still runs. Non-master XHRs (bnsi, config, etc.) pass through untouched.
+        var xhrSend = w.XMLHttpRequest.prototype.send;
+        w.XMLHttpRequest.prototype.send = function() {
+          var u = this.__allohaUrl || '';
+          if(isCdnMaster(u)) {
+            reportMaster(u);
+            var self = this;
+            setTimeout(function() {
+              try {
+                self.dispatchEvent(new Event('error'));
+                self.dispatchEvent(new Event('loadend'));
+              } catch(e) {}
+            }, 0);
+            return;
+          }
+          reportMaster(u);
+          return xhrSend.apply(this, arguments);
+        };
+        var fetch = w.fetch;
+        w.fetch = function(input,init) {
+          try {
+            var url = typeof input === 'string' ? input : (input && input.url ? input.url : '');
+            if(init && init.headers) {
+              if(typeof init.headers.forEach === 'function') init.headers.forEach(function(v,k){put(k,v)});
+              else for(var k in init.headers) put(k,init.headers[k]);
+            }
+            ready();
+            extractCdnHosts();
+            reportMaster(url);
+            if(isCdnMaster(url)) {
+              // Same single-use-token reason as the XHR send() hook: capture but never fetch,
+              // so the token stays fresh for the proxy. Reject so the player's error path runs.
+              return Promise.reject(new TypeError('alloha: master fetch withheld to preserve CDN token'));
+            }
+            if(url && (url.indexOf('.m3u8') !== -1 || url.indexOf('.ts') !== -1 || url.indexOf('.m4s') !== -1) &&
+                primaryHost && fallbackHost && url.indexOf(primaryHost) !== -1) {
+              var fallbackUrl = url.indexOf('master.m3u8') !== -1 && fallbackMasterUrl
+                ? fallbackMasterUrl : url.replace(primaryHost, fallbackHost);
+              return fetch.apply(this, arguments).then(function(response) {
+                if(response.status !== 403 && response.status !== 500 && response.status !== 503) return response;
+                AndroidBridge.onLog('Browser CDN fallback after status=' + response.status);
+                return fetch.call(w, fallbackUrl, init).then(function(fallbackResponse) {
+                  if(fallbackResponse.ok) reportMaster(fallbackUrl);
+                  return fallbackResponse;
+                });
+              });
+            }
+          } catch(e) {}
+          return fetch.apply(this, arguments);
+        };
+
+        var OrigWS = w.WebSocket, send = OrigWS.prototype.send;
+        var heartbeat = null, started = Date.now(), activeSocket = null, lastEdgeHash = null;
+        function startHeartbeat(socket) {
+          if(heartbeat) clearInterval(heartbeat);
+          started = Date.now();
+          heartbeat = setInterval(function() {
+            if(!done || !socket || socket.readyState !== 1) return;
+            try {
+              send.call(socket, JSON.stringify({type:'playing',current_time:Math.floor((Date.now()-started)/1000),resolution:'1080',track_id:'1',speed:1,subtitle:0,ts:Date.now()}));
+              AndroidBridge.onLog('heartbeat sent');
+            } catch(e) { AndroidBridge.onLog('heartbeat failed'); }
+          }, 25000);
+        }
+        function hookSocket(socket) {
+          if(!socket || socket.__allohaHooked) return socket;
+          socket.__allohaHooked = true;
+          activeSocket = socket;
+          started = Date.now();
+          AndroidBridge.onLog('WebSocket hooked');
+          socket.addEventListener('message', function(event) {
+            try {
+              var message = JSON.parse(event.data);
+              if(message && message.type === 'config_update' && message.edge_hash && message.edge_hash !== lastEdgeHash) {
+                lastEdgeHash = message.edge_hash;
+                put('accepts-controls', message.edge_hash); ready();
+                var ttl = message.ttl || 120;
+                AndroidBridge.onLog('config_update ttl=' + ttl);
+                AndroidBridge.onConfigUpdate(message.edge_hash, ttl, JSON.stringify(headers));
+              }
+            } catch(e) {}
+          });
+          socket.addEventListener('open', function() {
+            AndroidBridge.onLog('WebSocket opened');
+            startHeartbeat(socket);
+          });
+          socket.addEventListener('close', function(event){
+            if(activeSocket === socket) {
+              activeSocket = null;
+              if(heartbeat) clearInterval(heartbeat);
+            }
+            var reason = event && event.reason ? String(event.reason).replace(/\s+/g, ' ').slice(0, 80) : '';
+            AndroidBridge.onLog('WebSocket closed code=' + (event ? event.code : 0) +
+              ' clean=' + (event ? event.wasClean : false) + ' reason=' + reason);
+          });
+          if(socket.readyState === 1) startHeartbeat(socket);
+          return socket;
+        }
+        OrigWS.prototype.send = function(data) {
+          hookSocket(this);
+          return send.call(this,data);
+        };
+        w.WebSocket = function(url, protocols) {
+          return hookSocket(protocols ? new OrigWS(url, protocols) : new OrigWS(url));
+        };
+        w.WebSocket.prototype = OrigWS.prototype;
+        w.WebSocket.CONNECTING = OrigWS.CONNECTING;
+        w.WebSocket.OPEN = OrigWS.OPEN;
+        w.WebSocket.CLOSING = OrigWS.CLOSING;
+        w.WebSocket.CLOSED = OrigWS.CLOSED;
+        var errorReported = false;
+        var unavailablePattern = /озвучка\s*недоступна/i;
+        setInterval(function() {
+          if(!done && !errorReported) {
+            try {
+              var text = w.document.body ? w.document.body.textContent : '';
+              if(text && unavailablePattern.test(text)) {
+                errorReported = true;
+                AndroidBridge.onDubbingUnavailable();
+                return;
+              }
+            } catch(e) {}
+          }
+          // Keep the iframe player actively playing even AFTER the session is captured. If we
+          // stop at 'done', the player pauses and tears down its WebSocket (~2.4s) before it
+          // ever fetches its correctly-signed master.m3u8 (onM3u8Refreshed), forcing us onto the
+          // raw bnsi URL that the CDN rejects with 403 token_decrypt. Keeping it playing makes
+          // the player keep (re)fetching its own master and keeps the socket alive for heartbeats.
+          var button = w.document.querySelector('.allplay__play-btn'); if(button) button.click();
+          var video = w.document.querySelector('video');
+          if(video) { video.muted = true; if(video.paused) video.play().catch(function(){}); }
+        }, 1500);
+      } catch(e) { AndroidBridge.onLog(String(e)); }
+    };
+    </script></body></html>
+""".trimIndent()
+
+private fun String.escapeHtml(): String = replace("&", "&amp;").replace("\"", "&quot;")

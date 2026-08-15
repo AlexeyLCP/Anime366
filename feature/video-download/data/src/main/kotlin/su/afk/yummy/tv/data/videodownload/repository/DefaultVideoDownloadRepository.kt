@@ -18,7 +18,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import su.afk.yummy.tv.core.storage.videodownload.VideoDownloadStore
+import su.afk.yummy.tv.core.storage.videodownload.VideoDownloadStorage
 import su.afk.yummy.tv.data.videodownload.R
 import su.afk.yummy.tv.data.videodownload.cache.LegacyStreamingCachePruner
 import su.afk.yummy.tv.data.videodownload.cache.RotatingHlsCacheKeyFactory
@@ -41,7 +41,7 @@ import javax.inject.Inject
 @OptIn(UnstableApi::class)
 class DefaultVideoDownloadRepository @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val store: VideoDownloadStore,
+    private val store: VideoDownloadStorage,
     private val cacheProvider: VideoDownloadCacheProvider,
     private val notificationService: VideoDownloadNotificationService,
     private val analytics: VideoDownloadAnalytics,
@@ -51,7 +51,7 @@ class DefaultVideoDownloadRepository @Inject constructor(
     private val enqueueMutex = Mutex()
 
     override fun observeDownloads(): Flow<List<VideoDownloadItem>> =
-        store.dao.observeDownloads()
+        store.observeDownloads()
             .onStart { reconcileOrphanedDownloads() }
             .map { entries ->
                 entries.map { it.toDomain() }.visibleAfterLatestEpisodeDeletion()
@@ -59,7 +59,7 @@ class DefaultVideoDownloadRepository @Inject constructor(
             .distinctUntilChanged()
 
     override fun observeStatuses(animeId: Int): Flow<Map<String, VideoDownloadItem>> =
-        store.dao.observeDownloadsForAnime(animeId)
+        store.observeDownloadsForAnime(animeId)
             .onStart { reconcileOrphanedDownloads() }
             .map { entries ->
                 entries.map { it.toDomain() }
@@ -70,13 +70,13 @@ class DefaultVideoDownloadRepository @Inject constructor(
             .distinctUntilChanged()
 
     override suspend fun getDownload(id: Long): VideoDownloadItem? =
-        store.dao.getById(id)?.toDomain()
+        store.getById(id)?.toDomain()
 
     override suspend fun enqueue(request: VideoDownloadRequest): VideoDownloadItem =
         enqueueMutex.withLock { enqueueLocked(request) }
 
     private suspend fun enqueueLocked(request: VideoDownloadRequest): VideoDownloadItem {
-        val duplicate = store.dao.findEpisodeDownload(
+        val duplicate = store.findEpisodeDownload(
             animeId = request.animeId,
             episode = request.episode,
         )
@@ -87,7 +87,7 @@ class DefaultVideoDownloadRepository @Inject constructor(
                 duplicateStatus == VideoDownloadStatus.Failed ||
                 duplicateStatus == VideoDownloadStatus.Deleted
             ) {
-                store.dao.update(
+                store.update(
                     request.toEntry(now).copy(
                         id = duplicate.id,
                         cacheKey = duplicate.cacheKey,
@@ -103,17 +103,17 @@ class DefaultVideoDownloadRepository @Inject constructor(
                     forceStreamRefresh = true,
                 )
                 return (
-                        store.dao.getById(duplicate.id)?.toDomain()
+                        store.getById(duplicate.id)?.toDomain()
                             ?: error("Restarted video download is missing: ${duplicate.id}")
                         ).also { analytics.reportEnqueued(it, restarted = true) }
             }
             return duplicate.toDomain()
         }
 
-        val id = store.dao.insert(request.toEntry(now))
+        val id = store.insert(request.toEntry(now))
         scheduleWorker(id)
         return (
-                store.dao.getById(id)?.toDomain()
+                store.getById(id)?.toDomain()
                     ?: error("Inserted video download is missing: $id")
                 ).also { analytics.reportEnqueued(it, restarted = false) }
     }
@@ -122,24 +122,24 @@ class DefaultVideoDownloadRepository @Inject constructor(
         WorkManager.getInstance(context)
             .cancelUniqueWork(uniqueWorkName(id))
             .await()
-        val entry = store.dao.getById(id) ?: return
+        val entry = store.getById(id) ?: return
         val status = entry.status.toVideoDownloadStatus()
         if (status != VideoDownloadStatus.Queued && status != VideoDownloadStatus.Downloading) {
             return
         }
-        store.dao.update(
+        store.update(
             entry.copy(
                 status = VideoDownloadStatus.Paused.storageName(),
                 errorMessage = null,
                 updatedAt = System.currentTimeMillis(),
             )
         )
-        store.dao.getById(id)?.toDomain()?.let(notificationService::showPaused)
+        store.getById(id)?.toDomain()?.let(notificationService::showPaused)
     }
 
     override suspend fun cancelOrDelete(id: Long) {
-        val entry = store.dao.getById(id) ?: return
-        val episodeDownloads = store.dao.getEpisodeDownloads(
+        val entry = store.getById(id) ?: return
+        val episodeDownloads = store.getEpisodeDownloads(
             animeId = entry.animeId,
             episode = entry.episode,
         )
@@ -157,7 +157,7 @@ class DefaultVideoDownloadRepository @Inject constructor(
                 .filter { key -> key.startsWith(rotatingSegmentPrefix) }
                 .forEach { key -> runCatching { cacheProvider.cache.removeResource(key) } }
         }
-        store.dao.markEpisodeDeleted(
+        store.markEpisodeDeleted(
             animeId = entry.animeId,
             episode = entry.episode,
             updatedAt = System.currentTimeMillis(),
@@ -169,9 +169,9 @@ class DefaultVideoDownloadRepository @Inject constructor(
     override suspend fun restart(id: Long, stream: VideoDownloadRestartStream?) {
         val workManager = WorkManager.getInstance(context)
         workManager.cancelUniqueWork(uniqueWorkName(id))
-        val entry = store.dao.getById(id) ?: return
+        val entry = store.getById(id) ?: return
         val qualityLabel = stream?.qualityLabel ?: entry.qualityLabel
-        store.dao.update(
+        store.update(
             entry.copy(
                 videoId = stream?.videoId ?: entry.videoId,
                 playerName = stream?.playerName ?: entry.playerName,
@@ -195,8 +195,8 @@ class DefaultVideoDownloadRepository @Inject constructor(
     }
 
     override suspend fun updatePreparedStream(id: Long, stream: VideoDownloadRestartStream) {
-        val entry = store.dao.getById(id) ?: return
-        store.dao.update(
+        val entry = store.getById(id) ?: return
+        store.update(
             entry.copy(
                 videoId = stream.videoId,
                 playerName = stream.playerName,
@@ -220,12 +220,12 @@ class DefaultVideoDownloadRepository @Inject constructor(
         totalBytes: Long?,
         errorMessage: String?,
     ) {
-        val entry = store.dao.getById(id) ?: return
+        val entry = store.getById(id) ?: return
         val currentStatus = entry.status.toVideoDownloadStatus()
         if (currentStatus == VideoDownloadStatus.Deleted || currentStatus == VideoDownloadStatus.Paused) {
             return
         }
-        store.dao.update(
+        store.update(
             entry.copy(
                 status = status.storageName(),
                 progress = progress ?: entry.progress,
@@ -236,7 +236,7 @@ class DefaultVideoDownloadRepository @Inject constructor(
             )
         )
         if (status == VideoDownloadStatus.Downloaded) {
-            store.dao.markOtherFailedEpisodeDownloadsDeleted(
+            store.markOtherFailedEpisodeDownloadsDeleted(
                 animeId = entry.animeId,
                 episode = entry.episode,
                 keepId = id,
@@ -273,7 +273,7 @@ class DefaultVideoDownloadRepository @Inject constructor(
     private suspend fun reconcileOrphanedDownloads() = orphanReconciliationMutex.withLock {
         val workManager = WorkManager.getInstance(context)
         val now = System.currentTimeMillis()
-        store.dao.getUnfinishedDownloads()
+        store.getUnfinishedDownloads()
             .filter { now - it.updatedAt >= ORPHAN_GRACE_PERIOD_MS }
             .forEach { entry ->
                 val workInfos = runCatching {
@@ -286,9 +286,9 @@ class DefaultVideoDownloadRepository @Inject constructor(
                 }
                 if (hasActiveWork) return@forEach
 
-                val latestEntry = store.dao.getById(entry.id) ?: return@forEach
+                val latestEntry = store.getById(entry.id) ?: return@forEach
                 if (latestEntry.status !in UNFINISHED_STORAGE_STATUSES) return@forEach
-                store.dao.update(
+                store.update(
                     latestEntry.copy(
                         status = VideoDownloadStatus.Failed.storageName(),
                         errorMessage = context.getString(R.string.video_download_worker_stopped),

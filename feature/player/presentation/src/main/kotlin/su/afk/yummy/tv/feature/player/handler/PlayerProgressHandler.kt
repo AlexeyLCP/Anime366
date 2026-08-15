@@ -1,9 +1,11 @@
 package su.afk.yummy.tv.feature.player.handler
 
 import kotlinx.coroutines.flow.first
+import su.afk.yummy.tv.core.model.anime.isMeaningfulProgress
+import su.afk.yummy.tv.core.model.anime.isWatchedProgress
 import su.afk.yummy.tv.core.preferences.settings.SettingsStore
-import su.afk.yummy.tv.core.storage.watchprogress.WatchProgressStore
 import su.afk.yummy.tv.domain.account.usecase.SaveVideoWatchProgressUseCase
+import su.afk.yummy.tv.domain.player.repository.WatchProgressRepository
 import su.afk.yummy.tv.feature.player.model.PlayerProgressSnapshot
 import su.afk.yummy.tv.feature.player.utils.withFullTimingIfWatched
 import javax.inject.Inject
@@ -15,7 +17,7 @@ private const val WATCH_END_TOLERANCE_SECONDS = 10
 
 /** Сохраняет локальный прогресс просмотра и тихо синхронизирует его с сервером. */
 internal class PlayerProgressHandler @Inject constructor(
-    private val watchProgressStore: WatchProgressStore,
+    private val watchProgressRepository: WatchProgressRepository,
     private val settingsStore: SettingsStore,
     private val saveVideoWatchProgress: SaveVideoWatchProgressUseCase,
 ) {
@@ -53,7 +55,7 @@ internal class PlayerProgressHandler @Inject constructor(
 
         if (context.animeId > 0 && savedSnapshot.episode.isNotBlank()) {
             val updatedAt = localActivityUpdatedAt(context.animeId, savedSnapshot.episode)
-            watchProgressStore.save(
+            watchProgressRepository.save(
                 animeId = context.animeId,
                 episode = savedSnapshot.episode,
                 videoId = savedSnapshot.videoId,
@@ -77,7 +79,7 @@ internal class PlayerProgressHandler @Inject constructor(
         snapshot: PlayerProgressSnapshot,
     ) {
         val updatedAt = localActivityUpdatedAt(context.animeId, snapshot.episode)
-        watchProgressStore.saveContinueTarget(
+        watchProgressRepository.saveContinueTarget(
             animeId = context.animeId,
             episode = snapshot.episode,
             videoId = snapshot.videoId,
@@ -97,14 +99,14 @@ internal class PlayerProgressHandler @Inject constructor(
 
         val existingUpdatedAt = episode
             .takeIf { it.isNotBlank() }
-            ?.let { watchProgressStore.get(animeId, it)?.updatedAt }
+            ?.let { watchProgressRepository.get(animeId, it)?.updatedAt }
             ?: 0L
 
         return maxOf(now, existingUpdatedAt + 1L)
     }
 
     suspend fun suppressContinueWatchingDisplay(context: PlayerProgressContext) {
-        watchProgressStore.suppressContinueWatchingDisplay(
+        watchProgressRepository.suppressContinueWatchingDisplay(
             animeId = context.animeId,
             suppressedAt = System.currentTimeMillis(),
         )
@@ -119,12 +121,12 @@ internal class PlayerProgressHandler @Inject constructor(
     ) {
         val videoId = snapshot.videoId
         if (videoId <= 0) return
-        if (!WatchProgressStore.isMeaningfulProgress(snapshot.positionMs, snapshot.durationMs)) {
+        if (!isMeaningfulProgress(snapshot.positionMs, snapshot.durationMs)) {
             return
         }
         if (settingsStore.yaniUserId.first() <= 0) return
 
-        val watchedEnough = WatchProgressStore.isWatchedProgress(
+        val watchedEnough = isWatchedProgress(
             positionMs = snapshot.positionMs,
             durationMs = snapshot.durationMs,
         )

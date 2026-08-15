@@ -2,12 +2,13 @@ package su.afk.yummy.tv.feature.player.handler
 
 import kotlinx.coroutines.flow.first
 import su.afk.yummy.tv.core.error.api.StringProvider
+import su.afk.yummy.tv.core.model.anime.isContinueWatchingProgress
 import su.afk.yummy.tv.core.preferences.settings.PlayerSettingsStore
-import su.afk.yummy.tv.core.storage.watchprogress.WatchProgressStore
 import su.afk.yummy.tv.domain.player.isAllohaPlayerUrl
 import su.afk.yummy.tv.domain.player.model.AllohaStreamSession
 import su.afk.yummy.tv.domain.player.model.PlayerStreamRequest
 import su.afk.yummy.tv.domain.player.model.PlayerStreamResolveResult
+import su.afk.yummy.tv.domain.player.repository.WatchProgressRepository
 import su.afk.yummy.tv.domain.player.usecase.OpenAllohaStreamSessionUseCase
 import su.afk.yummy.tv.domain.player.usecase.ResolvePlayerStreamUseCase
 import su.afk.yummy.tv.feature.player.PlayerState
@@ -20,7 +21,7 @@ import javax.inject.Inject
 
 /** Resolves the active player iframe into a playable stream and presentation-ready stream errors. */
 internal class PlayerStreamHandler @Inject constructor(
-    private val watchProgressStore: WatchProgressStore,
+    private val watchProgressRepository: WatchProgressRepository,
     private val settingsStore: PlayerSettingsStore,
     private val resolvePlayerStream: ResolvePlayerStreamUseCase,
     private val openAllohaStreamSession: OpenAllohaStreamSessionUseCase,
@@ -112,8 +113,8 @@ internal class PlayerStreamHandler @Inject constructor(
     }
 
     private suspend fun loadResumePosition(animeId: Int, episode: String): Long? {
-        val entry = watchProgressStore.get(animeId, episode) ?: return null
-        return entry.positionMs.takeIf { WatchProgressStore.isContinueWatchingEntry(entry) }
+        val progress = watchProgressRepository.get(animeId, episode) ?: return null
+        return progress.positionMs.takeIf { progress.isContinueWatchingProgress() }
     }
 
     private suspend fun selectedQuality(

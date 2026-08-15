@@ -58,6 +58,8 @@ internal fun AccountMobileLoginCard(
                 text = stringResource(R.string.account_signed_out),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth(),
             )
             OutlinedTextField(
                 value = state.login,

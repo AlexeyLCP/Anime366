@@ -58,6 +58,8 @@ internal object SettingsPreferenceKeys {
     val supportPromptFirstInstallTimeMsKey =
         longPreferencesKey("support_prompt_first_install_time_ms")
     val lastSeenAnnouncementIdKey = stringPreferencesKey("last_seen_announcement_id")
+    val notificationPermissionRequestedKey =
+        booleanPreferencesKey("notification_permission_requested")
     val legacyStreamingCachePrunedKey =
         booleanPreferencesKey("legacy_streaming_cache_pruned")
     val videoExportDirectoryUriKey = stringPreferencesKey("video_export_directory_uri")

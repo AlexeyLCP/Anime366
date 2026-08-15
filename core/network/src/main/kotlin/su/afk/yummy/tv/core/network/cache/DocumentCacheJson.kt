@@ -2,10 +2,10 @@ package su.afk.yummy.tv.core.network.cache
 
 import kotlinx.serialization.InternalSerializationApi
 import su.afk.yummy.tv.core.network.yani.YaniApiJson
-import su.afk.yummy.tv.core.storage.document.DocumentCacheStore
+import su.afk.yummy.tv.core.storage.document.DocumentCacheStorage
 
 /**
- * Джсон-обёртка над [DocumentCacheStore.getOrFetch]: (де)сериализует значение через [YaniApiJson],
+ * Джсон-обёртка над [DocumentCacheStorage.getOrFetch]: (де)сериализует значение через [YaniApiJson],
  * убирая продублированный по репозиториям `decode`/`encode` boilerplate. Тип выводится через
  * `reified`, поэтому вызывающему коду достаточно передать ключ, ttl и загрузчик.
  *
@@ -13,7 +13,7 @@ import su.afk.yummy.tv.core.storage.document.DocumentCacheStore
  * нужен opt-in — сгенерированный сериализатор всё равно используется, warning чисто про API-стабильность.
  */
 @OptIn(InternalSerializationApi::class)
-suspend inline fun <reified T> DocumentCacheStore.getOrFetchJson(
+suspend inline fun <reified T> DocumentCacheStorage.getOrFetchJson(
     cacheKey: String,
     ttlMs: Long,
     forceRefresh: Boolean = false,

@@ -33,6 +33,7 @@ import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.lastStar
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.legacyStreamingCachePrunedKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.libraryContinueWatchingCardSizeKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.mobilePlayerGestureTutorialDismissedKey
+import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.notificationPermissionRequestedKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.pictureInPictureEnabledKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.playerOrientationModeKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.playerResizeModeKey
@@ -348,6 +349,10 @@ internal class DataStoreSettingsStore @Inject constructor(
         prefs[lastSeenAnnouncementIdKey].orEmpty()
     }
 
+    override val notificationPermissionRequested: Flow<Boolean> = safeData.map { prefs ->
+        prefs[notificationPermissionRequestedKey] ?: false
+    }
+
     override val videoExportDirectoryUri: Flow<String> = safeData.map { prefs ->
         prefs[videoExportDirectoryUriKey].orEmpty()
     }
@@ -610,6 +615,12 @@ internal class DataStoreSettingsStore @Inject constructor(
     override suspend fun markAnnouncementSeen(id: String) {
         context.dataStore.edit { prefs ->
             prefs[lastSeenAnnouncementIdKey] = id
+        }
+    }
+
+    override suspend fun markNotificationPermissionRequested() {
+        context.dataStore.edit { prefs ->
+            prefs[notificationPermissionRequestedKey] = true
         }
     }
 

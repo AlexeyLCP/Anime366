@@ -13,7 +13,6 @@ dependencies {
     implementation(project(":core:error"))
     implementation(project(":core:navigation"))
     implementation(project(":core:preferences"))
-    implementation(project(":core:storage"))
     implementation(project(":core:tv"))
     implementation(project(":core:utils"))
     implementation(project(":feature:settings:api"))

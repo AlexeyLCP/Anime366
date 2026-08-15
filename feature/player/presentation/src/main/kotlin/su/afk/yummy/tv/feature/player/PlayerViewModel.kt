@@ -82,7 +82,7 @@ class PlayerViewModel @AssistedInject internal constructor(
     private var showTvControlsTutorial = false
     private var isNavigatingToChildScreen = false
 
-    fun loadDestination(newDest: PlayerDestination) {
+    private fun loadDestination(newDest: PlayerDestination) {
         if (newDest == activeDest) return
         allohaSession.close()
         allohaRecovery.reset()
@@ -189,6 +189,8 @@ class PlayerViewModel @AssistedInject internal constructor(
 
     override fun onEvent(event: PlayerState.Event) {
         when (event) {
+            is PlayerState.Event.NavigateToDestination -> loadDestination(event.destination)
+
             PlayerState.Event.Back -> saveCurrentProgressThenNavigate {
                 allohaSession.close()
                 nav.back()

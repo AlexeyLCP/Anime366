@@ -1,6 +1,6 @@
 package su.afk.yummy.tv.feature.player.handler
 
-import su.afk.yummy.tv.core.storage.watchprogress.WatchProgressStore
+import su.afk.yummy.tv.core.model.anime.isWatchedProgress
 import su.afk.yummy.tv.feature.player.PlayerAnalytics
 import su.afk.yummy.tv.feature.player.PlayerState
 import su.afk.yummy.tv.feature.player.model.PlayerCompletionAnalyticsKey
@@ -102,7 +102,7 @@ internal class PlayerPlaybackProgressHandler @Inject constructor(
     ): PlayerProgressSaveRequest? {
         val position = positionMs.coerceAtLeast(0L)
         val duration = durationMs.coerceAtLeast(0L)
-        if (!WatchProgressStore.isWatchedProgress(position, duration)) return null
+        if (!isWatchedProgress(position, duration)) return null
 
         val key = state.completionAnalyticsKey() ?: return null
         if (!completedAnalyticsSources.add(key)) return null

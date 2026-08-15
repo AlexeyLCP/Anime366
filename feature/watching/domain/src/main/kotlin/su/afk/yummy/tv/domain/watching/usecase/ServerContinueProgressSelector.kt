@@ -1,6 +1,8 @@
 package su.afk.yummy.tv.domain.watching.usecase
 
 import su.afk.yummy.tv.core.model.anime.AnimeVideo
+import su.afk.yummy.tv.core.model.anime.isMeaningfulProgress
+import su.afk.yummy.tv.core.model.anime.isWatchedProgress
 import su.afk.yummy.tv.core.utils.episode.episodeNumberOrNull
 import su.afk.yummy.tv.domain.watching.mapper.toContinueWatchingPlaybackVideo
 import javax.inject.Inject
@@ -38,23 +40,6 @@ internal class ServerContinueProgressSelector @Inject constructor() {
                 updatedAt = updatedAtSeconds * 1_000L,
             )
         }
-
-        fun isMeaningfulProgress(positionMs: Long, durationMs: Long): Boolean =
-            durationMs > 0L && positionMs >= MIN_CONTINUE_WATCHING_POSITION_MS
-
-        fun isWatchedProgress(positionMs: Long, durationMs: Long): Boolean {
-            if (!isMeaningfulProgress(positionMs, durationMs)) return false
-            return if (durationMs <= WATCHED_REMAINING_MS) {
-                (positionMs.toFloat() / durationMs.toFloat()).coerceIn(0f, 1f) >=
-                        SHORT_EPISODE_WATCHED_PROGRESS
-            } else {
-                positionMs >= durationMs - WATCHED_REMAINING_MS
-            }
-        }
-
-        const val MIN_CONTINUE_WATCHING_POSITION_MS = 30_000L
-        const val WATCHED_REMAINING_MS = 5 * 60 * 1_000L
-        const val SHORT_EPISODE_WATCHED_PROGRESS = 0.90f
     }
 }
 

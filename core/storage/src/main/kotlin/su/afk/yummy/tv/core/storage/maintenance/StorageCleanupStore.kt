@@ -1,8 +1,8 @@
 package su.afk.yummy.tv.core.storage.maintenance
 
-class StorageCleanupStore(private val dao: StorageCleanupDao) {
+internal class StorageCleanupStore(private val dao: StorageCleanupDao) : StorageCleanup {
 
-    suspend fun purgeStaleCaches(now: Long = System.currentTimeMillis()) {
+    override suspend fun purgeStaleCaches(now: Long) {
         dao.purgeCachesOlderThan(now - CACHE_RETENTION_MS)
     }
 

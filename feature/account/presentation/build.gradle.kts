@@ -14,7 +14,6 @@ dependencies {
     implementation(project(":core:error"))
     implementation(project(":core:navigation"))
     implementation(project(":core:preferences"))
-    implementation(project(":core:storage"))
     implementation(project(":core:utils"))
     implementation(project(":feature:account:api"))
     implementation(project(":feature:account:domain"))
@@ -25,6 +24,7 @@ dependencies {
     implementation(project(":feature:reviews:api"))
     implementation(project(":feature:home:domain"))
     implementation(project(":feature:collection:domain"))
+    implementation(project(":feature:player:domain"))
     implementation(project(":feature:video-download:api"))
 
     implementation(libs.androidx.paging.runtime)

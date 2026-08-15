@@ -30,6 +30,8 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.ScreenNavigator
+import su.afk.yummy.tv.core.designsystem.presenter.locals.LocalMarkNotificationPermissionRequested
+import su.afk.yummy.tv.core.designsystem.presenter.locals.LocalNotificationPermissionRequested
 import su.afk.yummy.tv.core.designsystem.presenter.locals.LocalPosterCardSize
 import su.afk.yummy.tv.core.designsystem.presenter.locals.LocalPosterQuality
 import su.afk.yummy.tv.core.designsystem.presenter.locals.LocalResolveKodikThumbnailUrl
@@ -42,6 +44,7 @@ import su.afk.yummy.tv.core.navigation.manager.INavigationManager
 import su.afk.yummy.tv.core.navigation.registrar.MobileUi
 import su.afk.yummy.tv.core.navigation.registrar.NavRegistrar
 import su.afk.yummy.tv.core.navigation.root.RootTab
+import su.afk.yummy.tv.core.preferences.settings.AppLifecycleSettingsStore
 import su.afk.yummy.tv.core.update.nav.UpdateDestination
 import su.afk.yummy.tv.core.utils.kodik.ResolveKodikThumbnailUrlUseCase
 import su.afk.yummy.tv.feature.faq.IFaqNavigator
@@ -67,6 +70,7 @@ class MobileMainGraph @Inject internal constructor(
     private val commonRegistrars: Set<@JvmSuppressWildcards NavRegistrar>,
     @param:MobileUi private val mobileRegistrars: Set<@JvmSuppressWildcards NavRegistrar>,
     private val resolveKodikThumbnailUrl: ResolveKodikThumbnailUrlUseCase,
+    private val appLifecycleSettingsStore: AppLifecycleSettingsStore,
 ) : IMainGraph {
 
     @Composable
@@ -156,6 +160,10 @@ class MobileMainGraph @Inject internal constructor(
                     LocalPosterQuality provides state.posterQuality,
                     LocalPosterCardSize provides state.posterCardSize,
                     LocalResolveKodikThumbnailUrl provides resolveKodikThumbnailUrl::invoke,
+                    LocalNotificationPermissionRequested provides
+                            appLifecycleSettingsStore.notificationPermissionRequested,
+                    LocalMarkNotificationPermissionRequested provides
+                            appLifecycleSettingsStore::markNotificationPermissionRequested,
                     LocalMobileBottomBarUpFocusRequester provides accountSettingsFocusRequester.takeIf {
                         atTabRoot && navManager.currentRoot == RootTab.ACCOUNT
                     },

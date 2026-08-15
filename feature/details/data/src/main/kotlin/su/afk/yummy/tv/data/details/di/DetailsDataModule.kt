@@ -6,10 +6,10 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import su.afk.yummy.tv.core.network.yani.YaniHttpClientProvider
 import su.afk.yummy.tv.core.preferences.settings.YaniAccountSettingsStore
-import su.afk.yummy.tv.core.storage.account.AccountStorageStore
-import su.afk.yummy.tv.core.storage.anime.AnimeStorageStore
-import su.afk.yummy.tv.core.storage.document.DocumentCacheStore
-import su.afk.yummy.tv.core.storage.watchprogress.WatchProgressStore
+import su.afk.yummy.tv.core.storage.account.AccountStorage
+import su.afk.yummy.tv.core.storage.anime.AnimeStorage
+import su.afk.yummy.tv.core.storage.document.DocumentCacheStorage
+import su.afk.yummy.tv.core.storage.watchprogress.WatchProgressStorage
 import su.afk.yummy.tv.data.details.network.YaniAnimeApi
 import su.afk.yummy.tv.data.details.network.YummyEpisodesApi
 import su.afk.yummy.tv.data.details.repository.YaniAnimeRepository
@@ -35,11 +35,11 @@ object DetailsDataModule {
     fun provideAnimeRepository(
         api: YaniAnimeApi,
         episodesApi: YummyEpisodesApi,
-        animeStorage: AnimeStorageStore,
-        accountStorage: AccountStorageStore,
+        animeStorage: AnimeStorage,
+        accountStorage: AccountStorage,
         settingsStore: YaniAccountSettingsStore,
-        watchProgressStore: WatchProgressStore,
-        documentCache: DocumentCacheStore,
+        watchProgressStore: WatchProgressStorage,
+        documentCache: DocumentCacheStorage,
     ): AnimeRepository =
         YaniAnimeRepository(
             api,

@@ -1,8 +1,8 @@
 package su.afk.yummy.tv.core.storage.comments
 
-class CommentsStorageStore(private val dao: CommentsStorageDao) {
+internal class CommentsStorageStore(private val dao: CommentsStorageDao) : CommentsStorage {
 
-    suspend fun getPage(
+    override suspend fun getPage(
         scopeType: String,
         ownerId: Int,
         sort: String,
@@ -10,23 +10,23 @@ class CommentsStorageStore(private val dao: CommentsStorageDao) {
         skip: Int,
     ): CommentsPageCache? = dao.getPage(scopeType, ownerId, sort, limit, skip)
 
-    suspend fun savePage(cache: CommentsPageCache, prunePagesCachedBefore: Long? = null) {
+    override suspend fun savePage(cache: CommentsPageCache, prunePagesCachedBefore: Long?) {
         dao.replacePage(cache, prunePagesCachedBefore)
     }
 
-    suspend fun invalidateScope(scopeType: String, ownerId: Int) {
+    override suspend fun invalidateScope(scopeType: String, ownerId: Int) {
         dao.invalidateScope(scopeType, ownerId)
     }
 
-    suspend fun invalidateScopePrefix(scopePrefix: String, ownerId: Int) {
+    override suspend fun invalidateScopePrefix(scopePrefix: String, ownerId: Int) {
         dao.invalidateScopePrefix(scopePrefix, ownerId)
     }
 
-    suspend fun deleteComment(commentId: Int) {
+    override suspend fun deleteComment(commentId: Int) {
         dao.invalidatePagesContainingComment(commentId)
     }
 
-    suspend fun updateComment(entry: CommentItemEntry) {
+    override suspend fun updateComment(entry: CommentItemEntry) {
         dao.updateComment(
             commentId = entry.commentId,
             text = entry.text,
@@ -43,7 +43,7 @@ class CommentsStorageStore(private val dao: CommentsStorageDao) {
         )
     }
 
-    suspend fun updateVote(commentId: Int, likes: Int, dislikes: Int, vote: Int) {
+    override suspend fun updateVote(commentId: Int, likes: Int, dislikes: Int, vote: Int) {
         dao.updateVote(commentId, likes, dislikes, vote)
     }
 }

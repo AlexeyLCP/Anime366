@@ -8,8 +8,8 @@ import su.afk.yummy.tv.core.analytics.api.AnalyticsTracker
 import su.afk.yummy.tv.core.error.api.StringProvider
 import su.afk.yummy.tv.core.network.yani.YaniHttpClientProvider
 import su.afk.yummy.tv.core.preferences.settings.YaniAccountSettingsStore
-import su.afk.yummy.tv.core.storage.home.HomeFeedStore
-import su.afk.yummy.tv.core.storage.watchprogress.WatchProgressStore
+import su.afk.yummy.tv.core.storage.home.HomeFeedStorage
+import su.afk.yummy.tv.core.storage.watchprogress.WatchProgressStorage
 import su.afk.yummy.tv.data.home.network.YaniHomeApi
 import su.afk.yummy.tv.data.home.repository.YaniHomeFeedRepository
 import su.afk.yummy.tv.domain.home.repository.HomeFeedRepository
@@ -28,10 +28,10 @@ object HomeDataModule {
     @Singleton
     fun provideHomeFeedRepository(
         api: YaniHomeApi,
-        homeFeedStore: HomeFeedStore,
+        homeFeedStore: HomeFeedStorage,
         stringProvider: StringProvider,
         settingsStore: YaniAccountSettingsStore,
-        watchProgressStore: WatchProgressStore,
+        watchProgressStore: WatchProgressStorage,
         analyticsTracker: AnalyticsTracker,
     ): HomeFeedRepository =
         YaniHomeFeedRepository(

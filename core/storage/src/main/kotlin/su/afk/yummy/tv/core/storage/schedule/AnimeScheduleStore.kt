@@ -1,11 +1,11 @@
 package su.afk.yummy.tv.core.storage.schedule
 
-class AnimeScheduleStore(private val dao: AnimeScheduleDao) {
+internal class AnimeScheduleStore(private val dao: AnimeScheduleDao) : AnimeScheduleStorage {
 
-    suspend fun getSchedule(language: String): AnimeScheduleCache? =
+    override suspend fun getSchedule(language: String): AnimeScheduleCache? =
         dao.getSchedule(language)
 
-    suspend fun saveSchedule(cache: AnimeScheduleCache) {
+    override suspend fun saveSchedule(cache: AnimeScheduleCache) {
         dao.replaceSchedule(cache)
     }
 }

@@ -53,22 +53,30 @@ import su.afk.yummy.tv.feature.search.mobile.utils.uiMessage
 import su.afk.yummy.tv.feature.search.mobile.view.RandomAnimeFloatingButton
 import su.afk.yummy.tv.feature.search.mobile.view.SearchMobileFilterButton
 import su.afk.yummy.tv.feature.search.mobile.view.SearchMobileFilterPanel
+import su.afk.yummy.tv.feature.search.navigator.SearchDestination
 
 @Preview(name = "Default", device = "spec:width=412dp,height=915dp,dpi=420", showBackground = true)
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 private fun SearchMobileScreenDefaultPreview() =
     ScreenPreviewTheme {
-        SearchMobileScreen(SearchState.State(), emptyFlow()) {}
+        SearchMobileScreen(SearchDestination(), SearchState.State(), emptyFlow()) {}
     }
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 fun SearchMobileScreen(
+    dest: SearchDestination,
     state: SearchState.State,
     effect: Flow<SearchState.Effect>,
     onEvent: (SearchState.Event) -> Unit,
 ) {
+    LaunchedEffect(dest.initialQuery) {
+        if (dest.initialQuery.isNotBlank()) {
+            onEvent(SearchState.Event.ExternalSearchSubmitted(dest.initialQuery))
+        }
+    }
+
     val results = state.results.collectAsLazyPagingItems()
     val refreshState = results.loadState.refresh
     val appendState = results.loadState.append

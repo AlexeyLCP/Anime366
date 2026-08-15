@@ -5,7 +5,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -13,9 +12,9 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.windowInsetsPadding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -44,23 +43,22 @@ internal fun MobilePlayerDubbingSheet(
     onDismiss: () -> Unit,
 ) {
     BaseBottomSheetCustom(onDismissRequest = onDismiss) { maxHeight ->
-        LazyColumn(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .heightIn(max = maxHeight)
-                .windowInsetsPadding(WindowInsets.navigationBars),
-            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 18.dp),
+                .verticalScroll(rememberScrollState())
+                .windowInsetsPadding(WindowInsets.navigationBars)
+                .padding(start = 16.dp, end = 16.dp, bottom = 18.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
-            item {
-                Text(
-                    text = stringResource(R.string.player_dubbing_title),
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.SemiBold,
-                    modifier = Modifier.padding(bottom = 2.dp),
-                )
-            }
-            itemsIndexed(dubbingNames, key = { index, name -> "$index-$name" }) { index, name ->
+            Text(
+                text = stringResource(R.string.player_dubbing_title),
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.SemiBold,
+                modifier = Modifier.padding(bottom = 2.dp),
+            )
+            dubbingNames.forEachIndexed { index, name ->
                 val enabled = dubbingAvailability.getOrElse(index) { true }
                 MobilePlayerDubbingRow(
                     label = name,

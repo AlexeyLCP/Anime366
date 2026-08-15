@@ -4,7 +4,7 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import su.afk.yummy.tv.core.storage.library.LibraryStore
+import su.afk.yummy.tv.core.storage.library.LibraryStorage
 import su.afk.yummy.tv.data.library.repository.DefaultLibraryRepository
 import su.afk.yummy.tv.data.library.repository.YaniWatchHistoryRepository
 import su.afk.yummy.tv.domain.library.repository.LibraryRepository
@@ -16,7 +16,7 @@ import javax.inject.Singleton
 object LibraryDataModule {
     @Provides
     @Singleton
-    fun provideLibraryRepository(store: LibraryStore): LibraryRepository =
+    fun provideLibraryRepository(store: LibraryStorage): LibraryRepository =
         DefaultLibraryRepository(store)
 
     @Provides

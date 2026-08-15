@@ -9,5 +9,7 @@ java {
 }
 
 dependencies {
+    api(project(":core:model"))
+
     implementation(libs.javax.inject)
 }

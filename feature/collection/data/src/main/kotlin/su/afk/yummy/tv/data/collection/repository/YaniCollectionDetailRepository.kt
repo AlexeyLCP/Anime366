@@ -5,8 +5,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import su.afk.yummy.tv.core.preferences.settings.YaniAccountSettingsStore
-import su.afk.yummy.tv.core.storage.account.AccountStorageStore
-import su.afk.yummy.tv.core.storage.collection.CollectionStorageStore
+import su.afk.yummy.tv.core.storage.account.AccountStorage
+import su.afk.yummy.tv.core.storage.collection.CollectionStorage
 import su.afk.yummy.tv.core.storage.collection.isFresh
 import su.afk.yummy.tv.data.collection.dto.YaniCollectionVoteBodyDto
 import su.afk.yummy.tv.data.collection.dto.YaniCreateCollectionBodyDto
@@ -30,8 +30,8 @@ private const val COLLECTION_CATALOG_TTL_MS = 60 * 1000L
 
 class YaniCollectionDetailRepository(
     private val api: YaniCollectionApi,
-    private val collectionStorage: CollectionStorageStore,
-    private val accountStorage: AccountStorageStore,
+    private val collectionStorage: CollectionStorage,
+    private val accountStorage: AccountStorage,
     private val settingsStore: YaniAccountSettingsStore,
 ) : CollectionRepository {
 

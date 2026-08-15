@@ -34,17 +34,22 @@ import coil3.compose.AsyncImage
 import coil3.compose.AsyncImagePainter
 import coil3.compose.SubcomposeAsyncImage
 import coil3.compose.SubcomposeAsyncImageContent
+import kotlinx.collections.immutable.ImmutableMap
 import kotlinx.coroutines.flow.Flow
 import su.afk.yummy.tv.core.designsystem.presenter.focus.tvFocusableClick
+import su.afk.yummy.tv.core.model.anime.AnimeWatchProgress
+import su.afk.yummy.tv.core.utils.episode.episodeGroupKey
+import su.afk.yummy.tv.core.utils.kodik.KodikThumbnail
+import su.afk.yummy.tv.core.utils.kodik.resolveContinueWatchingImageModel
 import su.afk.yummy.tv.domain.library.model.WatchHistoryEntry
 import su.afk.yummy.tv.feature.library.R
-import su.afk.yummy.tv.feature.library.thumbnail.HistoryEpisodeThumbnail
 import su.afk.yummy.tv.feature.library.utils.timingLabel
 import su.afk.yummy.tv.feature.library.utils.watchedAtLabel
 
 @Composable
 internal fun LibraryTvHistoryPage(
     history: Flow<PagingData<WatchHistoryEntry>>,
+    localProgress: ImmutableMap<String, AnimeWatchProgress>,
     isSignedIn: Boolean,
     gridFocusRequester: FocusRequester,
     onEntrySelected: (WatchHistoryEntry) -> Unit,
@@ -90,7 +95,16 @@ internal fun LibraryTvHistoryPage(
                         ) {
                             SubcomposeAsyncImage(
                                 model = entry.screenshotUrl
-                                    ?: HistoryEpisodeThumbnail(entry.animeId, entry.episode),
+                                    ?: localProgress["${entry.animeId}:${entry.episode.episodeGroupKey()}"]
+                                        ?.let {
+                                            resolveContinueWatchingImageModel(
+                                                screenshotUrl = it.screenshotUrl,
+                                                episodeUrl = it.episodeUrl,
+                                                posterUrl = entry.posterUrl,
+                                                kodikThumbnailModel = ::KodikThumbnail,
+                                            )
+                                        }
+                                    ?: entry.posterUrl,
                                 contentDescription = entry.title,
                                 contentScale = ContentScale.Crop,
                                 modifier = Modifier

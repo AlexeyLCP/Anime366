@@ -6,7 +6,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import su.afk.yummy.tv.core.network.yani.YaniHttpClientProvider
 import su.afk.yummy.tv.core.preferences.settings.YaniAccountSettingsStore
-import su.afk.yummy.tv.core.storage.search.SearchStorageStore
+import su.afk.yummy.tv.core.storage.search.SearchStorage
 import su.afk.yummy.tv.data.search.network.YaniSearchApi
 import su.afk.yummy.tv.data.search.repository.YaniSearchRepository
 import su.afk.yummy.tv.domain.search.repository.SearchRepository
@@ -25,7 +25,7 @@ object SearchDataModule {
     @Singleton
     fun provideSearchRepository(
         api: YaniSearchApi,
-        searchStorage: SearchStorageStore,
+        searchStorage: SearchStorage,
         settingsStore: YaniAccountSettingsStore,
     ): SearchRepository =
         YaniSearchRepository(api, searchStorage, settingsStore)

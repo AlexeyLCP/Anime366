@@ -7,14 +7,14 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicLong
 
-class DocumentCacheStore(private val dao: DocumentCacheDao) {
+internal class DocumentCacheStore(private val dao: DocumentCacheDao) : DocumentCacheStorage {
     private val requestLocks = ConcurrentHashMap<String, RequestLock>()
     private val invalidationVersion = AtomicLong()
 
-    suspend fun <T> getOrFetch(
+    override suspend fun <T> getOrFetch(
         cacheKey: String,
         ttlMs: Long,
-        forceRefresh: Boolean = false,
+        forceRefresh: Boolean,
         decode: (String) -> T,
         encode: (T) -> String,
         fetch: suspend () -> T,
@@ -63,17 +63,17 @@ class DocumentCacheStore(private val dao: DocumentCacheDao) {
         val users: AtomicInteger = AtomicInteger(),
     )
 
-    suspend fun delete(cacheKey: String) {
+    override suspend fun delete(cacheKey: String) {
         invalidationVersion.incrementAndGet()
         dao.delete(cacheKey)
     }
 
-    suspend fun deleteByPrefix(prefix: String) {
+    override suspend fun deleteByPrefix(prefix: String) {
         invalidationVersion.incrementAndGet()
         dao.deleteByPrefix(prefix)
     }
 
-    suspend fun deleteUserNamespace(namespace: String) {
+    override suspend fun deleteUserNamespace(namespace: String) {
         invalidationVersion.incrementAndGet()
         dao.deleteUserNamespace(namespace)
     }

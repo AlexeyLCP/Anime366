@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.flowOf
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiEffect
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiEvent
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiState
+import su.afk.yummy.tv.core.model.anime.AnimeWatchProgress
 import su.afk.yummy.tv.core.preferences.settings.model.LibraryContinueWatchingCardSize
 import su.afk.yummy.tv.domain.home.model.HomeContinueWatchingItem
 import su.afk.yummy.tv.domain.library.model.LibraryItem
@@ -25,6 +26,7 @@ class LibraryState {
         val tabItems: ImmutableMap<LibraryTab, ImmutableList<LibraryItem>> = persistentMapOf(),
         val continueWatching: ImmutableList<HomeContinueWatchingItem> = persistentListOf(),
         val watchHistory: Flow<PagingData<WatchHistoryEntry>> = flowOf(PagingData.empty()),
+        val historyLocalProgress: ImmutableMap<String, AnimeWatchProgress> = persistentMapOf(),
         val isSignedIn: Boolean = false,
         val isRemoteLoading: Boolean = false,
         val remoteError: String? = null,

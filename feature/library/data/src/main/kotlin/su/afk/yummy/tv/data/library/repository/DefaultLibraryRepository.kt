@@ -3,7 +3,7 @@ package su.afk.yummy.tv.data.library.repository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
-import su.afk.yummy.tv.core.storage.library.LibraryStore
+import su.afk.yummy.tv.core.storage.library.LibraryStorage
 import su.afk.yummy.tv.data.library.storage.mapper.toLibraryEntry
 import su.afk.yummy.tv.data.library.storage.mapper.toLibraryItem
 import su.afk.yummy.tv.data.library.storage.mapper.toStoragePoster
@@ -12,7 +12,7 @@ import su.afk.yummy.tv.domain.library.model.LibraryPoster
 import su.afk.yummy.tv.domain.library.repository.LibraryRepository
 
 class DefaultLibraryRepository(
-    private val store: LibraryStore,
+    private val store: LibraryStorage,
 ) : LibraryRepository {
     override fun observeAll(): Flow<List<LibraryItem>> =
         store.observeAll()

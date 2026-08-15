@@ -2,7 +2,7 @@ package su.afk.yummy.tv.data.videodownload.cache
 
 import androidx.annotation.OptIn
 import androidx.media3.common.util.UnstableApi
-import su.afk.yummy.tv.core.storage.videodownload.VideoDownloadStore
+import su.afk.yummy.tv.core.storage.videodownload.VideoDownloadStorage
 import javax.inject.Inject
 
 /**
@@ -14,10 +14,10 @@ import javax.inject.Inject
 @OptIn(UnstableApi::class)
 class LegacyStreamingCachePruner @Inject constructor(
     private val cacheProvider: VideoDownloadCacheProvider,
-    private val store: VideoDownloadStore,
+    private val store: VideoDownloadStorage,
 ) {
     suspend fun pruneOrphanedEntries() {
-        val activeCacheKeys = store.dao.getActiveCacheKeys().toSet()
+        val activeCacheKeys = store.getActiveCacheKeys().toSet()
         val activeSegmentPrefixes = activeCacheKeys.map(RotatingHlsCacheKeyFactory::resourcePrefix)
         cacheProvider.cache.keys
             .filterNot { key -> key in activeCacheKeys || activeSegmentPrefixes.any(key::startsWith) }

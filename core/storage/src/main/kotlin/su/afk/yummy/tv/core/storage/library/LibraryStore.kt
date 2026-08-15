@@ -2,16 +2,17 @@ package su.afk.yummy.tv.core.storage.library
 
 import kotlinx.coroutines.flow.Flow
 
-class LibraryStore(private val dao: LibraryDao) {
-    fun observeAll(): Flow<List<LibraryEntry>> = dao.observeAll()
-    suspend fun getAll(): List<LibraryEntry> = dao.getAll()
-    fun observeIsInLibrary(animeId: Int): Flow<Boolean> = dao.observeIsInLibrary(animeId)
-    fun observeIsFavorite(animeId: Int): Flow<Boolean> = dao.observeIsFavorite(animeId)
-    suspend fun add(entry: LibraryEntry) = dao.add(entry)
-    suspend fun hasSyncState(userId: Int): Boolean = dao.hasSyncState(userId)
-    suspend fun markSynced(userId: Int) = dao.saveSyncState(LibrarySyncStateEntry(userId = userId))
+internal class LibraryStore(private val dao: LibraryDao) : LibraryStorage {
+    override fun observeAll(): Flow<List<LibraryEntry>> = dao.observeAll()
+    override suspend fun getAll(): List<LibraryEntry> = dao.getAll()
+    override fun observeIsInLibrary(animeId: Int): Flow<Boolean> = dao.observeIsInLibrary(animeId)
+    override fun observeIsFavorite(animeId: Int): Flow<Boolean> = dao.observeIsFavorite(animeId)
+    override suspend fun add(entry: LibraryEntry) = dao.add(entry)
+    override suspend fun hasSyncState(userId: Int): Boolean = dao.hasSyncState(userId)
+    override suspend fun markSynced(userId: Int) =
+        dao.saveSyncState(LibrarySyncStateEntry(userId = userId))
 
-    suspend fun refreshMetadata(
+    override suspend fun refreshMetadata(
         animeId: Int,
         title: String,
         poster: LibraryPoster?,
@@ -29,7 +30,7 @@ class LibraryStore(private val dao: LibraryDao) {
         )
     }
 
-    suspend fun remove(animeId: Int) {
+    override suspend fun remove(animeId: Int) {
         val entry = dao.getByAnimeId(animeId) ?: return
         if (entry.isFavorite) {
             dao.add(
@@ -43,9 +44,9 @@ class LibraryStore(private val dao: LibraryDao) {
         }
     }
 
-    suspend fun delete(animeId: Int) = dao.delete(animeId)
+    override suspend fun delete(animeId: Int) = dao.delete(animeId)
 
-    suspend fun setFavorite(
+    override suspend fun setFavorite(
         animeId: Int,
         title: String,
         poster: LibraryPoster?,

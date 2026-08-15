@@ -5,7 +5,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import su.afk.yummy.tv.core.preferences.settings.YaniAccountSettingsStore
-import su.afk.yummy.tv.core.storage.comments.CommentsStorageStore
+import su.afk.yummy.tv.core.storage.comments.CommentsStorage
 import su.afk.yummy.tv.core.storage.comments.isFresh
 import su.afk.yummy.tv.data.comments.dto.YaniClaimCommentBodyDto
 import su.afk.yummy.tv.data.comments.dto.YaniPatchCommentBodyDto
@@ -32,7 +32,7 @@ private const val COMMENT_CACHE_PRUNE_AGE_MS = 24 * 60 * 60 * 1000L
 
 class YaniCommentsRepository(
     private val api: YaniCommentsApi,
-    private val commentsStorage: CommentsStorageStore,
+    private val commentsStorage: CommentsStorage,
     private val settingsStore: YaniAccountSettingsStore,
 ) : CommentsRepository {
 

@@ -2,18 +2,18 @@ package su.afk.yummy.tv.core.network.cache
 
 import kotlinx.coroutines.flow.first
 import su.afk.yummy.tv.core.preferences.settings.YaniAccountSettingsStore
-import su.afk.yummy.tv.core.storage.document.DocumentCacheStore
+import su.afk.yummy.tv.core.storage.document.DocumentCacheStorage
 import javax.inject.Inject
 
 /**
- * User- и language-скоупный кэш поверх [DocumentCacheStore].
+ * User- и language-скоупный кэш поверх [DocumentCacheStorage].
  *
  * Строит ключ вида `user:$userId:$namespace:$language:$key` (гость — `user:0:…`) и
  * (де)сериализует значения через YaniApiJson. Инкапсулирует boilerplate, ранее
  * продублированный в репозиториях reviews/posts/bloggers.
  */
 class UserScopedCache @Inject constructor(
-    @PublishedApi internal val cache: DocumentCacheStore,
+    @PublishedApi internal val cache: DocumentCacheStorage,
     @PublishedApi internal val settings: YaniAccountSettingsStore,
 ) {
 

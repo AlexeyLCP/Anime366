@@ -1,6 +1,7 @@
 package su.afk.yummy.tv.feature.search
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -9,6 +10,7 @@ import kotlinx.coroutines.flow.emptyFlow
 import su.afk.yummy.tv.core.designsystem.presenter.preview.ScreenPreviewTheme
 import su.afk.yummy.tv.domain.search.model.SearchItem
 import su.afk.yummy.tv.domain.search.model.SearchSort
+import su.afk.yummy.tv.feature.search.navigator.SearchDestination
 import su.afk.yummy.tv.feature.search.view.SearchResultsPane
 
 @Preview(
@@ -19,15 +21,22 @@ import su.afk.yummy.tv.feature.search.view.SearchResultsPane
 )
 @Composable
 private fun SearchTvScreenDefaultPreview() = ScreenPreviewTheme {
-    SearchTvScreen(SearchState.State(), emptyFlow()) {}
+    SearchTvScreen(SearchDestination(), SearchState.State(), emptyFlow()) {}
 }
 
 @Composable
 fun SearchTvScreen(
+    dest: SearchDestination,
     state: SearchState.State,
     effect: Flow<SearchState.Effect>,
     onEvent: (SearchState.Event) -> Unit,
 ) {
+    LaunchedEffect(dest.initialQuery) {
+        if (dest.initialQuery.isNotBlank()) {
+            onEvent(SearchState.Event.ExternalSearchSubmitted(dest.initialQuery))
+        }
+    }
+
     val results = state.results.collectAsLazyPagingItems()
     val onQueryChanged =
         remember(onEvent) { { q: String -> onEvent(SearchState.Event.QueryChanged(q)) } }

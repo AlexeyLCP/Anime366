@@ -188,6 +188,7 @@ fun LibraryTvScreen(
 
                 LibraryTab.HISTORY -> LibraryTvHistoryPage(
                     history = state.watchHistory,
+                    localProgress = state.historyLocalProgress,
                     isSignedIn = state.isSignedIn,
                     gridFocusRequester = gridFocusRequester,
                     onEntrySelected = { onEvent(LibraryState.Event.HistorySelected(it)) },

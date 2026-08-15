@@ -9,8 +9,6 @@ import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.BaseViewModelNew
@@ -19,22 +17,13 @@ import su.afk.yummy.tv.core.error.api.RetryStorage
 import su.afk.yummy.tv.core.navigation.manager.INavigationManager
 import su.afk.yummy.tv.core.utils.paging.OffsetPage
 import su.afk.yummy.tv.core.utils.paging.OffsetPagingSource
-import su.afk.yummy.tv.domain.account.model.FriendshipStatus
-import su.afk.yummy.tv.domain.account.usecase.AddFriendUseCase
-import su.afk.yummy.tv.domain.account.usecase.GetAccountSessionUseCase
-import su.afk.yummy.tv.domain.account.usecase.GetFriendshipUseCase
-import su.afk.yummy.tv.domain.account.usecase.GetUserAnimeListUseCase
-import su.afk.yummy.tv.domain.account.usecase.GetUserCollectionsUseCase
-import su.afk.yummy.tv.domain.account.usecase.GetUserFavoriteAnimeListUseCase
-import su.afk.yummy.tv.domain.account.usecase.GetUserFriendsUseCase
-import su.afk.yummy.tv.domain.account.usecase.GetUserPostsUseCase
-import su.afk.yummy.tv.domain.account.usecase.GetUserProfileSummaryUseCase
-import su.afk.yummy.tv.domain.account.usecase.GetUserReviewsUseCase
-import su.afk.yummy.tv.domain.account.usecase.GetUserStatsUseCase
-import su.afk.yummy.tv.domain.account.usecase.RemoveFriendUseCase
 import su.afk.yummy.tv.domain.collection.CollectionMutationNotifier
 import su.afk.yummy.tv.domain.comments.model.CommentTargetType
 import su.afk.yummy.tv.feature.account.IAccountNavigator
+import su.afk.yummy.tv.feature.account.userprofile.handler.FriendshipFetchResult
+import su.afk.yummy.tv.feature.account.userprofile.handler.UserProfileContentHandler
+import su.afk.yummy.tv.feature.account.userprofile.handler.UserProfileFriendshipHandler
+import su.afk.yummy.tv.feature.account.userprofile.handler.UserProfilePagingFetchHandler
 import su.afk.yummy.tv.feature.collection.ICollectionNavigator
 import su.afk.yummy.tv.feature.comments.ICommentsNavigator
 import su.afk.yummy.tv.feature.details.IDetailsNavigator
@@ -57,19 +46,10 @@ class UserProfileViewModel @AssistedInject internal constructor(
     private val postsNavigator: IPostsNavigator,
     private val reviewsNavigator: IReviewsNavigator,
     private val commentsNavigator: ICommentsNavigator,
-    private val getUserProfileSummary: GetUserProfileSummaryUseCase,
-    private val getUserStats: GetUserStatsUseCase,
-    private val getUserAnimeList: GetUserAnimeListUseCase,
-    private val getUserFavoriteAnimeList: GetUserFavoriteAnimeListUseCase,
-    private val getUserCollections: GetUserCollectionsUseCase,
+    private val contentHandler: UserProfileContentHandler,
+    private val pagingFetchHandler: UserProfilePagingFetchHandler,
+    private val friendshipHandler: UserProfileFriendshipHandler,
     private val collectionMutationNotifier: CollectionMutationNotifier,
-    private val getUserPosts: GetUserPostsUseCase,
-    private val getUserReviews: GetUserReviewsUseCase,
-    private val getUserFriends: GetUserFriendsUseCase,
-    private val getAccountSession: GetAccountSessionUseCase,
-    private val getFriendship: GetFriendshipUseCase,
-    private val addFriend: AddFriendUseCase,
-    private val removeFriend: RemoveFriendUseCase,
     private val analytics: UserProfileAnalytics,
 ) : BaseViewModelNew<UserProfileState.State, UserProfileState.Event, UserProfileState.Effect>() {
 
@@ -183,49 +163,46 @@ class UserProfileViewModel @AssistedInject internal constructor(
     }
 
     private fun loadFriendship() = viewModelScope.launch {
-        val session = getAccountSession()
-        val ownProfile = session.isAuthorized && session.userId == userId
+        val ownership = friendshipHandler.resolveOwnership(userId)
         setState {
             copy(
-                isAuthorized = session.isAuthorized,
-                isOwnProfile = ownProfile,
-                isFriendshipLoading = session.isAuthorized && !ownProfile,
+                isAuthorized = ownership.isAuthorized,
+                isOwnProfile = ownership.isOwnProfile,
+                isFriendshipLoading = ownership.isAuthorized && !ownership.isOwnProfile,
                 friendshipError = false,
             )
         }
-        if (!session.isAuthorized || ownProfile || session.userId <= 0 || userId <= 0) return@launch
-        runCatching { getFriendship(session.userId, userId) }
-            .onSuccess { status ->
-                setState { copy(friendshipStatus = status, isFriendshipLoading = false) }
-            }
-            .onFailure {
-                setState { copy(isFriendshipLoading = false) }
-            }
+        if (!ownership.isAuthorized || ownership.isOwnProfile ||
+            ownership.sessionUserId <= 0 || userId <= 0
+        ) {
+            return@launch
+        }
+        when (val result = friendshipHandler.fetchStatus(ownership.sessionUserId, userId)) {
+            is FriendshipFetchResult.Success ->
+                setState { copy(friendshipStatus = result.status, isFriendshipLoading = false) }
+
+            FriendshipFetchResult.Failure -> setState { copy(isFriendshipLoading = false) }
+        }
     }
 
     private fun updateFriendship() {
         val state = currentState
         if (!state.isAuthorized || state.isOwnProfile || state.isFriendshipLoading) return
         viewModelScope.launch {
-            val session = getAccountSession()
-            if (!session.isAuthorized || session.userId <= 0) return@launch
+            val ownership = friendshipHandler.resolveOwnership(userId)
+            if (!ownership.isAuthorized || ownership.sessionUserId <= 0) return@launch
             setState { copy(isFriendshipLoading = true, friendshipError = false) }
-            val mutation = when (state.friendshipStatus) {
-                FriendshipStatus.NONE,
-                FriendshipStatus.FOLLOWERS,
-                FriendshipStatus.REQUESTS -> suspend { addFriend(session.userId, userId) }
+            val result = friendshipHandler.updateFriendship(
+                sessionUserId = ownership.sessionUserId,
+                userId = userId,
+                currentStatus = state.friendshipStatus,
+            )
+            when (result) {
+                is FriendshipFetchResult.Success ->
+                    setState { copy(friendshipStatus = result.status, isFriendshipLoading = false) }
 
-                FriendshipStatus.FRIENDS,
-                FriendshipStatus.FOLLOWING,
-                FriendshipStatus.SENT_REQUESTS -> suspend { removeFriend(session.userId, userId) }
-            }
-            runCatching {
-                mutation()
-                getFriendship(session.userId, userId)
-            }.onSuccess { status ->
-                setState { copy(friendshipStatus = status, isFriendshipLoading = false) }
-            }.onFailure {
-                setState { copy(isFriendshipLoading = false, friendshipError = true) }
+                FriendshipFetchResult.Failure ->
+                    setState { copy(isFriendshipLoading = false, friendshipError = true) }
             }
         }
     }
@@ -244,13 +221,7 @@ class UserProfileViewModel @AssistedInject internal constructor(
         if (userId <= 0) return
         viewModelScope.launch {
             setState { copy(isOverviewLoading = true, overviewError = false) }
-            runCatching {
-                coroutineScope {
-                    val profile = async { getUserProfileSummary(userId) }
-                    val stats = async { getUserStats(userId) }
-                    profile.await() to stats.await()
-                }
-            }.fold(
+            contentHandler.loadOverview(userId).fold(
                 onSuccess = { (profile, stats) ->
                     setState {
                         copy(
@@ -296,14 +267,7 @@ class UserProfileViewModel @AssistedInject internal constructor(
         if (content.isLoading || (!force && content.loaded)) return
         viewModelScope.launch {
             setState { copy(lists = content.startLoading()) }
-            runCatching {
-                val filter = currentState.selectedList
-                if (filter == UserProfileState.ListFilter.FAVORITES) {
-                    getUserFavoriteAnimeList(userId, forceRefresh = force)
-                } else {
-                    getUserAnimeList(userId, requireNotNull(filter.list), forceRefresh = force)
-                }
-            }.fold(
+            contentHandler.loadLists(userId, currentState.selectedList, force).fold(
                 onSuccess = { items -> setState { copy(lists = lists.finish(items)) } },
                 onFailure = { error ->
                     analytics.eventTabLoadError(userId, UserProfileState.Tab.LISTS, error)
@@ -318,26 +282,32 @@ class UserProfileViewModel @AssistedInject internal constructor(
         collectionMutationNotifier.version.flatMapLatest {
             createPagingFlow(
                 tab = UserProfileState.Tab.COLLECTIONS,
-                fetch = { limit, offset -> getUserCollections(userId, limit, offset) },
+                fetch = { limit, offset ->
+                    pagingFetchHandler.fetchCollections(
+                        userId,
+                        limit,
+                        offset
+                    )
+                },
             )
         }.cachedIn(viewModelScope)
 
     private fun createPostsFlow() =
         createPagingFlow(
             tab = UserProfileState.Tab.POSTS,
-            fetch = { limit, offset -> getUserPosts(userId, limit, offset) },
+            fetch = { limit, offset -> pagingFetchHandler.fetchPosts(userId, limit, offset) },
         ).cachedIn(viewModelScope)
 
     private fun createReviewsFlow() =
         createPagingFlow(
             tab = UserProfileState.Tab.REVIEWS,
-            fetch = { limit, offset -> getUserReviews(userId, limit, offset) },
+            fetch = { limit, offset -> pagingFetchHandler.fetchReviews(userId, limit, offset) },
         ).cachedIn(viewModelScope)
 
     private fun createFriendsFlow() =
         createPagingFlow(
             tab = UserProfileState.Tab.FRIENDS,
-            fetch = { limit, offset -> getUserFriends(userId, limit, offset) },
+            fetch = { limit, offset -> pagingFetchHandler.fetchFriends(userId, limit, offset) },
         ).cachedIn(viewModelScope)
 
     private fun <T : Any> createPagingFlow(

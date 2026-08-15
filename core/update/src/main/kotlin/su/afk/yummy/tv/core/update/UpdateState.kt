@@ -28,12 +28,16 @@ class UpdateState {
     }
 
     sealed class Event : UiEvent {
+        data class Init(
+            val version: String,
+            val apkUrl: String,
+            val changelog: String,
+            val required: Boolean = false,
+        ) : Event()
         data object Dismiss : Event()
         data class ConfirmUpdate(val apkUrl: String) : Event()
         data class RetryUpdate(val apkUrl: String) : Event()
     }
 
-    sealed class Effect : UiEffect {
-        data object NavigateBack : Effect()
-    }
+    sealed class Effect : UiEffect
 }

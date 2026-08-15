@@ -5,22 +5,24 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import dagger.multibindings.IntoSet
-import su.afk.yummy.tv.data.player.extractor.AksorExtractor
-import su.afk.yummy.tv.data.player.extractor.AllohaExtractor
-import su.afk.yummy.tv.data.player.extractor.CvhExtractor
-import su.afk.yummy.tv.data.player.extractor.KodikExtractor
-import su.afk.yummy.tv.data.player.extractor.PlayerHttpClient
 import su.afk.yummy.tv.data.player.extractor.PlayerStreamExtractor
-import su.afk.yummy.tv.data.player.extractor.RutubeExtractor
-import su.afk.yummy.tv.data.player.extractor.SibnetExtractor
-import su.afk.yummy.tv.data.player.extractor.UrlConnectionPlayerHttpClient
-import su.afk.yummy.tv.data.player.extractor.VkExtractor
-import su.afk.yummy.tv.data.player.extractor.ZedfilmExtractor
+import su.afk.yummy.tv.data.player.extractor.aksor.AksorExtractor
+import su.afk.yummy.tv.data.player.extractor.alloha.AllohaExtractor
+import su.afk.yummy.tv.data.player.extractor.cvh.CvhExtractor
+import su.afk.yummy.tv.data.player.extractor.kodik.KodikExtractor
+import su.afk.yummy.tv.data.player.extractor.rutube.RutubeExtractor
+import su.afk.yummy.tv.data.player.extractor.sibnet.SibnetExtractor
+import su.afk.yummy.tv.data.player.extractor.vk.VkExtractor
+import su.afk.yummy.tv.data.player.extractor.zedfilm.ZedfilmExtractor
+import su.afk.yummy.tv.data.player.network.KtorPlayerHttpClient
+import su.afk.yummy.tv.data.player.network.PlayerHttpClient
 import su.afk.yummy.tv.data.player.repository.DefaultPlayerSourceRepository
 import su.afk.yummy.tv.data.player.repository.DefaultPlayerStreamRepository
+import su.afk.yummy.tv.data.player.repository.DefaultWatchProgressRepository
 import su.afk.yummy.tv.data.player.session.DefaultAllohaPlaybackSessionManager
 import su.afk.yummy.tv.domain.player.repository.PlayerSourceRepository
 import su.afk.yummy.tv.domain.player.repository.PlayerStreamRepository
+import su.afk.yummy.tv.domain.player.repository.WatchProgressRepository
 import su.afk.yummy.tv.domain.player.session.AllohaPlaybackSessionManager
 import javax.inject.Singleton
 
@@ -37,7 +39,7 @@ object PlayerDataModule {
     @Provides
     @Singleton
     internal fun providePlayerHttpClient(
-        client: UrlConnectionPlayerHttpClient,
+        client: KtorPlayerHttpClient,
     ): PlayerHttpClient = client
 
     @Provides
@@ -51,6 +53,12 @@ object PlayerDataModule {
     internal fun providePlayerSourceRepository(
         repository: DefaultPlayerSourceRepository,
     ): PlayerSourceRepository = repository
+
+    @Provides
+    @Singleton
+    internal fun provideWatchProgressRepository(
+        repository: DefaultWatchProgressRepository,
+    ): WatchProgressRepository = repository
 
     @Provides
     @IntoSet

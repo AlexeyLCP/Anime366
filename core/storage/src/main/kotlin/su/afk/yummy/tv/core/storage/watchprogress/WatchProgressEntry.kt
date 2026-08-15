@@ -24,3 +24,11 @@ data class WatchProgressEntry(
     val dubbing: String = "",
     val screenshotUrl: String = "",
 )
+
+/** Последняя по времени запись на каждое аниме — используется вне core:storage (например, TV Watch Next). */
+fun latestByAnime(entries: List<WatchProgressEntry>): List<WatchProgressEntry> =
+    entries
+        .groupBy { it.animeId }
+        .values
+        .map { group -> group.maxBy { it.updatedAt } }
+        .sortedByDescending { it.updatedAt }

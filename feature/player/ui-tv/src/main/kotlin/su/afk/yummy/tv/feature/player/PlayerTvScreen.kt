@@ -33,6 +33,7 @@ import su.afk.yummy.tv.core.designsystem.presenter.preview.ScreenPreviewTheme
 import su.afk.yummy.tv.feature.player.common.rememberPlayerPlaybackUiState
 import su.afk.yummy.tv.feature.player.model.PlayerControlFocusTarget
 import su.afk.yummy.tv.feature.player.model.TvPlayerExitState
+import su.afk.yummy.tv.feature.player.navigator.PlayerDestination
 import su.afk.yummy.tv.feature.player.presentation.R
 import su.afk.yummy.tv.feature.player.view.TvKodikBlockedOverlay
 import su.afk.yummy.tv.feature.player.view.TvPlayerBackgroundExitEffect
@@ -53,15 +54,25 @@ import kotlin.time.Duration.Companion.seconds
 )
 @Composable
 private fun PlayerTvScreenDefaultPreview() = ScreenPreviewTheme {
-    PlayerTvScreen(PlayerState.State(), emptyFlow()) {}
+    PlayerTvScreen(
+        dest = PlayerDestination(iframeUrl = "", animeTitle = "", episode = "", playerName = ""),
+        state = PlayerState.State(),
+        effect = emptyFlow(),
+        onEvent = {},
+    )
 }
 
 @Composable
 fun PlayerTvScreen(
+    dest: PlayerDestination,
     state: PlayerState.State,
     effect: Flow<PlayerState.Effect>,
     onEvent: (PlayerState.Event) -> Unit,
 ) {
+    LaunchedEffect(dest) {
+        onEvent(PlayerState.Event.NavigateToDestination(dest))
+    }
+
     val exitState = remember { TvPlayerExitState() }
     TvPlayerBackgroundExitEffect {
         exitState.request()

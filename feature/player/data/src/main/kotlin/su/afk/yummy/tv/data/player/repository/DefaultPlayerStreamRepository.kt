@@ -2,8 +2,8 @@ package su.afk.yummy.tv.data.player.repository
 
 import android.content.Context
 import dagger.hilt.android.qualifiers.ApplicationContext
-import su.afk.yummy.tv.data.player.extractor.AllohaExtractor
 import su.afk.yummy.tv.data.player.extractor.PlayerStreamExtractor
+import su.afk.yummy.tv.data.player.extractor.SessionAwarePlayerStreamExtractor
 import su.afk.yummy.tv.domain.player.model.AllohaStreamSession
 import su.afk.yummy.tv.domain.player.model.PlayerStreamRequest
 import su.afk.yummy.tv.domain.player.model.PlayerStreamResolveResult
@@ -14,9 +14,11 @@ import javax.inject.Inject
 internal class DefaultPlayerStreamRepository @Inject constructor(
     @param:ApplicationContext private val context: Context,
     private val extractors: Set<@JvmSuppressWildcards PlayerStreamExtractor>,
-    private val allohaExtractor: AllohaExtractor,
     private val allohaSessionManager: AllohaPlaybackSessionManager,
 ) : PlayerStreamRepository {
+
+    private val sessionAwareExtractors: List<SessionAwarePlayerStreamExtractor> =
+        extractors.filterIsInstance<SessionAwarePlayerStreamExtractor>()
 
     private val resolveCache = object : LinkedHashMap<String, CachedStream>(
         RESOLVE_CACHE_MAX_ENTRIES,
@@ -32,10 +34,13 @@ internal class DefaultPlayerStreamRepository @Inject constructor(
         val url = request.iframeUrl
         val extractor = extractors.firstOrNull { it.supports(url) }
             ?: return PlayerStreamResolveResult.Unsupported
-        // Alloha-стримы живут внутри playback-сессии (прокси, ротация подписанных
-        // манифестов), их кэшировать по URL нельзя — сессией управляет
+        // Session-aware стримы (сейчас только Alloha) живут внутри playback-сессии (прокси,
+        // ротация подписанных манифестов), их кэшировать по URL нельзя — сессией управляет
         // AllohaPlaybackSessionManager.
-        if (extractor is AllohaExtractor) return extractor.extract(request, context)
+        if (extractor is SessionAwarePlayerStreamExtractor) return extractor.extract(
+            request,
+            context
+        )
 
         val cacheKey = "$url|${request.autoQualityLabel}"
         if (!request.forceRefresh) {
@@ -49,14 +54,17 @@ internal class DefaultPlayerStreamRepository @Inject constructor(
         return result
     }
 
-    override suspend fun openAllohaSession(request: PlayerStreamRequest): AllohaStreamSession? =
-        if (request.reusePlaybackSession) {
+    override suspend fun openAllohaSession(request: PlayerStreamRequest): AllohaStreamSession? {
+        val extractor = sessionAwareExtractors.firstOrNull { it.supports(request.iframeUrl) }
+            ?: return null
+        return if (request.reusePlaybackSession) {
             allohaSessionManager.find(request.iframeUrl)
-                ?: allohaExtractor.openSession(request, context)
+                ?: extractor.openSession(request, context)
                     ?.let(allohaSessionManager::activate)
         } else {
-            allohaExtractor.openSession(request, context)
+            extractor.openSession(request, context)
         }
+    }
 
     private fun cachedStream(key: String): PlayerStreamResolveResult.Stream? =
         synchronized(resolveCache) {

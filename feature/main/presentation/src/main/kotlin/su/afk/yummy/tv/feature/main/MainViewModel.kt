@@ -1,7 +1,6 @@
 package su.afk.yummy.tv.feature.main
 
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.combine
@@ -9,30 +8,22 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import kotlinx.coroutines.withTimeoutOrNull
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.BaseViewModelNew
 import su.afk.yummy.tv.core.error.api.IErrorHandlerUseCase
 import su.afk.yummy.tv.core.error.api.RetryStorage
 import su.afk.yummy.tv.core.error.api.StringProvider
 import su.afk.yummy.tv.core.featuretoggle.api.FeatureToggleUpdateObserver
-import su.afk.yummy.tv.core.featuretoggle.api.VersionSupportChecker
 import su.afk.yummy.tv.core.navigation.manager.INavigationManager
 import su.afk.yummy.tv.core.preferences.settings.SettingsStore
-import su.afk.yummy.tv.core.update.api.UpdateChecker
 import su.afk.yummy.tv.domain.account.mutation.AccountMutationErrorNotifier
-import su.afk.yummy.tv.domain.account.usecase.GetAccountSessionUseCase
-import su.afk.yummy.tv.domain.account.usecase.GetNotificationCountsUseCase
 import su.afk.yummy.tv.domain.account.usecase.ObserveAccountSessionUseCase
-import su.afk.yummy.tv.domain.account.usecase.RefreshAccountUseCase
+import su.afk.yummy.tv.feature.main.handler.MainSideEffectsHandler
+import su.afk.yummy.tv.feature.main.handler.MainUpdateCheckResult
 import su.afk.yummy.tv.feature.main.presentation.R
 import su.afk.yummy.tv.feature.main.utils.NOTIFICATION_REFRESH_INTERVAL
-import su.afk.yummy.tv.feature.main.utils.firstOrZero
-import su.afk.yummy.tv.feature.main.utils.isNewer
 import javax.inject.Inject
-import javax.inject.Named
-import kotlin.time.Duration.Companion.seconds
 
 @HiltViewModel
 class MainViewModel @Inject internal constructor(
@@ -41,16 +32,11 @@ class MainViewModel @Inject internal constructor(
     private val analytics: MainAnalytics,
     private val settingsStore: SettingsStore,
     private val nav: INavigationManager,
-    private val updateChecker: UpdateChecker,
-    private val versionSupportChecker: VersionSupportChecker,
     private val featureToggleUpdateObserver: FeatureToggleUpdateObserver,
     private val observeAccountSession: ObserveAccountSessionUseCase,
-    private val getAccountSession: GetAccountSessionUseCase,
-    private val refreshAccount: RefreshAccountUseCase,
-    private val getNotificationCounts: GetNotificationCountsUseCase,
+    private val mainSideEffectsHandler: MainSideEffectsHandler,
     private val accountMutationErrorNotifier: AccountMutationErrorNotifier,
     private val stringProvider: StringProvider,
-    @param:Named("appVersionName") private val versionName: String,
 ) : BaseViewModelNew<MainState.State, MainState.Event, MainState.Effect>() {
 
     override fun createInitialState() = MainState.State()
@@ -133,9 +119,8 @@ class MainViewModel @Inject internal constructor(
         notificationCountsJob?.cancel()
         if (!signedIn) return
         notificationCountsJob = viewModelScope.launch {
-            while (true) {
-                runCatching { getNotificationCounts().sumOf { it.count } }
-                    .onSuccess { count -> settingsStore.setYaniUnreadNotificationsCount(count) }
+            while (isActive) {
+                mainSideEffectsHandler.fetchAndPersistNotificationCount()
                 delay(NOTIFICATION_REFRESH_INTERVAL)
             }
         }
@@ -150,46 +135,25 @@ class MainViewModel @Inject internal constructor(
     }
 
     private fun checkForUpdates() {
-        viewModelScope.launch(Dispatchers.IO) {
-            val update = runCatching {
-                val isCurrentVersionSupported = versionSupportChecker.isCurrentVersionSupported()
-                val release = withTimeoutOrNull(GITHUB_UPDATE_TIMEOUT) {
-                    updateChecker.getLatestRelease()
-                } ?: return@runCatching null
-                val remoteVersion = release.tagName.trimStart('v')
-                val apkUrl =
-                    release.assets.firstOrNull()?.browserDownloadUrl ?: return@runCatching null
-                if (!isCurrentVersionSupported || isNewer(versionName, remoteVersion)) {
+        viewModelScope.launch {
+            when (val result = mainSideEffectsHandler.checkForUpdates()) {
+                is MainUpdateCheckResult.Available -> setEffect(
                     MainState.Effect.NavigateToUpdate(
-                        version = remoteVersion,
-                        apkUrl = apkUrl,
-                        changelog = release.body.orEmpty(),
-                        required = !isCurrentVersionSupported,
+                        version = result.version,
+                        apkUrl = result.apkUrl,
+                        changelog = result.changelog,
+                        required = result.required,
                     )
-                } else {
-                    null
-                }
-            }.getOrNull()
-            update?.let { effect ->
-                withContext(Dispatchers.Main) {
-                    setEffect(effect)
-                }
+                )
+
+                MainUpdateCheckResult.NotAvailable -> Unit
             }
         }
     }
 
     private fun refreshAccountIfNeeded() {
         viewModelScope.launch {
-            if (!getAccountSession().isAuthorized) return@launch
-            val refreshedAt = settingsStore.yaniTokenRefreshAt.firstOrZero()
-            val ageMs = System.currentTimeMillis() - refreshedAt
-            if (ageMs > 48 * 60 * 60 * 1000L) {
-                runCatching { refreshAccount() }
-            }
+            mainSideEffectsHandler.refreshAccountIfStale()
         }
-    }
-
-    companion object {
-        private val GITHUB_UPDATE_TIMEOUT = 5.seconds
     }
 }

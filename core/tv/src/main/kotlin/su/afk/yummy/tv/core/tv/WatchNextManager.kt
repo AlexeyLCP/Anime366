@@ -5,7 +5,7 @@ import android.content.Context
 import androidx.tvprovider.media.tv.TvContractCompat
 import dagger.hilt.android.qualifiers.ApplicationContext
 import su.afk.yummy.tv.core.storage.watchprogress.WatchProgressEntry
-import su.afk.yummy.tv.core.storage.watchprogress.WatchProgressStore
+import su.afk.yummy.tv.core.storage.watchprogress.latestByAnime
 import su.afk.yummy.tv.core.utils.kodik.ResolveKodikThumbnailUrlUseCase
 import su.afk.yummy.tv.core.utils.kodik.isKodikSourceUrl
 import su.afk.yummy.tv.core.utils.network.isLikelyImageUrl
@@ -32,7 +32,7 @@ internal class WatchNextManager @Inject constructor(
 
     suspend fun sync(entries: List<WatchProgressEntry>) {
         deleteAll()
-        WatchProgressStore.latestByAnime(
+        latestByAnime(
             entries.filter { it.animeId > 0 }
         )
             .forEach { entry ->

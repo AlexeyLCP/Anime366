@@ -10,10 +10,10 @@ import kotlinx.coroutines.withContext
 import su.afk.yummy.tv.core.preferences.auth.YaniAuthPreferences
 import su.afk.yummy.tv.core.preferences.settings.YaniAccountSettingsStore
 import su.afk.yummy.tv.core.storage.account.ACCOUNT_PROFILE_KEY_CURRENT
-import su.afk.yummy.tv.core.storage.account.AccountStorageStore
+import su.afk.yummy.tv.core.storage.account.AccountStorage
 import su.afk.yummy.tv.core.storage.account.accountProfileUserKey
 import su.afk.yummy.tv.core.storage.account.isFresh
-import su.afk.yummy.tv.core.storage.document.DocumentCacheStore
+import su.afk.yummy.tv.core.storage.document.DocumentCacheStorage
 import su.afk.yummy.tv.data.account.dto.YaniProfileDto
 import su.afk.yummy.tv.data.account.dto.YaniRegistrationBodyDto
 import su.afk.yummy.tv.data.account.mapper.toAccount
@@ -34,8 +34,8 @@ class YaniAccountRepository(
     private val api: YaniAccountApi,
     private val settingsStore: YaniAccountSettingsStore,
     private val yaniAuthPreferences: YaniAuthPreferences,
-    private val accountStorage: AccountStorageStore,
-    private val documentCache: DocumentCacheStore,
+    private val accountStorage: AccountStorage,
+    private val documentCache: DocumentCacheStorage,
 ) : AccountRepository {
 
     override suspend fun login(

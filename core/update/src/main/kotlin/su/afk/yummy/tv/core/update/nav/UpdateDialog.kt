@@ -57,9 +57,21 @@ import su.afk.yummy.tv.core.utils.system.openExternalUri
 
 @Composable
 fun UpdateDialog(
+    dest: UpdateDestination,
     status: UpdateState.State.Status,
     onEvent: (UpdateState.Event) -> Unit,
 ) {
+    LaunchedEffect(dest) {
+        onEvent(
+            UpdateState.Event.Init(
+                version = dest.version,
+                apkUrl = dest.apkUrl,
+                changelog = dest.changelog,
+                required = dest.required,
+            )
+        )
+    }
+
     val configuration = LocalConfiguration.current
     val isTelevision = configuration.uiMode and Configuration.UI_MODE_TYPE_MASK ==
             Configuration.UI_MODE_TYPE_TELEVISION

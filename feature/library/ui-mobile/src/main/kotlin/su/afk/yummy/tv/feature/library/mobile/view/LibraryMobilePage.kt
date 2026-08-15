@@ -70,6 +70,7 @@ internal fun LibraryMobilePage(
     if (tab == LibraryTab.HISTORY) {
         LibraryMobileHistoryPage(
             history = state.watchHistory,
+            localProgress = state.historyLocalProgress,
             isSignedIn = state.isSignedIn,
             onEntrySelected = { onEvent(LibraryState.Event.HistorySelected(it)) },
             onDetailsSelected = { onEvent(LibraryState.Event.HistoryDetailsSelected(it.animeId)) },

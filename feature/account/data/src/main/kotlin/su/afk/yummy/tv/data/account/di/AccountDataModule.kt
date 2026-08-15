@@ -8,8 +8,8 @@ import su.afk.yummy.tv.core.analytics.api.AnalyticsTracker
 import su.afk.yummy.tv.core.network.yani.YaniHttpClientProvider
 import su.afk.yummy.tv.core.preferences.auth.YaniAuthPreferences
 import su.afk.yummy.tv.core.preferences.settings.YaniAccountSettingsStore
-import su.afk.yummy.tv.core.storage.account.AccountStorageStore
-import su.afk.yummy.tv.core.storage.document.DocumentCacheStore
+import su.afk.yummy.tv.core.storage.account.AccountStorage
+import su.afk.yummy.tv.core.storage.document.DocumentCacheStorage
 import su.afk.yummy.tv.data.account.network.YaniAccountApi
 import su.afk.yummy.tv.data.account.repository.DefaultAccountMutationErrorNotifier
 import su.afk.yummy.tv.data.account.repository.YaniAccountRepository
@@ -60,8 +60,8 @@ object AccountDataModule {
         api: YaniAccountApi,
         settingsStore: YaniAccountSettingsStore,
         yaniAuthPreferences: YaniAuthPreferences,
-        accountStorage: AccountStorageStore,
-        documentCache: DocumentCacheStore,
+        accountStorage: AccountStorage,
+        documentCache: DocumentCacheStorage,
     ): AccountRepository = YaniAccountRepository(
         api,
         settingsStore,
@@ -74,7 +74,7 @@ object AccountDataModule {
     @Singleton
     fun provideUserListsRepository(
         api: YaniAccountApi,
-        accountStorage: AccountStorageStore,
+        accountStorage: AccountStorage,
         settingsStore: YaniAccountSettingsStore,
     ): UserListsRepository = YaniUserListsRepository(
         api,
@@ -94,7 +94,7 @@ object AccountDataModule {
     @Singleton
     fun provideAnimeExtrasRepository(
         api: YaniAccountApi,
-        accountStorage: AccountStorageStore,
+        accountStorage: AccountStorage,
         settingsStore: YaniAccountSettingsStore,
     ): AnimeExtrasRepository = YaniAnimeExtrasRepository(
         api,
@@ -106,7 +106,7 @@ object AccountDataModule {
     @Singleton
     fun provideVideoSubscriptionRepository(
         api: YaniAccountApi,
-        accountStorage: AccountStorageStore,
+        accountStorage: AccountStorage,
         settingsStore: YaniAccountSettingsStore,
     ): VideoSubscriptionRepository =
         YaniVideoSubscriptionRepository(
@@ -119,7 +119,7 @@ object AccountDataModule {
     @Singleton
     fun provideUserStatsRepository(
         api: YaniAccountApi,
-        accountStorage: AccountStorageStore,
+        accountStorage: AccountStorage,
         settingsStore: YaniAccountSettingsStore,
     ): UserStatsRepository =
         YaniUserStatsRepository(api, accountStorage, settingsStore)
@@ -128,7 +128,7 @@ object AccountDataModule {
     @Singleton
     fun provideUserProfileRepository(
         api: YaniAccountApi,
-        accountStorage: AccountStorageStore,
+        accountStorage: AccountStorage,
         settingsStore: YaniAccountSettingsStore,
     ): UserProfileRepository =
         YaniUserProfileRepository(api, accountStorage, settingsStore)
@@ -137,7 +137,7 @@ object AccountDataModule {
     @Singleton
     fun provideUserProfileContentRepository(
         api: YaniAccountApi,
-        accountStorage: AccountStorageStore,
+        accountStorage: AccountStorage,
         settingsStore: YaniAccountSettingsStore,
     ): UserProfileContentRepository =
         YaniUserProfileContentRepository(api, accountStorage, settingsStore)
@@ -146,7 +146,7 @@ object AccountDataModule {
     @Singleton
     fun provideProfileNotificationsRepository(
         api: YaniAccountApi,
-        accountStorage: AccountStorageStore,
+        accountStorage: AccountStorage,
         settingsStore: YaniAccountSettingsStore,
     ): ProfileNotificationsRepository =
         YaniProfileNotificationsRepository(
@@ -159,7 +159,7 @@ object AccountDataModule {
     @Singleton
     fun provideUserDirectoryRepository(
         api: YaniAccountApi,
-        accountStorage: AccountStorageStore,
+        accountStorage: AccountStorage,
         settingsStore: YaniAccountSettingsStore,
     ): UserDirectoryRepository =
         YaniUserDirectoryRepository(api, accountStorage, settingsStore)

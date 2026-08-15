@@ -16,7 +16,6 @@ dependencies {
     implementation(project(":core:featuretoggle"))
     implementation(project(":core:navigation"))
     implementation(project(":core:preferences"))
-    implementation(project(":core:storage"))
     implementation(project(":core:utils"))
     implementation(project(":feature:collection:api"))
     implementation(project(":feature:bloggers:api"))

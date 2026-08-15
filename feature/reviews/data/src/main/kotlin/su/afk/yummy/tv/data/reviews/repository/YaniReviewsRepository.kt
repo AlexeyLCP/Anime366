@@ -3,7 +3,7 @@ package su.afk.yummy.tv.data.reviews.repository
 import kotlinx.coroutines.flow.first
 import su.afk.yummy.tv.core.network.cache.UserScopedCache
 import su.afk.yummy.tv.core.preferences.settings.YaniAccountSettingsStore
-import su.afk.yummy.tv.core.storage.anime.AnimeStorageStore
+import su.afk.yummy.tv.core.storage.anime.AnimeStorage
 import su.afk.yummy.tv.core.utils.network.toHttpsUrlOrNull
 import su.afk.yummy.tv.data.reviews.dto.YaniReviewDto
 import su.afk.yummy.tv.data.reviews.dto.YaniReviewResponseDto
@@ -23,7 +23,7 @@ import javax.inject.Inject
 class YaniReviewsRepository @Inject constructor(
     private val api: YaniReviewsApi,
     private val cache: UserScopedCache,
-    private val animeStorage: AnimeStorageStore,
+    private val animeStorage: AnimeStorage,
     private val settingsStore: YaniAccountSettingsStore,
 ) :
     ReviewsRepository {

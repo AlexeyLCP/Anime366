@@ -1,8 +1,8 @@
 package su.afk.yummy.tv.core.storage.top
 
-class AnimeTopStore(private val dao: AnimeTopDao) {
+internal class AnimeTopStore(private val dao: AnimeTopDao) : AnimeTopStorage {
 
-    suspend fun getPage(
+    override suspend fun getPage(
         type: String,
         language: String,
         limit: Int,
@@ -10,9 +10,9 @@ class AnimeTopStore(private val dao: AnimeTopDao) {
     ): AnimeTopPageCache? =
         dao.getPage(type, language, limit, offset)
 
-    suspend fun savePage(
+    override suspend fun savePage(
         cache: AnimeTopPageCache,
-        prunePagesCachedBefore: Long? = null,
+        prunePagesCachedBefore: Long?,
     ) {
         dao.replacePage(cache, prunePagesCachedBefore)
     }

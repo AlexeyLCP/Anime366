@@ -12,4 +12,6 @@ dependencies {
     implementation(libs.androidx.lifecycle.process)
     implementation(libs.coil.core)
     implementation(libs.kotlinx.coroutines.android)
+    implementation(libs.ktor.client.core)
+    implementation(libs.ktor.client.okhttp)
 }

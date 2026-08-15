@@ -15,12 +15,10 @@ import io.ktor.client.HttpClient
 import io.ktor.client.engine.okhttp.OkHttp
 import okhttp3.OkHttpClient
 import su.afk.yummy.tv.core.preferences.settings.CacheSettingsStore
+import su.afk.yummy.tv.core.utils.kodik.KodikThumbnailCacheIO
 import su.afk.yummy.tv.core.utils.kodik.KodikThumbnailFetcher
 import su.afk.yummy.tv.core.utils.kodik.KodikThumbnailKeyer
 import su.afk.yummy.tv.core.utils.kodik.ResolveKodikThumbnailUrlUseCase
-import su.afk.yummy.tv.domain.anime.usecase.GetAnimeVideosUseCase
-import su.afk.yummy.tv.feature.library.thumbnail.HistoryEpisodeThumbnailFetcher
-import su.afk.yummy.tv.feature.library.thumbnail.HistoryEpisodeThumbnailKeyer
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -28,6 +26,8 @@ import javax.inject.Singleton
  * Собирает и устанавливает singleton Coil [ImageLoader]: размер кэша считаем от пользовательских
  * настроек и типа устройства (урезаем memory cache на low-RAM), плюс регистрируем кастомные
  * компоненты — Kodik fetcher/keyer и Ktor network fetcher поверх общего OkHttpClient приложения.
+ * Kodik-превью серий читаются/пишутся не в этот кэш, а в собственный маленький [DiskCache] через
+ * [KodikThumbnailCacheIO] (см. su.afk.yummy.tv.core.utils.kodik.di.KodikNetworkModule).
  */
 @Singleton
 class CoilImageLoaderInstaller @Inject constructor(
@@ -35,7 +35,7 @@ class CoilImageLoaderInstaller @Inject constructor(
     private val okHttpClient: OkHttpClient,
     private val settingsStore: CacheSettingsStore,
     private val resolveKodikThumbnailUrl: ResolveKodikThumbnailUrlUseCase,
-    private val getAnimeVideos: GetAnimeVideosUseCase,
+    private val kodikThumbnailCacheIO: KodikThumbnailCacheIO,
 ) {
 
     @OptIn(ExperimentalCoilApi::class)
@@ -67,12 +67,10 @@ class CoilImageLoaderInstaller @Inject constructor(
                 }
                 .components {
                     add(KodikThumbnailKeyer())
-                    add(KodikThumbnailFetcher.Factory(resolveKodikThumbnailUrl))
-                    add(HistoryEpisodeThumbnailKeyer())
                     add(
-                        HistoryEpisodeThumbnailFetcher.Factory(
-                            getAnimeVideos,
-                            resolveKodikThumbnailUrl
+                        KodikThumbnailFetcher.Factory(
+                            resolveKodikThumbnailUrl,
+                            kodikThumbnailCacheIO
                         )
                     )
                     add(KtorNetworkFetcherFactory(httpClient = imageHttpClient))

@@ -10,10 +10,10 @@ import kotlinx.coroutines.withContext
 import su.afk.yummy.tv.core.analytics.api.AnalyticsTracker
 import su.afk.yummy.tv.core.error.api.StringProvider
 import su.afk.yummy.tv.core.preferences.settings.YaniAccountSettingsStore
-import su.afk.yummy.tv.core.storage.home.HomeFeedStore
+import su.afk.yummy.tv.core.storage.home.HomeFeedStorage
 import su.afk.yummy.tv.core.storage.home.isFresh
 import su.afk.yummy.tv.core.storage.watchprogress.WatchProgressEntry
-import su.afk.yummy.tv.core.storage.watchprogress.WatchProgressStore
+import su.afk.yummy.tv.core.storage.watchprogress.WatchProgressStorage
 import su.afk.yummy.tv.core.utils.network.isLikelyImageUrl
 import su.afk.yummy.tv.data.home.dto.YaniFeedDto
 import su.afk.yummy.tv.data.home.dto.YaniVideoDto
@@ -33,10 +33,10 @@ private const val TAG = "YaniHomeFeed"
 
 class YaniHomeFeedRepository(
     private val api: YaniHomeApi,
-    private val homeFeedStore: HomeFeedStore,
+    private val homeFeedStore: HomeFeedStorage,
     private val stringProvider: StringProvider,
     private val settingsStore: YaniAccountSettingsStore,
-    private val watchProgressStore: WatchProgressStore,
+    private val watchProgressStore: WatchProgressStorage,
     private val analyticsTracker: AnalyticsTracker,
 ) : HomeFeedRepository {
 

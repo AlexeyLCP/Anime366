@@ -1,7 +1,6 @@
 package su.afk.yummy.tv.feature.account.account.handler
 
 import su.afk.yummy.tv.core.analytics.api.AnalyticsTracker
-import su.afk.yummy.tv.core.storage.watchprogress.WatchProgressStore
 import su.afk.yummy.tv.domain.account.model.AccountCaptchaRequiredException
 import su.afk.yummy.tv.domain.account.model.VideoWatchSyncItem
 import su.afk.yummy.tv.domain.account.model.YaniAccount
@@ -10,6 +9,7 @@ import su.afk.yummy.tv.domain.account.usecase.LogoutUseCase
 import su.afk.yummy.tv.domain.account.usecase.RefreshAccountUseCase
 import su.afk.yummy.tv.domain.account.usecase.SyncVideoWatchesUseCase
 import su.afk.yummy.tv.domain.home.usecase.RefreshHomeFeedUseCase
+import su.afk.yummy.tv.domain.player.repository.WatchProgressRepository
 import su.afk.yummy.tv.feature.account.utils.AccountLoginCredentials
 import javax.inject.Inject
 
@@ -20,7 +20,7 @@ internal class AccountAuthHandler @Inject constructor(
     private val refreshAccountUseCase: RefreshAccountUseCase,
     private val syncVideoWatches: SyncVideoWatchesUseCase,
     private val refreshHomeFeed: RefreshHomeFeedUseCase,
-    private val watchProgressStore: WatchProgressStore,
+    private val watchProgressRepository: WatchProgressRepository,
     private val analyticsTracker: AnalyticsTracker,
 ) {
     suspend fun login(
@@ -54,7 +54,7 @@ internal class AccountAuthHandler @Inject constructor(
 
     private suspend fun syncLocalWatchesAfterLogin() {
         runCatching {
-            val videos = watchProgressStore
+            val videos = watchProgressRepository
                 .allMeaningfulVideoProgress()
                 .map {
                     VideoWatchSyncItem(

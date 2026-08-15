@@ -6,8 +6,10 @@ import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.BaseViewModelNe
 import su.afk.yummy.tv.core.error.api.IErrorHandlerUseCase
 import su.afk.yummy.tv.core.error.api.RetryStorage
 import su.afk.yummy.tv.core.error.api.StringProvider
-import su.afk.yummy.tv.core.update.api.ApkDownloader
-import su.afk.yummy.tv.core.update.api.ApkInstaller
+import su.afk.yummy.tv.core.navigation.manager.INavigationManager
+import su.afk.yummy.tv.core.update.handler.UpdateDownloadResult
+import su.afk.yummy.tv.core.update.handler.UpdateInstallHandler
+import su.afk.yummy.tv.core.update.handler.UpdateInstallResult
 import java.io.File
 import javax.inject.Inject
 
@@ -15,8 +17,8 @@ import javax.inject.Inject
 class UpdateViewModel @Inject internal constructor(
     override val errorHandler: IErrorHandlerUseCase,
     override val retryStorage: RetryStorage,
-    private val apkDownloader: ApkDownloader,
-    private val apkInstaller: ApkInstaller,
+    private val nav: INavigationManager,
+    private val updateInstallHandler: UpdateInstallHandler,
     private val stringProvider: StringProvider,
     private val analytics: UpdateAnalytics,
 ) : BaseViewModelNew<UpdateState.State, UpdateState.Event, UpdateState.Effect>() {
@@ -26,11 +28,39 @@ class UpdateViewModel @Inject internal constructor(
 
     override fun createInitialState() = UpdateState.State()
 
-    fun initWithUpdateInfo(
+    override fun onEvent(event: UpdateState.Event) {
+        when (event) {
+            is UpdateState.Event.Init -> initWithUpdateInfo(
+                version = event.version,
+                apkUrl = event.apkUrl,
+                changelog = event.changelog,
+                required = event.required,
+            )
+
+            UpdateState.Event.Dismiss -> {
+                if ((currentState.status as? UpdateState.State.Status.Available)?.required == true) return
+                analytics.eventDismiss(currentUpdateVersion())
+                setState { copy(status = UpdateState.State.Status.Idle) }
+                nav.back()
+            }
+
+            is UpdateState.Event.ConfirmUpdate -> {
+                analytics.eventConfirm(currentUpdateVersion())
+                downloadAndInstall(event.apkUrl)
+            }
+
+            is UpdateState.Event.RetryUpdate -> {
+                analytics.eventRetry(currentUpdateVersion())
+                retryInstall(event.apkUrl)
+            }
+        }
+    }
+
+    private fun initWithUpdateInfo(
         version: String,
         apkUrl: String,
         changelog: String,
-        required: Boolean = false,
+        required: Boolean,
     ) {
         if (currentState.status is UpdateState.State.Status.Idle) {
             updateVersion = version
@@ -47,49 +77,28 @@ class UpdateViewModel @Inject internal constructor(
         }
     }
 
-    override fun onEvent(event: UpdateState.Event) {
-        when (event) {
-            UpdateState.Event.Dismiss -> {
-                if ((currentState.status as? UpdateState.State.Status.Available)?.required == true) return
-                analytics.eventDismiss(currentUpdateVersion())
-                setState { copy(status = UpdateState.State.Status.Idle) }
-                setEffect(UpdateState.Effect.NavigateBack)
-            }
-
-            is UpdateState.Event.ConfirmUpdate -> {
-                analytics.eventConfirm(currentUpdateVersion())
-                downloadAndInstall(event.apkUrl)
-            }
-
-            is UpdateState.Event.RetryUpdate -> {
-                analytics.eventRetry(currentUpdateVersion())
-                retryInstall(event.apkUrl)
-            }
-        }
-    }
-
     private fun downloadAndInstall(apkUrl: String) {
         viewModelScope.launch {
             setState { copy(status = UpdateState.State.Status.Downloading(0f)) }
 
-            val file = runCatching {
-                apkDownloader.download(apkUrl) { progress ->
+            val downloadResult = updateInstallHandler.download(
+                apkUrl = apkUrl,
+                version = currentUpdateVersion(),
+                onProgress = { progress ->
                     setState { copy(status = UpdateState.State.Status.Downloading(progress)) }
+                },
+            )
+            val file = when (downloadResult) {
+                is UpdateDownloadResult.Success -> downloadResult.file
+                is UpdateDownloadResult.Failure -> {
+                    setUpdateError(downloadResult.error, apkUrl)
+                    return@launch
                 }
-            }.getOrElse { e ->
-                analytics.eventDownloadError(currentUpdateVersion(), e)
-                setUpdateError(e, apkUrl)
-                return@launch
             }
 
             downloadedApk = file
             setState { copy(status = UpdateState.State.Status.Installing) }
-            runCatching {
-                apkInstaller.install(file)
-            }.onFailure { e ->
-                analytics.eventInstallError(currentUpdateVersion(), e)
-                setUpdateError(e, apkUrl)
-            }
+            applyInstallResult(updateInstallHandler.install(file, currentUpdateVersion()), apkUrl)
         }
     }
 
@@ -102,12 +111,14 @@ class UpdateViewModel @Inject internal constructor(
 
         viewModelScope.launch {
             setState { copy(status = UpdateState.State.Status.Installing) }
-            runCatching {
-                apkInstaller.install(file)
-            }.onFailure { e ->
-                analytics.eventInstallError(currentUpdateVersion(), e)
-                setUpdateError(e, apkUrl)
-            }
+            applyInstallResult(updateInstallHandler.install(file, currentUpdateVersion()), apkUrl)
+        }
+    }
+
+    private fun applyInstallResult(result: UpdateInstallResult, apkUrl: String) {
+        when (result) {
+            is UpdateInstallResult.Success -> Unit
+            is UpdateInstallResult.Failure -> setUpdateError(result.error, apkUrl)
         }
     }
 

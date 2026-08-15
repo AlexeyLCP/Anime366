@@ -1,15 +1,18 @@
 package su.afk.yummy.tv.core.storage.collection
 
-class CollectionStorageStore(private val dao: CollectionStorageDao) {
+internal class CollectionStorageStore(private val dao: CollectionStorageDao) : CollectionStorage {
 
-    suspend fun getCollection(collectionId: Int, language: String): CollectionDetailCache? =
+    override suspend fun getCollection(
+        collectionId: Int,
+        language: String
+    ): CollectionDetailCache? =
         dao.getCollection(collectionId, language)
 
-    suspend fun saveCollection(cache: CollectionDetailCache) {
+    override suspend fun saveCollection(cache: CollectionDetailCache) {
         dao.replaceCollection(cache)
     }
 
-    suspend fun updateCollectionVote(
+    override suspend fun updateCollectionVote(
         collectionId: Int,
         language: String,
         likes: Int,
@@ -19,18 +22,18 @@ class CollectionStorageStore(private val dao: CollectionStorageDao) {
         dao.updateDetailVote(collectionId, language, likes, dislikes, vote)
     }
 
-    suspend fun deleteCollection(collectionId: Int) {
+    override suspend fun deleteCollection(collectionId: Int) {
         dao.deleteCollection(collectionId)
     }
 
-    suspend fun invalidateCatalog() {
+    override suspend fun invalidateCatalog() {
         dao.invalidateCatalog()
     }
 
-    suspend fun getCatalogPage(pageKey: String): CollectionCatalogPageCache? =
+    override suspend fun getCatalogPage(pageKey: String): CollectionCatalogPageCache? =
         dao.getCatalogPage(pageKey)
 
-    suspend fun saveCatalogPage(cache: CollectionCatalogPageCache) {
+    override suspend fun saveCatalogPage(cache: CollectionCatalogPageCache) {
         dao.replaceCatalogPage(cache)
     }
 }

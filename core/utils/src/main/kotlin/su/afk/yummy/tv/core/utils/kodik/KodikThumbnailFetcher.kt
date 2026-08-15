@@ -6,31 +6,23 @@ import coil3.fetch.Fetcher
 import coil3.request.Options
 
 /**
- * Резолвит URL Kodik-превью и передаёт его штатному network fetcher Coil.
- * Картинка читается и сохраняется в disk cache по iframe-ключу.
+ * Резолвит URL Kodik-превью и читает/пишет картинку через [KodikThumbnailCacheIO] —
+ * отдельный, небольшой disk cache (не общий кэш постеров), ключ по iframe-урлу.
  */
 class KodikThumbnailFetcher(
     private val data: KodikThumbnail,
-    private val options: Options,
-    private val imageLoader: ImageLoader,
+    private val cacheIO: KodikThumbnailCacheIO,
     private val resolveKodikThumbnailUrl: ResolveKodikThumbnailUrlUseCase,
 ) : Fetcher {
 
     override suspend fun fetch(): FetchResult? {
         val resolvedUrl = resolveKodikThumbnailUrl(data.iframeUrl)
-        val delegatedOptions = options.copy(diskCacheKey = data.cacheKey)
-        val mappedData = imageLoader.components.map(
-            data = resolvedUrl ?: FALLBACK_URL,
-            options = delegatedOptions,
-        )
-        val delegatedFetcher = checkNotNull(
-            imageLoader.components.newFetcher(mappedData, delegatedOptions, imageLoader)?.first
-        ) { "No Coil fetcher registered for Kodik thumbnail URL" }
-        return delegatedFetcher.fetch()
+        return cacheIO.fetch(data.cacheKey, resolvedUrl)
     }
 
     class Factory(
         private val resolveKodikThumbnailUrl: ResolveKodikThumbnailUrlUseCase,
+        private val cacheIO: KodikThumbnailCacheIO,
     ) : Fetcher.Factory<KodikThumbnail> {
 
         override fun create(
@@ -39,13 +31,8 @@ class KodikThumbnailFetcher(
             imageLoader: ImageLoader,
         ): Fetcher = KodikThumbnailFetcher(
             data = data,
-            options = options,
-            imageLoader = imageLoader,
+            cacheIO = cacheIO,
             resolveKodikThumbnailUrl = resolveKodikThumbnailUrl,
         )
-    }
-
-    private companion object {
-        const val FALLBACK_URL = "https://offline.invalid/kodik-thumbnail"
     }
 }

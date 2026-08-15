@@ -4,8 +4,6 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.BaseViewModelNew
@@ -14,14 +12,10 @@ import su.afk.yummy.tv.core.error.api.RetryStorage
 import su.afk.yummy.tv.core.error.api.StringProvider
 import su.afk.yummy.tv.core.navigation.manager.INavigationManager
 import su.afk.yummy.tv.core.preferences.settings.YaniAccountSettingsStore
-import su.afk.yummy.tv.core.utils.coroutines.runSuspendCatching
-import su.afk.yummy.tv.domain.account.usecase.DeleteAnimeRatingUseCase
-import su.afk.yummy.tv.domain.account.usecase.GetAnimeListStatsUseCase
-import su.afk.yummy.tv.domain.account.usecase.GetAnimeRatingSummaryUseCase
-import su.afk.yummy.tv.domain.account.usecase.GetAnimeUserRatingUseCase
-import su.afk.yummy.tv.domain.account.usecase.SetAnimeRatingUseCase
 import su.afk.yummy.tv.feature.details.DetailsAnalytics
 import su.afk.yummy.tv.feature.details.presentation.R
+import su.afk.yummy.tv.feature.details.rating.handler.RatingMutationHandler
+import su.afk.yummy.tv.feature.details.rating.handler.RatingMutationResult
 
 @HiltViewModel(assistedFactory = RatingViewModel.Factory::class)
 class RatingViewModel @AssistedInject internal constructor(
@@ -29,11 +23,7 @@ class RatingViewModel @AssistedInject internal constructor(
     override val errorHandler: IErrorHandlerUseCase,
     override val retryStorage: RetryStorage,
     private val nav: INavigationManager,
-    private val getAnimeRatingSummary: GetAnimeRatingSummaryUseCase,
-    private val getAnimeListStats: GetAnimeListStatsUseCase,
-    private val getAnimeUserRating: GetAnimeUserRatingUseCase,
-    private val setAnimeRating: SetAnimeRatingUseCase,
-    private val deleteAnimeRating: DeleteAnimeRatingUseCase,
+    private val ratingMutationHandler: RatingMutationHandler,
     private val settingsStore: YaniAccountSettingsStore,
     private val stringProvider: StringProvider,
     private val analytics: DetailsAnalytics,
@@ -67,16 +57,11 @@ class RatingViewModel @AssistedInject internal constructor(
     private fun load() {
         viewModelScope.launch {
             setState { copy(isLoading = true, error = null) }
-            val (rating, stats, userRating) = coroutineScope {
-                val rating = async { runSuspendCatching { getAnimeRatingSummary(animeId) } }
-                val stats = async { runSuspendCatching { getAnimeListStats(animeId) } }
-                val userRating = async { runSuspendCatching { getAnimeUserRating(animeId) } }
-                Triple(rating.await(), stats.await(), userRating.await())
-            }
+            val result = ratingMutationHandler.load(animeId)
 
-            if (rating.isFailure && userRating.isFailure) {
-                val error = rating.exceptionOrNull()
-                    ?: userRating.exceptionOrNull()
+            if (result.ratingSummary.isFailure && result.userRating.isFailure) {
+                val error = result.ratingSummary.exceptionOrNull()
+                    ?: result.userRating.exceptionOrNull()
                 error?.let(analytics::eventRatingLoadError)
                 setState {
                     copy(
@@ -92,9 +77,9 @@ class RatingViewModel @AssistedInject internal constructor(
                 copy(
                     isLoading = false,
                     error = null,
-                    ratingSummary = rating.getOrDefault(ratingSummary),
-                    listStats = stats.getOrDefault(listStats),
-                    selectedUserRating = userRating.getOrNull(),
+                    ratingSummary = result.ratingSummary.getOrDefault(ratingSummary),
+                    listStats = result.listStats.getOrDefault(listStats),
+                    selectedUserRating = result.userRating.getOrNull(),
                 )
             }
         }
@@ -106,11 +91,9 @@ class RatingViewModel @AssistedInject internal constructor(
             analytics.eventRatingSelected(animeId, rating)
             val previous = currentState.selectedUserRating
             setState { copy(selectedUserRating = rating) }
-            val result = runCatching { setAnimeRating(animeId, rating) }
-            if (result.isFailure) {
-                setState { copy(selectedUserRating = previous) }
-            } else {
-                refreshRatingSummary()
+            when (ratingMutationHandler.setRating(animeId, rating)) {
+                RatingMutationResult.Success -> refreshRatingSummary()
+                RatingMutationResult.Failure -> setState { copy(selectedUserRating = previous) }
             }
         }
     }
@@ -121,11 +104,9 @@ class RatingViewModel @AssistedInject internal constructor(
             analytics.eventRatingDeleted(animeId)
             val previous = currentState.selectedUserRating
             setState { copy(selectedUserRating = null) }
-            val result = runCatching { deleteAnimeRating(animeId) }
-            if (result.isFailure) {
-                setState { copy(selectedUserRating = previous) }
-            } else {
-                refreshRatingSummary()
+            when (ratingMutationHandler.deleteRating(animeId)) {
+                RatingMutationResult.Success -> refreshRatingSummary()
+                RatingMutationResult.Failure -> setState { copy(selectedUserRating = previous) }
             }
         }
     }
@@ -141,8 +122,9 @@ class RatingViewModel @AssistedInject internal constructor(
     }
 
     private suspend fun refreshRatingSummary() {
-        runCatching { getAnimeRatingSummary(animeId) }
-            .onSuccess { summary -> setState { copy(ratingSummary = summary) } }
+        ratingMutationHandler.refreshSummary(animeId)?.let { summary ->
+            setState { copy(ratingSummary = summary) }
+        }
     }
 
 }
