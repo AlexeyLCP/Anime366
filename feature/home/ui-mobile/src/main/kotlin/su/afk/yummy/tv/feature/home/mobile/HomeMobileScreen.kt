@@ -10,9 +10,12 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -55,6 +58,7 @@ import su.afk.yummy.tv.feature.home.mobile.view.HomeSearchEntry
 import su.afk.yummy.tv.feature.home.mobile.view.HomeSupportPromptDialog
 import su.afk.yummy.tv.feature.home.mobile.view.MobileHomeBloggerVideosSection
 import su.afk.yummy.tv.feature.home.toHomeEventOrNull
+import su.afk.yummy.tv.feature.home.presentation.R as PresentationR
 
 @Preview(name = "Default", device = "spec:width=412dp,height=915dp,dpi=420", showBackground = true)
 @Composable
@@ -151,11 +155,24 @@ fun HomeMobileScreen(
             onRetry = { onEvent(HomeState.Event.RetrySelected) },
             errorContent = state.error?.let { message ->
                 { _, retry ->
-                    MobileMessage(
-                        title = message,
-                        actionLabel = stringResource(R.string.home_mobile_retry),
-                        onAction = retry,
-                    )
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        MobileMessage(
+                            title = message,
+                            actionLabel = stringResource(R.string.home_mobile_retry),
+                            onAction = retry,
+                            fillMaxSize = false,
+                        )
+                        val statusUrl = stringResource(PresentationR.string.home_error_status_url)
+                        TextButton(onClick = { context.openExternalUri(statusUrl) }) {
+                            Text(
+                                text = stringResource(
+                                    PresentationR.string.home_error_status_hint,
+                                    statusUrl,
+                                ),
+                                style = MaterialTheme.typography.bodySmall,
+                            )
+                        }
+                    }
                 }
             },
         ) {

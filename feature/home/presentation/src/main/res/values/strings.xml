@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_blogger_videos_load_error">Failed to load blogger videos</string>
+    <string name="home_error_status_hint">If the problem persists, check service status: %1$s</string>
+    <string name="home_error_status_url">https://yummystatus.me/</string>
     <string name="home_load_error">Could not load the home page</string>
     <string name="home_recommendation_auth_required">Sign in to manage recommendations</string>
     <string name="home_recommendation_error">Could not update recommendations</string>
