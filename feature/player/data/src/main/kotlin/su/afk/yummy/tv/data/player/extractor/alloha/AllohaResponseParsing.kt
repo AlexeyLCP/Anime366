@@ -1,8 +1,8 @@
 package su.afk.yummy.tv.data.player.extractor.alloha
 
-import android.util.Log
 import android.webkit.CookieManager
 import org.json.JSONObject
+import su.afk.yummy.tv.core.analytics.api.AnalyticsTracker
 import su.afk.yummy.tv.domain.player.model.AllohaAudioTrack
 import su.afk.yummy.tv.domain.player.model.AllohaSubtitleTrack
 
@@ -33,7 +33,10 @@ internal data class AllohaParsedSources(
     val subtitles: List<AllohaSubtitleTrack>,
 )
 
-internal fun parseSources(responseJson: String): AllohaParsedSources {
+internal fun parseSources(
+    responseJson: String,
+    analytics: AnalyticsTracker,
+): AllohaParsedSources {
     val root = JSONObject(responseJson)
     val sources = root.optJSONArray("hlsSource")
         ?: throw AllohaSourceUnavailableException("hlsSource is missing")
@@ -95,11 +98,10 @@ internal fun parseSources(responseJson: String): AllohaParsedSources {
         }
     }
 
-    Log.i(
-        LOG_TAG,
+    analytics.log(LOG_TAG) {
         "bnsi audioTracks=${audioTracks.map { it.track.label }} " +
-                "subtitles=${subtitles.map(AllohaSubtitleTrack::label)}",
-    )
+                "subtitles=${subtitles.map(AllohaSubtitleTrack::label)}"
+    }
     return AllohaParsedSources(audioTracks = audioTracks, subtitles = subtitles)
 }
 

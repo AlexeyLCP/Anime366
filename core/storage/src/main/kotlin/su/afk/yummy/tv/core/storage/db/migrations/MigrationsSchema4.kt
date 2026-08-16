@@ -130,3 +130,15 @@ internal val MIGRATION_43_44 = object : Migration(43, 44) {
         db.execSQL("ALTER TABLE anime_details ADD COLUMN malId INTEGER")
     }
 }
+
+internal val MIGRATION_44_45 = object : Migration(44, 45) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL(
+            "CREATE TABLE IF NOT EXISTS alloha_track_preference (" +
+                    "animeId INTEGER NOT NULL, dubbing TEXT NOT NULL, player TEXT NOT NULL, " +
+                    "audioLabel TEXT, subtitleLanguage TEXT, subtitleLabel TEXT, " +
+                    "subtitleOff INTEGER NOT NULL DEFAULT 0, updatedAt INTEGER NOT NULL, " +
+                    "PRIMARY KEY(animeId, dubbing, player))"
+        )
+    }
+}

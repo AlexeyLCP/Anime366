@@ -9,7 +9,6 @@ import androidx.media3.common.Player
 import su.afk.yummy.tv.feature.player.PlayerState
 import su.afk.yummy.tv.feature.player.common.PlayerAutoHideController
 import su.afk.yummy.tv.feature.player.common.PlayerStepSeekToastState
-import su.afk.yummy.tv.feature.player.common.logPlaybackError
 import su.afk.yummy.tv.feature.player.common.toPlaybackErrorEvent
 import su.afk.yummy.tv.feature.player.common.utils.positionSnapshot
 import su.afk.yummy.tv.feature.player.model.TvPlayerSkipUiState
@@ -58,7 +57,6 @@ internal fun TvPlayerListenerEffect(
 
             override fun onPlayerError(error: PlaybackException) {
                 val position = player.currentPosition.coerceAtLeast(0L)
-                logPlaybackError("TV", position, error)
                 currentOnEvent(error.toPlaybackErrorEvent(position))
             }
         }

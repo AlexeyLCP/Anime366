@@ -16,10 +16,12 @@ import su.afk.yummy.tv.data.player.extractor.vk.VkExtractor
 import su.afk.yummy.tv.data.player.extractor.zedfilm.ZedfilmExtractor
 import su.afk.yummy.tv.data.player.network.KtorPlayerHttpClient
 import su.afk.yummy.tv.data.player.network.PlayerHttpClient
+import su.afk.yummy.tv.data.player.repository.DefaultAllohaTrackPreferenceRepository
 import su.afk.yummy.tv.data.player.repository.DefaultPlayerSourceRepository
 import su.afk.yummy.tv.data.player.repository.DefaultPlayerStreamRepository
 import su.afk.yummy.tv.data.player.repository.DefaultWatchProgressRepository
 import su.afk.yummy.tv.data.player.session.DefaultAllohaPlaybackSessionManager
+import su.afk.yummy.tv.domain.player.repository.AllohaTrackPreferenceRepository
 import su.afk.yummy.tv.domain.player.repository.PlayerSourceRepository
 import su.afk.yummy.tv.domain.player.repository.PlayerStreamRepository
 import su.afk.yummy.tv.domain.player.repository.WatchProgressRepository
@@ -59,6 +61,12 @@ object PlayerDataModule {
     internal fun provideWatchProgressRepository(
         repository: DefaultWatchProgressRepository,
     ): WatchProgressRepository = repository
+
+    @Provides
+    @Singleton
+    internal fun provideAllohaTrackPreferenceRepository(
+        repository: DefaultAllohaTrackPreferenceRepository,
+    ): AllohaTrackPreferenceRepository = repository
 
     @Provides
     @IntoSet

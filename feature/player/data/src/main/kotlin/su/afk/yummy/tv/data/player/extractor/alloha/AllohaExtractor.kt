@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import android.webkit.CookieManager
 import android.webkit.JavascriptInterface
 import kotlinx.coroutines.Dispatchers
@@ -31,6 +30,13 @@ internal class AllohaExtractor @Inject constructor(
 ) : SessionAwarePlayerStreamExtractor {
     private val extractorScope = ioScope()
     private val webViewPool = AllohaWebViewPool()
+
+    // Picked once and then reused for every session. It used to be re-randomised on each open, so
+    // a viewer who entered a few episodes in a row presented the site a fresh browser identity
+    // (6 desktop OSes x 6 Chrome versions) every time from one address - which is exactly what a
+    // bot farm looks like. The fingerprint has to be stable across sessions for the same reason the
+    // reload path below keeps it stable within one.
+    private val sessionUserAgent: String by lazy { desktopUserAgent() }
 
     override fun supports(url: String): Boolean = url.isAllohaPlayerUrl()
 
@@ -91,14 +97,16 @@ internal class AllohaExtractor @Inject constructor(
         var streamReady = false
         var refreshedMasterReady = false
         var pendingHostChangeMaster: String? = null
-        val liveSession = LiveAllohaStreamSession(handler, iframeUrl)
+        var wrapperReloads = 0
+        var reloadWrapper: (() -> Unit)? = null
+        val liveSession = LiveAllohaStreamSession(handler, iframeUrl, analyticsTracker)
         val hostChangeFallback = Runnable {
             if (pendingHostChangeMaster != null) {
                 // No fresh config_update confirmed the new host in time - the held headers are
                 // still signed for the OLD host, so applying them would likely just 403. Force a
                 // full session restart instead, same as the reference implementation does here.
                 pendingHostChangeMaster = null
-                Log.w(LOG_TAG, "host-change config_update timed out, forcing session restart")
+                analyticsTracker.log(LOG_TAG) { "host-change config_update timed out, forcing session restart" }
                 liveSession.refresh()
             }
         }
@@ -119,9 +127,10 @@ internal class AllohaExtractor @Inject constructor(
         }
 
         lateinit var timeout: Runnable
+        lateinit var noSignalTimeout: Runnable
         val masterWaitTimeout = Runnable {
             if (!delivered && streamReady) {
-                Log.w(LOG_TAG, "refreshed master timeout, using captured quality playlist")
+                analyticsTracker.log(LOG_TAG) { "refreshed master timeout, using captured quality playlist" }
                 delivered = true
                 handler.removeCallbacks(timeout)
                 resumeWithProxy()
@@ -133,6 +142,7 @@ internal class AllohaExtractor @Inject constructor(
             delivered = true
             handler.removeCallbacks(timeout)
             handler.removeCallbacks(masterWaitTimeout)
+            handler.removeCallbacks(noSignalTimeout)
             resumeWithProxy()
         }
 
@@ -144,7 +154,33 @@ internal class AllohaExtractor @Inject constructor(
             if (continuation.isActive) continuation.resume(reason)
         }
 
+        // Measured on device: when the iframe loads at all, onReady follows within 0.15-0.9s. A run
+        // where nothing has arrived is therefore already lost long before TIMEOUT_MS - the page
+        // silently never loads (no onload, no WebViewClient error), which is by far the most common
+        // way re-entering the player hangs. Reloading the wrapper is cheap and usually succeeds, so
+        // spend the same 30s budget on three chances instead of one dead wait.
+        noSignalTimeout = Runnable {
+            if (delivered || streamReady) return@Runnable
+            if (wrapperReloads >= MAX_WRAPPER_RELOADS) return@Runnable
+            wrapperReloads++
+            analyticsTracker.log(LOG_TAG) {
+                "no signal after ${NO_SIGNAL_TIMEOUT_MS}ms, reloading wrapper " +
+                        "attempt=$wrapperReloads/$MAX_WRAPPER_RELOADS"
+            }
+            reloadWrapper?.invoke()
+            handler.postDelayed(noSignalTimeout, NO_SIGNAL_TIMEOUT_MS)
+        }
+        handler.postDelayed(noSignalTimeout, NO_SIGNAL_TIMEOUT_MS)
+
         timeout = Runnable {
+            // Which signal is missing IS the diagnosis for a cold-start hang: no streamReady means
+            // the iframe never delivered its bnsi payload at all, while streamReady without a
+            // master is normally absorbed by masterWaitTimeout long before this fires. Without this
+            // line the 30s dead wait leaves nothing in logcat, only an analytics event.
+            analyticsTracker.log(LOG_TAG) {
+                "session timed out after ${TIMEOUT_MS}ms streamReady=$streamReady " +
+                        "refreshedMaster=$refreshedMasterReady"
+            }
             analyticsTracker.logExtractorFailure(
                 "Alloha",
                 iframeUrl,
@@ -159,7 +195,10 @@ internal class AllohaExtractor @Inject constructor(
             fun onReady(responseJson: String, headersJson: String) {
                 extractorScope.launch {
                     val parsed = runCatching {
-                        Pair(parseSources(responseJson), parseHeaders(headersJson))
+                        Pair(
+                            parseSources(responseJson, analyticsTracker),
+                            parseHeaders(headersJson)
+                        )
                     }
                     handler.post {
                         parsed.onSuccess { (sources, headers) ->
@@ -169,7 +208,8 @@ internal class AllohaExtractor @Inject constructor(
                             liveSession.updateHeaders(headers)
                             fallbackTtlSeconds?.let(liveSession::ensureFallbackExpiry)
                             streamReady = true
-                            Log.i(LOG_TAG, "ready headers=${liveSession.safeHeaderState()}")
+                            handler.removeCallbacks(noSignalTimeout)
+                            analyticsTracker.log(LOG_TAG) { "ready headers=${liveSession.safeHeaderState()}" }
                             deliverWhenReady()
                             if (!delivered) {
                                 handler.removeCallbacks(masterWaitTimeout)
@@ -205,12 +245,9 @@ internal class AllohaExtractor @Inject constructor(
                         handler.removeCallbacks(hostChangeFallback)
                         liveSession.updateMasterUrl(pendingMaster)
                         pendingHostChangeMaster = null
-                        Log.i(LOG_TAG, "host change confirmed by fresh config_update")
+                        analyticsTracker.log(LOG_TAG) { "host change confirmed by fresh config_update" }
                     }
-                    Log.i(
-                        LOG_TAG,
-                        "config ttl=$ttlSeconds headers=${liveSession.safeHeaderState()}"
-                    )
+                    analyticsTracker.log(LOG_TAG) { "config ttl=$ttlSeconds headers=${liveSession.safeHeaderState()}" }
                 }
             }
 
@@ -231,10 +268,7 @@ internal class AllohaExtractor @Inject constructor(
                             // previous token keeps serving until then. Holding the master back here
                             // would only stall the commit.
                             liveSession.updateMasterUrl(masterUrl)
-                            Log.i(
-                                LOG_TAG,
-                                "master refreshed for staged rotation host=$newHost",
-                            )
+                            analyticsTracker.log(LOG_TAG) { "master refreshed for staged rotation host=$newHost" }
                         } else if (refreshedMasterReady && previousHost != null && newHost != null &&
                             previousHost != newHost
                         ) {
@@ -242,20 +276,27 @@ internal class AllohaExtractor @Inject constructor(
                             // still holding is signed for the OLD host and would 403 on the new
                             // one. Hold the master URL update until a fresh config_update confirms
                             // the new token, falling back to a full restart if none arrives.
-                            pendingHostChangeMaster = masterUrl
-                            handler.removeCallbacks(hostChangeFallback)
-                            handler.postDelayed(hostChangeFallback, HOST_CHANGE_CONFIG_WAIT_MS)
-                            Log.w(
-                                LOG_TAG,
-                                "master host changed $previousHost -> $newHost, awaiting fresh config_update",
-                            )
+                            //
+                            // Unless this session has never received a config_update at all - with
+                            // some CDNs the player's WebSocket dies seconds after opening and none
+                            // ever arrives. Waiting then only ever ends in that same fallback, so
+                            // take it straight away instead of stalling for HOST_CHANGE_CONFIG_WAIT_MS.
+                            if (!liveSession.hasSeenConfigUpdate) {
+                                analyticsTracker.log(LOG_TAG) {
+                                    "master host changed $previousHost -> $newHost and no " +
+                                            "config_update was ever seen, restarting session now"
+                                }
+                                liveSession.refresh()
+                            } else {
+                                pendingHostChangeMaster = masterUrl
+                                handler.removeCallbacks(hostChangeFallback)
+                                handler.postDelayed(hostChangeFallback, HOST_CHANGE_CONFIG_WAIT_MS)
+                                analyticsTracker.log(LOG_TAG) { "master host changed $previousHost -> $newHost, awaiting fresh config_update" }
+                            }
                         } else {
                             liveSession.updateMasterUrl(masterUrl)
                             refreshedMasterReady = true
-                            Log.i(
-                                LOG_TAG,
-                                "master refreshed headers=${liveSession.safeHeaderState()}"
-                            )
+                            analyticsTracker.log(LOG_TAG) { "master refreshed headers=${liveSession.safeHeaderState()}" }
                             deliverWhenReady()
                         }
                     }
@@ -284,11 +325,11 @@ internal class AllohaExtractor @Inject constructor(
 
             @JavascriptInterface
             fun onLog(message: String) {
-                Log.d(LOG_TAG, "WebView session: $message")
+                analyticsTracker.log(LOG_TAG) { "WebView session: $message" }
             }
         }
 
-        val userAgent = desktopUserAgent()
+        val userAgent = sessionUserAgent
         val parsedUrl = URL(iframeUrl)
         val baseUrl = "${parsedUrl.protocol}://${parsedUrl.host.lowercase(Locale.ROOT)}/"
         val html = wrapperHtml(iframeUrl)
@@ -304,6 +345,10 @@ internal class AllohaExtractor @Inject constructor(
             onResume()
             resumeTimers()
             loadDataWithBaseURL(baseUrl, html, "text/html", "UTF-8", null)
+        }
+        reloadWrapper = {
+            webView.settings.userAgentString = userAgent
+            webView.loadDataWithBaseURL(baseUrl, html, "text/html", "UTF-8", null)
         }
         liveSession.attach(
             webView = webView,
@@ -340,6 +385,12 @@ internal class AllohaExtractor @Inject constructor(
             "X11; Ubuntu; Linux x86_64",
         )
         const val TIMEOUT_MS = 30_000L
+
+        // How long to wait with NO signal at all (no onReady) before reloading the wrapper. Kept
+        // well above the observed 0.15-0.9s happy path so a genuinely slow connection still has
+        // room, while MAX_WRAPPER_RELOADS keeps the total inside TIMEOUT_MS.
+        const val NO_SIGNAL_TIMEOUT_MS = 10_000L
+        const val MAX_WRAPPER_RELOADS = 2
 
         // How long to wait for the iframe's own master.m3u8 (onM3u8Refreshed) before falling back
         // to the raw bnsi quality URL. The bnsi URL carries a path token the CDN rejects with 403

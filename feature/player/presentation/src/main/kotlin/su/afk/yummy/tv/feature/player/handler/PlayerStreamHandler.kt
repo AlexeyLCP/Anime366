@@ -1,5 +1,7 @@
 package su.afk.yummy.tv.feature.player.handler
 
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.first
 import su.afk.yummy.tv.core.error.api.StringProvider
 import su.afk.yummy.tv.core.model.anime.isContinueWatchingProgress
@@ -35,7 +37,7 @@ internal class PlayerStreamHandler @Inject constructor(
         reuseAllohaPlaybackSession: Boolean = true,
         selectedQualityOverride: String? = null,
         forceRefresh: Boolean = false,
-    ): PlayerStreamResult {
+    ): PlayerStreamResult = coroutineScope {
         val request = PlayerStreamRequest(
             iframeUrl = activeIframeUrl(state),
             autoQualityLabel = strings.get(R.string.player_quality_auto),
@@ -43,25 +45,35 @@ internal class PlayerStreamHandler @Inject constructor(
             reusePlaybackSession = reuseAllohaPlaybackSession,
             forceRefresh = forceRefresh,
         )
+        // Started before the extraction is awaited: neither depends on it, and on the Alloha path
+        // openAllohaStreamSession() drives a WebView for seconds, during which a DataStore read and
+        // a Room read would otherwise just sit in the queue behind it.
+        //
+        // The saved dubbing is deliberately NOT applied here: selectAudioTrack() resets the live
+        // session's master URL to the bnsi one parsed out of the source list, and that URL carries
+        // a path token the CDN answers with 403 token_decrypt once the session is live. It may only
+        // run after the correctly-signed master is in play, which is why it stays in the ViewModel.
+        val preferredHeightAsync = async { settingsStore.preferredVideoQuality.first().height }
+        val resumeAsync = async {
+            pendingResumeMs ?: loadResumePosition(state.animeId, activeEpisode(state))
+        }
+
         val session = if (request.iframeUrl.isAllohaPlayerUrl()) {
             openAllohaStreamSession(request)
         } else null
         val resolved = session?.initialStream ?: resolvePlayerStream(request)
-        return when (val result = resolved) {
+        when (val result = resolved) {
             is PlayerStreamResolveResult.Stream -> {
-                val resume = pendingResumeMs
-                    ?: loadResumePosition(state.animeId, activeEpisode(state))
-                    ?: 0L
                 val selectedQuality = selectedQualityOverride
                     ?.takeIf { quality -> result.qualities?.containsKey(quality) == true }
-                    ?: selectedQuality(result.qualities)
+                    ?: selectedQuality(result.qualities, preferredHeightAsync.await())
                 if (selectedQuality != null) session?.selectQuality(selectedQuality)
                 PlayerStreamResult.Stream(
                     url = result.url,
                     headers = result.headers,
                     qualities = result.qualities,
                     selectedQuality = selectedQuality,
-                    resumeFromMs = resume,
+                    resumeFromMs = resumeAsync.await() ?: 0L,
                     consumedPendingResume = pendingResumeMs != null,
                     allohaSession = session,
                     allohaAudioTracks = result.allohaAudioTracks,
@@ -122,11 +134,11 @@ internal class PlayerStreamHandler @Inject constructor(
         return progress.positionMs.takeIf { progress.isContinueWatchingProgress() }
     }
 
-    private suspend fun selectedQuality(
+    private fun selectedQuality(
         qualities: LinkedHashMap<String, String>?,
+        preferredHeight: Int?,
     ): String? {
-        val preferred = settingsStore.preferredVideoQuality.first()
-        val preferredHeight = preferred.height ?: return null
+        if (preferredHeight == null) return null
         val available = qualities
             ?.keys
             ?.mapNotNull { label -> label.qualityHeight()?.let { height -> label to height } }

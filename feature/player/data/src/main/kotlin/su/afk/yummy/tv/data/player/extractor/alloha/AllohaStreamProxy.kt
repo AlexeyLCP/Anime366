@@ -13,14 +13,17 @@ import kotlinx.coroutines.launch
 import okhttp3.ConnectionPool
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import su.afk.yummy.tv.core.analytics.api.AnalyticsTracker
 import su.afk.yummy.tv.core.utils.coroutines.ioScope
 import java.io.OutputStream
+import java.net.InetAddress
 import java.net.ServerSocket
 import java.net.Socket
 import java.net.URL
 import java.net.URLDecoder
 import java.net.URLEncoder
 import java.security.MessageDigest
+import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
@@ -51,9 +54,27 @@ internal class AllohaStreamProxy(
     private val streamStateProvider: () -> AllohaStreamState,
     private val masterProvider: (audioId: String?, quality: String?) -> String?,
     private val requestSessionRefresh: () -> Unit,
+    private val analytics: AnalyticsTracker,
 ) : AutoCloseable {
     private val scope = ioScope()
-    private val server = ServerSocket(0, 8)
+
+    // Bound to the IPv4 loopback explicitly rather than InetAddress.getLoopbackAddress(): on a
+    // device that prefers IPv6 the latter resolves to ::1, so nothing ends up listening on the
+    // 127.0.0.1 that every URL below points at and Media3 fails each request with a
+    // ConnectException. Pinning both ends to the same literal keeps them in step, and a literal
+    // address needs no name resolution.
+    private val server = ServerSocket(0, 8, InetAddress.getByName(LOOPBACK_HOST))
+
+    // Per-session secret so that no other app on the device (loopback ports aren't isolated
+    // between apps of the same Android user) can drive this proxy even while it's bound to
+    // loopback. UUID.randomUUID() is backed by SecureRandom.
+    private val sessionToken = UUID.randomUUID().toString()
+
+    // Verbose diagnostics are off by default: safeSummary() costs four SHA-256 digests plus up to
+    // three CookieManager lookups, and logPlaylistAudioState() re-scans the whole playlist - too
+    // much to pay on every segment/playlist request. Turn on at runtime when debugging with
+    // `adb shell setprop log.tag.AllohaStreamProxy DEBUG`.
+    private val verbose = Log.isLoggable(LOG_TAG, Log.DEBUG)
 
     private val lastSeenGeneration = AtomicLong(-1L)
     private val rejectedSessionGeneration = AtomicLong(-1L)
@@ -84,13 +105,10 @@ internal class AllohaStreamProxy(
     @Volatile
     private var recentSegments: List<String> = emptyList()
 
-    val playbackUrl = "http://127.0.0.1:${server.localPort}/master.m3u8"
+    val playbackUrl = "http://$LOOPBACK_HOST:${server.localPort}/master.m3u8?token=$sessionToken"
 
     init {
-        Log.i(
-            LOG_TAG,
-            "Proxy started port=${server.localPort} ${streamStateProvider().safeSummary()}",
-        )
+        analytics.log(LOG_TAG) { "Proxy started port=${server.localPort} ${streamStateProvider().summary()}" }
         scope.launch {
             while (isActive) {
                 runCatching { server.accept() }.getOrNull()
@@ -111,13 +129,13 @@ internal class AllohaStreamProxy(
             quality?.takeIf(String::isNotBlank)
                 ?.let { add("quality=${URLEncoder.encode(it, "UTF-8")}") }
         }
-        if (params.isNotEmpty()) append("?").append(params.joinToString("&"))
+        if (params.isNotEmpty()) append("&").append(params.joinToString("&"))
     }
 
     /** Proxies an arbitrary session URL (e.g. a subtitle file) through this session's headers. */
     fun sideloadUrl(url: String): String {
         val encoded = Base64.encodeToString(url.toByteArray(), Base64.URL_SAFE or Base64.NO_WRAP)
-        return "http://127.0.0.1:${server.localPort}/proxy?url=$encoded"
+        return "http://$LOOPBACK_HOST:${server.localPort}/proxy?url=$encoded&token=$sessionToken"
     }
 
     private fun buildConnectionPool(): ConnectionPool = ConnectionPool(5, 20, TimeUnit.SECONDS)
@@ -148,13 +166,18 @@ internal class AllohaStreamProxy(
         // force Media3 to redownload content we already have, which is visible as a stall right at
         // the rotation. The new client/pool is what matters: no keep-alive connection from the old
         // session may survive into the new one.
+        //
+        // A bare evictAll() on the existing pool is NOT enough for that: it closes idle connections
+        // only, so a connection that happens to be mid-call during the eviction is returned to that
+        // same pool afterwards and can be picked up again by the new session. Swapping in a fresh
+        // pool is what actually keeps the two sessions' connections apart.
         val oldPool = connectionPool
         connectionPool = buildConnectionPool()
         client = buildClient()
         // evictAll() closes the idle connections only, so nothing from the old session can be
         // picked up again, while the calls still running on it are allowed to finish.
         oldPool.evictAll()
-        Log.i(LOG_TAG, "Session transport reset ${state.safeSummary()}")
+        analytics.log(LOG_TAG) { "Session transport reset ${state.summary()}" }
     }
 
     private suspend fun handle(socket: Socket) {
@@ -172,27 +195,37 @@ internal class AllohaStreamProxy(
                     )
                 }
             }
+            val path = requestLine.split(' ').getOrNull(1) ?: return
+            // Parsed once: this runs per segment, and the `url=` value is a long base64 blob, so
+            // rescanning the path for every parameter is real work on the hot path. A proper
+            // name/value split also avoids matching a parameter name as a mere substring.
+            val params = parseQuery(path)
+
+            // Gate every request on the per-session token before doing any work with it, so an
+            // unrelated caller on the same device can't drive the proxy even though it's bound
+            // to loopback.
+            if (params["token"] != sessionToken) {
+                send(it.getOutputStream(), 404, "text/plain", byteArrayOf())
+                return
+            }
+
             val state = streamStateProvider()
             noteActiveState(state)
-            val path = requestLine.split(' ').getOrNull(1) ?: return
-            val target = if (path.startsWith("/master.m3u8")) {
-                fun param(name: String): String? = path.substringAfter("$name=", "")
-                    .takeIf(String::isNotBlank)
-                    ?.let { encoded -> URLDecoder.decode(encoded.substringBefore('&'), "UTF-8") }
-                masterProvider(param("audio"), param("quality")) ?: state.masterUrl
+            val target = if (path.substringBefore('?') == "/master.m3u8") {
+                masterProvider(params["audio"], params["quality"]) ?: state.masterUrl
             } else {
-                path.substringAfter("url=", "").takeIf(String::isNotBlank)
-                    ?.let { encoded ->
-                        String(
-                            Base64.decode(
-                                URLDecoder.decode(encoded, "UTF-8"),
-                                Base64.URL_SAFE
-                            )
-                        )
-                    }
-                    .orEmpty()
+                params["url"]?.let { encoded ->
+                    runCatching {
+                        String(Base64.decode(encoded, Base64.URL_SAFE))
+                    }.getOrNull()
+                }.orEmpty()
             }
-            if (target.isBlank()) {
+            // Only a syntactic check, deliberately: anything that needs the network (name
+            // resolution in particular) must not sit in front of every segment. A 404 here is a
+            // fatal response code for Media3 (see PlayerLoadErrorHandlingPolicy), so it may only
+            // ever mean "this request is malformed", never "the network hiccuped" - the latter has
+            // to reach fetchWithRecovery and come back as a retriable 503.
+            if (!target.isHttpUrl()) {
                 send(it.getOutputStream(), 404, "text/plain", byteArrayOf())
                 return
             }
@@ -219,7 +252,7 @@ internal class AllohaStreamProxy(
             return
         }
         val text = result.bytes.toString(Charsets.UTF_8)
-        logPlaylistAudioState(text)
+        if (verbose) logPlaylistAudioState(text)
         val rewritten = rewritePlaylist(text, result.finalUrl)
         send(output, 200, "application/vnd.apple.mpegurl", rewritten.toByteArray())
     }
@@ -250,22 +283,28 @@ internal class AllohaStreamProxy(
 
         if (result == null) {
             if (url.contains("-a1.ts") || url.contains("-a2.ts")) {
-                Log.w(
-                    LOG_TAG,
-                    "Audio TS segment unrecoverable, serving empty packet: ${url.takeLast(80)}"
-                )
+                analytics.log(LOG_TAG) {
+                    "Audio TS segment unrecoverable, serving empty packet: ${
+                        url.takeLast(
+                            80
+                        )
+                    }"
+                }
                 sendBytes(output, FetchResult(EMPTY_TS_PACKET, 200, "video/MP2T", url))
             } else {
-                Log.w(LOG_TAG, "Media segment unrecoverable: ${url.takeLast(80)}")
+                analytics.log(LOG_TAG) { "Media segment unrecoverable: ${url.takeLast(80)}" }
                 send(output, 503, "text/plain", byteArrayOf())
             }
             return
         }
         if (result.bytes.size < MIN_SEGMENT_BYTES_HINT) {
-            Log.w(
-                LOG_TAG,
-                "Serving suspiciously small segment (${result.bytes.size}b): ${url.takeLast(80)}"
-            )
+            analytics.log(LOG_TAG) {
+                "Serving suspiciously small segment (${result.bytes.size}b): ${
+                    url.takeLast(
+                        80
+                    )
+                }"
+            }
         }
         sendBytes(output, result)
         prefetchUpcoming(url)
@@ -359,6 +398,23 @@ internal class AllohaStreamProxy(
                 if (currentHeaders.keys.none { it.equals("accept", ignoreCase = true) }) {
                     header("Accept", "*/*")
                 }
+                // Headers a real Chrome always sends but the page never sets explicitly, so the
+                // wrapper's setRequestHeader/fetch hooks never capture them. Without these the CDN
+                // sees a Chrome user-agent with no client hints and no language - an obvious
+                // mismatch. Derived from the UA we present so the two agree with each other.
+                if (currentHeaders.keys.none { it.equals("accept-language", ignoreCase = true) }) {
+                    header("Accept-Language", DEFAULT_ACCEPT_LANGUAGE)
+                }
+                val presentedUa = currentHeaders["user-agent"].orEmpty()
+                CHROME_VERSION.find(presentedUa)?.groupValues?.get(1)?.let { major ->
+                    header(
+                        "sec-ch-ua",
+                        "\"Chromium\";v=\"$major\", \"Google Chrome\";v=\"$major\", " +
+                                "\"Not_A Brand\";v=\"24\"",
+                    )
+                    header("sec-ch-ua-mobile", "?0")
+                    header("sec-ch-ua-platform", platformHintFor(presentedUa))
+                }
                 cookie?.let { header("Cookie", it) }
                 if (forwardRange) {
                     requestHeaders["range"]?.let { header("Range", it) }
@@ -366,6 +422,20 @@ internal class AllohaStreamProxy(
                 }
             }.build()
 
+            // The exact header set we present to the CDN. A mismatch here (a Chrome UA with no
+            // Accept-Language and no client hints) is what earned 403 client_blocked, so this is
+            // the first thing to check when the CDN starts refusing the proxy while the page's
+            // own player still loads fine.
+            if (verbose) analytics.log(LOG_TAG) {
+                "outgoing " + request.headers.names().joinToString(",") +
+                        " | ua=" + (request.header("User-Agent") ?: "-").take(48) +
+                        " | accept=" + (request.header("Accept") ?: "-") +
+                        " | lang=" + (request.header("Accept-Language") ?: "MISSING") +
+                        " | chUa=" + (request.header("sec-ch-ua") ?: "MISSING") +
+                        " | origin=" + (request.header("Origin") ?: "-") +
+                        " | referer=" + (request.header("Referer") ?: "-") +
+                        " | cookie=" + (if (request.header("Cookie") != null) "yes" else "no")
+            }
             val requestClient = client
             val requestPool = connectionPool
             fun perform(requestToSend: Request, connectionCloseRetry: Boolean): FetchResult? =
@@ -378,12 +448,16 @@ internal class AllohaStreamProxy(
                                 rejectedGeneration = maxOf(rejectedGeneration, state.generation)
                                 rejectedMarker = xVd
                             }
-                            Log.w(
-                                LOG_TAG,
+                            analytics.log(LOG_TAG) {
                                 "CDN failure code=${response.code} xVd=$xVd " +
-                                        "closeRetry=$connectionCloseRetry ${state.safeSummary()} " +
-                                        "target=${target.safeTarget()}",
-                            )
+                                        "closeRetry=$connectionCloseRetry ${state.summary()} " +
+                                        // The only place a rejection's response headers are
+                                        // visible. Set-Cookie in particular answers whether the
+                                        // CDN is handing us a challenge cookie that the proxy's
+                                        // cookie-less OkHttpClient would silently drop.
+                                        "setCookie=${response.headers("Set-Cookie")} " +
+                                        "target=${target.safeTarget()}"
+                            }
                             null
                         } else {
                             backgroundRefreshConsumedSinceSuccess.set(false)
@@ -404,22 +478,20 @@ internal class AllohaStreamProxy(
                         }
                     }
                 }.onFailure {
-                    Log.w(
-                        LOG_TAG,
+                    analytics.log(LOG_TAG) {
                         "CDN request failed type=${it::class.java.simpleName} " +
-                                "message=${it.message} ${state.safeSummary()} target=${target.safeTarget()}"
-                    )
+                                "message=${it.message} ${state.summary()} target=${target.safeTarget()}"
+                    }
                 }.getOrNull()
 
             perform(request, connectionCloseRetry = false)?.let { return it }
             if (statusCode != 403) return null
 
             requestPool.evictAll()
-            Log.i(
-                LOG_TAG,
-                "Retrying exact 403 request with Connection: close ${state.safeSummary()} " +
-                        "target=${target.safeTarget()}",
-            )
+            analytics.log(LOG_TAG) {
+                "Retrying exact 403 request with Connection: close ${state.summary()} " +
+                        "target=${target.safeTarget()}"
+            }
             val retryRequest = request.newBuilder().header("Connection", "close").build()
             val retryResult = perform(retryRequest, connectionCloseRetry = true)
             if (retryResult == null && statusCode == 403 && rejectedGeneration >= state.generation) {
@@ -460,17 +532,16 @@ internal class AllohaStreamProxy(
                 val state = streamStateProvider()
                 if (state.generation > initialGeneration) {
                     noteActiveState(state)
-                    Log.i(
-                        LOG_TAG,
-                        "Retrying held segment on refreshed session ${state.safeSummary()} " +
-                                "target=${url.safeTarget()}",
-                    )
+                    analytics.log(LOG_TAG) {
+                        "Retrying held segment on refreshed session ${state.summary()} " +
+                                "target=${url.safeTarget()}"
+                    }
                     // Prefer the current session's path: the refreshed master usually moves.
                     val target = rewriteToCurrentPath(url, state.masterUrl) ?: url
                     return execute(target)
                 }
             }
-            Log.w(LOG_TAG, "Held segment timed out waiting for refresh target=${url.safeTarget()}")
+            analytics.log(LOG_TAG) { "Held segment timed out waiting for refresh target=${url.safeTarget()}" }
             return null
         }
 
@@ -486,10 +557,7 @@ internal class AllohaStreamProxy(
         // the currently authorized master path is cheap and remains synchronous.
         if (!isPlaylistUrl(url)) {
             rewriteToCurrentPath(url, streamStateProvider().masterUrl)?.let { rewritten ->
-                Log.i(
-                    LOG_TAG,
-                    "Retrying segment on current session path target=${rewritten.safeTarget()}",
-                )
+                analytics.log(LOG_TAG) { "Retrying segment on current session path target=${rewritten.safeTarget()}" }
                 execute(rewritten)?.let { return it }
             }
         }
@@ -503,14 +571,15 @@ internal class AllohaStreamProxy(
             if (state.generation <= previous) return
             if (rejectedSessionGeneration.compareAndSet(previous, state.generation)) {
                 lastRejectionMarker.set(marker)
-                Log.w(
-                    LOG_TAG,
-                    "Session generation confirmed rejected marker=$marker ${state.safeSummary()}"
-                )
+                analytics.log(LOG_TAG) { "Session generation confirmed rejected marker=$marker ${state.summary()}" }
                 return
             }
         }
     }
+
+    /** The full fingerprinted state only when [verbose] is on - see the field's comment. */
+    private fun AllohaStreamState.summary(): String =
+        if (verbose) safeSummary() else shortSummary()
 
     private fun rewriteToCurrentPath(failedUrl: String, currentMaster: String): String? {
         if (currentMaster.isBlank()) return null
@@ -553,17 +622,14 @@ internal class AllohaStreamProxy(
         }
         if (isLeader) {
             try {
-                Log.i(LOG_TAG, "Requesting session refresh generation=$previousGeneration")
+                analytics.log(LOG_TAG) { "Requesting session refresh generation=$previousGeneration" }
                 requestSessionRefresh()
                 val deadline = System.currentTimeMillis() + SESSION_REFRESH_WAIT_MS
                 while (System.currentTimeMillis() < deadline) {
                     val state = streamStateProvider()
                     if (state.generation > previousGeneration) {
                         noteActiveState(state)
-                        Log.i(
-                            LOG_TAG,
-                            "Session refresh completed ${state.safeSummary()}",
-                        )
+                        analytics.log(LOG_TAG) { "Session refresh completed ${state.summary()}" }
                         return true
                     }
                     delay(SESSION_REFRESH_POLL_MS)
@@ -586,29 +652,22 @@ internal class AllohaStreamProxy(
     /** @return true when a refresh is now in flight, so a caller may wait for a new generation. */
     private fun scheduleBackgroundSessionRefresh(previousGeneration: Long): Boolean {
         if (!backgroundRefreshScheduled.compareAndSet(false, true)) {
-            Log.d(
-                LOG_TAG,
-                "Background session refresh already scheduled generation=$previousGeneration"
-            )
+            analytics.log(LOG_TAG) { "Background session refresh already scheduled generation=$previousGeneration" }
             return true
         }
         if (!backgroundRefreshConsumedSinceSuccess.compareAndSet(false, true)) {
             backgroundRefreshScheduled.set(false)
-            Log.w(
-                LOG_TAG,
+            analytics.log(LOG_TAG) {
                 "Background session refresh already consumed without a successful CDN response " +
-                        "generation=$previousGeneration",
-            )
+                        "generation=$previousGeneration"
+            }
             return false
         }
         scope.launch {
             try {
-                Log.i(LOG_TAG, "Starting background session refresh generation=$previousGeneration")
+                analytics.log(LOG_TAG) { "Starting background session refresh generation=$previousGeneration" }
                 if (!refreshSessionOnce(previousGeneration)) {
-                    Log.w(
-                        LOG_TAG,
-                        "Background session refresh timed out generation=$previousGeneration"
-                    )
+                    analytics.log(LOG_TAG) { "Background session refresh timed out generation=$previousGeneration" }
                 }
             } finally {
                 backgroundRefreshScheduled.set(false)
@@ -625,7 +684,7 @@ internal class AllohaStreamProxy(
             if (trackForPrefetch) collectedSegments += absolute
             val encoded =
                 Base64.encodeToString(absolute.toByteArray(), Base64.URL_SAFE or Base64.NO_WRAP)
-            return "http://127.0.0.1:${server.localPort}/proxy?url=$encoded"
+            return "http://$LOOPBACK_HOST:${server.localPort}/proxy?url=$encoded&token=$sessionToken"
         }
 
         val rewritten = content.lines().joinToString("\n") { line ->
@@ -659,16 +718,15 @@ internal class AllohaStreamProxy(
                     .filterKeys { it in AUDIO_LOG_ATTRIBUTES }
             }
             .toList()
-        Log.i(
-            LOG_TAG,
+        analytics.log(LOG_TAG) {
             "playlist master=${content.contains("#EXT-X-STREAM-INF")} " +
                     "audioEntries=${audioEntries.size} audio=$audioEntries " +
                     "children=${
                         content.lineSequence().map(String::trim).filter { line ->
                             line.isNotBlank() && !line.startsWith("#") && line.contains(".m3u8")
                         }.map { it.substringBefore('?').substringAfterLast('/') }.toList()
-                    }",
-        )
+                    }"
+        }
     }
 
     private fun send(output: OutputStream, code: Int, type: String, bytes: ByteArray) {
@@ -699,6 +757,9 @@ internal class AllohaStreamProxy(
 
     private companion object {
         const val LOG_TAG = "AllohaStreamProxy"
+
+        /** Both the bind address and the host of every URL handed to Media3 - they must match. */
+        const val LOOPBACK_HOST = "127.0.0.1"
         const val SESSION_REFRESH_WAIT_MS = 20_000L
         const val SESSION_REFRESH_POLL_MS = 150L
 
@@ -734,6 +795,15 @@ internal class AllohaStreamProxy(
             "x-requested-with",
             "content-type",
         )
+        const val DEFAULT_ACCEPT_LANGUAGE = "ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7"
+        val CHROME_VERSION = Regex("""Chrome/(\d+)""")
+
+        fun platformHintFor(userAgent: String): String = when {
+            userAgent.contains("Windows", ignoreCase = true) -> "\"Windows\""
+            userAgent.contains("Macintosh", ignoreCase = true) -> "\"macOS\""
+            else -> "\"Linux\""
+        }
+
         const val TOKEN_DECRYPT_MARKER = "token_decrypt"
         val SESSION_REJECTION_MARKERS =
             setOf("session_blocked", TOKEN_DECRYPT_MARKER, "client_blocked")
@@ -757,6 +827,25 @@ internal class AllohaStreamProxy(
 
         fun isPlaylistUrl(url: String): Boolean = url.contains(".m3u8", ignoreCase = true)
 
+        fun String.isHttpUrl(): Boolean =
+            startsWith("http://", ignoreCase = true) || startsWith("https://", ignoreCase = true)
+
+        /** Splits a request path's query into decoded name/value pairs in a single pass. */
+        fun parseQuery(path: String): Map<String, String> {
+            val query = path.substringAfter('?', "")
+            if (query.isEmpty()) return emptyMap()
+            return buildMap {
+                query.splitToSequence('&').forEach { pair ->
+                    val separator = pair.indexOf('=')
+                    if (separator <= 0) return@forEach
+                    val value = runCatching {
+                        URLDecoder.decode(pair.substring(separator + 1), "UTF-8")
+                    }.getOrNull() ?: return@forEach
+                    put(pair.substring(0, separator), value)
+                }
+            }
+        }
+
         fun isAssSubtitleUrl(url: String): Boolean {
             val extension = url.substringBefore('?').substringAfterLast('.', "").lowercase()
             return extension == "ass" || extension == "ssa"
@@ -773,6 +862,11 @@ internal class AllohaStreamProxy(
                 .digest(toByteArray())
                 .take(4)
                 .joinToString("") { "%02x".format(it.toInt() and 0xff) }
+        }
+
+        fun AllohaStreamState.shortSummary(): String {
+            val host = runCatching { URL(masterUrl).host }.getOrDefault("unknown")
+            return "generation=$generation host=$host"
         }
 
         fun AllohaStreamState.safeSummary(): String {

@@ -16,9 +16,24 @@ internal fun wrapperHtml(iframeUrl: String): String = """
       Object.defineProperty(document, 'visibilityState', {get:function(){return 'visible'}});
       Object.defineProperty(document, 'hidden', {get:function(){return false}});
     } catch(e) {}
-    document.getElementById('alloha').onload = function() {
+    // Shared across installs: the iframe hands us a fresh window when it navigates from its
+    // initial about:blank to the real player URL, and the state has to survive that.
+    var bnsi = null, headers = {}, done = false;
+    function allohaInstall(frame) {
+      var w, href, xhrProtoOpen;
+      try { w = frame.contentWindow; } catch(e) { return false; }
+      if(!w) return false;
+      // Not ready (or not same-origin yet) - try again on the next poll.
+      try { href = w.location.href; } catch(e) { return false; }
+      if(!href || href === 'about:blank') return false;
+      // The guard lives on the wrapper function itself, not on the window: a window expando did
+      // not hold and the poll below re-wrapped the hooks hundreds of times, each wrapping the
+      // previous one. A fresh document always brings a pristine native open(), so this both
+      // prevents double-wrapping and still re-installs after navigation.
+      try { xhrProtoOpen = w.XMLHttpRequest.prototype.open; } catch(e) { return false; }
+      if(!xhrProtoOpen) return false;
+      if(xhrProtoOpen.__alloha) return true;
       try {
-        var w = this.contentWindow, bnsi = null, headers = {}, done = false;
         try {
           Object.defineProperty(w.document, 'visibilityState', {get:function(){return 'visible'}});
           Object.defineProperty(w.document, 'hidden', {get:function(){return false}});
@@ -98,35 +113,18 @@ internal fun wrapperHtml(iframeUrl: String): String = """
           });
           return open.apply(this, arguments);
         };
+        w.XMLHttpRequest.prototype.open.__alloha = true;
         var setHeader = w.XMLHttpRequest.prototype.setRequestHeader;
         w.XMLHttpRequest.prototype.setRequestHeader = function(k,v) {
           put(k,v); ready(); return setHeader.apply(this, arguments);
         };
-        // The CDN token baked into the master path is single-use: whoever GETs it first wins,
-        // the loser gets 403 token_decrypt. The player's own master XHR is native and already
-        // in flight from this same JS tick, so it always beats our JSBridge->OkHttp proxy and
-        // burns the token before the proxy can use it (its response is CORS-blocked from JS
-        // anyway, so the player gains nothing from it). We therefore CAPTURE the master URL +
-        // headers here but never let the request reach the network, leaving the token fresh for
-        // the proxy - the sole consumer. A blocked XHR is failed asynchronously so the player's
-        // error path still runs. Non-master XHRs (bnsi, config, etc.) pass through untouched.
-        var xhrSend = w.XMLHttpRequest.prototype.send;
-        w.XMLHttpRequest.prototype.send = function() {
-          var u = this.__allohaUrl || '';
-          if(isCdnMaster(u)) {
-            reportMaster(u);
-            var self = this;
-            setTimeout(function() {
-              try {
-                self.dispatchEvent(new Event('error'));
-                self.dispatchEvent(new Event('loadend'));
-              } catch(e) {}
-            }, 0);
-            return;
-          }
-          reportMaster(u);
-          return xhrSend.apply(this, arguments);
-        };
+        // The player's own master.m3u8 request is deliberately left alone. It used to be withheld
+        // here on the premise that the CDN path token is single-use and whoever GETs it first
+        // burns it - but alloha-parser-kotlin only observes the request and then re-fetches the
+        // very same URL through its own proxy, and streams fine. Withholding it instead left the
+        // page's player with no media at all (readyState 0), so it tore down its WebSocket after
+        // ~2.5s, no config_update ever arrived, and every session rotation stalled on a signal
+        // that could not come. Master capture now rides the load/loadend listeners above.
         var fetch = w.fetch;
         w.fetch = function(input,init) {
           try {
@@ -138,11 +136,6 @@ internal fun wrapperHtml(iframeUrl: String): String = """
             ready();
             extractCdnHosts();
             reportMaster(url);
-            if(isCdnMaster(url)) {
-              // Same single-use-token reason as the XHR send() hook: capture but never fetch,
-              // so the token stays fresh for the proxy. Reject so the player's error path runs.
-              return Promise.reject(new TypeError('alloha: master fetch withheld to preserve CDN token'));
-            }
             if(url && (url.indexOf('.m3u8') !== -1 || url.indexOf('.ts') !== -1 || url.indexOf('.m4s') !== -1) &&
                 primaryHost && fallbackHost && url.indexOf(primaryHost) !== -1) {
               var fallbackUrl = url.indexOf('master.m3u8') !== -1 && fallbackMasterUrl
@@ -178,7 +171,7 @@ internal fun wrapperHtml(iframeUrl: String): String = """
           socket.__allohaHooked = true;
           activeSocket = socket;
           started = Date.now();
-          AndroidBridge.onLog('WebSocket hooked');
+            AndroidBridge.onLog('WebSocket hooked');
           socket.addEventListener('message', function(event) {
             try {
               var message = JSON.parse(event.data);
@@ -232,17 +225,46 @@ internal fun wrapperHtml(iframeUrl: String): String = """
               }
             } catch(e) {}
           }
-          // Keep the iframe player actively playing even AFTER the session is captured. If we
-          // stop at 'done', the player pauses and tears down its WebSocket (~2.4s) before it
-          // ever fetches its correctly-signed master.m3u8 (onM3u8Refreshed), forcing us onto the
-          // raw bnsi URL that the CDN rejects with 403 token_decrypt. Keeping it playing makes
-          // the player keep (re)fetching its own master and keeps the socket alive for heartbeats.
-          var button = w.document.querySelector('.allplay__play-btn'); if(button) button.click();
+          // Keep the iframe player trying to play even AFTER the session is captured, so it keeps
+          // (re)fetching its own correctly-signed master.m3u8 (onM3u8Refreshed) instead of settling
+          // on the raw bnsi URL that the CDN rejects with 403 token_decrypt.
+          //
+          // Note it never actually plays: the send()/fetch hooks above withhold its master request
+          // to keep that single-use token fresh for our proxy, so its media element stays at
+          // readyState 0 with currentTime pinned at 0 (measured on device). The player therefore
+          // tears its own WebSocket down ~2.5s after opening it and no config_update ever arrives -
+          // that is inherent to withholding the master, not a bug to chase. LiveAllohaStreamSession
+          // detects it via sawConfigUpdate and stops waiting on signals that cannot come.
+          // The play control is only pressed while the player is NOT already playing. Verified
+          // against the live markup: the root carries `allplay--playing` while it runs, and the
+          // toggle button reports aria-label "Пауза" in that state - clicking it then would stop
+          // playback, which is the opposite of what this loop is for. (The previous selector,
+          // `.allplay__play-btn`, matched nothing at all on the current player, so this click had
+          // silently been a no-op.)
+          var root = w.document.querySelector('.allplay');
+          if(!root || !root.classList.contains('allplay--playing')) {
+            var button = w.document.querySelector('button.allplay__controls__item.allplay__control');
+            if(button) button.click();
+          }
           var video = w.document.querySelector('video');
           if(video) { video.muted = true; if(video.paused) video.play().catch(function(){}); }
         }, 1500);
-      } catch(e) { AndroidBridge.onLog(String(e)); }
-    };
+        return true;
+      } catch(e) { AndroidBridge.onLog('wrapper install failed: ' + e); return false; }
+    }
+    // Installed as soon as the iframe's document is reachable, NOT on its 'load' event. By the
+    // time 'load' fires the page's own scripts have run and its /bnsi/ request may already be
+    // complete, so the XHR hook never sees it and the extraction sits out the whole timeout while
+    // the player itself plays perfectly (measured on device: video readyState 4, player DOM
+    // complete, zero bnsi observed). The poll is bounded; onload stays as a safety net and also
+    // covers any later navigation of the frame.
+    var allohaFrame = document.getElementById('alloha');
+    allohaFrame.onload = function() { allohaInstall(allohaFrame); };
+    var installPoll = setInterval(function() {
+      if(allohaInstall(allohaFrame)) clearInterval(installPoll);
+    }, 20);
+    setTimeout(function() { clearInterval(installPoll); }, 8000);
+    allohaInstall(allohaFrame);
     </script></body></html>
 """.trimIndent()
 

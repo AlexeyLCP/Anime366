@@ -13,14 +13,6 @@ fun Player.positionSnapshot(fallbackDurationMs: Long): PlayerPositionSnapshot =
 fun PlaybackException.analyticsType(): String =
     this::class.java.simpleName.takeIf { it.isNotBlank() } ?: "unknown"
 
-/** Full exception/cause type chain without messages that may contain signed media URLs. */
-fun PlaybackException.diagnosticCauseChain(): String =
-    generateSequence(this as Throwable?) { it.cause }
-        .take(MAX_DIAGNOSTIC_CAUSES)
-        .joinToString(separator = " <- ") { throwable ->
-            throwable::class.java.name
-        }
-
 fun calculateBufferedProgress(
     bufferedPosition: Long,
     currentPosition: Long,
@@ -31,5 +23,3 @@ fun calculateBufferedProgress(
     val loadedProgress = bufferedPosition.coerceAtLeast(0L).toFloat() / duration
     return loadedProgress.coerceIn(playedProgress.coerceIn(0f, 1f), 1f)
 }
-
-private const val MAX_DIAGNOSTIC_CAUSES = 8

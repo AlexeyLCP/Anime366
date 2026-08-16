@@ -1,6 +1,5 @@
 package su.afk.yummy.tv.core.navigation.host
 
-import android.util.Log
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.ContentTransform
 import androidx.compose.runtime.Composable
@@ -73,7 +72,6 @@ fun AppNavHost(
             fallback = { unknownKey ->
                 NavEntry(unknownKey) {
                     LaunchedEffect(unknownKey) {
-                        Log.e("AppNavHost", "Unknown screen $unknownKey, navigating back")
                         navManager.back()
                     }
                 }

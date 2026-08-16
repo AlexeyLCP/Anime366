@@ -20,11 +20,14 @@ import su.afk.yummy.tv.core.preferences.settings.model.PlayerMobileVideoTransfor
 import su.afk.yummy.tv.core.preferences.settings.model.PlayerResizeMode
 import su.afk.yummy.tv.core.preferences.settings.model.PlayerResizeSettings
 import su.afk.yummy.tv.core.preferences.settings.model.PlayerZoomLevel
+import su.afk.yummy.tv.domain.player.model.AllohaAudioTrack
+import su.afk.yummy.tv.domain.player.model.AllohaSubtitleTrack
 import su.afk.yummy.tv.domain.videodownload.usecase.GetVideoDownloadUseCase
 import su.afk.yummy.tv.feature.details.IDetailsNavigator
 import su.afk.yummy.tv.feature.player.PlayerViewModel.Companion.CHANGE_PLAYER_HINT_DELAY_MS
 import su.afk.yummy.tv.feature.player.handler.PlayerAllohaRecoveryHandler
 import su.afk.yummy.tv.feature.player.handler.PlayerAllohaSessionHandler
+import su.afk.yummy.tv.feature.player.handler.PlayerAllohaTrackPreferenceHandler
 import su.afk.yummy.tv.feature.player.handler.PlayerDisplaySettingsHandler
 import su.afk.yummy.tv.feature.player.handler.PlayerFinalEpisodeActionHandler
 import su.afk.yummy.tv.feature.player.handler.PlayerPlaybackProgressHandler
@@ -40,6 +43,7 @@ import su.afk.yummy.tv.feature.player.navigator.PlayerDestination
 import su.afk.yummy.tv.feature.player.presentation.R
 import su.afk.yummy.tv.feature.player.utils.PlayerResizeSettingsScope
 import su.afk.yummy.tv.feature.player.utils.activeBalancerName
+import su.afk.yummy.tv.feature.player.utils.activeDubbingName
 import su.afk.yummy.tv.feature.player.utils.activeIframeUrl
 
 @HiltViewModel(assistedFactory = PlayerViewModel.Factory::class)
@@ -62,6 +66,7 @@ class PlayerViewModel @AssistedInject internal constructor(
     private val allohaRecovery: PlayerAllohaRecoveryHandler,
     private val playbackRetry: PlayerPlaybackRetryHandler,
     private val allohaSession: PlayerAllohaSessionHandler,
+    private val allohaTrackPreference: PlayerAllohaTrackPreferenceHandler,
 ) : BaseViewModelNew<PlayerState.State, PlayerState.Event, PlayerState.Effect>() {
 
     @AssistedFactory
@@ -454,15 +459,15 @@ class PlayerViewModel @AssistedInject internal constructor(
                         playbackPositionMs = position,
                     )
                 }
+                saveAllohaAudioPreference(event.audioId)
             }
 
             is PlayerState.Event.AllohaSubtitleSelected -> {
+                val index = event.index?.takeIf { it in currentState.allohaSubtitles.indices }
                 setState {
-                    copy(
-                        selectedAllohaSubtitleIndex = event.index
-                            ?.takeIf { it in allohaSubtitles.indices },
-                    )
+                    copy(selectedAllohaSubtitleIndex = index)
                 }
+                saveAllohaSubtitlePreference(index)
             }
 
             is PlayerState.Event.SpeedSelected -> {
@@ -1056,8 +1061,90 @@ class PlayerViewModel @AssistedInject internal constructor(
                             showChangePlayerHint = false,
                         )
                     }
+                    if (!resolveFailed && currentState.isAllohaSource()) {
+                        restoreAllohaTrackPreference(
+                            audioTracks = result.state.allohaAudioTracks,
+                            subtitles = result.state.allohaSubtitles,
+                        )
+                    }
                 }
             }
+        }
+    }
+
+    /**
+     * Применяет ранее сохранённый выбор аудиодорожки/субтитров Alloha (по [PlayerAllohaTrackPreferenceHandler])
+     * к только что распарсенным спискам, если он отличается от дефолта экстрактора.
+     */
+    private suspend fun restoreAllohaTrackPreference(
+        audioTracks: List<AllohaAudioTrack>,
+        subtitles: List<AllohaSubtitleTrack>,
+    ) {
+        if (audioTracks.isEmpty() && subtitles.isEmpty()) return
+        val match = allohaTrackPreference.findMatch(
+            animeId = currentState.animeId,
+            dubbing = activeDubbingName(currentState),
+            player = activeBalancerName(currentState),
+            audioTracks = audioTracks,
+            subtitles = subtitles,
+        ) ?: return
+
+        val audioId = match.audioId
+        if (audioId != null && audioId != currentState.selectedAllohaAudioId) {
+            val stream = allohaSession.selectAudioTrack(audioId)
+            if (stream != null) {
+                setState {
+                    copy(
+                        selectedAllohaAudioId = stream.selectedAllohaAudioId,
+                        streamQualityMap = stream.qualities,
+                        selectedQuality = selectedQuality?.takeIf {
+                            stream.qualities?.containsKey(it) == true
+                        },
+                        streamUrl = stream.url,
+                    )
+                }
+            }
+        }
+
+        if (match.applySubtitleChange && match.subtitleIndex != currentState.selectedAllohaSubtitleIndex) {
+            val index = match.subtitleIndex
+            setState {
+                copy(selectedAllohaSubtitleIndex = index?.takeIf { it in subtitles.indices })
+            }
+        }
+    }
+
+    /** Запоминает выбранную пользователем аудиодорожку Alloha для текущей озвучки тайтла. */
+    private fun saveAllohaAudioPreference(audioId: String) {
+        val label = currentState.allohaAudioTracks.firstOrNull { it.id == audioId }?.label ?: return
+        val animeId = currentState.animeId
+        val dubbing = activeDubbingName(currentState)
+        val player = activeBalancerName(currentState)
+        viewModelScope.launch {
+            allohaTrackPreference.saveAudioSelection(
+                animeId = animeId,
+                dubbing = dubbing,
+                player = player,
+                audioLabel = label,
+            )
+        }
+    }
+
+    /** Запоминает выбор субтитров Alloha (или их отключение) для текущей озвучки тайтла. */
+    private fun saveAllohaSubtitlePreference(index: Int?) {
+        val subtitle = index?.let { currentState.allohaSubtitles.getOrNull(it) }
+        val animeId = currentState.animeId
+        val dubbing = activeDubbingName(currentState)
+        val player = activeBalancerName(currentState)
+        viewModelScope.launch {
+            allohaTrackPreference.saveSubtitleSelection(
+                animeId = animeId,
+                dubbing = dubbing,
+                player = player,
+                subtitleLanguage = subtitle?.language,
+                subtitleLabel = subtitle?.label,
+                subtitleOff = index == null,
+            )
         }
     }
 
@@ -1095,8 +1182,8 @@ class PlayerViewModel @AssistedInject internal constructor(
                 showChangePlayerHint = false,
             )
         }
-        // Восстановление ретраится без лимита, поэтому если оно затянулось дольше
-        // [ALLOHA_RECOVERY_HINT_DELAY_MS] - предлагаем юзеру сменить плеер/озвучку.
+        // Если восстановление затянулось дольше [ALLOHA_RECOVERY_HINT_DELAY_MS] - предлагаем юзеру
+        // сменить плеер/озвучку, не дожидаясь исчерпания попыток.
         streamLoadingHintJob = viewModelScope.launch {
             delay(ALLOHA_RECOVERY_HINT_DELAY_MS)
             if (allohaRecovery.isRecovering) {
@@ -1113,6 +1200,27 @@ class PlayerViewModel @AssistedInject internal constructor(
 
     private fun scheduleFreshAllohaPlaybackAttempt(delayMs: Long) {
         allohaPlaybackRecoveryJob?.cancel()
+        if (!allohaRecovery.canRetry()) {
+            // Попытки исчерпаны: снимаем оверлей восстановления и показываем настоящую ошибку с
+            // действиями, вместо того чтобы крутиться дальше без шанса на успех.
+            Log.w(
+                LOG_TAG,
+                "Alloha playback recovery giving up after " +
+                        "${PlayerAllohaRecoveryHandler.MAX_ATTEMPTS} attempts",
+            )
+            allohaRecovery.reset()
+            streamLoadingHintJob?.cancel()
+            setState {
+                copy(
+                    isPlaybackRecovering = false,
+                    showChangePlayerHint = true,
+                    playerError = sourceStreamHandler.playbackErrorMessage(
+                        strings.get(R.string.player_stream_error),
+                    ),
+                )
+            }
+            return
+        }
         val destination = activeDest
         val iframeUrl = activeIframeUrl(currentState)
         val attempt = allohaRecovery.nextAttempt()
@@ -1128,7 +1236,8 @@ class PlayerViewModel @AssistedInject internal constructor(
                 allohaSession.close()
                 Log.i(
                     LOG_TAG,
-                    "Opening fresh Alloha playback session attempt=$attempt " +
+                    "Opening fresh Alloha playback session " +
+                            "attempt=$attempt/${PlayerAllohaRecoveryHandler.MAX_ATTEMPTS} " +
                             "positionMs=${allohaRecovery.positionMs}",
                 )
                 loadStream(

@@ -16,6 +16,7 @@ dependencies {
     implementation(libs.compose.compiler.gradle.plugin)
     implementation(libs.ksp.gradle.plugin)
     implementation(libs.hilt.gradle.plugin)
+    implementation(libs.stability.analyzer.gradle.plugin)
 }
 
 gradlePlugin {

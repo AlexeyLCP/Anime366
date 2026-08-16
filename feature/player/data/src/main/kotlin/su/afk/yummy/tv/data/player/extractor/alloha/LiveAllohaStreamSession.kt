@@ -1,9 +1,9 @@
 package su.afk.yummy.tv.data.player.extractor.alloha
 
 import android.os.Handler
-import android.util.Log
 import android.webkit.CookieManager
 import android.webkit.WebView
+import su.afk.yummy.tv.core.analytics.api.AnalyticsTracker
 import su.afk.yummy.tv.domain.player.model.AllohaStreamSession
 import su.afk.yummy.tv.domain.player.model.AllohaSubtitleTrack
 import su.afk.yummy.tv.domain.player.model.PlayerStreamResolveResult
@@ -26,6 +26,7 @@ private const val STAGED_COMMIT_TIMEOUT_MS = 8_000L
 internal class LiveAllohaStreamSession(
     private val handler: Handler,
     override val sourceKey: String,
+    private val analytics: AnalyticsTracker,
 ) : AllohaStreamSession {
     override val id: String = UUID.randomUUID().toString()
     private val headers = ConcurrentHashMap<String, String>()
@@ -60,20 +61,31 @@ internal class LiveAllohaStreamSession(
         var hasRefreshedMaster = false
         var hasConfigUpdate = false
 
-        val isComplete: Boolean get() = hasReady && hasRefreshedMaster && hasConfigUpdate
+        fun isComplete(requireConfigUpdate: Boolean): Boolean =
+            hasReady && hasRefreshedMaster && (!requireConfigUpdate || hasConfigUpdate)
     }
 
     // Guarded by streamStateLock.
     private var staging: StagedState? = null
+
+    /**
+     * True once a real `config_update` has reached this session. Measured on device: with some CDNs
+     * the player's WebSocket is torn down ~2.5s after it opens - before the 25s heartbeat can fire -
+     * and no config_update ever arrives. A rotation that insists on one can then only ever end at
+     * [STAGED_COMMIT_TIMEOUT_MS], so every single rotation pays the full 8s stall. When this session
+     * has never seen one, the rotation commits on ready + master alone.
+     *
+     * Guarded by [streamStateLock].
+     */
+    private var sawConfigUpdate = false
     private val stagedCommitTimeout = Runnable {
         synchronized(streamStateLock) {
             if (staging == null) return@Runnable
-            Log.w(
-                LOG_TAG,
+            analytics.log(LOG_TAG) {
                 "staged session commit timed out, applying what arrived " +
                         "ready=${staging?.hasReady} master=${staging?.hasRefreshedMaster} " +
-                        "config=${staging?.hasConfigUpdate}",
-            )
+                        "config=${staging?.hasConfigUpdate}"
+            }
             commitStagedLocked()
         }
     }
@@ -195,13 +207,14 @@ internal class LiveAllohaStreamSession(
 
     fun startProxy() {
         if (proxy.get() != null) return
-        Log.i(LOG_TAG, "starting localhost proxy ${safeHeaderState()}")
+        analytics.log(LOG_TAG) { "starting localhost proxy ${safeHeaderState()}" }
         proxy.compareAndSet(
             null,
             AllohaStreamProxy(
                 streamStateProvider = ::currentStreamState,
                 masterProvider = ::masterFor,
                 requestSessionRefresh = ::refresh,
+                analytics = analytics,
             )
         )
     }
@@ -247,6 +260,7 @@ internal class LiveAllohaStreamSession(
 
     private fun applyExpiry(ttlSeconds: Int, fromConfigUpdate: Boolean) {
         synchronized(streamStateLock) {
+            if (fromConfigUpdate) sawConfigUpdate = true
             val value = System.currentTimeMillis() + ttlSeconds * 1_000L
             val staged = staging
             if (staged != null) {
@@ -262,7 +276,7 @@ internal class LiveAllohaStreamSession(
     }
 
     private fun commitStagedIfReadyLocked() {
-        if (staging?.isComplete == true) commitStagedLocked()
+        if (staging?.isComplete(requireConfigUpdate = sawConfigUpdate) == true) commitStagedLocked()
     }
 
     /** Swaps the staged rotation into the live state in one step. Call under [streamStateLock]. */
@@ -281,7 +295,7 @@ internal class LiveAllohaStreamSession(
             headers.putAll(staged.headers)
         }
         generation.incrementAndGet()
-        Log.i(LOG_TAG, "staged session committed ${safeHeaderStateLocked()}")
+        analytics.log(LOG_TAG) { "staged session committed ${safeHeaderStateLocked()}" }
     }
 
     override fun currentHeaders(): Map<String, String> = synchronized(streamStateLock) {
@@ -323,6 +337,9 @@ internal class LiveAllohaStreamSession(
     /** True while a rotation is staged and has not been committed to the live state yet. */
     val isRotating: Boolean get() = synchronized(streamStateLock) { staging != null }
 
+    /** See [sawConfigUpdate] - false means no `config_update` can be expected for this session. */
+    val hasSeenConfigUpdate: Boolean get() = synchronized(streamStateLock) { sawConfigUpdate }
+
     override fun expiresAtMs(): Long? = expiry.get().takeIf { it > 0L }
     override fun refresh() {
         // The live headers/master/expiry stay untouched: the current token is still valid for
@@ -352,7 +369,7 @@ internal class LiveAllohaStreamSession(
             val available = currentTrack()?.qualities.orEmpty()
             selectedQuality.set(selectedQuality.get()?.takeIf(available::containsKey))
             masterFor(id, selectedQuality.get())?.let(masterUrl::set)
-            Log.i(LOG_TAG, "audio track selected id=$id")
+            analytics.log(LOG_TAG) { "audio track selected id=$id" }
         }
     }
 
@@ -366,11 +383,18 @@ internal class LiveAllohaStreamSession(
             view.getAndSet(null)?.let {
                 it.removeJavascriptInterface(BRIDGE_NAME)
                 it.stopLoading()
-                // Unload the iframe/player so nothing keeps decoding/playing in the background
-                // while this WebView sits idle in the pool, without destroying the instance
-                // itself - see AllohaWebViewPool.
-                it.loadUrl("about:blank")
-                if (release != null) release(it) else it.destroy()
+                if (release != null) {
+                    // No loadUrl("about:blank") before pooling: that navigation is asynchronous
+                    // while the instance returns to the pool immediately, so it can still be in
+                    // flight when the next session loads its wrapper into the same WebView.
+                    // onPause() stops an idle instance from decoding without queueing anything;
+                    // the next loadDataWithBaseURL replaces the content, and AllohaExtractor calls
+                    // onResume()/resumeTimers() on acquire.
+                    it.onPause()
+                    release(it)
+                } else {
+                    it.destroy()
+                }
             }
         }
     }

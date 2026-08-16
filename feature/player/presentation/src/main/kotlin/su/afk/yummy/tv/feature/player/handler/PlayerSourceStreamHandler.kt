@@ -123,6 +123,13 @@ internal class PlayerSourceStreamHandler @Inject constructor(
             playbackPositionMs = if (preservePlaybackPosition) state.playbackPositionMs else 0L,
             playbackDurationMs = if (preservePlaybackPosition) state.playbackDurationMs else 0L,
             isPlaybackRecovering = false,
+            // Alloha's dubbing/subtitle lists belong to the source that produced them. The UI
+            // decides whether to offer the Alloha tab purely from these being non-empty, so
+            // leaving them behind shows that tab for a Kodik (or any other) source.
+            allohaAudioTracks = emptyList(),
+            selectedAllohaAudioId = null,
+            allohaSubtitles = emptyList(),
+            selectedAllohaSubtitleIndex = null,
         )
     }
 
@@ -145,6 +152,12 @@ internal class PlayerSourceStreamHandler @Inject constructor(
             resumeFromMs = 0L,
             playbackPositionMs = 0L,
             playbackDurationMs = 0L,
+            // Same reason as in preparingStreamLoad - only the preserve branch above keeps them,
+            // because that one is the in-place recovery of the very same Alloha stream.
+            allohaAudioTracks = emptyList(),
+            selectedAllohaAudioId = null,
+            allohaSubtitles = emptyList(),
+            selectedAllohaSubtitleIndex = null,
         )
 
     /**

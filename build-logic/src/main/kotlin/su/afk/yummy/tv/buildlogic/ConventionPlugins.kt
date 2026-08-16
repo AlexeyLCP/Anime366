@@ -29,6 +29,7 @@ class AndroidLibraryComposeConventionPlugin : Plugin<Project> {
     override fun apply(target: Project) = with(target) {
         pluginManager.apply("yummytv.android.library")
         pluginManager.apply("org.jetbrains.kotlin.plugin.compose")
+        pluginManager.apply("com.github.skydoves.compose.stability.analyzer")
         configureComposeCompiler()
         dependencies.add("implementation", libs.findLibrary("compose-uiToolingPreview").get())
         dependencies.add("debugImplementation", libs.findLibrary("compose-uiTooling").get())
@@ -41,6 +42,7 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
     override fun apply(target: Project) = with(target) {
         pluginManager.apply("com.android.application")
         pluginManager.apply("org.jetbrains.kotlin.plugin.compose")
+        pluginManager.apply("com.github.skydoves.compose.stability.analyzer")
         configureComposeCompiler()
         extensions.configure<ApplicationExtension> {
             compileSdk = libs.versionInt("android-compileSdk")

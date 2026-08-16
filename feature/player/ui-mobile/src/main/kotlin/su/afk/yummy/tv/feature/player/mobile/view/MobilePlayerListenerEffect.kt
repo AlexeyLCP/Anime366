@@ -11,7 +11,6 @@ import androidx.media3.common.VideoSize
 import su.afk.yummy.tv.feature.player.PlayerState
 import su.afk.yummy.tv.feature.player.common.PlayerProgressReporter
 import su.afk.yummy.tv.feature.player.common.PlayerStepSeekToastState
-import su.afk.yummy.tv.feature.player.common.logPlaybackError
 import su.afk.yummy.tv.feature.player.common.toPlaybackErrorEvent
 import su.afk.yummy.tv.feature.player.common.utils.positionSnapshot
 import su.afk.yummy.tv.feature.player.mobile.model.MobilePlayerOverlayController
@@ -58,7 +57,6 @@ internal fun MobilePlayerListenerEffect(
 
             override fun onPlayerError(error: PlaybackException) {
                 val position = player.currentPosition.coerceAtLeast(0L)
-                logPlaybackError("Mobile", position, error)
                 currentOnEvent(error.toPlaybackErrorEvent(position))
             }
 
