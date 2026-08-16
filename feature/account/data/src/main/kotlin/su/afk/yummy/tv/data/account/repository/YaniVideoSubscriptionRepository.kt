@@ -1,12 +1,13 @@
 package su.afk.yummy.tv.data.account.repository
 
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import su.afk.yummy.tv.core.preferences.settings.YaniAccountSettingsStore
 import su.afk.yummy.tv.core.storage.account.AccountStorage
+import su.afk.yummy.tv.core.storage.account.AccountVideoSubscriptionsCache
 import su.afk.yummy.tv.core.storage.account.isFresh
+import su.afk.yummy.tv.core.storage.offlinefirst.offlineFirstCache
 import su.afk.yummy.tv.data.account.network.YaniAccountApi
 import su.afk.yummy.tv.data.account.storage.mapper.toVideoSubscriptions
 import su.afk.yummy.tv.data.account.storage.mapper.toVideoSubscriptionsCache
@@ -21,21 +22,13 @@ class YaniVideoSubscriptionRepository(
 
     override suspend fun getSubscriptions(userId: Int): List<VideoSubscription> =
         withContext(Dispatchers.IO) {
-            val language = settingsStore.yaniContentLanguage.first()
-            val languageCode = language.apiCode
-            val stored = accountStorage.getVideoSubscriptions(userId, languageCode)
-            if (stored?.isFresh(ACCOUNT_SHORT_TTL_MS) == true) {
-                return@withContext stored.toVideoSubscriptions()
-            }
-
-            try {
-                fetchSubscriptions(userId, languageCode)
-            } catch (error: CancellationException) {
-                throw error
-            } catch (error: Throwable) {
-                stored?.toVideoSubscriptions()
-                    ?: throw error
-            }
+            val languageCode = settingsStore.yaniContentLanguage.first().apiCode
+            offlineFirstCache(
+                read = { accountStorage.getVideoSubscriptions(userId, languageCode) },
+                isFresh = { it.isFresh(ACCOUNT_SHORT_TTL_MS) },
+                toDomain = { it.toVideoSubscriptions() },
+                fetchAndSave = { fetchSubscriptions(userId, languageCode) },
+            )
         }
 
     override suspend fun setSubscribed(videoId: Int, subscribed: Boolean): Boolean =
@@ -55,13 +48,13 @@ class YaniVideoSubscriptionRepository(
     private suspend fun fetchSubscriptions(
         userId: Int,
         languageCode: String,
-    ): List<VideoSubscription> {
+    ): AccountVideoSubscriptionsCache {
         val cache = api.getSubscriptions(userId).toVideoSubscriptionsCache(
             userId = userId,
             language = languageCode,
             cachedAt = System.currentTimeMillis(),
         )
         accountStorage.saveVideoSubscriptions(cache)
-        return cache.toVideoSubscriptions()
+        return cache
     }
 }

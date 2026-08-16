@@ -1,12 +1,15 @@
 package su.afk.yummy.tv.data.account.repository
 
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import su.afk.yummy.tv.core.preferences.settings.YaniAccountSettingsStore
+import su.afk.yummy.tv.core.storage.account.AccountListStatsCache
+import su.afk.yummy.tv.core.storage.account.AccountRatingBucketsCache
 import su.afk.yummy.tv.core.storage.account.AccountStorage
+import su.afk.yummy.tv.core.storage.account.AccountUserRatingEntry
 import su.afk.yummy.tv.core.storage.account.isFresh
+import su.afk.yummy.tv.core.storage.offlinefirst.offlineFirstCache
 import su.afk.yummy.tv.data.account.dto.YaniCollectionSummaryDto
 import su.afk.yummy.tv.data.account.network.YaniAccountApi
 import su.afk.yummy.tv.data.account.storage.mapper.toAnimeListStats
@@ -30,40 +33,23 @@ class YaniAnimeExtrasRepository(
 
     override suspend fun getRatingSummary(animeId: Int): AnimeRatingSummary =
         withContext(Dispatchers.IO) {
-            val stored = accountStorage.getRatingBuckets(animeId)
-            if (stored?.isFresh(ACCOUNT_MEDIUM_TTL_MS) == true) {
-                return@withContext stored.toRatingSummary()
-            }
-
-            try {
-                fetchRatingSummary(animeId)
-            } catch (error: CancellationException) {
-                throw error
-            } catch (error: Throwable) {
-                stored?.toRatingSummary()
-                    ?: throw error
-            }
+            offlineFirstCache(
+                read = { accountStorage.getRatingBuckets(animeId) },
+                isFresh = { it.isFresh(ACCOUNT_MEDIUM_TTL_MS) },
+                toDomain = { it.toRatingSummary() },
+                fetchAndSave = { fetchRatingSummary(animeId) },
+            )
         }
 
     override suspend fun getUserRating(animeId: Int): Int? =
         withContext(Dispatchers.IO) {
             val userId = currentUserId()
-            val stored = accountStorage.getUserRating(userId, animeId)
-            if (stored?.isFresh(ACCOUNT_SHORT_TTL_MS) == true) {
-                return@withContext stored.toUserRating()
-            }
-
-            try {
-                fetchUserRating(userId, animeId)
-            } catch (error: CancellationException) {
-                throw error
-            } catch (error: Throwable) {
-                if (stored != null) {
-                    stored.toUserRating()
-                } else {
-                    throw error
-                }
-            }
+            offlineFirstCache(
+                read = { accountStorage.getUserRating(userId, animeId) },
+                isFresh = { it.isFresh(ACCOUNT_SHORT_TTL_MS) },
+                toDomain = { it.toUserRating() },
+                fetchAndSave = { fetchUserRating(userId, animeId) },
+            )
         }
 
     override suspend fun setRating(animeId: Int, rating: Int) = withContext(Dispatchers.IO) {
@@ -82,19 +68,12 @@ class YaniAnimeExtrasRepository(
 
     override suspend fun getListStats(animeId: Int): AnimeListStats =
         withContext(Dispatchers.IO) {
-            val stored = accountStorage.getListStats(animeId)
-            if (stored?.isFresh(ACCOUNT_MEDIUM_TTL_MS) == true) {
-                return@withContext stored.toAnimeListStats()
-            }
-
-            try {
-                fetchListStats(animeId)
-            } catch (error: CancellationException) {
-                throw error
-            } catch (error: Throwable) {
-                stored?.toAnimeListStats()
-                    ?: throw error
-            }
+            offlineFirstCache(
+                read = { accountStorage.getListStats(animeId) },
+                isFresh = { it.isFresh(ACCOUNT_MEDIUM_TTL_MS) },
+                toDomain = { it.toAnimeListStats() },
+                fetchAndSave = { fetchListStats(animeId) },
+            )
         }
 
     override suspend fun getCachedListStats(animeId: Int): AnimeListStats? =
@@ -125,25 +104,25 @@ class YaniAnimeExtrasRepository(
     private suspend fun currentUserId(): Int =
         settingsStore.yaniUserId.first()
 
-    private suspend fun fetchRatingSummary(animeId: Int): AnimeRatingSummary {
+    private suspend fun fetchRatingSummary(animeId: Int): AccountRatingBucketsCache {
         val cache = api.getRatingBuckets(animeId).toRatingBucketsCache(
             animeId = animeId,
             cachedAt = System.currentTimeMillis(),
         )
         accountStorage.saveRatingBuckets(cache)
-        return cache.toRatingSummary()
+        return cache
     }
 
-    private suspend fun fetchListStats(animeId: Int): AnimeListStats {
+    private suspend fun fetchListStats(animeId: Int): AccountListStatsCache {
         val cache = api.getAnimeListStats(animeId).toListStatsCache(
             animeId = animeId,
             cachedAt = System.currentTimeMillis(),
         )
         accountStorage.saveListStats(cache)
-        return cache.toAnimeListStats()
+        return cache
     }
 
-    private suspend fun fetchUserRating(userId: Int, animeId: Int): Int? {
+    private suspend fun fetchUserRating(userId: Int, animeId: Int): AccountUserRatingEntry {
         val rating = api.getUserRating(animeId)
             .user
             ?.rating
@@ -155,20 +134,18 @@ class YaniAnimeExtrasRepository(
             cachedAt = System.currentTimeMillis(),
         )
         accountStorage.saveUserRating(entry)
-        return entry.toUserRating()
+        return entry
     }
 
     private suspend fun getCollectionsPage(
         pageKey: String,
         languageCode: String,
         fetch: suspend () -> List<YaniCollectionSummaryDto>,
-    ): List<AnimeCollectionSummary> {
-        val stored = accountStorage.getCollections(pageKey)
-        if (stored?.isFresh(ACCOUNT_MEDIUM_TTL_MS) == true) {
-            return stored.toCollectionSummaries()
-        }
-
-        return try {
+    ): List<AnimeCollectionSummary> = offlineFirstCache(
+        read = { accountStorage.getCollections(pageKey) },
+        isFresh = { it.isFresh(ACCOUNT_MEDIUM_TTL_MS) },
+        toDomain = { it.toCollectionSummaries() },
+        fetchAndSave = {
             val cachedAt = System.currentTimeMillis()
             val cache = fetch().toCollectionsPageCache(
                 pageKey = pageKey,
@@ -179,14 +156,9 @@ class YaniAnimeExtrasRepository(
                 cache,
                 prunePagesCachedBefore = cachedAt - ACCOUNT_PAGE_CACHE_RETENTION_MS,
             )
-            cache.toCollectionSummaries()
-        } catch (error: CancellationException) {
-            throw error
-        } catch (error: Throwable) {
-            stored?.toCollectionSummaries()
-                ?: throw error
-        }
-    }
+            cache
+        },
+    )
 
     private suspend fun updateCachedUserRating(userId: Int, animeId: Int, rating: Int?) {
         accountStorage.saveUserRating(

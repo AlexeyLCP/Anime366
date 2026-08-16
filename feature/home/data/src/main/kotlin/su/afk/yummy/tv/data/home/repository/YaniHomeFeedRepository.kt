@@ -1,6 +1,5 @@
 package su.afk.yummy.tv.data.home.repository
 
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -10,8 +9,10 @@ import kotlinx.coroutines.withContext
 import su.afk.yummy.tv.core.analytics.api.AnalyticsTracker
 import su.afk.yummy.tv.core.error.api.StringProvider
 import su.afk.yummy.tv.core.preferences.settings.YaniAccountSettingsStore
+import su.afk.yummy.tv.core.storage.home.HomeFeedCache
 import su.afk.yummy.tv.core.storage.home.HomeFeedStorage
 import su.afk.yummy.tv.core.storage.home.isFresh
+import su.afk.yummy.tv.core.storage.offlinefirst.offlineFirstCache
 import su.afk.yummy.tv.core.storage.watchprogress.WatchProgressEntry
 import su.afk.yummy.tv.core.storage.watchprogress.WatchProgressStorage
 import su.afk.yummy.tv.core.utils.network.isLikelyImageUrl
@@ -49,8 +50,7 @@ class YaniHomeFeedRepository(
         val hiddenIds = hiddenRecommendationIds()
         homeFeedStore.getFeed(languageCode, watchSignature)
             ?.toStoredHomeFeed(stringProvider)
-            ?.withLocalContinueWatching(displayWatchEntries)
-            ?.withoutHiddenRecommendations(hiddenIds)
+            ?.withLocalOverrides(displayWatchEntries, hiddenIds)
     }
 
     override suspend fun refreshHomeFeed(): HomeFeed = getHomeFeed(forceRefresh = true)
@@ -96,40 +96,26 @@ class YaniHomeFeedRepository(
             .distinctUntilChanged()
 
     private suspend fun getHomeFeed(forceRefresh: Boolean): HomeFeed = withContext(Dispatchers.IO) {
-        val language = settingsStore.yaniContentLanguage.first()
-        val languageCode = language.apiCode
-        val displayWatchEntries = displayWatchEntries()
+        val languageCode = settingsStore.yaniContentLanguage.first().apiCode
         val watchSignature = feedCacheSignature()
-        val stored = homeFeedStore.getFeed(languageCode, watchSignature)
+        val displayWatchEntries = displayWatchEntries()
+        // Единый снимок на весь вызов: используется во всех трёх ветках (свежий кэш, сеть,
+        // fallback при ошибке), чтобы не пересчитывать его отдельно для сетевой ветки.
         val hiddenIds = hiddenRecommendationIds()
-        if (!forceRefresh && stored?.isFresh(FEED_TTL_MS) == true) {
-            return@withContext stored
-                .toStoredHomeFeed(stringProvider)
-                .withLocalContinueWatching(displayWatchEntries)
-                .withoutHiddenRecommendations(hiddenIds)
-        }
-
-        try {
-            fetchHomeFeed(
-                languageCode = languageCode,
-                watchSignature = watchSignature,
-                displayWatchEntries = displayWatchEntries,
-            )
-        } catch (error: CancellationException) {
-            throw error
-        } catch (error: Throwable) {
-            stored?.toStoredHomeFeed(stringProvider)
-                ?.withLocalContinueWatching(displayWatchEntries)
-                ?.withoutHiddenRecommendations(hiddenIds)
-                ?: throw error
-        }
+        offlineFirstCache(
+            forceRefresh = forceRefresh,
+            read = { homeFeedStore.getFeed(languageCode, watchSignature) },
+            isFresh = { it.isFresh(FEED_TTL_MS) },
+            toDomain = { it.toStoredHomeFeed(stringProvider) },
+            fetchAndSave = { fetchHomeFeed(languageCode, watchSignature) },
+            transform = { it.withLocalOverrides(displayWatchEntries, hiddenIds) },
+        )
     }
 
     private suspend fun fetchHomeFeed(
         languageCode: String,
         watchSignature: String,
-        displayWatchEntries: List<WatchProgressEntry>,
-    ): HomeFeed {
+    ): HomeFeedCache {
         analyticsTracker.log(TAG) { "Fetch feed language=$languageCode watchSignature=$watchSignature" }
         val dto = api.getFeed()
         analyticsTracker.log(TAG) { "Feed dto ${dto.summaryForLog()}" }
@@ -139,16 +125,12 @@ class YaniHomeFeedRepository(
             cachedAt = System.currentTimeMillis(),
         )
         homeFeedStore.saveFeed(cache)
-        // Возвращаем результат через тот же cache->domain маппер, что и при чтении из кэша,
-        // чтобы свежая загрузка и повторное чтение всегда давали одинаковый HomeFeed.
-        val feed = cache.toStoredHomeFeed(stringProvider)
-            .withLocalContinueWatching(displayWatchEntries)
-            .withoutHiddenRecommendations(hiddenRecommendationIds())
         analyticsTracker.log(TAG) {
+            val feed = cache.toStoredHomeFeed(stringProvider)
             "Feed mapped ${feed.summaryForLog()} " +
                     "continueSamples=${feed.continueWatchingItems.summaryForLog()}"
         }
-        return feed
+        return cache
     }
 
     private suspend fun displayWatchEntries(): List<WatchProgressEntry> =
@@ -157,28 +139,29 @@ class YaniHomeFeedRepository(
     private suspend fun hiddenRecommendationIds(): Set<Int> =
         settingsStore.hiddenRecommendationIds.first()
 
-    // Тайтлы, которые пользователь попросил не рекомендовать, бэкенд отдаёт до ближайшего
-    // пересчёта рекомендаций — отсекаем их и в кэше, и в свежем ответе.
-    private fun HomeFeed.withoutHiddenRecommendations(hiddenIds: Set<Int>): HomeFeed {
-        if (hiddenIds.isEmpty()) return this
-        return copy(
-            sections = sections.map { section ->
+    // Применяется одинаково к результату из кэша, из сети и к fallback при ошибке: "продолжить
+    // просмотр" всегда пересчитывается из актуального локального прогресса, а не из момента
+    // кэширования фида, а скрытые пользователем рекомендации отфильтровываются до ближайшего
+    // пересчёта рекомендаций на бэкенде.
+    private fun HomeFeed.withLocalOverrides(
+        localEntries: List<WatchProgressEntry>,
+        hiddenIds: Set<Int>,
+    ): HomeFeed = copy(
+        continueWatchingItems = localContinueWatchingItems(localEntries),
+        sections = if (hiddenIds.isEmpty()) {
+            sections
+        } else {
+            sections.map { section ->
                 if (section.type == HomeFeedSectionType.RECOMMENDATIONS) {
                     section.copy(items = section.items.filterNot { it.id in hiddenIds })
                 } else {
                     section
                 }
             }
-        )
-    }
+        },
+    )
 
     private fun feedCacheSignature(): String = FEED_CACHE_SIGNATURE_VERSION
-
-    private fun HomeFeed.withLocalContinueWatching(
-        localEntries: List<WatchProgressEntry>,
-    ): HomeFeed = copy(
-        continueWatchingItems = localContinueWatchingItems(localEntries),
-    )
 
     private fun localContinueWatchingItems(
         entries: List<WatchProgressEntry>,

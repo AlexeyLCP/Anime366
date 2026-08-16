@@ -1,10 +1,10 @@
 package su.afk.yummy.tv.data.top.repository
 
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import su.afk.yummy.tv.core.preferences.settings.YaniAccountSettingsStore
+import su.afk.yummy.tv.core.storage.offlinefirst.offlineFirstCache
 import su.afk.yummy.tv.core.storage.top.AnimeTopStorage
 import su.afk.yummy.tv.core.storage.top.isFresh
 import su.afk.yummy.tv.data.top.network.YaniAnimeTopApi
@@ -25,44 +25,28 @@ class YaniAnimeTopRepository(
 
     override suspend fun getTopAnime(type: AnimeTopType, limit: Int, offset: Int): AnimeTopPage =
         withContext(Dispatchers.IO) {
-            val language = settingsStore.yaniContentLanguage.first()
-            val languageCode = language.apiCode
-            val stored = topStore.getPage(type.apiValue, languageCode, limit, offset)
-            if (stored?.isFresh(ANIME_TOP_TTL_MS) == true) {
-                return@withContext stored.toStoredAnimeTopPage()
-            }
-
-            try {
-                fetchTopAnime(type, limit, offset, languageCode)
-            } catch (error: CancellationException) {
-                throw error
-            } catch (error: Throwable) {
-                stored?.toStoredAnimeTopPage()
-                    ?: throw error
-            }
+            val languageCode = settingsStore.yaniContentLanguage.first().apiCode
+            offlineFirstCache(
+                read = { topStore.getPage(type.apiValue, languageCode, limit, offset) },
+                isFresh = { it.isFresh(ANIME_TOP_TTL_MS) },
+                toDomain = { it.toStoredAnimeTopPage() },
+                fetchAndSave = {
+                    val response = api.getTopAnime(type, limit, offset).response
+                    val cachedAt = System.currentTimeMillis()
+                    val cache = response.toAnimeTopPageCache(
+                        type = type,
+                        language = languageCode,
+                        limit = limit,
+                        offset = offset,
+                        responseSize = response.size,
+                        cachedAt = cachedAt,
+                    )
+                    topStore.savePage(
+                        cache,
+                        prunePagesCachedBefore = cachedAt - ANIME_TOP_CACHE_RETENTION_MS,
+                    )
+                    cache
+                },
+            )
         }
-
-    private suspend fun fetchTopAnime(
-        type: AnimeTopType,
-        limit: Int,
-        offset: Int,
-        languageCode: String,
-    ): AnimeTopPage {
-        val response = api.getTopAnime(type, limit, offset).response
-        val cachedAt = System.currentTimeMillis()
-        val cache = response.toAnimeTopPageCache(
-            type = type,
-            language = languageCode,
-            limit = limit,
-            offset = offset,
-            responseSize = response.size,
-            cachedAt = cachedAt,
-        )
-        topStore.savePage(
-            cache,
-            prunePagesCachedBefore = cachedAt - ANIME_TOP_CACHE_RETENTION_MS,
-        )
-        return cache.toStoredAnimeTopPage()
-    }
-
 }

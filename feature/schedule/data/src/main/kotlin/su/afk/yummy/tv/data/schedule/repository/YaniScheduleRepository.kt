@@ -1,10 +1,10 @@
 package su.afk.yummy.tv.data.schedule.repository
 
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import su.afk.yummy.tv.core.preferences.settings.YaniAccountSettingsStore
+import su.afk.yummy.tv.core.storage.offlinefirst.offlineFirstCache
 import su.afk.yummy.tv.core.storage.schedule.AnimeScheduleStorage
 import su.afk.yummy.tv.core.storage.schedule.isFresh
 import su.afk.yummy.tv.data.schedule.network.YaniScheduleApi
@@ -22,29 +22,19 @@ class YaniScheduleRepository(
 ) : AnimeScheduleRepository {
 
     override suspend fun getSchedule(): List<AnimeScheduleDay> = withContext(Dispatchers.IO) {
-        val language = settingsStore.yaniContentLanguage.first()
-        val languageCode = language.apiCode
-        val stored = scheduleStore.getSchedule(languageCode)
-        if (stored?.isFresh(SCHEDULE_TTL_MS) == true) {
-            return@withContext stored.toStoredScheduleDays()
-        }
-
-        try {
-            fetchSchedule(languageCode)
-        } catch (error: CancellationException) {
-            throw error
-        } catch (error: Throwable) {
-            stored?.toStoredScheduleDays()
-                ?: throw error
-        }
-    }
-
-    private suspend fun fetchSchedule(languageCode: String): List<AnimeScheduleDay> {
-        val cache = api.getSchedule().response.toAnimeScheduleCache(
-            language = languageCode,
-            cachedAt = System.currentTimeMillis(),
+        val languageCode = settingsStore.yaniContentLanguage.first().apiCode
+        offlineFirstCache(
+            read = { scheduleStore.getSchedule(languageCode) },
+            isFresh = { it.isFresh(SCHEDULE_TTL_MS) },
+            toDomain = { it.toStoredScheduleDays() },
+            fetchAndSave = {
+                val cache = api.getSchedule().response.toAnimeScheduleCache(
+                    language = languageCode,
+                    cachedAt = System.currentTimeMillis(),
+                )
+                scheduleStore.saveSchedule(cache)
+                cache
+            },
         )
-        scheduleStore.saveSchedule(cache)
-        return cache.toStoredScheduleDays()
     }
 }

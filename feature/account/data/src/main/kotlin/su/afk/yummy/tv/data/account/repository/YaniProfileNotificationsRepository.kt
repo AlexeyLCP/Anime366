@@ -1,13 +1,14 @@
 package su.afk.yummy.tv.data.account.repository
 
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import su.afk.yummy.tv.core.preferences.settings.YaniAccountSettingsStore
 import su.afk.yummy.tv.core.storage.account.AccountNotificationAnimeEntry
+import su.afk.yummy.tv.core.storage.account.AccountNotificationsPageCache
 import su.afk.yummy.tv.core.storage.account.AccountStorage
 import su.afk.yummy.tv.core.storage.account.isFresh
+import su.afk.yummy.tv.core.storage.offlinefirst.offlineFirstCache
 import su.afk.yummy.tv.data.account.network.YaniAccountApi
 import su.afk.yummy.tv.data.account.storage.mapper.toNotificationAnimeEntry
 import su.afk.yummy.tv.data.account.storage.mapper.toNotificationCounts
@@ -35,42 +36,29 @@ class YaniProfileNotificationsRepository(
         withContext(Dispatchers.IO) {
             val userId = currentUserId()
             if (userId <= 0) return@withContext emptyList()
-            val stored = accountStorage.getNotificationCounts(userId)
-            if (stored?.isFresh(ACCOUNT_SHORT_TTL_MS) == true) {
-                return@withContext stored.toNotificationCounts()
-            }
-            try {
-                val cache = api.getNotificationCounts().toNotificationCountsCache(
-                    userId = userId,
-                    cachedAt = System.currentTimeMillis(),
-                )
-                accountStorage.saveNotificationCounts(cache)
-                cache.toNotificationCounts()
-            } catch (error: CancellationException) {
-                throw error
-            } catch (error: Throwable) {
-                stored?.toNotificationCounts() ?: throw error
-            }
+            offlineFirstCache(
+                read = { accountStorage.getNotificationCounts(userId) },
+                isFresh = { it.isFresh(ACCOUNT_SHORT_TTL_MS) },
+                toDomain = { it.toNotificationCounts() },
+                fetchAndSave = {
+                    val cache = api.getNotificationCounts().toNotificationCountsCache(
+                        userId = userId,
+                        cachedAt = System.currentTimeMillis(),
+                    )
+                    accountStorage.saveNotificationCounts(cache)
+                    cache
+                },
+            )
         }
 
     override suspend fun resolveAnimeIdBySlug(slug: String): Int? =
         withContext(Dispatchers.IO) {
-            val stored = accountStorage.getNotificationAnime(slug)
-            if (stored?.isFresh(ACCOUNT_LONG_TTL_MS) == true) {
-                return@withContext stored.animeId
-            }
-
-            try {
-                fetchNotificationAnime(slug).animeId
-            } catch (error: CancellationException) {
-                throw error
-            } catch (error: Throwable) {
-                if (stored != null) {
-                    stored.animeId
-                } else {
-                    throw error
-                }
-            }
+            offlineFirstCache(
+                read = { accountStorage.getNotificationAnime(slug) },
+                isFresh = { it.isFresh(ACCOUNT_LONG_TTL_MS) },
+                toDomain = { it.animeId },
+                fetchAndSave = { fetchNotificationAnime(slug) },
+            )
         }
 
     override suspend fun markNotificationRead(id: Int): Boolean =
@@ -113,28 +101,19 @@ class YaniProfileNotificationsRepository(
         languageCode: String,
         limit: Int,
         offset: Int,
-    ): List<ProfileNotification> {
-        val stored = accountStorage.getNotifications(userId, languageCode, limit, offset)
-        if (stored?.isFresh(ACCOUNT_SHORT_TTL_MS) == true) {
-            return stored.toNotifications()
-        }
-
-        return try {
-            fetchNotifications(userId, languageCode, limit, offset)
-        } catch (error: CancellationException) {
-            throw error
-        } catch (error: Throwable) {
-            stored?.toNotifications()
-                ?: throw error
-        }
-    }
+    ): List<ProfileNotification> = offlineFirstCache(
+        read = { accountStorage.getNotifications(userId, languageCode, limit, offset) },
+        isFresh = { it.isFresh(ACCOUNT_SHORT_TTL_MS) },
+        toDomain = { it.toNotifications() },
+        fetchAndSave = { fetchNotifications(userId, languageCode, limit, offset) },
+    )
 
     private suspend fun fetchNotifications(
         userId: Int,
         languageCode: String,
         limit: Int,
         offset: Int,
-    ): List<ProfileNotification> {
+    ): AccountNotificationsPageCache {
         val cachedAt = System.currentTimeMillis()
         val cache = api.getNotifications(limit = limit, offset = offset).toNotificationsPageCache(
             userId = userId,
@@ -147,7 +126,7 @@ class YaniProfileNotificationsRepository(
             cache,
             prunePagesCachedBefore = cachedAt - ACCOUNT_PAGE_CACHE_RETENTION_MS,
         )
-        return cache.toNotifications()
+        return cache
     }
 
     private suspend fun fetchNotificationAnime(slug: String): AccountNotificationAnimeEntry {

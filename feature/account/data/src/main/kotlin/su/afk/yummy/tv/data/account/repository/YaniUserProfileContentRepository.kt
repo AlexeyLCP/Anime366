@@ -1,12 +1,12 @@
 package su.afk.yummy.tv.data.account.repository
 
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import su.afk.yummy.tv.core.preferences.settings.YaniAccountSettingsStore
 import su.afk.yummy.tv.core.storage.account.AccountStorage
 import su.afk.yummy.tv.core.storage.account.isFresh
+import su.afk.yummy.tv.core.storage.offlinefirst.offlineFirstCache
 import su.afk.yummy.tv.data.account.network.YaniAccountApi
 import su.afk.yummy.tv.data.account.storage.mapper.toCollectionSummaries
 import su.afk.yummy.tv.data.account.storage.mapper.toCollectionsPageCache
@@ -30,79 +30,64 @@ class YaniUserProfileContentRepository(
     override suspend fun getFriends(userId: Int, limit: Int, offset: Int): List<UserFriend> =
         withContext(Dispatchers.IO) {
             val languageCode = settingsStore.yaniContentLanguage.first().apiCode
-            val stored = accountStorage.getUserFriends(userId, languageCode, limit, offset)
-            if (stored?.isFresh(ACCOUNT_MEDIUM_TTL_MS) == true) {
-                return@withContext stored.toUserFriends()
-            }
-
-            try {
-                val cache = api.getUserFriends(userId, limit, offset).toUserFriendsPageCache(
-                    userId = userId,
-                    language = languageCode,
-                    limit = limit,
-                    offset = offset,
-                    cachedAt = System.currentTimeMillis(),
-                )
-                accountStorage.saveUserFriends(cache)
-                cache.toUserFriends()
-            } catch (error: CancellationException) {
-                throw error
-            } catch (error: Throwable) {
-                stored?.toUserFriends()
-                    ?: throw error
-            }
+            offlineFirstCache(
+                read = { accountStorage.getUserFriends(userId, languageCode, limit, offset) },
+                isFresh = { it.isFresh(ACCOUNT_MEDIUM_TTL_MS) },
+                toDomain = { it.toUserFriends() },
+                fetchAndSave = {
+                    val cache = api.getUserFriends(userId, limit, offset).toUserFriendsPageCache(
+                        userId = userId,
+                        language = languageCode,
+                        limit = limit,
+                        offset = offset,
+                        cachedAt = System.currentTimeMillis(),
+                    )
+                    accountStorage.saveUserFriends(cache)
+                    cache
+                },
+            )
         }
 
     override suspend fun getReviews(userId: Int, limit: Int, offset: Int): List<UserReviewSummary> =
         withContext(Dispatchers.IO) {
             val languageCode = settingsStore.yaniContentLanguage.first().apiCode
-            val stored = accountStorage.getUserReviews(userId, languageCode, limit, offset)
-            if (stored?.isFresh(ACCOUNT_MEDIUM_TTL_MS) == true) {
-                return@withContext stored.toUserReviews()
-            }
-
-            try {
-                val cache = api.getUserReviews(userId, limit, offset).toUserReviewsPageCache(
-                    userId = userId,
-                    language = languageCode,
-                    limit = limit,
-                    offset = offset,
-                    cachedAt = System.currentTimeMillis(),
-                )
-                accountStorage.saveUserReviews(cache)
-                cache.toUserReviews()
-            } catch (error: CancellationException) {
-                throw error
-            } catch (error: Throwable) {
-                stored?.toUserReviews()
-                    ?: throw error
-            }
+            offlineFirstCache(
+                read = { accountStorage.getUserReviews(userId, languageCode, limit, offset) },
+                isFresh = { it.isFresh(ACCOUNT_MEDIUM_TTL_MS) },
+                toDomain = { it.toUserReviews() },
+                fetchAndSave = {
+                    val cache = api.getUserReviews(userId, limit, offset).toUserReviewsPageCache(
+                        userId = userId,
+                        language = languageCode,
+                        limit = limit,
+                        offset = offset,
+                        cachedAt = System.currentTimeMillis(),
+                    )
+                    accountStorage.saveUserReviews(cache)
+                    cache
+                },
+            )
         }
 
     override suspend fun getPosts(userId: Int, limit: Int, offset: Int): List<UserPostSummary> =
         withContext(Dispatchers.IO) {
             val languageCode = settingsStore.yaniContentLanguage.first().apiCode
-            val stored = accountStorage.getUserPosts(userId, languageCode, limit, offset)
-            if (stored?.isFresh(ACCOUNT_MEDIUM_TTL_MS) == true) {
-                return@withContext stored.toUserPosts()
-            }
-
-            try {
-                val cache = api.getUserPosts(userId, limit, offset).toUserPostsPageCache(
-                    userId = userId,
-                    language = languageCode,
-                    limit = limit,
-                    offset = offset,
-                    cachedAt = System.currentTimeMillis(),
-                )
-                accountStorage.saveUserPosts(cache)
-                cache.toUserPosts()
-            } catch (error: CancellationException) {
-                throw error
-            } catch (error: Throwable) {
-                stored?.toUserPosts()
-                    ?: throw error
-            }
+            offlineFirstCache(
+                read = { accountStorage.getUserPosts(userId, languageCode, limit, offset) },
+                isFresh = { it.isFresh(ACCOUNT_MEDIUM_TTL_MS) },
+                toDomain = { it.toUserPosts() },
+                fetchAndSave = {
+                    val cache = api.getUserPosts(userId, limit, offset).toUserPostsPageCache(
+                        userId = userId,
+                        language = languageCode,
+                        limit = limit,
+                        offset = offset,
+                        cachedAt = System.currentTimeMillis(),
+                    )
+                    accountStorage.saveUserPosts(cache)
+                    cache
+                },
+            )
         }
 
     override suspend fun getCollections(
@@ -113,29 +98,25 @@ class YaniUserProfileContentRepository(
         withContext(Dispatchers.IO) {
             val languageCode = settingsStore.yaniContentLanguage.first().apiCode
             val pageKey = userCollectionsPageKey(userId, limit, offset, languageCode)
-            val stored = accountStorage.getCollections(pageKey)
-            if (stored?.isFresh(ACCOUNT_MEDIUM_TTL_MS) == true) {
-                return@withContext stored.toCollectionSummaries()
-            }
-
-            try {
-                val cachedAt = System.currentTimeMillis()
-                val cache = api.getUserCollections(userId, limit, offset).toCollectionsPageCache(
-                    pageKey = pageKey,
-                    language = languageCode,
-                    cachedAt = cachedAt,
-                )
-                accountStorage.saveCollections(
-                    cache,
-                    prunePagesCachedBefore = cachedAt - ACCOUNT_PAGE_CACHE_RETENTION_MS,
-                )
-                cache.toCollectionSummaries()
-            } catch (error: CancellationException) {
-                throw error
-            } catch (error: Throwable) {
-                stored?.toCollectionSummaries()
-                    ?: throw error
-            }
+            offlineFirstCache(
+                read = { accountStorage.getCollections(pageKey) },
+                isFresh = { it.isFresh(ACCOUNT_MEDIUM_TTL_MS) },
+                toDomain = { it.toCollectionSummaries() },
+                fetchAndSave = {
+                    val cachedAt = System.currentTimeMillis()
+                    val cache =
+                        api.getUserCollections(userId, limit, offset).toCollectionsPageCache(
+                            pageKey = pageKey,
+                            language = languageCode,
+                            cachedAt = cachedAt,
+                        )
+                    accountStorage.saveCollections(
+                        cache,
+                        prunePagesCachedBefore = cachedAt - ACCOUNT_PAGE_CACHE_RETENTION_MS,
+                    )
+                    cache
+                },
+            )
         }
 
     private fun userCollectionsPageKey(

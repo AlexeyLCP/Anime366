@@ -1,13 +1,14 @@
 package su.afk.yummy.tv.data.collection.repository
 
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import su.afk.yummy.tv.core.preferences.settings.YaniAccountSettingsStore
 import su.afk.yummy.tv.core.storage.account.AccountStorage
+import su.afk.yummy.tv.core.storage.collection.CollectionDetailCache
 import su.afk.yummy.tv.core.storage.collection.CollectionStorage
 import su.afk.yummy.tv.core.storage.collection.isFresh
+import su.afk.yummy.tv.core.storage.offlinefirst.offlineFirstCache
 import su.afk.yummy.tv.data.collection.dto.YaniCollectionVoteBodyDto
 import su.afk.yummy.tv.data.collection.dto.YaniCreateCollectionBodyDto
 import su.afk.yummy.tv.data.collection.dto.YaniUpdateCollectionBodyDto
@@ -37,53 +38,37 @@ class YaniCollectionDetailRepository(
 
     override suspend fun getCollection(id: Int): CollectionDetail =
         withContext(Dispatchers.IO) {
-            val language = settingsStore.yaniContentLanguage.first()
-            val languageCode = language.apiCode
-            val stored = collectionStorage.getCollection(id, languageCode)
-            if (stored?.isFresh(COLLECTION_TTL_MS) == true && stored.entry.ownerId > 0) {
-                return@withContext stored.toCollectionDetail()
-            }
-
-            try {
-                fetchCollection(id, languageCode)
-            } catch (error: CancellationException) {
-                throw error
-            } catch (error: Throwable) {
-                stored?.toCollectionDetail()
-                    ?: throw error
-            }
+            val languageCode = settingsStore.yaniContentLanguage.first().apiCode
+            offlineFirstCache(
+                read = { collectionStorage.getCollection(id, languageCode) },
+                isFresh = { it.isFresh(COLLECTION_TTL_MS) && it.entry.ownerId > 0 },
+                toDomain = { it.toCollectionDetail() },
+                fetchAndSave = { fetchCollection(id, languageCode) },
+            )
         }
 
     override suspend fun getCollections(limit: Int, offset: Int): CollectionSummaryPage =
         withContext(Dispatchers.IO) {
-            val language = settingsStore.yaniContentLanguage.first()
-            val languageCode = language.apiCode
+            val languageCode = settingsStore.yaniContentLanguage.first().apiCode
             val pageKey = catalogPageKey(languageCode, limit, offset)
-            val stored = collectionStorage.getCatalogPage(pageKey)
-            if (stored?.isFresh(COLLECTION_CATALOG_TTL_MS) == true) {
-                return@withContext stored.toCollectionSummaryPage()
-            }
-
-            try {
-                val response = api.getCollections(limit, offset).response
-                val cache = response.toCollectionCatalogPageCache(
-                    pageKey = pageKey,
-                    language = languageCode,
-                    limit = limit,
-                    offset = offset,
-                    responseSize = response.size,
-                    cachedAt = System.currentTimeMillis(),
-                )
-                collectionStorage.saveCatalogPage(
+            offlineFirstCache(
+                read = { collectionStorage.getCatalogPage(pageKey) },
+                isFresh = { it.isFresh(COLLECTION_CATALOG_TTL_MS) },
+                toDomain = { it.toCollectionSummaryPage() },
+                fetchAndSave = {
+                    val response = api.getCollections(limit, offset).response
+                    val cache = response.toCollectionCatalogPageCache(
+                        pageKey = pageKey,
+                        language = languageCode,
+                        limit = limit,
+                        offset = offset,
+                        responseSize = response.size,
+                        cachedAt = System.currentTimeMillis(),
+                    )
+                    collectionStorage.saveCatalogPage(cache)
                     cache
-                )
-                cache.toCollectionSummaryPage()
-            } catch (error: CancellationException) {
-                throw error
-            } catch (error: Throwable) {
-                stored?.toCollectionSummaryPage()
-                    ?: throw error
-            }
+                },
+            )
         }
 
     override suspend fun createCollection(request: CreateCollectionRequest): Int =
@@ -172,14 +157,14 @@ class YaniCollectionDetailRepository(
             result
         }
 
-    private suspend fun fetchCollection(id: Int, languageCode: String): CollectionDetail {
+    private suspend fun fetchCollection(id: Int, languageCode: String): CollectionDetailCache {
         val cache = api.getCollection(id).response.toCollectionDetailCache(
             fallbackId = id,
             language = languageCode,
             cachedAt = System.currentTimeMillis(),
         )
         collectionStorage.saveCollection(cache)
-        return cache.toCollectionDetail()
+        return cache
     }
 
     private fun catalogPageKey(language: String, limit: Int, offset: Int): String =

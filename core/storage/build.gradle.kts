@@ -14,4 +14,7 @@ dependencies {
     implementation(libs.bundles.room)
 
     add("ksp", libs.room.compiler)
+
+    testImplementation(libs.junit)
+    testImplementation(libs.kotlinx.coroutines.test)
 }

@@ -1,6 +1,5 @@
 package su.afk.yummy.tv.data.account.repository
 
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
@@ -9,6 +8,7 @@ import kotlinx.coroutines.withContext
 import su.afk.yummy.tv.core.preferences.settings.YaniAccountSettingsStore
 import su.afk.yummy.tv.core.storage.account.AccountStorage
 import su.afk.yummy.tv.core.storage.account.isFresh
+import su.afk.yummy.tv.core.storage.offlinefirst.offlineFirstCache
 import su.afk.yummy.tv.data.account.network.YaniAccountApi
 import su.afk.yummy.tv.data.account.storage.mapper.YaniUserStatsDtoBundle
 import su.afk.yummy.tv.data.account.storage.mapper.toUserStatsCache
@@ -22,24 +22,16 @@ class YaniUserStatsRepository(
     private val settingsStore: YaniAccountSettingsStore,
 ) : UserStatsRepository {
     override suspend fun getUserStats(userId: Int): UserStats = withContext(Dispatchers.IO) {
-        val language = settingsStore.yaniContentLanguage.first()
-        val languageCode = language.apiCode
-        val stored = accountStorage.getUserStats(userId, languageCode)
-        if (stored?.isFresh(ACCOUNT_MEDIUM_TTL_MS) == true) {
-            return@withContext stored.toStoredUserStats()
-        }
-
-        try {
-            fetchUserStats(userId, languageCode)
-        } catch (error: CancellationException) {
-            throw error
-        } catch (error: Throwable) {
-            stored?.toStoredUserStats()
-                ?: throw error
-        }
+        val languageCode = settingsStore.yaniContentLanguage.first().apiCode
+        offlineFirstCache(
+            read = { accountStorage.getUserStats(userId, languageCode) },
+            isFresh = { it.isFresh(ACCOUNT_MEDIUM_TTL_MS) },
+            toDomain = { it.toStoredUserStats() },
+            fetchAndSave = { fetchUserStats(userId, languageCode) },
+        )
     }
 
-    private suspend fun fetchUserStats(userId: Int, languageCode: String): UserStats =
+    private suspend fun fetchUserStats(userId: Int, languageCode: String) =
         coroutineScope {
             val genres = async { api.getUserStatsGenres(userId) }
             val ratings = async { api.getUserStatsRatings(userId) }
@@ -57,6 +49,6 @@ class YaniUserStatsRepository(
                 cachedAt = System.currentTimeMillis(),
             )
             accountStorage.saveUserStats(cache)
-            cache.toStoredUserStats()
+            cache
         }
 }

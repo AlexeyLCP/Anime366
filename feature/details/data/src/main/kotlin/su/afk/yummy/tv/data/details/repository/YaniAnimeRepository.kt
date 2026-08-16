@@ -19,8 +19,11 @@ import su.afk.yummy.tv.core.network.cache.getOrFetchJson
 import su.afk.yummy.tv.core.preferences.settings.YaniAccountSettingsStore
 import su.afk.yummy.tv.core.storage.account.AccountStorage
 import su.afk.yummy.tv.core.storage.anime.AnimeStorage
+import su.afk.yummy.tv.core.storage.anime.AnimeTrailersCache
+import su.afk.yummy.tv.core.storage.anime.AnimeVideosCache
 import su.afk.yummy.tv.core.storage.anime.isFresh
 import su.afk.yummy.tv.core.storage.document.DocumentCacheStorage
+import su.afk.yummy.tv.core.storage.offlinefirst.offlineFirstCache
 import su.afk.yummy.tv.core.storage.watchprogress.WatchProgressStorage
 import su.afk.yummy.tv.data.details.dto.YaniAnimeDetailsDto
 import su.afk.yummy.tv.data.details.dto.YaniRecommendationItemDto
@@ -91,35 +94,25 @@ class YaniAnimeRepository(
 
     override suspend fun getAnimeVideos(animeId: Int): List<AnimeVideo> =
         withContext(Dispatchers.IO) {
-            val language = settingsStore.yaniContentLanguage.first()
-            val languageCode = language.apiCode
-            val stored = animeStorage.getVideos(animeId, languageCode)
-            if (stored?.isFresh(ANIME_VIDEOS_TTL_MS) == true) {
-                return@withContext stored.toStoredAnimeVideos()
-            }
-
-            try {
-                fetchVideosFromNetwork(animeId, languageCode)
-            } catch (error: CancellationException) {
-                throw error
-            } catch (error: Throwable) {
-                stored?.toStoredAnimeVideos()
-                    ?: throw error
-            }
+            val languageCode = settingsStore.yaniContentLanguage.first().apiCode
+            offlineFirstCache(
+                read = { animeStorage.getVideos(animeId, languageCode) },
+                isFresh = { it.isFresh(ANIME_VIDEOS_TTL_MS) },
+                toDomain = { it.toStoredAnimeVideos() },
+                fetchAndSave = { fetchVideosFromNetwork(animeId, languageCode) },
+            )
         }
 
     override suspend fun refreshAnimeVideos(animeId: Int): List<AnimeVideo> =
         withContext(Dispatchers.IO) {
-            val language = settingsStore.yaniContentLanguage.first()
-            val languageCode = language.apiCode
-            try {
-                fetchVideosFromNetwork(animeId, languageCode)
-            } catch (error: CancellationException) {
-                throw error
-            } catch (error: Throwable) {
-                animeStorage.getVideos(animeId, languageCode)?.toStoredAnimeVideos()
-                    ?: throw error
-            }
+            val languageCode = settingsStore.yaniContentLanguage.first().apiCode
+            offlineFirstCache(
+                forceRefresh = true,
+                read = { animeStorage.getVideos(animeId, languageCode) },
+                isFresh = { it.isFresh(ANIME_VIDEOS_TTL_MS) },
+                toDomain = { it.toStoredAnimeVideos() },
+                fetchAndSave = { fetchVideosFromNetwork(animeId, languageCode) },
+            )
         }
 
     override suspend fun getCachedAnimeVideos(animeId: Int): List<AnimeVideo>? =
@@ -223,21 +216,14 @@ class YaniAnimeRepository(
 
     override suspend fun getAnimeTrailers(animeId: Int): List<AnimeTrailer> =
         withContext(Dispatchers.IO) {
-            val language = settingsStore.yaniContentLanguage.first()
-            val languageCode = language.apiCode
-            val stored = animeStorage.getTrailers(animeId, languageCode)
-            if (stored?.isFresh(ANIME_PUBLIC_EXTRAS_TTL_MS) == true) {
-                return@withContext stored.toStoredAnimeTrailers()
-            }
-
-            try {
-                fetchTrailersFromNetwork(animeId, languageCode)
-            } catch (error: CancellationException) {
-                throw error
-            } catch (error: Throwable) {
-                stored?.toStoredAnimeTrailers()
-                    ?: emptyList()
-            }
+            val languageCode = settingsStore.yaniContentLanguage.first().apiCode
+            offlineFirstCache(
+                read = { animeStorage.getTrailers(animeId, languageCode) },
+                isFresh = { it.isFresh(ANIME_PUBLIC_EXTRAS_TTL_MS) },
+                toDomain = { it.toStoredAnimeTrailers() },
+                fetchAndSave = { fetchTrailersFromNetwork(animeId, languageCode) },
+                onMissing = { emptyList() },
+            )
         }
 
     override suspend fun getAnimeRelation(
@@ -341,7 +327,7 @@ class YaniAnimeRepository(
     private suspend fun fetchVideosFromNetwork(
         animeId: Int,
         languageCode: String,
-    ): List<AnimeVideo> {
+    ): AnimeVideosCache {
         val dto = api.getAnimeVideos(animeId)
         val cache = dto.response.toAnimeVideosCache(
             animeId = animeId,
@@ -349,7 +335,7 @@ class YaniAnimeRepository(
             cachedAt = System.currentTimeMillis(),
         )
         animeStorage.saveVideos(cache)
-        return cache.toStoredAnimeVideos()
+        return cache
     }
 
     private suspend fun saveRecommendationsContent(
@@ -415,13 +401,13 @@ class YaniAnimeRepository(
     private suspend fun fetchTrailersFromNetwork(
         animeId: Int,
         languageCode: String,
-    ): List<AnimeTrailer> {
+    ): AnimeTrailersCache {
         val cache = api.getAnimeTrailers(animeId).response.toAnimeTrailersCache(
             animeId = animeId,
             language = languageCode,
             cachedAt = System.currentTimeMillis(),
         )
         animeStorage.saveTrailers(cache)
-        return cache.toStoredAnimeTrailers()
+        return cache
     }
 }

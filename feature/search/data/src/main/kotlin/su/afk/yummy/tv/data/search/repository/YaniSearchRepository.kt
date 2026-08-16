@@ -1,6 +1,5 @@
 package su.afk.yummy.tv.data.search.repository
 
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
@@ -9,6 +8,7 @@ import kotlinx.coroutines.withContext
 import su.afk.yummy.tv.core.preferences.settings.YaniAccountSettingsStore
 import su.afk.yummy.tv.core.preferences.settings.model.YaniContentLanguage
 import su.afk.yummy.tv.core.preferences.settings.model.withYaniContentLanguage
+import su.afk.yummy.tv.core.storage.offlinefirst.offlineFirstCache
 import su.afk.yummy.tv.core.storage.search.SearchStorage
 import su.afk.yummy.tv.core.storage.search.isFresh
 import su.afk.yummy.tv.data.search.dto.YaniSearchCatalogDto
@@ -50,84 +50,48 @@ class YaniSearchRepository(
         offset: Int,
     ): SearchPage = withContext(Dispatchers.IO) {
         val language = settingsStore.yaniContentLanguage.first()
-        val languageCode = language.apiCode
         val pageKey = searchCacheKey(query, filters, limit, offset, language)
-        val stored = searchStorage.getPage(pageKey)
-        if (stored?.isFresh(SEARCH_RESULTS_TTL_MS) == true) {
-            return@withContext stored.toStoredSearchPage()
-        }
-
-        try {
-            fetchSearchPage(
-                query = query,
-                filters = filters,
-                limit = limit,
-                offset = offset,
-                pageKey = pageKey,
-                language = languageCode,
-            )
-        } catch (error: CancellationException) {
-            throw error
-        } catch (error: Throwable) {
-            stored?.toStoredSearchPage()
-                ?: throw error
-        }
+        offlineFirstCache(
+            read = { searchStorage.getPage(pageKey) },
+            isFresh = { it.isFresh(SEARCH_RESULTS_TTL_MS) },
+            toDomain = { it.toStoredSearchPage() },
+            fetchAndSave = {
+                val response = api.search(query, filters, limit, offset)
+                val cachedAt = System.currentTimeMillis()
+                val cache = response.toSearchPageCache(
+                    pageKey = pageKey,
+                    language = language.apiCode,
+                    limit = limit,
+                    offset = offset,
+                    responseSize = response.size,
+                    cachedAt = cachedAt,
+                )
+                searchStorage.savePage(
+                    cache,
+                    prunePagesCachedBefore = cachedAt - SEARCH_RESULTS_CACHE_RETENTION_MS,
+                )
+                cache
+            },
+        )
     }
 
     override suspend fun getFilterOptions(): SearchFilterOptions = withContext(Dispatchers.IO) {
-        val language = settingsStore.yaniContentLanguage.first()
-        val languageCode = language.apiCode
-        val stored = searchStorage.getFilterOptions(languageCode)
-        if (stored?.isFresh(SEARCH_FILTER_OPTIONS_TTL_MS) == true) {
-            return@withContext stored.toStoredSearchFilterOptions()
-        }
-
-        try {
-            fetchFilterOptions(languageCode)
-        } catch (error: CancellationException) {
-            throw error
-        } catch (error: Throwable) {
-            stored?.toStoredSearchFilterOptions()
-                ?: throw error
-        }
-    }
-
-    private suspend fun fetchSearchPage(
-        query: String,
-        filters: SearchFilters,
-        limit: Int,
-        offset: Int,
-        pageKey: String,
-        language: String,
-    ): SearchPage {
-        val response = api.search(query, filters, limit, offset)
-        val cachedAt = System.currentTimeMillis()
-        val cache = response.toSearchPageCache(
-            pageKey = pageKey,
-            language = language,
-            limit = limit,
-            offset = offset,
-            responseSize = response.size,
-            cachedAt = cachedAt,
+        val languageCode = settingsStore.yaniContentLanguage.first().apiCode
+        offlineFirstCache(
+            read = { searchStorage.getFilterOptions(languageCode) },
+            isFresh = { it.isFresh(SEARCH_FILTER_OPTIONS_TTL_MS) },
+            toDomain = { it.toStoredSearchFilterOptions() },
+            fetchAndSave = {
+                val response = fetchFilterOptionsDto()
+                val cache = response.genres.toSearchFilterOptionsCache(
+                    catalog = response.catalog,
+                    language = languageCode,
+                    cachedAt = System.currentTimeMillis(),
+                )
+                searchStorage.saveFilterOptions(cache)
+                cache
+            },
         )
-        searchStorage.savePage(
-            cache,
-            prunePagesCachedBefore = cachedAt - SEARCH_RESULTS_CACHE_RETENTION_MS,
-        )
-        return cache.toStoredSearchPage()
-    }
-
-    private suspend fun fetchFilterOptions(language: String): SearchFilterOptions {
-        val response = fetchFilterOptionsDto()
-        val cache = response.genres.toSearchFilterOptionsCache(
-            catalog = response.catalog,
-            language = language,
-            cachedAt = System.currentTimeMillis(),
-        )
-        searchStorage.saveFilterOptions(
-            cache
-        )
-        return cache.toStoredSearchFilterOptions()
     }
 
     private suspend fun fetchFilterOptionsDto(): YaniSearchFilterOptionsDto =

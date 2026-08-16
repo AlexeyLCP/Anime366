@@ -1,13 +1,14 @@
 package su.afk.yummy.tv.data.account.repository
 
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import su.afk.yummy.tv.core.preferences.settings.YaniAccountSettingsStore
+import su.afk.yummy.tv.core.storage.account.AccountAnimeListStateEntry
 import su.afk.yummy.tv.core.storage.account.AccountStorage
 import su.afk.yummy.tv.core.storage.account.AccountUserListCache
 import su.afk.yummy.tv.core.storage.account.isFresh
+import su.afk.yummy.tv.core.storage.offlinefirst.offlineFirstCache
 import su.afk.yummy.tv.data.account.network.YaniAccountApi
 import su.afk.yummy.tv.data.account.storage.mapper.toAnimeListStateEntry
 import su.afk.yummy.tv.data.account.storage.mapper.toUpdatedAnimeListStateEntry
@@ -33,25 +34,19 @@ class YaniUserListsRepository(
     ): List<UserAnimeListItem> =
         withContext(Dispatchers.IO) {
             val languageCode = settingsStore.yaniContentLanguage.first().apiCode
-            val stored = ALL_LIST_IDS.mapNotNull { listId ->
-                accountStorage.getUserList(userId, listId, languageCode)
-            }
-            if (!forceRefresh &&
-                stored.size == ALL_LIST_IDS.size &&
-                stored.all { it.isFresh(ACCOUNT_SHORT_TTL_MS) }
-            ) {
-                return@withContext stored.toMergedUserListItems()
-            }
-
-            try {
-                fetchAllUserLists(userId, languageCode)
-            } catch (error: CancellationException) {
-                throw error
-            } catch (error: Throwable) {
-                stored.takeIf { it.size == ALL_LIST_IDS.size }
-                    ?.toMergedUserListItems()
-                    ?: throw error
-            }
+            offlineFirstCache(
+                forceRefresh = forceRefresh,
+                // Только полный набор списков (все ALL_LIST_IDS) считается валидным кэшем —
+                // частичный набор ведёт себя как "кэша нет" и во fresh-, и в fallback-ветке.
+                read = {
+                    ALL_LIST_IDS.mapNotNull { listId ->
+                        accountStorage.getUserList(userId, listId, languageCode)
+                    }.takeIf { it.size == ALL_LIST_IDS.size }
+                },
+                isFresh = { it.all { entry -> entry.isFresh(ACCOUNT_SHORT_TTL_MS) } },
+                toDomain = { it.toMergedUserListItems() },
+                fetchAndSave = { fetchAllUserLists(userId, languageCode) },
+            )
         }
 
     override suspend fun getUserList(
@@ -81,19 +76,12 @@ class YaniUserListsRepository(
             val userId = currentUserId()
             if (userId <= 0) return@withContext null
 
-            val stored = accountStorage.getAnimeListState(userId, animeId)
-            if (stored?.isFresh(ANIME_LIST_STATE_TTL_MS) == true) {
-                return@withContext stored.toStoredUserListItem()
-            }
-
-            try {
-                fetchAnimeListState(userId, animeId)
-            } catch (error: CancellationException) {
-                throw error
-            } catch (error: Throwable) {
-                stored?.toStoredUserListItem()
-                    ?: throw error
-            }
+            offlineFirstCache(
+                read = { accountStorage.getAnimeListState(userId, animeId) },
+                isFresh = { it.isFresh(ANIME_LIST_STATE_TTL_MS) },
+                toDomain = { it.toStoredUserListItem() },
+                fetchAndSave = { fetchAnimeListState(userId, animeId) },
+            )
         }
 
     override suspend fun setAnimeList(animeId: Int, list: UserAnimeList) =
@@ -133,28 +121,21 @@ class YaniUserListsRepository(
         listId: Int,
         forceRefresh: Boolean,
     ): List<UserAnimeListItem> {
-        val language = settingsStore.yaniContentLanguage.first()
-        val languageCode = language.apiCode
-        val stored = accountStorage.getUserList(userId, listId, languageCode)
-        if (!forceRefresh && stored?.isFresh(ACCOUNT_SHORT_TTL_MS) == true) {
-            return stored.toUserListItems()
-        }
-
-        return try {
-            fetchUserList(userId, listId, languageCode)
-        } catch (error: CancellationException) {
-            throw error
-        } catch (error: Throwable) {
-            stored?.toUserListItems()
-                ?: throw error
-        }
+        val languageCode = settingsStore.yaniContentLanguage.first().apiCode
+        return offlineFirstCache(
+            forceRefresh = forceRefresh,
+            read = { accountStorage.getUserList(userId, listId, languageCode) },
+            isFresh = { it.isFresh(ACCOUNT_SHORT_TTL_MS) },
+            toDomain = { it.toUserListItems() },
+            fetchAndSave = { fetchUserList(userId, listId, languageCode) },
+        )
     }
 
     private suspend fun fetchUserList(
         userId: Int,
         listId: Int,
         languageCode: String,
-    ): List<UserAnimeListItem> {
+    ): AccountUserListCache {
         val cache = api.getUserList(userId, listId).toUserListCache(
             userId = userId,
             listId = listId,
@@ -162,13 +143,13 @@ class YaniUserListsRepository(
             cachedAt = System.currentTimeMillis(),
         )
         accountStorage.saveUserList(cache)
-        return cache.toUserListItems()
+        return cache
     }
 
     private suspend fun fetchAllUserLists(
         userId: Int,
         languageCode: String,
-    ): List<UserAnimeListItem> {
+    ): List<AccountUserListCache> {
         val response = api.getAllUserLists(userId)
         val cachedAt = System.currentTimeMillis()
         val caches = ALL_LIST_IDS.map { listId ->
@@ -186,10 +167,10 @@ class YaniUserListsRepository(
             )
         }
         accountStorage.saveUserLists(caches)
-        return caches.toMergedUserListItems()
+        return caches
     }
 
-    private suspend fun fetchAnimeListState(userId: Int, animeId: Int): UserAnimeListItem {
+    private suspend fun fetchAnimeListState(userId: Int, animeId: Int): AccountAnimeListStateEntry {
         val state = api.getAnimeListState(animeId)
         val entry = state.toAnimeListStateEntry(
             userId = userId,
@@ -197,7 +178,7 @@ class YaniUserListsRepository(
             cachedAt = System.currentTimeMillis(),
         )
         accountStorage.saveAnimeListState(entry)
-        return entry.toStoredUserListItem()
+        return entry
     }
 
     private suspend fun updateCachedListState(

@@ -1,12 +1,13 @@
 package su.afk.yummy.tv.data.comments.repository
 
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import su.afk.yummy.tv.core.preferences.settings.YaniAccountSettingsStore
+import su.afk.yummy.tv.core.storage.comments.CommentsPageCache
 import su.afk.yummy.tv.core.storage.comments.CommentsStorage
 import su.afk.yummy.tv.core.storage.comments.isFresh
+import su.afk.yummy.tv.core.storage.offlinefirst.offlineFirstCache
 import su.afk.yummy.tv.data.comments.dto.YaniClaimCommentBodyDto
 import su.afk.yummy.tv.data.comments.dto.YaniPatchCommentBodyDto
 import su.afk.yummy.tv.data.comments.dto.YaniPostCommentBodyDto
@@ -21,7 +22,6 @@ import su.afk.yummy.tv.domain.comments.model.CommentReportReason
 import su.afk.yummy.tv.domain.comments.model.CommentSort
 import su.afk.yummy.tv.domain.comments.model.CommentTargetType
 import su.afk.yummy.tv.domain.comments.model.CommentVote
-import su.afk.yummy.tv.domain.comments.model.CommentsPage
 import su.afk.yummy.tv.domain.comments.repository.CommentsRepository
 
 private const val COMMENTS_CACHE_TTL_MS = 5 * 60 * 1000L
@@ -45,24 +45,23 @@ class YaniCommentsRepository(
         forceRefresh: Boolean,
     ) = withContext(Dispatchers.IO) {
         val scopeType = cacheScope(targetType.apiValue)
-        val stored = commentsStorage.getPage(
-            scopeType = scopeType,
-            ownerId = targetId,
-            sort = sort.apiValue,
-            limit = limit,
-            skip = skip,
+        offlineFirstCache(
+            forceRefresh = forceRefresh,
+            read = {
+                commentsStorage.getPage(
+                    scopeType = scopeType,
+                    ownerId = targetId,
+                    sort = sort.apiValue,
+                    limit = limit,
+                    skip = skip,
+                )
+            },
+            isFresh = { it.isFresh(COMMENTS_CACHE_TTL_MS) },
+            toDomain = { it.toCommentsPage() },
+            fetchAndSave = {
+                fetchCommentsFromNetwork(targetType, targetId, limit, skip, sort, scopeType)
+            },
         )
-        if (!forceRefresh && stored?.isFresh(COMMENTS_CACHE_TTL_MS) == true) {
-            return@withContext stored.toCommentsPage()
-        }
-
-        try {
-            fetchCommentsFromNetwork(targetType, targetId, limit, skip, sort, scopeType)
-        } catch (error: CancellationException) {
-            throw error
-        } catch (error: Throwable) {
-            stored?.toCommentsPage() ?: throw error
-        }
     }
 
     override suspend fun getCommentChildren(
@@ -70,24 +69,20 @@ class YaniCommentsRepository(
         skip: Int,
     ) = withContext(Dispatchers.IO) {
         val scopeType = cacheScope(COMMENT_SCOPE_CHILDREN)
-        val stored = commentsStorage.getPage(
-            scopeType = scopeType,
-            ownerId = commentId,
-            sort = COMMENT_CHILDREN_SORT,
-            limit = COMMENT_CHILDREN_LIMIT,
-            skip = skip,
+        offlineFirstCache(
+            read = {
+                commentsStorage.getPage(
+                    scopeType = scopeType,
+                    ownerId = commentId,
+                    sort = COMMENT_CHILDREN_SORT,
+                    limit = COMMENT_CHILDREN_LIMIT,
+                    skip = skip,
+                )
+            },
+            isFresh = { it.isFresh(COMMENTS_CACHE_TTL_MS) },
+            toDomain = { it.toCommentsPage() },
+            fetchAndSave = { fetchCommentChildrenFromNetwork(commentId, skip, scopeType) },
         )
-        if (stored?.isFresh(COMMENTS_CACHE_TTL_MS) == true) {
-            return@withContext stored.toCommentsPage()
-        }
-
-        try {
-            fetchCommentChildrenFromNetwork(commentId, skip, scopeType)
-        } catch (error: CancellationException) {
-            throw error
-        } catch (error: Throwable) {
-            stored?.toCommentsPage() ?: throw error
-        }
     }
 
     override suspend fun addComment(
@@ -175,7 +170,7 @@ class YaniCommentsRepository(
         skip: Int,
         sort: CommentSort,
         cacheScopeType: String,
-    ): CommentsPage {
+    ): CommentsPageCache {
         return savePage(
             dto = api.getComments(targetType.apiValue, targetId, limit, skip, sort.apiValue),
             scopeType = cacheScopeType,
@@ -190,7 +185,7 @@ class YaniCommentsRepository(
         commentId: Int,
         skip: Int,
         cacheScopeType: String,
-    ): CommentsPage {
+    ): CommentsPageCache {
         return savePage(
             dto = api.getCommentChildren(commentId, skip),
             scopeType = cacheScopeType,
@@ -208,7 +203,7 @@ class YaniCommentsRepository(
         sort: String,
         limit: Int,
         skip: Int,
-    ): CommentsPage {
+    ): CommentsPageCache {
         val cachedAt = System.currentTimeMillis()
         val cache = dto.toCommentsPageCache(
             scopeType = scopeType,
@@ -222,7 +217,7 @@ class YaniCommentsRepository(
             cache = cache,
             prunePagesCachedBefore = cachedAt - COMMENT_CACHE_PRUNE_AGE_MS,
         )
-        return cache.toCommentsPage()
+        return cache
     }
 
     private suspend fun cacheScope(scopeType: String): String {
