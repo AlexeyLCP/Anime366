@@ -387,8 +387,14 @@ internal class AllohaStreamProxy(
                             null
                         } else {
                             backgroundRefreshConsumedSinceSuccess.set(false)
+                            val rawBytes = response.body.bytes()
+                            val bytes = if (response.code == 200 && isAssSubtitleUrl(target)) {
+                                fixAssBytes(rawBytes)
+                            } else {
+                                rawBytes
+                            }
                             FetchResult(
-                                bytes = response.body.bytes(),
+                                bytes = bytes,
                                 statusCode = response.code,
                                 contentType = response.header("Content-Type").orEmpty(),
                                 finalUrl = response.request.url.toString(),
@@ -743,12 +749,23 @@ internal class AllohaStreamProxy(
 
         fun contentTypeFor(url: String): String = when {
             url.contains(".vtt", true) -> "text/vtt"
+            url.contains(".ass", true) || url.contains(".ssa", true) -> "text/x-ssa"
             url.contains(".aac", true) -> "audio/aac"
             url.contains(".m4s", true) || url.contains(".mp4", true) -> "video/mp4"
             else -> "video/MP2T"
         }
 
         fun isPlaylistUrl(url: String): Boolean = url.contains(".m3u8", ignoreCase = true)
+
+        fun isAssSubtitleUrl(url: String): Boolean {
+            val extension = url.substringBefore('?').substringAfterLast('.', "").lowercase()
+            return extension == "ass" || extension == "ssa"
+        }
+
+        /** Falls back to the original bytes untouched if the content isn't parseable as ASS/SSA text. */
+        fun fixAssBytes(bytes: ByteArray): ByteArray = runCatching {
+            fixAssMarginPositions(bytes.toString(Charsets.UTF_8)).toByteArray(Charsets.UTF_8)
+        }.getOrDefault(bytes)
 
         fun String?.fingerprint(): String {
             if (this.isNullOrBlank()) return "none"

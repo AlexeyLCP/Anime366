@@ -11,6 +11,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.media3.common.Player
+import androidx.media3.common.text.Cue
 import androidx.media3.common.text.CueGroup
 import androidx.media3.ui.CaptionStyleCompat
 import androidx.media3.ui.SubtitleView
@@ -19,8 +20,8 @@ import su.afk.yummy.tv.core.preferences.settings.model.PlayerSubtitleStyleSettin
 /**
  * Рендер текущих субтитров поверх видео. Player сам решает, есть ли активная text-дорожка
  * (см. [PlayerTrackSelectionState.selectText]) — здесь только отображение [Player.Listener.onCues]
- * и пользовательское оформление из [style]. Позиция реплик остаётся такой, как задана в исходной
- * дорожке (line/position из cue) — мы её не переопределяем.
+ * и пользовательское оформление из [style]. Явные line/position реплик (в т.ч. \pos из
+ * AllohaAssPositionFix) сбрасываем — иначе они перебивают [style.offset], заданный пользователем.
  */
 @Composable
 fun PlayerSubtitleOverlay(
@@ -56,10 +57,11 @@ fun PlayerSubtitleOverlay(
             }
         },
         update = { view ->
-            view.setCues(cueGroup?.cues.orEmpty())
+            view.setCues(cueGroup?.cues.orEmpty().map { it.withDefaultPosition() })
             view.setFractionalTextSize(
                 SubtitleView.DEFAULT_TEXT_SIZE_FRACTION * style.textSize.scale
             )
+            view.setBottomPaddingFraction(style.offset.bottomFraction)
             view.setStyle(
                 CaptionStyleCompat(
                     style.textColor.argb,
@@ -72,4 +74,17 @@ fun PlayerSubtitleOverlay(
             )
         },
     )
+}
+
+/**
+ * Сбрасывает line/position текстовых cue на DIMEN_UNSET, чтобы [SubtitleView] позиционировал их
+ * через `bottomPaddingFraction`, а не через координаты, зашитые в исходной дорожке. Битмап-cue
+ * (например, DVB) не трогаем — там позиция обычно осмысленная и не сводится к «снизу по центру».
+ */
+private fun Cue.withDefaultPosition(): Cue {
+    if (bitmap != null) return this
+    return buildUpon()
+        .setLine(Cue.DIMEN_UNSET, Cue.TYPE_UNSET)
+        .setPosition(Cue.DIMEN_UNSET)
+        .build()
 }

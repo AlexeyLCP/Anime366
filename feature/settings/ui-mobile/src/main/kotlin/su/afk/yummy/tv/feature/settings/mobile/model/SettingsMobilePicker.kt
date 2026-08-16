@@ -13,6 +13,7 @@ internal enum class SettingsMobilePicker {
     SUBTITLE_SIZE,
     SUBTITLE_COLOR,
     SUBTITLE_BACKGROUND,
+    SUBTITLE_OFFSET,
     CACHE,
     CONTENT_LANGUAGE,
 }

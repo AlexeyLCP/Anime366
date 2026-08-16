@@ -70,6 +70,10 @@ internal class PlayerSourceSelectionHandler @Inject constructor() {
                 dubbingIndex = selection.dubbingIndex,
                 episodeIndex = selection.episodeIndex,
             ),
+            allohaAudioTracks = emptyList(),
+            selectedAllohaAudioId = null,
+            allohaSubtitles = emptyList(),
+            selectedAllohaSubtitleIndex = null,
         )
     }
 
@@ -100,6 +104,10 @@ internal class PlayerSourceSelectionHandler @Inject constructor() {
                 dubbingIndex = newDubbingIdx,
                 episodeIndex = newEpisodeIdx,
             ),
+            allohaAudioTracks = emptyList(),
+            selectedAllohaAudioId = null,
+            allohaSubtitles = emptyList(),
+            selectedAllohaSubtitleIndex = null,
         )
     }
 

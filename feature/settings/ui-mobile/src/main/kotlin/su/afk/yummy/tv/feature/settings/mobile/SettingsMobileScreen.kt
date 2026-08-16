@@ -40,6 +40,7 @@ import su.afk.yummy.tv.core.preferences.interface_mode.AppInterfaceMode
 import su.afk.yummy.tv.core.preferences.settings.model.LibraryContinueWatchingCardSize
 import su.afk.yummy.tv.core.preferences.settings.model.PlayerOrientationMode
 import su.afk.yummy.tv.core.preferences.settings.model.PlayerSubtitleBackground
+import su.afk.yummy.tv.core.preferences.settings.model.PlayerSubtitleOffset
 import su.afk.yummy.tv.core.preferences.settings.model.PlayerSubtitleTextColor
 import su.afk.yummy.tv.core.preferences.settings.model.PlayerSubtitleTextSize
 import su.afk.yummy.tv.core.preferences.settings.model.PreferredPlayer
@@ -357,6 +358,12 @@ fun SettingsMobileScreen(
                         value = state.subtitleStyle.background.label(),
                         onClick = { activePicker = SettingsMobilePicker.SUBTITLE_BACKGROUND },
                     )
+                    SettingsMobileOptionRow(
+                        label = stringResource(R.string.settings_subtitle_offset_title),
+                        value = state.subtitleStyle.offset.label(),
+                        hint = state.subtitleStyle.offset.hint(),
+                        onClick = { activePicker = SettingsMobilePicker.SUBTITLE_OFFSET },
+                    )
                 }
             }
 
@@ -654,6 +661,23 @@ fun SettingsMobileScreen(
                 onEvent(
                     SettingsState.Event.SubtitleStyleSelected(
                         state.subtitleStyle.copy(background = it),
+                    ),
+                )
+                activePicker = null
+            },
+        )
+
+        SettingsMobilePicker.SUBTITLE_OFFSET -> SettingsMobilePickerSheet(
+            title = stringResource(R.string.settings_subtitle_offset_title),
+            selectedValue = state.subtitleStyle.offset,
+            options = PlayerSubtitleOffset.entries.map {
+                SettingsMobilePickerOption(it, it.label(), it.hint())
+            },
+            onDismiss = { activePicker = null },
+            onSelected = {
+                onEvent(
+                    SettingsState.Event.SubtitleStyleSelected(
+                        state.subtitleStyle.copy(offset = it),
                     ),
                 )
                 activePicker = null

@@ -195,8 +195,10 @@
     <string name="settings_subtitle_size_title">Text size</string>
     <string name="settings_subtitle_color_title">Text color</string>
     <string name="settings_subtitle_background_title">Background</string>
+    <string name="settings_subtitle_offset_title">Bottom offset</string>
     <string name="settings_subtitle_percent">%1$d%%</string>
     <string name="settings_subtitle_size_hint">%1$d%% of the default size</string>
+    <string name="settings_subtitle_offset_hint">%1$d%% of the frame height</string>
     <string name="settings_subtitle_color_white">White</string>
     <string name="settings_subtitle_color_yellow">Yellow</string>
     <string name="settings_subtitle_color_cyan">Cyan</string>

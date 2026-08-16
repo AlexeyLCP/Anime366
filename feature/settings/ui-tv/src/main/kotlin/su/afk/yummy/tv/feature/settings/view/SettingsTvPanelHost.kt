@@ -40,6 +40,7 @@ import su.afk.yummy.tv.core.model.settings.PosterQuality
 import su.afk.yummy.tv.core.preferences.interface_mode.AppInterfaceMode
 import su.afk.yummy.tv.core.preferences.settings.model.LibraryContinueWatchingCardSize
 import su.afk.yummy.tv.core.preferences.settings.model.PlayerSubtitleBackground
+import su.afk.yummy.tv.core.preferences.settings.model.PlayerSubtitleOffset
 import su.afk.yummy.tv.core.preferences.settings.model.PlayerSubtitleTextColor
 import su.afk.yummy.tv.core.preferences.settings.model.PlayerSubtitleTextSize
 import su.afk.yummy.tv.core.preferences.settings.model.PreferredPlayer
@@ -375,6 +376,21 @@ internal fun SettingsTvPanelHost(
                                 onEvent(
                                     SettingsState.Event.SubtitleStyleSelected(
                                         state.subtitleStyle.copy(background = it),
+                                    ),
+                                )
+                            },
+                        )
+                        SubtitleStyleGroup(
+                            title = stringResource(R.string.settings_subtitle_offset_title),
+                            values = PlayerSubtitleOffset.entries,
+                            selected = state.subtitleStyle.offset,
+                            labelOf = { it.label() },
+                            hintOf = { it.hint() },
+                            tabFocusRequester = tabFocusRequester,
+                            onSelected = {
+                                onEvent(
+                                    SettingsState.Event.SubtitleStyleSelected(
+                                        state.subtitleStyle.copy(offset = it),
                                     ),
                                 )
                             },
