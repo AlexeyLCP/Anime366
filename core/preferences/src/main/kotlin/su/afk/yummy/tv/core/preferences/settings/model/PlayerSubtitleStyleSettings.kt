@@ -28,23 +28,9 @@ enum class PlayerSubtitleBackground(val argb: Int) {
     SOLID(0xFF000000.toInt()),
 }
 
-/**
- * Отступ субтитров от низа кадра в процентах от его высоты. 8% — дефолт Media3
- * (`SubtitleView.DEFAULT_BOTTOM_PADDING_FRACTION`).
- */
-enum class PlayerSubtitleOffset(val percent: Int) {
-    PERCENT_8(8),
-    PERCENT_12(12),
-    PERCENT_16(16),
-    PERCENT_22(22);
-
-    val bottomFraction: Float get() = percent / 100f
-}
-
 /** Оформление субтитров: применяется глобально ко всем источникам, реально сабы отдаёт Alloha. */
 data class PlayerSubtitleStyleSettings(
     val textSize: PlayerSubtitleTextSize = PlayerSubtitleTextSize.PERCENT_100,
     val textColor: PlayerSubtitleTextColor = PlayerSubtitleTextColor.WHITE,
     val background: PlayerSubtitleBackground = PlayerSubtitleBackground.TRANSLUCENT,
-    val offset: PlayerSubtitleOffset = PlayerSubtitleOffset.PERCENT_8,
 )

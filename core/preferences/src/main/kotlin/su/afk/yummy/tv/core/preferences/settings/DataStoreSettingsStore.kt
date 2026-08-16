@@ -47,7 +47,6 @@ import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.refreshC
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.showOpeningOnTimelineKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.showTopTitleYearKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.subtitleBackgroundKey
-import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.subtitleOffsetKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.subtitleTextColorKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.subtitleTextSizeKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.suggestNextEpisodeOnWatchedKey
@@ -76,7 +75,6 @@ import su.afk.yummy.tv.core.preferences.settings.model.PlayerOrientationMode
 import su.afk.yummy.tv.core.preferences.settings.model.PlayerResizeMode
 import su.afk.yummy.tv.core.preferences.settings.model.PlayerResizeSettings
 import su.afk.yummy.tv.core.preferences.settings.model.PlayerSubtitleBackground
-import su.afk.yummy.tv.core.preferences.settings.model.PlayerSubtitleOffset
 import su.afk.yummy.tv.core.preferences.settings.model.PlayerSubtitleStyleSettings
 import su.afk.yummy.tv.core.preferences.settings.model.PlayerSubtitleTextColor
 import su.afk.yummy.tv.core.preferences.settings.model.PlayerSubtitleTextSize
@@ -208,14 +206,13 @@ internal class DataStoreSettingsStore @Inject constructor(
     override val playerZoomLevel: Flow<PlayerZoomLevel> =
         enumFlow(playerZoomLevelKey, PlayerZoomLevel.PERCENT_10)
 
-    // Четыре ключа читаются одним map'ом, а не combine'ом четырёх Flow: источник один и тот же
+    // Три ключа читаются одним map'ом, а не combine'ом трёх Flow: источник один и тот же
     // (safeData), так что лишние комбинаторы только добавили бы промежуточных эмитов.
     override val playerSubtitleStyle: Flow<PlayerSubtitleStyleSettings> = safeData.map { prefs ->
         PlayerSubtitleStyleSettings(
             textSize = prefs.enum(subtitleTextSizeKey, PlayerSubtitleTextSize.PERCENT_100),
             textColor = prefs.enum(subtitleTextColorKey, PlayerSubtitleTextColor.WHITE),
             background = prefs.enum(subtitleBackgroundKey, PlayerSubtitleBackground.TRANSLUCENT),
-            offset = prefs.enum(subtitleOffsetKey, PlayerSubtitleOffset.PERCENT_8),
         )
     }
 
@@ -512,7 +509,6 @@ internal class DataStoreSettingsStore @Inject constructor(
             prefs[subtitleTextSizeKey] = settings.textSize.name
             prefs[subtitleTextColorKey] = settings.textColor.name
             prefs[subtitleBackgroundKey] = settings.background.name
-            prefs[subtitleOffsetKey] = settings.offset.name
         }
     }
 

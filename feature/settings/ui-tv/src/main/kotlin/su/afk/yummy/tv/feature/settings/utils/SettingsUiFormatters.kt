@@ -13,7 +13,6 @@ import su.afk.yummy.tv.core.preferences.interface_mode.AppInterfaceMode
 import su.afk.yummy.tv.core.preferences.settings.model.DetailsButtonAction
 import su.afk.yummy.tv.core.preferences.settings.model.LibraryContinueWatchingCardSize
 import su.afk.yummy.tv.core.preferences.settings.model.PlayerSubtitleBackground
-import su.afk.yummy.tv.core.preferences.settings.model.PlayerSubtitleOffset
 import su.afk.yummy.tv.core.preferences.settings.model.PlayerSubtitleTextColor
 import su.afk.yummy.tv.core.preferences.settings.model.PlayerSubtitleTextSize
 import su.afk.yummy.tv.core.preferences.settings.model.PreferredPlayer
@@ -308,14 +307,6 @@ internal fun PlayerSubtitleTextSize.label(): String =
 @Composable
 internal fun PlayerSubtitleTextSize.hint(): String =
     stringResource(R.string.settings_subtitle_size_hint, percent)
-
-@Composable
-internal fun PlayerSubtitleOffset.label(): String =
-    stringResource(R.string.settings_subtitle_percent, percent)
-
-@Composable
-internal fun PlayerSubtitleOffset.hint(): String =
-    stringResource(R.string.settings_subtitle_offset_hint, percent)
 
 @Composable
 internal fun PlayerSubtitleTextColor.label(): String = stringResource(

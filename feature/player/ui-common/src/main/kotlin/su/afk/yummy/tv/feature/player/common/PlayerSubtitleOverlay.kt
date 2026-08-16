@@ -19,7 +19,8 @@ import su.afk.yummy.tv.core.preferences.settings.model.PlayerSubtitleStyleSettin
 /**
  * Рендер текущих субтитров поверх видео. Player сам решает, есть ли активная text-дорожка
  * (см. [PlayerTrackSelectionState.selectText]) — здесь только отображение [Player.Listener.onCues]
- * и пользовательское оформление из [style].
+ * и пользовательское оформление из [style]. Позиция реплик остаётся такой, как задана в исходной
+ * дорожке (line/position из cue) — мы её не переопределяем.
  */
 @Composable
 fun PlayerSubtitleOverlay(
@@ -59,7 +60,6 @@ fun PlayerSubtitleOverlay(
             view.setFractionalTextSize(
                 SubtitleView.DEFAULT_TEXT_SIZE_FRACTION * style.textSize.scale
             )
-            view.setBottomPaddingFraction(style.offset.bottomFraction)
             view.setStyle(
                 CaptionStyleCompat(
                     style.textColor.argb,

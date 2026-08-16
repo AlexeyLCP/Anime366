@@ -183,10 +183,8 @@
     <string name="settings_subtitle_size_title">Размер текста</string>
     <string name="settings_subtitle_color_title">Цвет текста</string>
     <string name="settings_subtitle_background_title">Фон</string>
-    <string name="settings_subtitle_offset_title">Отступ снизу</string>
     <string name="settings_subtitle_percent">%1$d%%</string>
     <string name="settings_subtitle_size_hint">%1$d%% от стандартного размера</string>
-    <string name="settings_subtitle_offset_hint">%1$d%% от высоты кадра</string>
     <string name="settings_subtitle_color_white">Белый</string>
     <string name="settings_subtitle_color_yellow">Жёлтый</string>
     <string name="settings_subtitle_color_cyan">Голубой</string>
