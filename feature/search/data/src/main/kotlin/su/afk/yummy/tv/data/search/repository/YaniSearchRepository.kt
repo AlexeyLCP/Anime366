@@ -6,13 +6,13 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import su.afk.yummy.tv.core.preferences.settings.YaniAccountSettingsStore
+import su.afk.yummy.tv.core.preferences.settings.currentLanguageCode
 import su.afk.yummy.tv.core.preferences.settings.model.YaniContentLanguage
 import su.afk.yummy.tv.core.preferences.settings.model.withYaniContentLanguage
 import su.afk.yummy.tv.core.storage.offlinefirst.offlineFirstCache
 import su.afk.yummy.tv.core.storage.search.SearchStorage
 import su.afk.yummy.tv.core.storage.search.isFresh
-import su.afk.yummy.tv.data.search.dto.YaniSearchCatalogDto
-import su.afk.yummy.tv.data.search.dto.YaniSearchGenresDto
+import su.afk.yummy.tv.data.search.dto.YaniSearchFilterOptionsDto
 import su.afk.yummy.tv.data.search.mapper.toSearchItem
 import su.afk.yummy.tv.data.search.network.YaniSearchApi
 import su.afk.yummy.tv.data.search.storage.mapper.toSearchFilterOptionsCache
@@ -28,11 +28,6 @@ import su.afk.yummy.tv.data.search.storage.mapper.toSearchPage as toStoredSearch
 private const val SEARCH_FILTER_OPTIONS_TTL_MS = 24 * 60 * 60 * 1000L
 private const val SEARCH_RESULTS_TTL_MS = 10 * 60 * 1000L
 private const val SEARCH_RESULTS_CACHE_RETENTION_MS = 24 * 60 * 60 * 1000L
-
-private data class YaniSearchFilterOptionsDto(
-    val genres: YaniSearchGenresDto = YaniSearchGenresDto(),
-    val catalog: YaniSearchCatalogDto = YaniSearchCatalogDto(),
-)
 
 class YaniSearchRepository(
     private val api: YaniSearchApi,
@@ -76,7 +71,7 @@ class YaniSearchRepository(
     }
 
     override suspend fun getFilterOptions(): SearchFilterOptions = withContext(Dispatchers.IO) {
-        val languageCode = settingsStore.yaniContentLanguage.first().apiCode
+        val languageCode = settingsStore.currentLanguageCode()
         offlineFirstCache(
             read = { searchStorage.getFilterOptions(languageCode) },
             isFresh = { it.isFresh(SEARCH_FILTER_OPTIONS_TTL_MS) },

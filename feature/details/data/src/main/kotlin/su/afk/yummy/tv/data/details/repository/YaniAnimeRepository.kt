@@ -17,6 +17,7 @@ import su.afk.yummy.tv.core.model.anime.AnimeVideo
 import su.afk.yummy.tv.core.model.anime.AnimeWatchProgress
 import su.afk.yummy.tv.core.network.cache.getOrFetchJson
 import su.afk.yummy.tv.core.preferences.settings.YaniAccountSettingsStore
+import su.afk.yummy.tv.core.preferences.settings.currentLanguageCode
 import su.afk.yummy.tv.core.storage.account.AccountStorage
 import su.afk.yummy.tv.core.storage.anime.AnimeStorage
 import su.afk.yummy.tv.core.storage.anime.AnimeTrailersCache
@@ -69,8 +70,7 @@ class YaniAnimeRepository(
 ) : AnimeRepository {
 
     override suspend fun getAnimeDetails(animeId: Int): AnimeDetails = withContext(Dispatchers.IO) {
-        val language = settingsStore.yaniContentLanguage.first()
-        val languageCode = language.apiCode
+        val languageCode = settingsStore.currentLanguageCode()
         val stored = animeStorage.getDetails(animeId, languageCode)
         if (stored?.isFresh(ANIME_DETAILS_TTL_MS) == true) {
             return@withContext stored.toStoredAnimeDetails()
@@ -88,13 +88,13 @@ class YaniAnimeRepository(
 
     override suspend fun getCachedAnimeDetails(animeId: Int): AnimeDetails? =
         withContext(Dispatchers.IO) {
-            val language = settingsStore.yaniContentLanguage.first()
-            animeStorage.getDetails(animeId, language.apiCode)?.toStoredAnimeDetails()
+            animeStorage.getDetails(animeId, settingsStore.currentLanguageCode())
+                ?.toStoredAnimeDetails()
         }
 
     override suspend fun getAnimeVideos(animeId: Int): List<AnimeVideo> =
         withContext(Dispatchers.IO) {
-            val languageCode = settingsStore.yaniContentLanguage.first().apiCode
+            val languageCode = settingsStore.currentLanguageCode()
             offlineFirstCache(
                 read = { animeStorage.getVideos(animeId, languageCode) },
                 isFresh = { it.isFresh(ANIME_VIDEOS_TTL_MS) },
@@ -105,7 +105,7 @@ class YaniAnimeRepository(
 
     override suspend fun refreshAnimeVideos(animeId: Int): List<AnimeVideo> =
         withContext(Dispatchers.IO) {
-            val languageCode = settingsStore.yaniContentLanguage.first().apiCode
+            val languageCode = settingsStore.currentLanguageCode()
             offlineFirstCache(
                 forceRefresh = true,
                 read = { animeStorage.getVideos(animeId, languageCode) },
@@ -117,8 +117,8 @@ class YaniAnimeRepository(
 
     override suspend fun getCachedAnimeVideos(animeId: Int): List<AnimeVideo>? =
         withContext(Dispatchers.IO) {
-            val language = settingsStore.yaniContentLanguage.first()
-            animeStorage.getVideos(animeId, language.apiCode)?.toStoredAnimeVideos()
+            animeStorage.getVideos(animeId, settingsStore.currentLanguageCode())
+                ?.toStoredAnimeVideos()
         }
 
     override suspend fun getAnimeRecommendations(
@@ -126,8 +126,7 @@ class YaniAnimeRepository(
         fromAi: Boolean
     ): List<AnimeRecommendation> =
         withContext(Dispatchers.IO) {
-            val language = settingsStore.yaniContentLanguage.first()
-            val languageCode = language.apiCode
+            val languageCode = settingsStore.currentLanguageCode()
             val stored = animeStorage.getRecommendations(animeId, languageCode, fromAi)
             try {
                 val userId = settingsStore.yaniUserId.first().coerceAtLeast(0)
@@ -216,7 +215,7 @@ class YaniAnimeRepository(
 
     override suspend fun getAnimeTrailers(animeId: Int): List<AnimeTrailer> =
         withContext(Dispatchers.IO) {
-            val languageCode = settingsStore.yaniContentLanguage.first().apiCode
+            val languageCode = settingsStore.currentLanguageCode()
             offlineFirstCache(
                 read = { animeStorage.getTrailers(animeId, languageCode) },
                 isFresh = { it.isFresh(ANIME_PUBLIC_EXTRAS_TTL_MS) },
@@ -229,7 +228,7 @@ class YaniAnimeRepository(
     override suspend fun getAnimeRelation(
         reference: AnimeRelationReference,
     ): AnimeRelation = withContext(Dispatchers.IO) {
-        val language = settingsStore.yaniContentLanguage.first().apiCode
+        val language = settingsStore.currentLanguageCode()
         val referenceKey = when (reference.kind) {
             AnimeRelationKind.STUDIO -> reference.url
                 ?.substringBefore('?')

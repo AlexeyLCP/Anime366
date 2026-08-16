@@ -1,9 +1,10 @@
 package su.afk.yummy.tv.data.account.repository
 
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import su.afk.yummy.tv.core.preferences.settings.YaniAccountSettingsStore
+import su.afk.yummy.tv.core.preferences.settings.currentLanguageCode
+import su.afk.yummy.tv.core.preferences.settings.currentUserId
 import su.afk.yummy.tv.core.storage.account.AccountListStatsCache
 import su.afk.yummy.tv.core.storage.account.AccountRatingBucketsCache
 import su.afk.yummy.tv.core.storage.account.AccountStorage
@@ -43,7 +44,7 @@ class YaniAnimeExtrasRepository(
 
     override suspend fun getUserRating(animeId: Int): Int? =
         withContext(Dispatchers.IO) {
-            val userId = currentUserId()
+            val userId = settingsStore.currentUserId()
             offlineFirstCache(
                 read = { accountStorage.getUserRating(userId, animeId) },
                 isFresh = { it.isFresh(ACCOUNT_SHORT_TTL_MS) },
@@ -53,14 +54,14 @@ class YaniAnimeExtrasRepository(
         }
 
     override suspend fun setRating(animeId: Int, rating: Int) = withContext(Dispatchers.IO) {
-        val userId = currentUserId()
+        val userId = settingsStore.currentUserId()
         api.setRating(animeId, rating)
         updateCachedUserRating(userId, animeId, rating)
         accountStorage.deleteRatingBuckets(animeId)
     }
 
     override suspend fun deleteRating(animeId: Int) = withContext(Dispatchers.IO) {
-        val userId = currentUserId()
+        val userId = settingsStore.currentUserId()
         api.deleteRating(animeId)
         updateCachedUserRating(userId, animeId, rating = null)
         accountStorage.deleteRatingBuckets(animeId)
@@ -89,8 +90,7 @@ class YaniAnimeExtrasRepository(
         offset: Int
     ): List<AnimeCollectionSummary> =
         withContext(Dispatchers.IO) {
-            val language = settingsStore.yaniContentLanguage.first()
-            val languageCode = language.apiCode
+            val languageCode = settingsStore.currentLanguageCode()
             val pageKey = animeCollectionsPageKey(animeId, limit, offset, languageCode)
             getCollectionsPage(
                 pageKey = pageKey,
@@ -100,9 +100,6 @@ class YaniAnimeExtrasRepository(
                 },
             )
         }
-
-    private suspend fun currentUserId(): Int =
-        settingsStore.yaniUserId.first()
 
     private suspend fun fetchRatingSummary(animeId: Int): AccountRatingBucketsCache {
         val cache = api.getRatingBuckets(animeId).toRatingBucketsCache(

@@ -1,8 +1,8 @@
 package su.afk.yummy.tv.data.reviews.repository
 
-import kotlinx.coroutines.flow.first
 import su.afk.yummy.tv.core.network.cache.UserScopedCache
 import su.afk.yummy.tv.core.preferences.settings.YaniAccountSettingsStore
+import su.afk.yummy.tv.core.preferences.settings.currentLanguageCode
 import su.afk.yummy.tv.core.storage.anime.AnimeStorage
 import su.afk.yummy.tv.core.utils.network.toHttpsUrlOrNull
 import su.afk.yummy.tv.data.reviews.dto.YaniReviewDto
@@ -79,7 +79,7 @@ class YaniReviewsRepository @Inject constructor(
     override suspend fun delete(reviewId: Int): Boolean {
         val deleted = api.delete(reviewId).response
         if (deleted) {
-            val language = settingsStore.yaniContentLanguage.first().apiCode
+            val language = settingsStore.currentLanguageCode()
             val animeId = reviewAnimeIds.remove(reviewId)
             if (animeId != null) animeStorage.deleteDetails(animeId, language)
             else animeStorage.expireAllDetails()

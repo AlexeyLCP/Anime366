@@ -1,9 +1,9 @@
 package su.afk.yummy.tv.data.top.repository
 
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import su.afk.yummy.tv.core.preferences.settings.YaniAccountSettingsStore
+import su.afk.yummy.tv.core.preferences.settings.currentLanguageCode
 import su.afk.yummy.tv.core.storage.offlinefirst.offlineFirstCache
 import su.afk.yummy.tv.core.storage.top.AnimeTopStorage
 import su.afk.yummy.tv.core.storage.top.isFresh
@@ -25,7 +25,7 @@ class YaniAnimeTopRepository(
 
     override suspend fun getTopAnime(type: AnimeTopType, limit: Int, offset: Int): AnimeTopPage =
         withContext(Dispatchers.IO) {
-            val languageCode = settingsStore.yaniContentLanguage.first().apiCode
+            val languageCode = settingsStore.currentLanguageCode()
             offlineFirstCache(
                 read = { topStore.getPage(type.apiValue, languageCode, limit, offset) },
                 isFresh = { it.isFresh(ANIME_TOP_TTL_MS) },

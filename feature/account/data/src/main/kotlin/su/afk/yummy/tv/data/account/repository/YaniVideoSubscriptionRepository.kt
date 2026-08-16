@@ -4,6 +4,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import su.afk.yummy.tv.core.preferences.settings.YaniAccountSettingsStore
+import su.afk.yummy.tv.core.preferences.settings.currentLanguageCode
 import su.afk.yummy.tv.core.storage.account.AccountStorage
 import su.afk.yummy.tv.core.storage.account.AccountVideoSubscriptionsCache
 import su.afk.yummy.tv.core.storage.account.isFresh
@@ -22,7 +23,7 @@ class YaniVideoSubscriptionRepository(
 
     override suspend fun getSubscriptions(userId: Int): List<VideoSubscription> =
         withContext(Dispatchers.IO) {
-            val languageCode = settingsStore.yaniContentLanguage.first().apiCode
+            val languageCode = settingsStore.currentLanguageCode()
             offlineFirstCache(
                 read = { accountStorage.getVideoSubscriptions(userId, languageCode) },
                 isFresh = { it.isFresh(ACCOUNT_SHORT_TTL_MS) },

@@ -1,9 +1,9 @@
 package su.afk.yummy.tv.data.account.repository
 
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import su.afk.yummy.tv.core.preferences.settings.YaniAccountSettingsStore
+import su.afk.yummy.tv.core.preferences.settings.currentLanguageCode
 import su.afk.yummy.tv.core.storage.account.AccountStorage
 import su.afk.yummy.tv.core.storage.account.isFresh
 import su.afk.yummy.tv.core.storage.offlinefirst.offlineFirstCache
@@ -29,7 +29,7 @@ class YaniUserProfileContentRepository(
 ) : UserProfileContentRepository {
     override suspend fun getFriends(userId: Int, limit: Int, offset: Int): List<UserFriend> =
         withContext(Dispatchers.IO) {
-            val languageCode = settingsStore.yaniContentLanguage.first().apiCode
+            val languageCode = settingsStore.currentLanguageCode()
             offlineFirstCache(
                 read = { accountStorage.getUserFriends(userId, languageCode, limit, offset) },
                 isFresh = { it.isFresh(ACCOUNT_MEDIUM_TTL_MS) },
@@ -50,7 +50,7 @@ class YaniUserProfileContentRepository(
 
     override suspend fun getReviews(userId: Int, limit: Int, offset: Int): List<UserReviewSummary> =
         withContext(Dispatchers.IO) {
-            val languageCode = settingsStore.yaniContentLanguage.first().apiCode
+            val languageCode = settingsStore.currentLanguageCode()
             offlineFirstCache(
                 read = { accountStorage.getUserReviews(userId, languageCode, limit, offset) },
                 isFresh = { it.isFresh(ACCOUNT_MEDIUM_TTL_MS) },
@@ -71,7 +71,7 @@ class YaniUserProfileContentRepository(
 
     override suspend fun getPosts(userId: Int, limit: Int, offset: Int): List<UserPostSummary> =
         withContext(Dispatchers.IO) {
-            val languageCode = settingsStore.yaniContentLanguage.first().apiCode
+            val languageCode = settingsStore.currentLanguageCode()
             offlineFirstCache(
                 read = { accountStorage.getUserPosts(userId, languageCode, limit, offset) },
                 isFresh = { it.isFresh(ACCOUNT_MEDIUM_TTL_MS) },
@@ -96,7 +96,7 @@ class YaniUserProfileContentRepository(
         offset: Int,
     ): List<AnimeCollectionSummary> =
         withContext(Dispatchers.IO) {
-            val languageCode = settingsStore.yaniContentLanguage.first().apiCode
+            val languageCode = settingsStore.currentLanguageCode()
             val pageKey = userCollectionsPageKey(userId, limit, offset, languageCode)
             offlineFirstCache(
                 read = { accountStorage.getCollections(pageKey) },

@@ -75,3 +75,8 @@ data class YaniSearchPosterDto(
 data class YaniSearchRatingDto(
     val average: Double? = null,
 )
+
+internal data class YaniSearchFilterOptionsDto(
+    val genres: YaniSearchGenresDto = YaniSearchGenresDto(),
+    val catalog: YaniSearchCatalogDto = YaniSearchCatalogDto(),
+)

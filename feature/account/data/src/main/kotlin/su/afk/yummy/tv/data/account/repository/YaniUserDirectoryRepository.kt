@@ -1,9 +1,9 @@
 package su.afk.yummy.tv.data.account.repository
 
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import su.afk.yummy.tv.core.preferences.settings.YaniAccountSettingsStore
+import su.afk.yummy.tv.core.preferences.settings.currentLanguageCode
 import su.afk.yummy.tv.core.storage.account.AccountStorage
 import su.afk.yummy.tv.data.account.mapper.toFriendshipStatus
 import su.afk.yummy.tv.data.account.mapper.toUserSearchItem
@@ -30,7 +30,7 @@ class YaniUserDirectoryRepository(
     override suspend fun getProfileByNickname(nickname: String): UserProfileSummary =
         withContext(Dispatchers.IO) {
             val profile = api.getUserProfileByNickname(nickname).response
-            val language = settingsStore.yaniContentLanguage.first().apiCode
+            val language = settingsStore.currentLanguageCode()
             val cache = profile.toUserProfileSummaryCache(
                 userId = profile.id,
                 language = language,

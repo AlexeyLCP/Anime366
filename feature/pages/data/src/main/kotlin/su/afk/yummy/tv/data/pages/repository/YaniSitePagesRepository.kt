@@ -1,15 +1,14 @@
 package su.afk.yummy.tv.data.pages.repository
 
-import kotlinx.coroutines.flow.first
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonArray
-import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.contentOrNull
 import su.afk.yummy.tv.core.preferences.settings.YaniAccountSettingsStore
+import su.afk.yummy.tv.core.preferences.settings.currentLanguageCode
 import su.afk.yummy.tv.core.storage.document.DocumentCacheStorage
 import su.afk.yummy.tv.core.utils.formatting.htmlToPlainText
+import su.afk.yummy.tv.data.pages.mapper.findString
 import su.afk.yummy.tv.data.pages.network.YaniPagesApi
 import su.afk.yummy.tv.domain.pages.model.SitePage
 import su.afk.yummy.tv.domain.pages.model.SitePageType
@@ -22,7 +21,7 @@ class YaniSitePagesRepository @Inject constructor(
     private val settingsStore: YaniAccountSettingsStore,
 ) : SitePagesRepository {
     override suspend fun getPage(type: SitePageType): SitePage {
-        val language = settingsStore.yaniContentLanguage.first().apiCode
+        val language = settingsStore.currentLanguageCode()
         val body = cache.getOrFetch(
             cacheKey = "pages:$language:${type.apiValue}",
             ttlMs = SITE_PAGE_TTL_MS,
@@ -45,21 +44,10 @@ class YaniSitePagesRepository @Inject constructor(
             text = text,
         )
     }
-}
 
-private const val SITE_PAGE_TTL_MS = 24 * 60 * 60 * 1000L
-
-private fun JsonElement.findString(keys: Set<String>): String? = when (this) {
-    is JsonObject -> {
-        entries.firstNotNullOfOrNull { (key, value) ->
-            value.takeIf { key.lowercase() in keys }?.let { (it as? JsonPrimitive)?.contentOrNull }
-        } ?: values.filterNot { it is JsonPrimitive }
-            .firstNotNullOfOrNull { value -> value.findString(keys) }
+    companion object {
+        const val SITE_PAGE_TTL_MS = 24 * 60 * 60 * 1000L
+        val TITLE_KEYS = setOf("title", "name", "header")
+        val CONTENT_KEYS = setOf("text_html", "html", "content", "text", "body")
     }
-
-    is JsonArray -> firstNotNullOfOrNull { value -> value.findString(keys) }
-    else -> null
 }
-
-private val TITLE_KEYS = setOf("title", "name", "header")
-private val CONTENT_KEYS = setOf("text_html", "html", "content", "text", "body")

@@ -97,6 +97,24 @@ internal fun Int?.toUserRatingEntry(
 internal fun AccountUserListCache.toUserListItems(): List<UserAnimeListItem> =
     items.map { it.toUserListItem() }
 
+internal fun List<AccountUserListCache>.toMergedUserListItems(
+    favoritesListId: Int,
+): List<UserAnimeListItem> {
+    val itemsByAnimeId = linkedMapOf<Int, UserAnimeListItem>()
+    filter { it.entry.listId != favoritesListId }
+        .flatMap { it.toUserListItems() }
+        .forEach { item -> itemsByAnimeId[item.animeId] = item }
+    firstOrNull { it.entry.listId == favoritesListId }
+        ?.toUserListItems()
+        .orEmpty()
+        .forEach { favorite ->
+            itemsByAnimeId[favorite.animeId] = itemsByAnimeId[favorite.animeId]
+                ?.copy(isFavorite = true)
+                ?: favorite
+        }
+    return itemsByAnimeId.values.toList()
+}
+
 internal fun AccountAnimeListStateEntry.toUserListItem(): UserAnimeListItem =
     UserAnimeListItem(
         animeId = animeId,

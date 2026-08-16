@@ -3,9 +3,9 @@ package su.afk.yummy.tv.data.account.repository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import su.afk.yummy.tv.core.preferences.settings.YaniAccountSettingsStore
+import su.afk.yummy.tv.core.preferences.settings.currentLanguageCode
 import su.afk.yummy.tv.core.storage.account.AccountStorage
 import su.afk.yummy.tv.core.storage.account.isFresh
 import su.afk.yummy.tv.core.storage.offlinefirst.offlineFirstCache
@@ -22,7 +22,7 @@ class YaniUserStatsRepository(
     private val settingsStore: YaniAccountSettingsStore,
 ) : UserStatsRepository {
     override suspend fun getUserStats(userId: Int): UserStats = withContext(Dispatchers.IO) {
-        val languageCode = settingsStore.yaniContentLanguage.first().apiCode
+        val languageCode = settingsStore.currentLanguageCode()
         offlineFirstCache(
             read = { accountStorage.getUserStats(userId, languageCode) },
             isFresh = { it.isFresh(ACCOUNT_MEDIUM_TTL_MS) },

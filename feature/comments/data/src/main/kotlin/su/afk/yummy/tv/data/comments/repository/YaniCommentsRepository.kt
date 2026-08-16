@@ -4,6 +4,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import su.afk.yummy.tv.core.preferences.settings.YaniAccountSettingsStore
+import su.afk.yummy.tv.core.preferences.settings.currentLanguageCode
 import su.afk.yummy.tv.core.storage.comments.CommentsPageCache
 import su.afk.yummy.tv.core.storage.comments.CommentsStorage
 import su.afk.yummy.tv.core.storage.comments.isFresh
@@ -222,7 +223,7 @@ class YaniCommentsRepository(
 
     private suspend fun cacheScope(scopeType: String): String {
         val userId = settingsStore.yaniUserId.first().coerceAtLeast(0)
-        val language = settingsStore.yaniContentLanguage.first().apiCode
+        val language = settingsStore.currentLanguageCode()
         return "${cacheScopePrefix(scopeType)}$userId:$language"
     }
 

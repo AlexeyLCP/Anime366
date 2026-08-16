@@ -1,9 +1,10 @@
 package su.afk.yummy.tv.data.account.repository
 
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import su.afk.yummy.tv.core.preferences.settings.YaniAccountSettingsStore
+import su.afk.yummy.tv.core.preferences.settings.currentLanguageCode
+import su.afk.yummy.tv.core.preferences.settings.currentUserId
 import su.afk.yummy.tv.core.storage.account.AccountAnimeListStateEntry
 import su.afk.yummy.tv.core.storage.account.AccountStorage
 import su.afk.yummy.tv.core.storage.account.AccountUserListCache
@@ -11,6 +12,7 @@ import su.afk.yummy.tv.core.storage.account.isFresh
 import su.afk.yummy.tv.core.storage.offlinefirst.offlineFirstCache
 import su.afk.yummy.tv.data.account.network.YaniAccountApi
 import su.afk.yummy.tv.data.account.storage.mapper.toAnimeListStateEntry
+import su.afk.yummy.tv.data.account.storage.mapper.toMergedUserListItems
 import su.afk.yummy.tv.data.account.storage.mapper.toUpdatedAnimeListStateEntry
 import su.afk.yummy.tv.data.account.storage.mapper.toUserListCache
 import su.afk.yummy.tv.data.account.storage.mapper.toUserListItems
@@ -33,7 +35,7 @@ class YaniUserListsRepository(
         forceRefresh: Boolean,
     ): List<UserAnimeListItem> =
         withContext(Dispatchers.IO) {
-            val languageCode = settingsStore.yaniContentLanguage.first().apiCode
+            val languageCode = settingsStore.currentLanguageCode()
             offlineFirstCache(
                 forceRefresh = forceRefresh,
                 // Только полный набор списков (все ALL_LIST_IDS) считается валидным кэшем —
@@ -44,7 +46,7 @@ class YaniUserListsRepository(
                     }.takeIf { it.size == ALL_LIST_IDS.size }
                 },
                 isFresh = { it.all { entry -> entry.isFresh(ACCOUNT_SHORT_TTL_MS) } },
-                toDomain = { it.toMergedUserListItems() },
+                toDomain = { it.toMergedUserListItems(FAVORITES_LIST_ID) },
                 fetchAndSave = { fetchAllUserLists(userId, languageCode) },
             )
         }
@@ -73,7 +75,7 @@ class YaniUserListsRepository(
 
     override suspend fun getAnimeListState(animeId: Int): UserAnimeListItem? =
         withContext(Dispatchers.IO) {
-            val userId = currentUserId()
+            val userId = settingsStore.currentUserId()
             if (userId <= 0) return@withContext null
 
             offlineFirstCache(
@@ -86,7 +88,7 @@ class YaniUserListsRepository(
 
     override suspend fun setAnimeList(animeId: Int, list: UserAnimeList) =
         withContext(Dispatchers.IO) {
-            val userId = currentUserId()
+            val userId = settingsStore.currentUserId()
             api.setAnimeList(animeId, list.id)
             updateCachedListState(userId, animeId, listId = list.id, updateList = true)
             invalidateUserLists(userId)
@@ -94,7 +96,7 @@ class YaniUserListsRepository(
         }
 
     override suspend fun removeAnimeList(animeId: Int) = withContext(Dispatchers.IO) {
-        val userId = currentUserId()
+        val userId = settingsStore.currentUserId()
         api.removeAnimeList(animeId)
         updateCachedListState(userId, animeId, listId = null, updateList = true)
         invalidateUserLists(userId)
@@ -103,7 +105,7 @@ class YaniUserListsRepository(
 
     override suspend fun setFavorite(animeId: Int, favorite: Boolean) =
         withContext(Dispatchers.IO) {
-            val userId = currentUserId()
+            val userId = settingsStore.currentUserId()
             if (favorite) {
                 api.setFavorite(animeId)
             } else {
@@ -113,15 +115,12 @@ class YaniUserListsRepository(
             invalidateUserLists(userId)
         }
 
-    private suspend fun currentUserId(): Int =
-        settingsStore.yaniUserId.first()
-
     private suspend fun getUserList(
         userId: Int,
         listId: Int,
         forceRefresh: Boolean,
     ): List<UserAnimeListItem> {
-        val languageCode = settingsStore.yaniContentLanguage.first().apiCode
+        val languageCode = settingsStore.currentLanguageCode()
         return offlineFirstCache(
             forceRefresh = forceRefresh,
             read = { accountStorage.getUserList(userId, listId, languageCode) },
@@ -206,22 +205,4 @@ class YaniUserListsRepository(
             accountStorage.deleteUserLists(userId)
         }
     }
-
-}
-
-private fun List<AccountUserListCache>.toMergedUserListItems():
-        List<UserAnimeListItem> {
-    val itemsByAnimeId = linkedMapOf<Int, UserAnimeListItem>()
-    filter { it.entry.listId != FAVORITES_LIST_ID }
-        .flatMap { it.toUserListItems() }
-        .forEach { item -> itemsByAnimeId[item.animeId] = item }
-    firstOrNull { it.entry.listId == FAVORITES_LIST_ID }
-        ?.toUserListItems()
-        .orEmpty()
-        .forEach { favorite ->
-            itemsByAnimeId[favorite.animeId] = itemsByAnimeId[favorite.animeId]
-                ?.copy(isFavorite = true)
-                ?: favorite
-        }
-    return itemsByAnimeId.values.toList()
 }

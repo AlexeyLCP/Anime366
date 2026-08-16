@@ -9,15 +9,13 @@ import kotlinx.coroutines.withContext
 import su.afk.yummy.tv.core.analytics.api.AnalyticsTracker
 import su.afk.yummy.tv.core.error.api.StringProvider
 import su.afk.yummy.tv.core.preferences.settings.YaniAccountSettingsStore
+import su.afk.yummy.tv.core.preferences.settings.currentLanguageCode
 import su.afk.yummy.tv.core.storage.home.HomeFeedCache
 import su.afk.yummy.tv.core.storage.home.HomeFeedStorage
 import su.afk.yummy.tv.core.storage.home.isFresh
 import su.afk.yummy.tv.core.storage.offlinefirst.offlineFirstCache
 import su.afk.yummy.tv.core.storage.watchprogress.WatchProgressEntry
 import su.afk.yummy.tv.core.storage.watchprogress.WatchProgressStorage
-import su.afk.yummy.tv.core.utils.network.isLikelyImageUrl
-import su.afk.yummy.tv.data.home.dto.YaniFeedDto
-import su.afk.yummy.tv.data.home.dto.YaniVideoDto
 import su.afk.yummy.tv.data.home.network.YaniHomeApi
 import su.afk.yummy.tv.data.home.storage.mapper.toHomeContinueWatchingItem
 import su.afk.yummy.tv.data.home.storage.mapper.toHomeFeedCache
@@ -44,7 +42,7 @@ class YaniHomeFeedRepository(
     override suspend fun getHomeFeed(): HomeFeed = getHomeFeed(forceRefresh = false)
 
     override suspend fun getCachedHomeFeed(): HomeFeed? = withContext(Dispatchers.IO) {
-        val languageCode = settingsStore.yaniContentLanguage.first().apiCode
+        val languageCode = settingsStore.currentLanguageCode()
         val watchSignature = feedCacheSignature()
         val displayWatchEntries = displayWatchEntries()
         val hiddenIds = hiddenRecommendationIds()
@@ -96,7 +94,7 @@ class YaniHomeFeedRepository(
             .distinctUntilChanged()
 
     private suspend fun getHomeFeed(forceRefresh: Boolean): HomeFeed = withContext(Dispatchers.IO) {
-        val languageCode = settingsStore.yaniContentLanguage.first().apiCode
+        val languageCode = settingsStore.currentLanguageCode()
         val watchSignature = feedCacheSignature()
         val displayWatchEntries = displayWatchEntries()
         // Единый снимок на весь вызов: используется во всех трёх ветках (свежий кэш, сеть,
@@ -180,60 +178,4 @@ class YaniHomeFeedRepository(
             }
             .sortedByDescending { it.updatedAt }
             .map { it.toHomeContinueWatchingItem() }
-
-    private fun YaniFeedDto.summaryForLog(): String {
-        val data = response
-        return buildString {
-            append("announcements=${data.announcements.size}")
-            append(" topCarousel=${data.topCarousel.items.size}")
-            append(" new=${data.new.size}")
-            append(" recommends=${data.recommends.size}")
-            append(" newVideos=${data.newVideos.size}")
-            append(" schedule=${data.schedule.size}")
-            append(" posts=${data.posts.items.size}")
-            append(" bloggerVideos=${data.blogger.videos.items.size}")
-            append(" collections=${data.collections.size}")
-            append(" newVideoSamples=")
-            append(data.newVideos.take(LOG_SAMPLE_LIMIT).joinToString(prefix = "[", postfix = "]") {
-                it.summaryForLog()
-            })
-        }
-    }
-
-    private fun YaniVideoDto.summaryForLog(): String =
-        "video=$videoId anime=$animeId title=${title.safeForLog()} " +
-                "episode=${episodeTitle.safeForLog()} dub=${dubTitle.safeForLog()} " +
-                "player=${playerTitle.safeForLog()}"
-
-    private fun HomeFeed.summaryForLog(): String =
-        "continueWatching=${continueWatchingItems.size} hero=${heroItems.size} sections=" +
-                sections.joinToString(prefix = "[", postfix = "]") { section ->
-                    "${section.type}:${section.items.size}"
-                }
-
-    private fun List<HomeContinueWatchingItem>.summaryForLog(): String =
-        take(LOG_SAMPLE_LIMIT).joinToString(prefix = "[", postfix = "]") {
-            "anime=${it.animeId} episode=${it.episode.safeForLog()} video=${it.videoId} " +
-                    "durationMs=${it.durationMs} screenshot=${it.screenshotSourceForLog()}"
-        }
-
-    private fun HomeContinueWatchingItem.screenshotSourceForLog(): String =
-        when {
-            screenshotUrl.isBlank() -> "none"
-            screenshotUrl.contains("kodik", ignoreCase = true) -> "kodik"
-            screenshotUrl.isLikelyImageUrl() -> "direct"
-            else -> "source"
-        }
-
-    private fun String?.safeForLog(): String =
-        this
-            ?.lineSequence()
-            ?.joinToString(" ")
-            ?.take(LOG_TEXT_LIMIT)
-            ?: "null"
-
-    private companion object {
-        const val LOG_SAMPLE_LIMIT = 8
-        const val LOG_TEXT_LIMIT = 80
-    }
 }
