@@ -1,10 +1,12 @@
 package su.afk.yummy.tv.feature.search.mobile.view
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -37,38 +39,35 @@ internal fun ColumnScope.SearchMobileGenrePickerBody(
     )
 
     val genresByGroup = filterOptions.genres.groupBy { it.groupId }
-    LazyColumn(
+    Column(
         modifier = Modifier
             .fillMaxWidth()
-            .weight(1f),
-        contentPadding = PaddingValues(bottom = 4.dp),
+            .weight(1f)
+            .verticalScroll(rememberScrollState())
+            .padding(bottom = 4.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         filterOptions.genreGroups.forEach { group ->
             val genres = genresByGroup[group.id].orEmpty()
             if (genres.isNotEmpty()) {
-                item(key = "group:${group.id}") {
-                    SearchMobileGenreGroup(
-                        title = group.title,
-                        genres = genres,
-                        selectedIds = selectedIds,
-                        onGenreToggled = onGenreToggled,
-                    )
-                }
+                SearchMobileGenreGroup(
+                    title = group.title,
+                    genres = genres,
+                    selectedIds = selectedIds,
+                    onGenreToggled = onGenreToggled,
+                )
             }
         }
 
         val ungroupedGenres = filterOptions.genres
             .filter { genre -> filterOptions.genreGroups.none { it.id == genre.groupId } }
         if (ungroupedGenres.isNotEmpty()) {
-            item(key = "ungrouped") {
-                SearchMobileGenreGroup(
-                    title = stringResource(R.string.search_mobile_filter_genre_screen_title),
-                    genres = ungroupedGenres,
-                    selectedIds = selectedIds,
-                    onGenreToggled = onGenreToggled,
-                )
-            }
+            SearchMobileGenreGroup(
+                title = stringResource(R.string.search_mobile_filter_genre_screen_title),
+                genres = ungroupedGenres,
+                selectedIds = selectedIds,
+                onGenreToggled = onGenreToggled,
+            )
         }
     }
 }

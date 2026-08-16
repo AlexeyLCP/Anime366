@@ -3,10 +3,11 @@ package su.afk.yummy.tv.feature.search.mobile.view
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Block
 import androidx.compose.material.icons.filled.Sell
@@ -61,126 +62,113 @@ internal fun ColumnScope.SearchMobileFilterBody(
         )
     }
 
-    LazyColumn(
+    Column(
         modifier = Modifier
             .fillMaxWidth()
-            .weight(1f),
-        contentPadding = PaddingValues(bottom = 4.dp),
+            .weight(1f)
+            .verticalScroll(rememberScrollState())
+            .padding(bottom = 4.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
-        item {
-            FilterSection(title = stringResource(R.string.search_mobile_filter_genre_screen_title)) {
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    FilterNavigationRow(
-                        title = stringResource(R.string.search_mobile_filter_genres),
-                        icon = Icons.Filled.Sell,
-                        selectedCount = draftFilters.genres.size,
-                        onClick = onOpenGenres,
-                    )
-                    FilterNavigationRow(
-                        title = stringResource(R.string.search_mobile_filter_exclude_genres),
-                        icon = Icons.Filled.Block,
-                        selectedCount = draftFilters.excludedGenres.size,
-                        onClick = onOpenExcludedGenres,
-                    )
-                }
+        FilterSection(title = stringResource(R.string.search_mobile_filter_genre_screen_title)) {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                FilterNavigationRow(
+                    title = stringResource(R.string.search_mobile_filter_genres),
+                    icon = Icons.Filled.Sell,
+                    selectedCount = draftFilters.genres.size,
+                    onClick = onOpenGenres,
+                )
+                FilterNavigationRow(
+                    title = stringResource(R.string.search_mobile_filter_exclude_genres),
+                    icon = Icons.Filled.Block,
+                    selectedCount = draftFilters.excludedGenres.size,
+                    onClick = onOpenExcludedGenres,
+                )
             }
         }
 
-        item {
-            FilterSection(title = stringResource(R.string.search_mobile_filter_sort)) {
-                ChipFlow {
-                    SearchSort.entries.forEach { sort ->
-                        FilterChip(
-                            label = sort.label(),
-                            selected = draftFilters.sort == sort,
-                            onClick = { onSortSelected(sort) },
-                        )
-                    }
-                    FilterDirectionChip(
-                        label = if (draftFilters.sortForward) {
-                            stringResource(R.string.search_mobile_filter_sort_forward)
-                        } else {
-                            stringResource(R.string.search_mobile_filter_sort_backward)
-                        },
-                        forward = draftFilters.sortForward,
-                        onClick = onSortDirectionToggled,
+        FilterSection(title = stringResource(R.string.search_mobile_filter_sort)) {
+            ChipFlow {
+                SearchSort.entries.forEach { sort ->
+                    FilterChip(
+                        label = sort.label(),
+                        selected = draftFilters.sort == sort,
+                        onClick = { onSortSelected(sort) },
                     )
                 }
+                FilterDirectionChip(
+                    label = if (draftFilters.sortForward) {
+                        stringResource(R.string.search_mobile_filter_sort_forward)
+                    } else {
+                        stringResource(R.string.search_mobile_filter_sort_backward)
+                    },
+                    forward = draftFilters.sortForward,
+                    onClick = onSortDirectionToggled,
+                )
             }
         }
 
-        item {
-            FilterSection(title = stringResource(R.string.search_mobile_filter_year)) {
-                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    YearField(
-                        label = stringResource(R.string.search_mobile_filter_year_from),
-                        value = draftFilters.fromYear,
-                        onValueChanged = onFromYearChanged,
-                        modifier = Modifier.weight(1f),
+        FilterSection(title = stringResource(R.string.search_mobile_filter_year)) {
+            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                YearField(
+                    label = stringResource(R.string.search_mobile_filter_year_from),
+                    value = draftFilters.fromYear,
+                    onValueChanged = onFromYearChanged,
+                    modifier = Modifier.weight(1f),
+                )
+                YearField(
+                    label = stringResource(R.string.search_mobile_filter_year_to),
+                    value = draftFilters.toYear,
+                    onValueChanged = onToYearChanged,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+        }
+
+        FilterSection(title = stringResource(R.string.search_mobile_filter_type)) {
+            ChipFlow {
+                filterOptions.types.forEach { type ->
+                    FilterChip(
+                        label = type.title,
+                        selected = type.id in draftFilters.types,
+                        onClick = { onTypeToggled(type.id) },
                     )
-                    YearField(
-                        label = stringResource(R.string.search_mobile_filter_year_to),
-                        value = draftFilters.toYear,
-                        onValueChanged = onToYearChanged,
-                        modifier = Modifier.weight(1f),
+                }
+            }
+        }
+
+        FilterSection(title = stringResource(R.string.search_mobile_filter_status)) {
+            ChipFlow {
+                statusOptions().forEach { option ->
+                    FilterChip(
+                        label = option.label,
+                        selected = option.value in draftFilters.statuses,
+                        onClick = { onStatusToggled(option.value) },
                     )
                 }
             }
         }
 
-        item {
-            FilterSection(title = stringResource(R.string.search_mobile_filter_type)) {
-                ChipFlow {
-                    filterOptions.types.forEach { type ->
-                        FilterChip(
-                            label = type.title,
-                            selected = type.id in draftFilters.types,
-                            onClick = { onTypeToggled(type.id) },
-                        )
-                    }
+        FilterSection(title = stringResource(R.string.search_mobile_filter_season)) {
+            ChipFlow {
+                seasonOptions().forEach { option ->
+                    FilterChip(
+                        label = option.label,
+                        selected = option.value in draftFilters.seasons,
+                        onClick = { onSeasonToggled(option.value) },
+                    )
                 }
             }
         }
 
-        item {
-            FilterSection(title = stringResource(R.string.search_mobile_filter_status)) {
-                ChipFlow {
-                    statusOptions().forEach { option ->
-                        FilterChip(
-                            label = option.label,
-                            selected = option.value in draftFilters.statuses,
-                            onClick = { onStatusToggled(option.value) },
-                        )
-                    }
-                }
-            }
-        }
-
-        item {
-            FilterSection(title = stringResource(R.string.search_mobile_filter_season)) {
-                ChipFlow {
-                    seasonOptions().forEach { option ->
-                        FilterChip(
-                            label = option.label,
-                            selected = option.value in draftFilters.seasons,
-                            onClick = { onSeasonToggled(option.value) },
-                        )
-                    }
-                }
-            }
-        }
-
-        item {
-            FilterSection(title = stringResource(R.string.search_mobile_filter_age)) {
-                ChipFlow {
-                    ageOptions().forEach { option ->
-                        FilterChip(
-                            label = option.label,
-                            selected = option.value in draftFilters.ageRatings,
-                            onClick = { onAgeRatingToggled(option.value) },
-                        )
-                    }
+        FilterSection(title = stringResource(R.string.search_mobile_filter_age)) {
+            ChipFlow {
+                ageOptions().forEach { option ->
+                    FilterChip(
+                        label = option.label,
+                        selected = option.value in draftFilters.ageRatings,
+                        onClick = { onAgeRatingToggled(option.value) },
+                    )
                 }
             }
         }
