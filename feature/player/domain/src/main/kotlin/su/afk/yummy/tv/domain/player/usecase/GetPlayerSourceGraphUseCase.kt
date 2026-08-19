@@ -100,6 +100,7 @@ class GetPlayerSourceGraphUseCase @Inject constructor(
                     val episodes = balancerVideos
                         .filter { it.dubbing == dubbingName }
                         .sortedByEpisode()
+                        .dedupedByEpisode(selectedVideo)
                         .map { source ->
                             PlayerSourceEpisode(
                                 id = source.id,
@@ -149,6 +150,22 @@ class GetPlayerSourceGraphUseCase @Inject constructor(
             ),
         )
     }
+
+    /**
+     * Одна и та же серия у yani может прийти несколькими записями (например, `"02"` и `"2"`,
+     * схлопнутые нормализацией) — оставляем по одной на номер, не теряя выбранную пользователем.
+     */
+    private fun List<PlayerSourceVideo>.dedupedByEpisode(
+        selectedVideo: PlayerSourceVideo,
+    ): List<PlayerSourceVideo> =
+        groupBy { it.episode }
+            .values
+            .map { group ->
+                group.firstOrNull { it.id == selectedVideo.id }
+                    ?: group.firstOrNull { it.iframeUrl == selectedVideo.iframeUrl }
+                    ?: group.maxByOrNull { it.views ?: 0 }
+                    ?: group.first()
+            }
 
     private fun List<PlayerSourceVideo>.sortedByEpisode(): List<PlayerSourceVideo> =
         sortedBy { it.episode.toIntOrNull() ?: Int.MAX_VALUE }

@@ -1,6 +1,7 @@
 package su.afk.yummy.tv.feature.details.mapper
 
 import su.afk.yummy.tv.core.model.anime.AnimeVideo
+import su.afk.yummy.tv.core.utils.episode.episodeGroupKey
 import su.afk.yummy.tv.feature.details.episodes.dubbings.EpisodeDubbingsState
 import su.afk.yummy.tv.feature.player.isSupportedPlayerUrl
 import su.afk.yummy.tv.feature.player.playerDisplayOrderPriority
@@ -13,18 +14,24 @@ internal fun List<AnimeVideo>.episodeDubbingItems(
             video.dubbing.trim().takeIf { it.isNotBlank() }?.let { it to video }
         }
         .groupBy(keySelector = { it.first }, valueTransform = { it.second })
-    return asSequence()
-        .filter { it.episode == episode }
-        .map { it.dubbing.trim() }
-        .filter { it.isNotBlank() }
-        .distinct()
+    val episodeVideosByDubbing = asSequence()
+        .filter { it.episode.episodeGroupKey() == episode.episodeGroupKey() }
+        .mapNotNull { video ->
+            video.dubbing.trim().takeIf { it.isNotBlank() }?.let { it to video }
+        }
+        .groupBy(keySelector = { it.first }, valueTransform = { it.second })
+    return episodeVideosByDubbing.keys
         .map { dubbing ->
             val dubbingVideos = videosByDubbing[dubbing].orEmpty()
             EpisodeDubbingsState.DubbingItem(
                 name = dubbing,
                 views = dubbingVideos.dubbingViews(),
                 episodeCount = dubbingVideos.dubbingEpisodeCount(),
-                supportedBalancers = dubbingVideos.supportedBalancersLabel(),
+                // Балансеры считаем только по выбранной серии: у озвучки может быть пять
+                // плееров на сериал и один на конкретную серию — иначе карточка врёт.
+                supportedBalancers = episodeVideosByDubbing[dubbing]
+                    .orEmpty()
+                    .supportedBalancersLabel(),
             )
         }
         .sortedWith(
@@ -40,7 +47,8 @@ private fun List<AnimeVideo>.dubbingViews(): Int =
         .maxOfOrNull { videos -> videos.sumOf { it.views ?: 0 } }
         ?: 0
 
-private fun List<AnimeVideo>.dubbingEpisodeCount(): Int = map { it.episode }.distinct().size
+private fun List<AnimeVideo>.dubbingEpisodeCount(): Int =
+    map { it.episode.episodeGroupKey() }.distinct().size
 
 private fun List<AnimeVideo>.supportedBalancersLabel(): String =
     asSequence()

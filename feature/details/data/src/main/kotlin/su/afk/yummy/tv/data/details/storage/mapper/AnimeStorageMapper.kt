@@ -38,6 +38,7 @@ import su.afk.yummy.tv.core.storage.anime.AnimeVideoCacheEntry
 import su.afk.yummy.tv.core.storage.anime.AnimeVideoEntry
 import su.afk.yummy.tv.core.storage.anime.AnimeVideosCache
 import su.afk.yummy.tv.core.storage.anime.AnimeViewingOrderEntry
+import su.afk.yummy.tv.core.utils.episode.normalizedEpisodeNumber
 import su.afk.yummy.tv.core.utils.network.toHttpsUrl
 import su.afk.yummy.tv.data.details.dto.YaniAgeRatingDto
 import su.afk.yummy.tv.data.details.dto.YaniAnimeDetailsDto
@@ -222,7 +223,7 @@ internal fun AnimeDetailsCache.toAnimeDetails(): AnimeDetails {
         screenshots = screenshots.map {
             AnimeScreenshot(
                 id = it.screenshotId,
-                episode = it.episode,
+                episode = it.episode?.normalizedEpisodeNumber(),
                 small = it.smallUrl,
                 full = it.fullUrl,
             )
@@ -458,7 +459,9 @@ private fun AnimeViewingOrderEntry.toAnimeViewingOrderItem(): AnimeViewingOrderI
 private fun AnimeVideoEntry.toAnimeVideo(): AnimeVideo =
     AnimeVideo(
         id = videoId,
-        episode = episode,
+        // Единственная точка входа видео в приложение: приводим номер серии к каноничному
+        // виду, иначе "02" и "2" от разных балансеров живут как две разные серии.
+        episode = episode.normalizedEpisodeNumber(),
         dubbing = dubbing,
         player = player,
         playerId = playerId,

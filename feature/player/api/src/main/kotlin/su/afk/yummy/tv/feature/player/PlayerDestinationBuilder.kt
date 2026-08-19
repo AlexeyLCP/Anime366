@@ -1,6 +1,7 @@
 package su.afk.yummy.tv.feature.player
 
 import androidx.navigation3.runtime.NavKey
+import su.afk.yummy.tv.core.utils.episode.episodeGroupKey
 import su.afk.yummy.tv.core.utils.episode.isPlaceholderEpisode
 
 data class PlayerVideoSource(
@@ -50,17 +51,22 @@ fun List<PlayerVideoSource>.selectContinueWatchingVideo(
         ?: firstOrNull { episodeUrl.isNotBlank() && it.iframeUrl == episodeUrl }
         ?: firstOrNull {
             !episode.isPlaceholderEpisode() &&
-                    it.episode == episode &&
+                    it.episode.episodeGroupKey() == episode.episodeGroupKey() &&
                     it.player == playerName &&
                     it.dubbing == dubbing
         }
-        ?: firstOrNull { !episode.isPlaceholderEpisode() && it.episode == episode }
+        ?: firstOrNull {
+            !episode.isPlaceholderEpisode() &&
+                    it.episode.episodeGroupKey() == episode.episodeGroupKey()
+        }
 
     if (exact?.iframeUrl?.isSupportedPlayerUrl() == true) return exact
 
     val targetEpisode = exact?.episode?.takeUnless { it.isPlaceholderEpisode() }
         ?: episode.takeUnless { it.isPlaceholderEpisode() }
-    val sameEpisode = targetEpisode?.let { ep -> filter { it.episode == ep } }.orEmpty()
+    val sameEpisode = targetEpisode
+        ?.let { ep -> filter { it.episode.episodeGroupKey() == ep.episodeGroupKey() } }
+        .orEmpty()
     return sameEpisode.firstOrNull { it.iframeUrl.isSupportedPlayerUrl() }
         ?: firstOrNull { it.iframeUrl.isSupportedPlayerUrl() }
         ?: exact

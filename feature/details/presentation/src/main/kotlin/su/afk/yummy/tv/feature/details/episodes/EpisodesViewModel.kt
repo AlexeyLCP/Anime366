@@ -447,7 +447,8 @@ class EpisodesViewModel @AssistedInject internal constructor(
     private fun showBalancerPickerForDubbing(video: AnimeVideo) {
         val allVideos = (currentState.videosState as? VideosUiState.Content)?.videos ?: return
         val dubbingVideos = allVideos.filter {
-            it.episode == video.episode && it.dubbing.trim() == video.dubbing.trim()
+            it.episode.episodeGroupKey() == video.episode.episodeGroupKey() &&
+                    it.dubbing.trim() == video.dubbing.trim()
         }
         when (val selection = playerNavigationHandler.selectPlayer(
             video = video,
@@ -477,7 +478,10 @@ class EpisodesViewModel @AssistedInject internal constructor(
         }
         val options = candidateVideos.episodeDubbingItems(episode).mapNotNull { item ->
             val video = if (restrictToBalancer) {
-                candidateVideos.firstOrNull { it.episode == episode && it.dubbing.trim() == item.name }
+                candidateVideos.firstOrNull {
+                    it.episode.episodeGroupKey() == episode.episodeGroupKey() &&
+                            it.dubbing.trim() == item.name
+                }
             } else {
                 allVideos.selectEpisodeDubbingLaunchVideo(
                     episode = episode,

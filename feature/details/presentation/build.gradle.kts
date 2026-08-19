@@ -30,5 +30,6 @@ dependencies {
 
     implementation(libs.bundles.compose.presentation)
 
+    testImplementation(libs.junit)
     testImplementation(libs.bundles.unit.test)
 }

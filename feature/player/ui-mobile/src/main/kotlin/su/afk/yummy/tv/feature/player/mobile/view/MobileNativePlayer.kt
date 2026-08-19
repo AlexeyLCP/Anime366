@@ -792,11 +792,10 @@ internal fun MobileNativePlayer(
                         trackSelection.selectAudio(index)
                     }
                 },
-                showAudioSection = if (usesAlloha) {
-                    alloha.hasAudioChoice
-                } else {
-                    trackSelection.hasSelectableAudio
-                },
+                // The tab shows Alloha's own lists and is labelled "Alloha", so it is gated on the
+                // source actually being Alloha - not merely on some track being selectable. The
+                // in-stream fallback offered that tab for Kodik sources too.
+                showAudioSection = usesAlloha && alloha.hasAudioChoice,
                 subtitleTrackNames = (if (usesAlloha) alloha.subtitleOptions else trackSelection.textOptions)
                     .map(PlayerTrackOption::label),
                 selectedSubtitleTrackIndex = if (usesAlloha) {
@@ -813,11 +812,7 @@ internal fun MobileNativePlayer(
                         trackSelection.selectText(index)
                     }
                 },
-                showSubtitleSection = if (usesAlloha) {
-                    alloha.hasSubtitleChoice
-                } else {
-                    trackSelection.hasSelectableText
-                },
+                showSubtitleSection = usesAlloha && alloha.hasSubtitleChoice,
                 onDismiss = { settingsMode = null },
                 initialTrackTab = settingsTrackTab,
             )

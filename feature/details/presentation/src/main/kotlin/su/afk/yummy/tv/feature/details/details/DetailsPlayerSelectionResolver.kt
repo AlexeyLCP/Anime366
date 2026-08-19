@@ -3,6 +3,7 @@ package su.afk.yummy.tv.feature.details.details
 import kotlinx.collections.immutable.toImmutableList
 import su.afk.yummy.tv.core.model.anime.AnimeVideo
 import su.afk.yummy.tv.core.preferences.settings.model.PreferredPlayer
+import su.afk.yummy.tv.core.utils.episode.episodeGroupKey
 import su.afk.yummy.tv.feature.details.details.model.BalancerOption
 import su.afk.yummy.tv.feature.details.details.model.BalancerPickerState
 import su.afk.yummy.tv.feature.details.utils.matchesPreferredPlayer
@@ -15,7 +16,9 @@ internal fun resolveDetailsPlayerSelection(
     allVideos: List<AnimeVideo>,
     preferredPlayer: PreferredPlayer,
 ): DetailsPlayerSelection {
-    val episodeVideos = allVideos.filter { it.episode == video.episode }
+    val episodeVideos = allVideos.filter {
+        it.episode.episodeGroupKey() == video.episode.episodeGroupKey()
+    }
     // Если целевая озвучка в этом эпизоде есть только на неподдерживаемых балансерах,
     // пересаживаемся на самую популярную озвучку среди поддерживаемых.
     val targetVideo = if (

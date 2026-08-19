@@ -3,6 +3,7 @@ package su.afk.yummy.tv.feature.details.utils
 import su.afk.yummy.tv.core.model.anime.AnimeVideo
 import su.afk.yummy.tv.core.model.anime.AnimeWatchProgress
 import su.afk.yummy.tv.core.model.anime.isContinueWatchingProgress
+import su.afk.yummy.tv.core.utils.episode.episodeGroupKey
 import su.afk.yummy.tv.core.utils.episode.isPlaceholderEpisode
 import su.afk.yummy.tv.feature.details.mapper.toPlayerVideoSource
 import su.afk.yummy.tv.feature.details.model.DetailsContinueTarget
@@ -66,18 +67,23 @@ private fun List<PlayerVideoSource>.findProgressVideo(
         ?: firstOrNull { entry.episodeUrl.isNotBlank() && it.iframeUrl == entry.episodeUrl }
         ?: firstOrNull {
             !entry.episode.isPlaceholderEpisode() &&
-                    it.episode == entry.episode &&
+                    it.episode.episodeGroupKey() == entry.episode.episodeGroupKey() &&
                     it.player == entry.playerName &&
                     it.dubbing == entry.dubbing
         }
-        ?: firstOrNull { !entry.episode.isPlaceholderEpisode() && it.episode == entry.episode }
+        ?: firstOrNull {
+            !entry.episode.isPlaceholderEpisode() &&
+                    it.episode.episodeGroupKey() == entry.episode.episodeGroupKey()
+        }
 
 private fun List<PlayerVideoSource>.nextAfter(episode: String): PlayerVideoSource? {
     if (isEmpty()) return null
     val sorted = sortedByEpisode()
-    val currentIndex = sorted.indexOfLast { it.episode == episode }
+    val currentKey = episode.episodeGroupKey()
+    val currentIndex = sorted.indexOfLast { it.episode.episodeGroupKey() == currentKey }
     if (currentIndex >= 0) {
-        return sorted.drop(currentIndex + 1).firstOrNull { it.episode != episode }
+        return sorted.drop(currentIndex + 1)
+            .firstOrNull { it.episode.episodeGroupKey() != currentKey }
     }
 
     val currentNumber = episode.toDoubleOrNull() ?: return null

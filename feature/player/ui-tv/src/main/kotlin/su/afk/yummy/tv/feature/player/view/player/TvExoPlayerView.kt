@@ -276,10 +276,11 @@ internal fun TvExoPlayerView(
     }
     // Alloha reports its own dubbing/subtitle lists; everything else falls back to in-stream tracks.
     val usesAlloha = alloha.isAvailable
-    val hasSelectableAudio =
-        if (usesAlloha) alloha.hasAudioChoice else trackSelection.hasSelectableAudio
-    val hasSelectableSubtitles =
-        if (usesAlloha) alloha.hasSubtitleChoice else trackSelection.hasSelectableText
+    // The panel shows Alloha's own lists and is labelled "Alloha", so it is gated on the source
+    // actually being Alloha - not merely on some track being selectable. Falling back to in-stream
+    // tracks here offered that panel for Kodik sources whose stream happens to carry extra tracks.
+    val hasSelectableAudio = usesAlloha && alloha.hasAudioChoice
+    val hasSelectableSubtitles = usesAlloha && alloha.hasSubtitleChoice
     val audioTrackNames = if (usesAlloha) alloha.audioOptions else trackSelection.audioOptions
     val subtitleTrackNames = if (usesAlloha) alloha.subtitleOptions else trackSelection.textOptions
     val selectedAudioIndex =

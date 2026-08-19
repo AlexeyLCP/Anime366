@@ -9,6 +9,7 @@ import su.afk.yummy.tv.core.model.anime.AnimeRating
 import su.afk.yummy.tv.core.model.anime.AnimeScreenshot
 import su.afk.yummy.tv.core.model.anime.AnimeStudio
 import su.afk.yummy.tv.core.model.anime.AnimeViewingOrderItem
+import su.afk.yummy.tv.core.utils.episode.normalizedEpisodeNumber
 import su.afk.yummy.tv.core.utils.network.toHttpsUrl
 import su.afk.yummy.tv.data.details.dto.YaniAgeRatingDto
 import su.afk.yummy.tv.data.details.dto.YaniAnimeDetailsDto
@@ -134,7 +135,7 @@ private fun YaniViewingOrderItemDto.toViewingOrderItem(
 
 private fun YaniScreenshotDto.toAnimeScreenshot(): AnimeScreenshot = AnimeScreenshot(
     id = id,
-    episode = episode,
+    episode = episode?.normalizedEpisodeNumber(),
     small = sizes.small?.toHttpsUrl(),
     full = sizes.full?.toHttpsUrl(),
 )

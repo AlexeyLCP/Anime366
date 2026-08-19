@@ -22,6 +22,7 @@ import su.afk.yummy.tv.core.model.anime.AnimeVideo
 import su.afk.yummy.tv.core.model.anime.AnimeWatchProgress
 import su.afk.yummy.tv.core.navigation.manager.INavigationManager
 import su.afk.yummy.tv.core.preferences.settings.model.PreferredPlayer
+import su.afk.yummy.tv.core.utils.episode.episodeGroupKey
 import su.afk.yummy.tv.domain.account.model.UserAnimeList
 import su.afk.yummy.tv.feature.bloggers.IBloggerVideosNavigator
 import su.afk.yummy.tv.feature.comments.ICommentsNavigator
@@ -174,7 +175,8 @@ class DetailsViewModel @AssistedInject internal constructor(
                 showBalancerPicker(
                     video = event.video,
                     candidateVideos = allVideos.filter {
-                        it.episode == event.video.episode && it.dubbing.trim() == event.video.dubbing.trim()
+                        it.episode.episodeGroupKey() == event.video.episode.episodeGroupKey() &&
+                                it.dubbing.trim() == event.video.dubbing.trim()
                     },
                 )
             }
