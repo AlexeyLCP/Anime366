@@ -7,17 +7,17 @@ import androidx.compose.runtime.rememberUpdatedState
 import kotlinx.coroutines.delay
 import su.afk.yummy.tv.core.designsystem.presenter.focus.requestFocusUntilTimeout
 import su.afk.yummy.tv.feature.player.common.PlayerAutoHideController
-import su.afk.yummy.tv.feature.player.model.ActiveSkip
+import su.afk.yummy.tv.feature.player.common.PlayerSkipUiState
+import su.afk.yummy.tv.feature.player.common.model.PlayerActiveSkip
 import su.afk.yummy.tv.feature.player.model.TvPlayerFocusRequesters
-import su.afk.yummy.tv.feature.player.model.TvPlayerSkipUiState
 import kotlin.time.Duration.Companion.seconds
 
 /** Авто-скип активного сегмента либо подсветка кнопки пропуска с фокусом на 10 секунд. */
 @Composable
 internal fun TvPlayerAutoSkipEffect(
-    activeSkip: ActiveSkip?,
+    activeSkip: PlayerActiveSkip?,
     autoSkipOpeningsEndings: Boolean,
-    skipUi: TvPlayerSkipUiState,
+    skipUi: PlayerSkipUiState,
     focus: TvPlayerFocusRequesters,
     autoHide: PlayerAutoHideController,
     onControllerVisibleChange: (Boolean) -> Unit,

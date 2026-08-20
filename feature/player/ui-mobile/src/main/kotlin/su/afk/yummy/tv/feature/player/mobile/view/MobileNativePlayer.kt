@@ -2,18 +2,21 @@ package su.afk.yummy.tv.feature.player.mobile.view
 
 import androidx.activity.compose.BackHandler
 import androidx.annotation.OptIn
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -47,6 +50,7 @@ import su.afk.yummy.tv.feature.player.common.rememberPlayerCompletionTracker
 import su.afk.yummy.tv.feature.player.common.rememberPlayerMediaReadyState
 import su.afk.yummy.tv.feature.player.common.rememberPlayerPlaybackUiState
 import su.afk.yummy.tv.feature.player.common.rememberPlayerProgressReporter
+import su.afk.yummy.tv.feature.player.common.rememberPlayerSkipUiState
 import su.afk.yummy.tv.feature.player.common.rememberPlayerStepSeekToastState
 import su.afk.yummy.tv.feature.player.common.rememberPlayerSystemVolumeController
 import su.afk.yummy.tv.feature.player.common.rememberPlayerTrackSelection
@@ -55,9 +59,11 @@ import su.afk.yummy.tv.feature.player.common.service.PlayerMediaItemUpdater
 import su.afk.yummy.tv.feature.player.common.service.rememberPlayerMediaController
 import su.afk.yummy.tv.feature.player.common.service.rememberPlayerPlaybackConfig
 import su.afk.yummy.tv.feature.player.common.toastIcon
+import su.afk.yummy.tv.feature.player.common.utils.currentSkip
 import su.afk.yummy.tv.feature.player.common.utils.isVisible
 import su.afk.yummy.tv.feature.player.common.utils.playerContentScale
 import su.afk.yummy.tv.feature.player.common.utils.playerEndPromptFor
+import su.afk.yummy.tv.feature.player.common.utils.skippedMessageRes
 import su.afk.yummy.tv.feature.player.common.view.PlayerEndPromptCountdownEffect
 import su.afk.yummy.tv.feature.player.mobile.model.MobilePlayerSettingsMode
 import su.afk.yummy.tv.feature.player.mobile.model.MobilePlayerTrackSettingsTab
@@ -70,6 +76,7 @@ import su.afk.yummy.tv.feature.player.mobile.pip.MobilePlayerPipController
 import su.afk.yummy.tv.feature.player.mobile.utils.buildMobileMediaItemKey
 import su.afk.yummy.tv.feature.player.mobile.utils.buildMobilePlayerMediaItemConfig
 import su.afk.yummy.tv.feature.player.mobile.utils.buildMobilePlayerPlaybackKey
+import su.afk.yummy.tv.feature.player.mobile.utils.formatMobilePlayerTime
 import su.afk.yummy.tv.feature.player.mobile.utils.gestureIcon
 import su.afk.yummy.tv.feature.player.mobile.utils.mobilePlayerNotificationMeta
 import su.afk.yummy.tv.feature.player.mobile.utils.toGesturePercentText
@@ -124,7 +131,7 @@ internal fun MobileNativePlayer(
     }
     var seekProgress by remember { mutableFloatStateOf(0f) }
     var bufferedProgress by remember(streamUrl, ui.activeIframeUrl) { mutableFloatStateOf(0f) }
-    val skippedSegments = remember(streamUrl) { mutableStateListOf<String>() }
+    val skipUi = rememberPlayerSkipUiState(ui.activeIframeUrl)
     val currentUrl = selectedQuality?.let(qualities::get) ?: streamUrl
     val playbackConfigKey = remember(
         currentUrl,
@@ -361,6 +368,7 @@ internal fun MobileNativePlayer(
         pipSession = pipSession,
         reporter = reporter,
         overlay = overlay,
+        skipUi = skipUi,
         stepSeekToast = stepSeekToast,
         seekController = seekController,
         fallbackDurationMs = { duration },
@@ -441,14 +449,45 @@ internal fun MobileNativePlayer(
         player = player,
         episodeKey = ui.activeIframeUrl,
         isMediaReady = isMediaReady,
-        autoSkipOpeningsEndings = state.autoSkipOpeningsEndings,
         reporter = reporter,
-        skippedSegments = skippedSegments,
         isSeeking = { isSeeking },
         currentPositionMs = { currentPosition },
         fallbackDurationMs = { duration },
-        activeSkips = { ui.activeSkips },
         onBufferedProgressChange = { bufferedProgress = it },
+    )
+
+    val activeSkip = if (isMediaReady) {
+        currentSkip(ui.activeSkips, currentPosition, skipUi.dismissedSkipKeys)
+    } else {
+        null
+    }
+
+    fun skipActiveSegment(reportSelection: Boolean) {
+        val skip = activeSkip ?: return
+        if (skip.key !in skipUi.dismissedSkipKeys) skipUi.dismissedSkipKeys += skip.key
+        skipUi.showSnackbar(
+            context.getString(
+                skip.type.skippedMessageRes(),
+                formatMobilePlayerTime(skip.segment.startMs),
+                formatMobilePlayerTime(skip.segment.endMs),
+            )
+        )
+        if (reportSelection) {
+            onEvent(
+                PlayerState.Event.SkipSegmentSelected(
+                    type = skip.type,
+                    fromMs = player.currentPosition.coerceAtLeast(0L),
+                    toMs = skip.segment.endMs,
+                )
+            )
+        }
+        seekController.seekTo(skip.segment.endMs)
+    }
+
+    MobilePlayerAutoSkipEffect(
+        activeSkip = activeSkip,
+        autoSkipOpeningsEndings = state.autoSkipOpeningsEndings,
+        onSkipActiveSegment = { skipActiveSegment(reportSelection = false) },
     )
 
     val displayTime = if (isSeeking && duration > 0) {
@@ -592,6 +631,28 @@ internal fun MobileNativePlayer(
             },
         )
 
+        val skipButtonBottomPadding by animateDpAsState(
+            targetValue = if (overlay.visible && !isInPictureInPictureMode) 132.dp else 36.dp,
+            label = "skipButtonBottomPadding",
+        )
+
+        MobilePlayerSkipButton(
+            skip = activeSkip.takeUnless {
+                state.autoSkipOpeningsEndings ||
+                        isInPictureInPictureMode ||
+                        tutorialBlocksPlayback
+            },
+            onClick = {
+                skipActiveSegment(reportSelection = true)
+                // Панель не открываем принудительно, но не даём ей скрыться по таймеру.
+                if (overlay.visible) overlay.show()
+            },
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .windowInsetsPadding(WindowInsets.navigationBars)
+                .padding(end = 18.dp, bottom = skipButtonBottomPadding),
+        )
+
         if (volumePanelOpen &&
             advancedVolumeEnabled &&
             overlay.visible &&
@@ -613,6 +674,18 @@ internal fun MobileNativePlayer(
                 isInPictureInPictureMode || tutorialBlocksPlayback
             },
             icon = stepSeekToast.direction.toastIcon,
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = if (overlay.visible && !isInPictureInPictureMode) 128.dp else 36.dp),
+        )
+
+        MobilePlayerSkipToast(
+            // Тосты делят одну позицию, поэтому перемотка имеет приоритет.
+            text = skipUi.snackbarText?.takeIf {
+                stepSeekToast.text == null &&
+                        !isInPictureInPictureMode &&
+                        !tutorialBlocksPlayback
+            },
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .padding(bottom = if (overlay.visible && !isInPictureInPictureMode) 128.dp else 36.dp),

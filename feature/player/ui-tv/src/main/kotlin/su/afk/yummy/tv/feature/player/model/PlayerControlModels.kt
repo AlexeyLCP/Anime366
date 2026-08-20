@@ -1,9 +1,5 @@
 package su.afk.yummy.tv.feature.player.model
 
-import androidx.annotation.StringRes
-import su.afk.yummy.tv.feature.player.PlayerSkipSegment
-import su.afk.yummy.tv.feature.player.presentation.R
-
 internal enum class PanelReturnFocusTarget {
     Quality,
     Dubbing,
@@ -12,15 +8,4 @@ internal enum class PanelReturnFocusTarget {
     Speed,
     Volume,
     Alloha,
-}
-
-internal data class ActiveSkip(
-    val key: String,
-    val type: ActiveSkipType,
-    val segment: PlayerSkipSegment,
-)
-
-internal enum class ActiveSkipType(@param:StringRes val skippedMessageRes: Int) {
-    Opening(R.string.player_opening_skipped),
-    Ending(R.string.player_ending_skipped),
 }

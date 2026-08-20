@@ -21,7 +21,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import su.afk.yummy.tv.feature.player.model.ActiveSkip
+import su.afk.yummy.tv.feature.player.common.model.PlayerActiveSkip
 import su.afk.yummy.tv.feature.player.model.PlayerPlaybackUiState
 import su.afk.yummy.tv.feature.player.model.TvPlaybackProgressState
 import su.afk.yummy.tv.feature.player.model.TvPlayerFocusRequesters
@@ -37,7 +37,7 @@ internal fun BoxScope.TvPlayerControlsOverlay(
     wantsPlay: Boolean,
     playback: PlayerPlaybackUiState,
     animeTitle: String,
-    activeSkip: ActiveSkip?,
+    activeSkip: PlayerActiveSkip?,
     autoSkipOpeningsEndings: Boolean,
     showOpeningOnTimeline: Boolean,
     highlightedSkipKey: String?,

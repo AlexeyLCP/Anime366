@@ -39,4 +39,6 @@
     <string name="player_mobile_gesture_tutorial_hold_title">Ускорение 2×</string>
     <string name="player_mobile_gesture_tutorial_hold_description">Удерживайте палец на экране для временного воспроизведения на скорости 2×</string>
     <string name="player_mobile_gesture_tutorial_illustration">Анимированная подсказка жеста</string>
+    <string name="player_mobile_skip_opening">Пропустить опенинг</string>
+    <string name="player_mobile_skip_ending">Пропустить эндинг</string>
 </resources>

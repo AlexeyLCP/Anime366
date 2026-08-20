@@ -39,4 +39,6 @@
     <string name="player_mobile_gesture_tutorial_hold_title">2× speed boost</string>
     <string name="player_mobile_gesture_tutorial_hold_description">Press and hold the screen to temporarily play at 2× speed</string>
     <string name="player_mobile_gesture_tutorial_illustration">Animated gesture hint</string>
+    <string name="player_mobile_skip_opening">Skip opening</string>
+    <string name="player_mobile_skip_ending">Skip ending</string>
 </resources>

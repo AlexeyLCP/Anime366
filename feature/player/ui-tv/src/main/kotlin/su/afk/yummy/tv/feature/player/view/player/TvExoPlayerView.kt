@@ -50,6 +50,7 @@ import su.afk.yummy.tv.feature.player.common.rememberPlayerBufferingState
 import su.afk.yummy.tv.feature.player.common.rememberPlayerCompletionTracker
 import su.afk.yummy.tv.feature.player.common.rememberPlayerMediaReadyState
 import su.afk.yummy.tv.feature.player.common.rememberPlayerProgressReporter
+import su.afk.yummy.tv.feature.player.common.rememberPlayerSkipUiState
 import su.afk.yummy.tv.feature.player.common.rememberPlayerStepSeekToastState
 import su.afk.yummy.tv.feature.player.common.rememberPlayerSystemVolumeController
 import su.afk.yummy.tv.feature.player.common.rememberPlayerTrackSelection
@@ -58,8 +59,10 @@ import su.afk.yummy.tv.feature.player.common.service.PlayerMediaItemUpdater
 import su.afk.yummy.tv.feature.player.common.service.rememberPlayerPlaybackConfig
 import su.afk.yummy.tv.feature.player.common.service.rememberPlayerPlaybackSessionClient
 import su.afk.yummy.tv.feature.player.common.toastIcon
+import su.afk.yummy.tv.feature.player.common.utils.currentSkip
 import su.afk.yummy.tv.feature.player.common.utils.isVisible
 import su.afk.yummy.tv.feature.player.common.utils.playerEndPromptFor
+import su.afk.yummy.tv.feature.player.common.utils.skippedMessageRes
 import su.afk.yummy.tv.feature.player.common.view.PlayerEndPromptCountdownEffect
 import su.afk.yummy.tv.feature.player.model.PanelReturnFocusTarget
 import su.afk.yummy.tv.feature.player.model.PlayerControlFocusTarget
@@ -73,16 +76,13 @@ import su.afk.yummy.tv.feature.player.model.rememberTvPlayerFocusRequesters
 import su.afk.yummy.tv.feature.player.model.rememberTvPlayerPanelsState
 import su.afk.yummy.tv.feature.player.model.rememberTvPlayerPromptsState
 import su.afk.yummy.tv.feature.player.model.rememberTvPlayerSeekController
-import su.afk.yummy.tv.feature.player.model.rememberTvPlayerSkipUiState
 import su.afk.yummy.tv.feature.player.model.rememberTvPlayerVolumeKeysState
 import su.afk.yummy.tv.feature.player.presentation.R
 import su.afk.yummy.tv.feature.player.utils.buildTvMediaItemKey
 import su.afk.yummy.tv.feature.player.utils.buildTvPlayerMediaItemConfig
 import su.afk.yummy.tv.feature.player.utils.buildTvPlayerPlaybackKey
-import su.afk.yummy.tv.feature.player.utils.currentSkip
 import su.afk.yummy.tv.feature.player.utils.formatTime
 import su.afk.yummy.tv.feature.player.utils.speedLabel
-import su.afk.yummy.tv.feature.player.utils.toPlayerSkipType
 import su.afk.yummy.tv.feature.player.utils.tvPlayerContentScale
 import su.afk.yummy.tv.feature.player.view.TvPlayerRecoveryHint
 import su.afk.yummy.tv.feature.player.view.deriveQualityUrls
@@ -120,7 +120,7 @@ internal fun TvExoPlayerView(
     var controllerVisible by remember { mutableStateOf(true) }
     val panels = rememberTvPlayerPanelsState()
     val prompts = rememberTvPlayerPromptsState(episodeKey, streamUrl)
-    val skipUi = rememberTvPlayerSkipUiState(streamUrl)
+    val skipUi = rememberPlayerSkipUiState(streamUrl)
     val stepSeekToast = rememberPlayerStepSeekToastState(
         streamUrl = streamUrl,
         toastDuration = TV_PLAYER_INLINE_TOAST_DURATION,
@@ -403,7 +403,7 @@ internal fun TvExoPlayerView(
         if (skip.key !in skipUi.dismissedSkipKeys) skipUi.dismissedSkipKeys += skip.key
         skipUi.highlightedSkipKey = null
         val message = context.getString(
-            skip.type.skippedMessageRes,
+            skip.type.skippedMessageRes(),
             formatTime(skip.segment.startMs),
             formatTime(skip.segment.endMs),
         )
@@ -412,7 +412,7 @@ internal fun TvExoPlayerView(
         if (reportSelection) {
             onPlayerEvent(
                 PlayerState.Event.SkipSegmentSelected(
-                    type = skip.type.toPlayerSkipType(),
+                    type = skip.type,
                     fromMs = fromPosition,
                     toMs = skip.segment.endMs,
                 )

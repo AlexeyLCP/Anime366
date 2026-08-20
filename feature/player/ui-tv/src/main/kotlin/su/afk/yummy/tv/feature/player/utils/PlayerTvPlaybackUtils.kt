@@ -1,11 +1,7 @@
 package su.afk.yummy.tv.feature.player.utils
 
-import su.afk.yummy.tv.feature.player.PlayerSkips
-import su.afk.yummy.tv.feature.player.model.ActiveSkip
-import su.afk.yummy.tv.feature.player.model.ActiveSkipType
 import su.afk.yummy.tv.feature.player.model.PanelReturnFocusTarget
 import su.afk.yummy.tv.feature.player.model.PlayerControlFocusTarget
-import su.afk.yummy.tv.feature.player.model.PlayerSkipType
 
 internal fun String.withoutDubbingTitlePrefix(title: String): String {
     val trimmed = trim()
@@ -38,33 +34,3 @@ internal fun formatTime(ms: Long): String {
 
 internal fun Float.speedLabel(): String =
     if (this % 1f == 0f) "${toInt()}x" else "${this}x"
-
-internal fun currentSkip(
-    skips: PlayerSkips,
-    positionMs: Long,
-    dismissedKeys: List<String>,
-): ActiveSkip? =
-    listOfNotNull(
-        skips.opening?.let {
-            ActiveSkip(
-                "opening:${it.startMs}:${it.endMs}",
-                ActiveSkipType.Opening,
-                it
-            )
-        },
-        skips.ending?.let {
-            ActiveSkip(
-                "ending:${it.startMs}:${it.endMs}",
-                ActiveSkipType.Ending,
-                it
-            )
-        },
-    ).firstOrNull { skip ->
-        skip.key !in dismissedKeys && positionMs in skip.segment.startMs..skip.segment.endMs
-    }
-
-internal fun ActiveSkipType.toPlayerSkipType(): PlayerSkipType =
-    when (this) {
-        ActiveSkipType.Opening -> PlayerSkipType.Opening
-        ActiveSkipType.Ending -> PlayerSkipType.Ending
-    }

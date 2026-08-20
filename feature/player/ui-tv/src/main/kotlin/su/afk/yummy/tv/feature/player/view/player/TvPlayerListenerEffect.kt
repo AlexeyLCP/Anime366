@@ -8,10 +8,10 @@ import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
 import su.afk.yummy.tv.feature.player.PlayerState
 import su.afk.yummy.tv.feature.player.common.PlayerAutoHideController
+import su.afk.yummy.tv.feature.player.common.PlayerSkipUiState
 import su.afk.yummy.tv.feature.player.common.PlayerStepSeekToastState
 import su.afk.yummy.tv.feature.player.common.toPlaybackErrorEvent
 import su.afk.yummy.tv.feature.player.common.utils.positionSnapshot
-import su.afk.yummy.tv.feature.player.model.TvPlayerSkipUiState
 
 /**
  * Player.Listener TV-плеера: play/pause, завершение эпизода, ошибки.
@@ -22,7 +22,7 @@ import su.afk.yummy.tv.feature.player.model.TvPlayerSkipUiState
 internal fun TvPlayerListenerEffect(
     player: Player,
     autoHide: PlayerAutoHideController,
-    skipUi: TvPlayerSkipUiState,
+    skipUi: PlayerSkipUiState,
     stepSeekToast: PlayerStepSeekToastState,
     fallbackDurationMs: () -> Long,
     wantsPlay: () -> Boolean,

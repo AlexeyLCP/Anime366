@@ -10,6 +10,7 @@ import androidx.media3.common.Player
 import androidx.media3.common.VideoSize
 import su.afk.yummy.tv.feature.player.PlayerState
 import su.afk.yummy.tv.feature.player.common.PlayerProgressReporter
+import su.afk.yummy.tv.feature.player.common.PlayerSkipUiState
 import su.afk.yummy.tv.feature.player.common.PlayerStepSeekToastState
 import su.afk.yummy.tv.feature.player.common.toPlaybackErrorEvent
 import su.afk.yummy.tv.feature.player.common.utils.positionSnapshot
@@ -31,6 +32,7 @@ internal fun MobilePlayerListenerEffect(
     pipSession: MobilePlayerPipSession,
     reporter: PlayerProgressReporter,
     overlay: MobilePlayerOverlayController,
+    skipUi: PlayerSkipUiState,
     stepSeekToast: PlayerStepSeekToastState,
     seekController: MobilePlayerSeekController,
     fallbackDurationMs: () -> Long,
@@ -96,6 +98,7 @@ internal fun MobilePlayerListenerEffect(
         if (currentWantsPlay()) overlay.scheduleHide()
         onDispose {
             overlay.cancelHide()
+            skipUi.cancel()
             currentStepSeekToast.cancel()
             pipSession.setPlaying(false, activity)
             pipSession.setCallbacks(null)

@@ -1,4 +1,4 @@
-package su.afk.yummy.tv.feature.player.model
+package su.afk.yummy.tv.feature.player.common
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -18,7 +18,7 @@ import kotlin.time.Duration.Companion.seconds
 
 /** Пропуск сегментов: подсветка кнопки, снекбар (3s) и уже пропущенные сегменты. */
 @Stable
-internal class TvPlayerSkipUiState(
+class PlayerSkipUiState internal constructor(
     private val scope: CoroutineScope,
     highlightedSkipKeyState: MutableState<String?>,
     snackbarTextState: MutableState<String?>,
@@ -44,14 +44,15 @@ internal class TvPlayerSkipUiState(
     }
 }
 
+/** [resetKey] — идентификатор серии: при её смене пропущенные сегменты и снекбар сбрасываются. */
 @Composable
-internal fun rememberTvPlayerSkipUiState(streamUrl: String): TvPlayerSkipUiState {
+fun rememberPlayerSkipUiState(resetKey: Any): PlayerSkipUiState {
     val scope = rememberCoroutineScope()
     val highlightedSkipKey = remember { mutableStateOf<String?>(null) }
-    val snackbarText = remember(streamUrl) { mutableStateOf<String?>(null) }
-    val dismissedSkipKeys = remember(streamUrl) { mutableStateListOf<String>() }
+    val snackbarText = remember(resetKey) { mutableStateOf<String?>(null) }
+    val dismissedSkipKeys = remember(resetKey) { mutableStateListOf<String>() }
     return remember(snackbarText, dismissedSkipKeys) {
-        TvPlayerSkipUiState(
+        PlayerSkipUiState(
             scope = scope,
             highlightedSkipKeyState = highlightedSkipKey,
             snackbarTextState = snackbarText,
