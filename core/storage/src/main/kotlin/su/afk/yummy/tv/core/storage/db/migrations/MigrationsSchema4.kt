@@ -142,3 +142,15 @@ internal val MIGRATION_44_45 = object : Migration(44, 45) {
         )
     }
 }
+
+internal val MIGRATION_45_46 = object : Migration(45, 46) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL(
+            "CREATE TABLE IF NOT EXISTS video_subscription_selection (" +
+                    "userId INTEGER NOT NULL, animeId INTEGER NOT NULL, " +
+                    "playerKey TEXT NOT NULL, dubbingKey TEXT NOT NULL, " +
+                    "videoId INTEGER NOT NULL, updatedAt INTEGER NOT NULL, " +
+                    "PRIMARY KEY(userId, animeId, playerKey, dubbingKey))"
+        )
+    }
+}

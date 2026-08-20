@@ -221,6 +221,7 @@ data class YaniVideoSubscriptionDto(
     val sub: YaniVideoSubscriptionSubDto? = null,
 )
 
+/** `dubbing` — не озвучка подписки, а перечисление всех озвучек плеера либо пустая строка. */
 @Serializable
 data class YaniVideoSubscriptionSubDto(
     val player: String = "",

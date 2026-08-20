@@ -4,15 +4,13 @@ import kotlinx.coroutines.delay
 import su.afk.yummy.tv.core.model.anime.AnimeDetails
 import su.afk.yummy.tv.core.model.anime.AnimeVideo
 import su.afk.yummy.tv.domain.account.usecase.GetAccountSessionUseCase
-import su.afk.yummy.tv.domain.account.usecase.GetVideoSubscriptionsUseCase
+import su.afk.yummy.tv.domain.account.usecase.GetAnimeSubscriptionStateUseCase
 import su.afk.yummy.tv.domain.account.usecase.SetVideoSubscriptionUseCase
 import su.afk.yummy.tv.domain.anime.usecase.GetAnimeDetailsUseCase
 import su.afk.yummy.tv.domain.anime.usecase.GetAnimeVideosUseCase
 import su.afk.yummy.tv.feature.details.details.model.SubscriptionOption
 import su.afk.yummy.tv.feature.details.mapper.toSubscriptionOptions
 import su.afk.yummy.tv.feature.details.utils.SUBSCRIPTION_REFRESH_DELAY
-import su.afk.yummy.tv.feature.details.utils.matchesCurrentAnime
-import su.afk.yummy.tv.feature.details.utils.subscriptionMatchKeys
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -22,45 +20,37 @@ internal class DetailsSubscriptionHandler @Inject constructor(
     private val getAccountSession: GetAccountSessionUseCase,
     private val getAnimeDetails: GetAnimeDetailsUseCase,
     private val getAnimeVideos: GetAnimeVideosUseCase,
-    private val getVideoSubscriptions: GetVideoSubscriptionsUseCase,
+    private val getAnimeSubscriptionState: GetAnimeSubscriptionStateUseCase,
     private val setVideoSubscription: SetVideoSubscriptionUseCase,
 ) {
-    private var optimisticSubscriptionStatesByAnimeId = emptyMap<Int, Map<String, Boolean>>()
+    /**
+     * Значения кнопок, пока запрос в полёте. Записи живут только на время мутации: после ответа
+     * источником правды снова становится [GetAnimeSubscriptionStateUseCase].
+     */
+    private var pendingStatesByAnimeId = emptyMap<Int, Map<String, Boolean>>()
 
-    fun optimisticSubscriptionStates(animeId: Int): Map<String, Boolean> =
-        optimisticSubscriptionStatesByAnimeId[animeId].orEmpty()
+    fun pendingSubscriptionStates(animeId: Int): Map<String, Boolean> =
+        pendingStatesByAnimeId[animeId].orEmpty()
 
-    fun updateOptimisticSubscriptionState(
-        animeId: Int,
-        option: SubscriptionOption,
-        subscribed: Boolean,
-    ) {
-        val currentStates = optimisticSubscriptionStatesByAnimeId[animeId].orEmpty()
-        optimisticSubscriptionStatesByAnimeId += animeId to (
-                currentStates + option.subscriptionMatchKeys().associateWith { subscribed }
-                )
-    }
-
-    suspend fun loadScreenSubscriptionBase(
-        animeId: Int,
-        optimisticKeys: Set<String>,
-        optimisticStates: Map<String, Boolean> = emptyMap(),
-    ): ScreenSubscriptionBaseResult {
+    suspend fun loadScreenSubscriptionBase(animeId: Int): ScreenSubscriptionBaseResult {
         val session = getAccountSession()
         if (!session.isAuthorized || session.userId <= 0) return ScreenSubscriptionBaseResult.SignedOut
 
         val details = runCatching { getAnimeDetails(animeId) }.getOrNull()
         return runCatching { getAnimeVideos(animeId) }.fold(
             onSuccess = { videos ->
+                val subscriptions = loadSubscriptions(
+                    animeId = animeId,
+                    details = details,
+                    videos = videos,
+                    userId = session.userId,
+                ).getOrElse { videos.toSubscriptionOptions() }
                 ScreenSubscriptionBaseResult.Content(
                     ScreenSubscriptionBase(
                         userId = session.userId,
                         details = details,
                         videos = videos,
-                        subscriptions = videos.toSubscriptionOptions(
-                            optimisticKeys = optimisticKeys,
-                            optimisticStates = optimisticStates,
-                        ),
+                        subscriptions = subscriptions,
                     )
                 )
             },
@@ -68,46 +58,63 @@ internal class DetailsSubscriptionHandler @Inject constructor(
         )
     }
 
-    suspend fun loadDetailsSubscriptions(
+    suspend fun loadSubscriptions(
         animeId: Int,
         details: AnimeDetails?,
         videos: List<AnimeVideo>,
         userId: Int,
-        optimisticKeys: Set<String>,
-        optimisticStates: Map<String, Boolean> = emptyMap(),
-    ): Result<List<SubscriptionOption>> =
-        loadRemoteSubscriptions(
-            animeId = animeId,
-            details = details,
-            videos = videos,
+    ): Result<List<SubscriptionOption>> = runCatching {
+        val state = getAnimeSubscriptionState(
             userId = userId,
-            optimisticKeys = optimisticKeys,
-            optimisticStates = optimisticStates,
+            animeId = animeId,
+            animeUrl = details?.animeUrl,
         )
-
-    suspend fun commitSubscriptionChange(videoId: Int, subscribed: Boolean): Boolean {
-        val result = runCatching { setVideoSubscription(videoId, subscribed) }
-        if (result.isSuccess) delay(SUBSCRIPTION_REFRESH_DELAY)
-        return result.isSuccess
+        videos.toSubscriptionOptions(
+            state = state,
+            pendingStates = pendingSubscriptionStates(animeId),
+        )
     }
 
-    private suspend fun loadRemoteSubscriptions(
-        animeId: Int,
-        details: AnimeDetails?,
-        videos: List<AnimeVideo>,
+    suspend fun commitSubscriptionChange(
         userId: Int,
-        optimisticKeys: Set<String>,
-        optimisticStates: Map<String, Boolean>,
-    ): Result<List<SubscriptionOption>> =
-        runCatching {
-            val animeSubscriptions = getVideoSubscriptions(userId)
-                .filter { it.matchesCurrentAnime(requestedAnimeId = animeId, details = details) }
-            videos.toSubscriptionOptions(
-                remoteSubscriptions = animeSubscriptions,
-                optimisticKeys = optimisticKeys,
-                optimisticStates = optimisticStates,
-            )
+        animeId: Int,
+        option: SubscriptionOption,
+        subscribed: Boolean,
+    ): Boolean {
+        setPendingState(animeId, option.key, subscribed)
+        return try {
+            val result = runCatching {
+                setVideoSubscription(
+                    userId = userId,
+                    animeId = animeId,
+                    playerId = option.playerId,
+                    player = option.player,
+                    dubbing = option.dubbing,
+                    videoId = option.subscriptionVideoId,
+                    subscribed = subscribed,
+                )
+            }
+            val changed = result.getOrDefault(false)
+            if (changed) delay(SUBSCRIPTION_REFRESH_DELAY)
+            changed
+        } finally {
+            clearPendingState(animeId, option.key)
         }
+    }
+
+    private fun setPendingState(animeId: Int, key: String, subscribed: Boolean) {
+        val current = pendingStatesByAnimeId[animeId].orEmpty()
+        pendingStatesByAnimeId += animeId to (current + (key to subscribed))
+    }
+
+    private fun clearPendingState(animeId: Int, key: String) {
+        val current = pendingStatesByAnimeId[animeId].orEmpty() - key
+        pendingStatesByAnimeId = if (current.isEmpty()) {
+            pendingStatesByAnimeId - animeId
+        } else {
+            pendingStatesByAnimeId + (animeId to current)
+        }
+    }
 }
 
 /** Base subscription screen data loaded before remote subscription state is merged. */

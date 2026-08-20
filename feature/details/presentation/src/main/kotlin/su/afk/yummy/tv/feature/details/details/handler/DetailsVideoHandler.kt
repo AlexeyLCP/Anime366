@@ -21,34 +21,34 @@ internal class DetailsVideoHandler @Inject constructor(
 ) {
     suspend fun loadCached(
         animeId: Int,
-        optimisticSubscriptionKeys: Set<String>,
-        optimisticSubscriptionStates: Map<String, Boolean> = emptyMap(),
+        knownSubscriptions: List<SubscriptionOption>,
+        pendingSubscriptionStates: Map<String, Boolean> = emptyMap(),
     ): DetailsVideosResult? =
         runCatching { getCachedAnimeVideos(animeId) }
             .getOrNull()
-            ?.toDetailsVideosResult(optimisticSubscriptionKeys, optimisticSubscriptionStates)
+            ?.toDetailsVideosResult(knownSubscriptions, pendingSubscriptionStates)
 
     suspend fun load(
         animeId: Int,
-        optimisticSubscriptionKeys: Set<String>,
-        optimisticSubscriptionStates: Map<String, Boolean> = emptyMap(),
+        knownSubscriptions: List<SubscriptionOption>,
+        pendingSubscriptionStates: Map<String, Boolean> = emptyMap(),
     ): Result<DetailsVideosResult> =
         runCatching {
             getAnimeVideos(animeId).toDetailsVideosResult(
-                optimisticSubscriptionKeys,
-                optimisticSubscriptionStates
+                knownSubscriptions,
+                pendingSubscriptionStates
             )
         }
 
     suspend fun refresh(
         animeId: Int,
-        optimisticSubscriptionKeys: Set<String>,
-        optimisticSubscriptionStates: Map<String, Boolean> = emptyMap(),
+        knownSubscriptions: List<SubscriptionOption>,
+        pendingSubscriptionStates: Map<String, Boolean> = emptyMap(),
     ): Result<DetailsVideosResult> =
         runCatching {
             refreshAnimeVideos(animeId).toDetailsVideosResult(
-                optimisticSubscriptionKeys,
-                optimisticSubscriptionStates
+                knownSubscriptions,
+                pendingSubscriptionStates
             )
         }
 

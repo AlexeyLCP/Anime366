@@ -14,7 +14,6 @@ import su.afk.yummy.tv.core.navigation.manager.INavigationManager
 import su.afk.yummy.tv.feature.details.DetailsAnalytics
 import su.afk.yummy.tv.feature.details.details.handler.DetailsSubscriptionHandler
 import su.afk.yummy.tv.feature.details.details.handler.ScreenSubscriptionBaseResult
-import su.afk.yummy.tv.feature.details.utils.subscribedKeys
 
 @HiltViewModel(assistedFactory = SubscriptionsViewModel.Factory::class)
 class SubscriptionsViewModel @AssistedInject internal constructor(
@@ -32,6 +31,8 @@ class SubscriptionsViewModel @AssistedInject internal constructor(
     }
 
     override fun createInitialState() = SubscriptionsState.State()
+
+    private var userId: Int = 0
 
     init {
         analytics.eventSubscriptionsScreenOpened(animeId)
@@ -55,45 +56,20 @@ class SubscriptionsViewModel @AssistedInject internal constructor(
             setState { copy(isLoading = true, error = null) }
         }
 
-        when (val result = subscriptionHandler.loadScreenSubscriptionBase(
-            animeId = animeId,
-            optimisticKeys = currentState.subscriptions.subscribedKeys(),
-            optimisticStates = subscriptionHandler.optimisticSubscriptionStates(animeId),
-        )) {
+        when (val result = subscriptionHandler.loadScreenSubscriptionBase(animeId)) {
             ScreenSubscriptionBaseResult.SignedOut -> {
                 setState { copy(isLoading = false, subscriptions = persistentListOf()) }
             }
 
             is ScreenSubscriptionBaseResult.Content -> {
-                val base = result.base
-                setState { copy(subscriptions = base.subscriptions.toImmutableList()) }
-                subscriptionHandler.loadDetailsSubscriptions(
-                    animeId = animeId,
-                    details = base.details,
-                    videos = base.videos,
-                    userId = base.userId,
-                    optimisticKeys = currentState.subscriptions.subscribedKeys(),
-                    optimisticStates = subscriptionHandler.optimisticSubscriptionStates(animeId),
-                ).fold(
-                    onSuccess = { subscriptions ->
-                        setState {
-                            copy(
-                                isLoading = false,
-                                error = null,
-                                subscriptions = subscriptions.toImmutableList(),
-                            )
-                        }
-                    },
-                    onFailure = {
-                        setState {
-                            copy(
-                                isLoading = false,
-                                error = null,
-                                subscriptions = base.subscriptions.toImmutableList(),
-                            )
-                        }
-                    },
-                )
+                userId = result.base.userId
+                setState {
+                    copy(
+                        isLoading = false,
+                        error = null,
+                        subscriptions = result.base.subscriptions.toImmutableList(),
+                    )
+                }
             }
 
             is ScreenSubscriptionBaseResult.Failure -> {
@@ -111,25 +87,23 @@ class SubscriptionsViewModel @AssistedInject internal constructor(
 
     private fun toggleSubscription(key: String) {
         val option = currentState.subscriptions.firstOrNull { it.key == key } ?: return
+        val currentUserId = userId
+        if (currentUserId <= 0) return
         val wasSubscribed = option.isSubscribed
         analytics.eventSubscriptionsSubscriptionToggled(
             animeId = animeId,
-            videoId = option.representativeVideoId,
+            videoId = option.subscriptionVideoId,
             targetState = !wasSubscribed,
         )
-        subscriptionHandler.updateOptimisticSubscriptionState(animeId, option, !wasSubscribed)
         setSubscriptionState(key, !wasSubscribed)
         viewModelScope.launch {
             val changed = subscriptionHandler.commitSubscriptionChange(
-                videoId = option.representativeVideoId,
+                userId = currentUserId,
+                animeId = animeId,
+                option = option,
                 subscribed = !wasSubscribed,
             )
             if (!changed) {
-                subscriptionHandler.updateOptimisticSubscriptionState(
-                    animeId,
-                    option,
-                    wasSubscribed
-                )
                 setSubscriptionState(key, wasSubscribed)
             } else {
                 load(showLoading = false)

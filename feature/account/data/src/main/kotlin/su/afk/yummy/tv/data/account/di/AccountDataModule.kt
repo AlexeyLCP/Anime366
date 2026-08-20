@@ -10,6 +10,7 @@ import su.afk.yummy.tv.core.preferences.auth.YaniAuthPreferences
 import su.afk.yummy.tv.core.preferences.settings.YaniAccountSettingsStore
 import su.afk.yummy.tv.core.storage.account.AccountStorage
 import su.afk.yummy.tv.core.storage.document.DocumentCacheStorage
+import su.afk.yummy.tv.core.storage.subscriptionselection.VideoSubscriptionSelectionStorage
 import su.afk.yummy.tv.data.account.network.YaniAccountApi
 import su.afk.yummy.tv.data.account.repository.DefaultAccountMutationErrorNotifier
 import su.afk.yummy.tv.data.account.repository.YaniAccountRepository
@@ -62,12 +63,14 @@ object AccountDataModule {
         yaniAuthPreferences: YaniAuthPreferences,
         accountStorage: AccountStorage,
         documentCache: DocumentCacheStorage,
+        selectionStorage: VideoSubscriptionSelectionStorage,
     ): AccountRepository = YaniAccountRepository(
         api,
         settingsStore,
         yaniAuthPreferences,
         accountStorage,
         documentCache,
+        selectionStorage,
     )
 
     @Provides
@@ -107,11 +110,13 @@ object AccountDataModule {
     fun provideVideoSubscriptionRepository(
         api: YaniAccountApi,
         accountStorage: AccountStorage,
+        selectionStorage: VideoSubscriptionSelectionStorage,
         settingsStore: YaniAccountSettingsStore,
     ): VideoSubscriptionRepository =
         YaniVideoSubscriptionRepository(
             api,
             accountStorage,
+            selectionStorage,
             settingsStore,
         )
 

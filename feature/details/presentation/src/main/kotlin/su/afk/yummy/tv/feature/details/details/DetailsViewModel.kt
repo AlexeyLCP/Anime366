@@ -45,7 +45,6 @@ import su.afk.yummy.tv.feature.details.mapper.episodeDubbingItems
 import su.afk.yummy.tv.feature.details.mapper.toLibraryPoster
 import su.afk.yummy.tv.feature.details.model.DetailsWatchProgressIndex
 import su.afk.yummy.tv.feature.details.presentation.R
-import su.afk.yummy.tv.feature.details.utils.subscribedKeys
 import su.afk.yummy.tv.feature.player.PlayerVideoSource
 import su.afk.yummy.tv.feature.reviews.IReviewsNavigator
 
@@ -393,8 +392,8 @@ class DetailsViewModel @AssistedInject internal constructor(
         setState { copy(videosState = VideosUiState.Loading) }
         videoHandler.load(
             animeId = animeId,
-            optimisticSubscriptionKeys = currentState.subscriptions.subscribedKeys(),
-            optimisticSubscriptionStates = subscriptionHandler.optimisticSubscriptionStates(animeId),
+            knownSubscriptions = currentState.subscriptions,
+            pendingSubscriptionStates = subscriptionHandler.pendingSubscriptionStates(animeId),
         ).fold(
             onSuccess = { result ->
                 setVideos(result)
@@ -421,8 +420,8 @@ class DetailsViewModel @AssistedInject internal constructor(
     private suspend fun loadVideosIfCacheMissing() {
         val cached = videoHandler.loadCached(
             animeId = animeId,
-            optimisticSubscriptionKeys = currentState.subscriptions.subscribedKeys(),
-            optimisticSubscriptionStates = subscriptionHandler.optimisticSubscriptionStates(animeId),
+            knownSubscriptions = currentState.subscriptions,
+            pendingSubscriptionStates = subscriptionHandler.pendingSubscriptionStates(animeId),
         )
         if (cached != null) {
             setVideos(cached)
@@ -447,8 +446,8 @@ class DetailsViewModel @AssistedInject internal constructor(
     private suspend fun refreshVideosFromNetwork() {
         videoHandler.refresh(
             animeId = animeId,
-            optimisticSubscriptionKeys = currentState.subscriptions.subscribedKeys(),
-            optimisticSubscriptionStates = subscriptionHandler.optimisticSubscriptionStates(animeId),
+            knownSubscriptions = currentState.subscriptions,
+            pendingSubscriptionStates = subscriptionHandler.pendingSubscriptionStates(animeId),
         ).onSuccess { result ->
             setVideos(result)
             if (currentState.isWatchLaunchPending) {
@@ -532,13 +531,11 @@ class DetailsViewModel @AssistedInject internal constructor(
             return
         }
         setState { copy(isSubscriptionsLoading = true) }
-        subscriptionHandler.loadDetailsSubscriptions(
+        subscriptionHandler.loadSubscriptions(
             animeId = animeId,
             details = currentState.details,
             videos = videos,
             userId = userId,
-            optimisticKeys = currentState.subscriptions.subscribedKeys(),
-            optimisticStates = subscriptionHandler.optimisticSubscriptionStates(animeId),
         ).fold(
             onSuccess = { subscriptions ->
                 setState {
@@ -554,26 +551,24 @@ class DetailsViewModel @AssistedInject internal constructor(
 
     private fun toggleSubscription(key: String) {
         if (!currentState.isSignedIn) return
+        val userId = yaniUserIdState.value
+        if (userId <= 0) return
         val option = currentState.subscriptions.firstOrNull { it.key == key } ?: return
         val wasSubscribed = option.isSubscribed
         analytics.eventDetailsSubscriptionTvToggled(
             animeId = animeId,
-            videoId = option.representativeVideoId,
+            videoId = option.subscriptionVideoId,
             targetState = !wasSubscribed,
         )
-        subscriptionHandler.updateOptimisticSubscriptionState(animeId, option, !wasSubscribed)
         setSubscriptionState(key, !wasSubscribed)
         viewModelScope.launch {
             val changed = subscriptionHandler.commitSubscriptionChange(
-                videoId = option.representativeVideoId,
+                userId = userId,
+                animeId = animeId,
+                option = option,
                 subscribed = !wasSubscribed,
             )
             if (!changed) {
-                subscriptionHandler.updateOptimisticSubscriptionState(
-                    animeId,
-                    option,
-                    wasSubscribed
-                )
                 setSubscriptionState(key, wasSubscribed)
             } else {
                 loadSubscriptions()
