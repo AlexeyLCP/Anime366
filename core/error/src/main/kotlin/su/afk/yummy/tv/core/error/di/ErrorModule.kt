@@ -5,8 +5,8 @@ import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import su.afk.yummy.tv.core.error.AndroidStringProvider
-import su.afk.yummy.tv.core.error.ErrorHandlerUseCaseImpl
-import su.afk.yummy.tv.core.error.api.IErrorHandlerUseCase
+import su.afk.yummy.tv.core.error.ErrorHandlerImpl
+import su.afk.yummy.tv.core.error.api.ErrorHandler
 import su.afk.yummy.tv.core.error.api.RetryStorage
 import su.afk.yummy.tv.core.error.api.StringProvider
 import su.afk.yummy.tv.core.error.storage.RetryStorageImpl
@@ -20,7 +20,7 @@ internal interface ErrorModule {
     fun bindStringProvider(impl: AndroidStringProvider): StringProvider
 
     @Binds
-    fun bindErrorHandlerUseCase(impl: ErrorHandlerUseCaseImpl): IErrorHandlerUseCase
+    fun bindErrorHandlerUseCase(impl: ErrorHandlerImpl): ErrorHandler
 
     @Binds
     @Singleton

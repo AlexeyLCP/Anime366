@@ -11,11 +11,17 @@ import su.afk.yummy.tv.core.preferences.interface_mode.SharedPreferencesAppInter
 import su.afk.yummy.tv.core.preferences.settings.AppLifecycleSettingsStore
 import su.afk.yummy.tv.core.preferences.settings.AppearanceSettingsStore
 import su.afk.yummy.tv.core.preferences.settings.CacheSettingsStore
-import su.afk.yummy.tv.core.preferences.settings.DataStoreSettingsStore
 import su.afk.yummy.tv.core.preferences.settings.PlayerSettingsStore
 import su.afk.yummy.tv.core.preferences.settings.SettingsStore
 import su.afk.yummy.tv.core.preferences.settings.VideoExportSettingsStore
 import su.afk.yummy.tv.core.preferences.settings.YaniAccountSettingsStore
+import su.afk.yummy.tv.core.preferences.settings.datastore.DataStoreAppLifecycleSettingsStore
+import su.afk.yummy.tv.core.preferences.settings.datastore.DataStoreAppearanceSettingsStore
+import su.afk.yummy.tv.core.preferences.settings.datastore.DataStoreCacheSettingsStore
+import su.afk.yummy.tv.core.preferences.settings.datastore.DataStorePlayerSettingsStore
+import su.afk.yummy.tv.core.preferences.settings.datastore.DataStoreSettingsStore
+import su.afk.yummy.tv.core.preferences.settings.datastore.DataStoreVideoExportSettingsStore
+import su.afk.yummy.tv.core.preferences.settings.datastore.DataStoreYaniAccountSettingsStore
 import javax.inject.Singleton
 
 @Module
@@ -28,27 +34,29 @@ internal interface PreferencesModule {
 
     @Binds
     @Singleton
-    fun bindYaniAccountSettingsStore(impl: DataStoreSettingsStore): YaniAccountSettingsStore
+    fun bindYaniAccountSettingsStore(impl: DataStoreYaniAccountSettingsStore): YaniAccountSettingsStore
 
     @Binds
     @Singleton
-    fun bindPlayerSettingsStore(impl: DataStoreSettingsStore): PlayerSettingsStore
+    fun bindPlayerSettingsStore(impl: DataStorePlayerSettingsStore): PlayerSettingsStore
 
     @Binds
     @Singleton
-    fun bindAppearanceSettingsStore(impl: DataStoreSettingsStore): AppearanceSettingsStore
+    fun bindAppearanceSettingsStore(impl: DataStoreAppearanceSettingsStore): AppearanceSettingsStore
 
     @Binds
     @Singleton
-    fun bindCacheSettingsStore(impl: DataStoreSettingsStore): CacheSettingsStore
+    fun bindCacheSettingsStore(impl: DataStoreCacheSettingsStore): CacheSettingsStore
 
     @Binds
     @Singleton
-    fun bindVideoExportSettingsStore(impl: DataStoreSettingsStore): VideoExportSettingsStore
+    fun bindVideoExportSettingsStore(impl: DataStoreVideoExportSettingsStore): VideoExportSettingsStore
 
     @Binds
     @Singleton
-    fun bindAppLifecycleSettingsStore(impl: DataStoreSettingsStore): AppLifecycleSettingsStore
+    fun bindAppLifecycleSettingsStore(
+        impl: DataStoreAppLifecycleSettingsStore,
+    ): AppLifecycleSettingsStore
 
     @Binds
     @Singleton

@@ -1,12 +1,12 @@
 package su.afk.yummy.tv.feature.player
 
-import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiEffect
-import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiEvent
-import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiState
-import su.afk.yummy.tv.core.preferences.settings.model.PlayerOrientationMode
-import su.afk.yummy.tv.core.preferences.settings.model.PlayerResizeMode
-import su.afk.yummy.tv.core.preferences.settings.model.PlayerSubtitleStyleSettings
-import su.afk.yummy.tv.core.preferences.settings.model.PlayerZoomLevel
+import su.afk.yummy.tv.core.mvi.UiEffect
+import su.afk.yummy.tv.core.mvi.UiEvent
+import su.afk.yummy.tv.core.mvi.UiState
+import su.afk.yummy.tv.core.model.settings.PlayerOrientationMode
+import su.afk.yummy.tv.core.model.settings.PlayerResizeMode
+import su.afk.yummy.tv.core.model.settings.PlayerSubtitleStyleSettings
+import su.afk.yummy.tv.core.model.settings.PlayerZoomLevel
 import su.afk.yummy.tv.domain.player.model.AllohaAudioTrack
 import su.afk.yummy.tv.domain.player.model.AllohaSubtitleTrack
 import su.afk.yummy.tv.feature.player.model.PlayerFinalEpisodeAction

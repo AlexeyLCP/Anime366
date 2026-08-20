@@ -30,12 +30,12 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import kotlinx.coroutines.Job
-import su.afk.yummy.tv.core.designsystem.presenter.dimensions.TvScreenPadding
-import su.afk.yummy.tv.core.designsystem.presenter.focus.launchTvLazyListKeyFocusRestore
-import su.afk.yummy.tv.core.designsystem.presenter.focus.rememberTvLazyFocusRestoreState
-import su.afk.yummy.tv.core.designsystem.presenter.focus.tvFocusRestorer
-import su.afk.yummy.tv.core.designsystem.presenter.locals.LocalMainMenuFocusRequester
-import su.afk.yummy.tv.core.designsystem.presenter.locals.LocalPreferredContentFocusRequester
+import su.afk.yummy.tv.core.designsystem.dimensions.TvScreenPadding
+import su.afk.yummy.tv.core.designsystem.focus.launchTvLazyListKeyFocusRestore
+import su.afk.yummy.tv.core.designsystem.focus.rememberTvLazyFocusRestoreState
+import su.afk.yummy.tv.core.designsystem.focus.tvFocusRestorer
+import su.afk.yummy.tv.core.designsystem.locals.LocalMainMenuFocusRequester
+import su.afk.yummy.tv.core.designsystem.locals.LocalPreferredContentFocusRequester
 import su.afk.yummy.tv.feature.schedule.ScheduleState
 import su.afk.yummy.tv.feature.schedule.model.ScheduleTimelineUi
 

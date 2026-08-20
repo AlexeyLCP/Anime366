@@ -8,6 +8,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import dagger.multibindings.IntoSet
 import su.afk.yummy.tv.android.di.UniversalNavigationModule.Companion.provideRootTabs
+import su.afk.yummy.tv.core.deeplink.api.DeepLinkResolver
 import su.afk.yummy.tv.core.navigation.registrar.MobileUi
 import su.afk.yummy.tv.core.navigation.registrar.NavRegistrar
 import su.afk.yummy.tv.core.navigation.registrar.TvUi
@@ -23,6 +24,7 @@ import su.afk.yummy.tv.feature.collection.navigator.CollectionsCatalogDestinatio
 import su.afk.yummy.tv.feature.comments.ICommentsNavigator
 import su.afk.yummy.tv.feature.comments.navigator.CommentsNavigator
 import su.afk.yummy.tv.feature.details.IDetailsNavigator
+import su.afk.yummy.tv.feature.details.deeplink.DetailsDeepLinkResolver
 import su.afk.yummy.tv.feature.details.navigator.DetailsNavigator
 import su.afk.yummy.tv.feature.faq.IFaqNavigator
 import su.afk.yummy.tv.feature.faq.navigator.FaqNavigator
@@ -55,7 +57,9 @@ import su.afk.yummy.tv.feature.settings.navigator.SettingsNavigator
 import su.afk.yummy.tv.feature.top.ITopNavigator
 import su.afk.yummy.tv.feature.top.navigator.TopDestination
 import su.afk.yummy.tv.feature.top.navigator.TopNavigator
+import su.afk.yummy.tv.feature.update.ui.navigator.UpdateNavRegistrar
 import su.afk.yummy.tv.feature.videodownload.IVideoDownloadNavigator
+import su.afk.yummy.tv.feature.videodownload.deeplink.VideoDownloadDeepLinkResolver
 import su.afk.yummy.tv.feature.videodownload.navigator.VideoDownloadNavigator
 import javax.inject.Singleton
 
@@ -147,6 +151,25 @@ interface UniversalNavigationModule {
     @Binds
     @Singleton
     fun bindVideoDownloadNavigator(impl: VideoDownloadNavigator): IVideoDownloadNavigator
+
+    // Диалог обновления один на обе платформы, поэтому регистратор попадает в оба набора.
+    @Binds
+    @IntoSet
+    @MobileUi
+    fun bindMobileUpdateNavRegistrar(impl: UpdateNavRegistrar): NavRegistrar
+
+    @Binds
+    @IntoSet
+    @TvUi
+    fun bindTvUpdateNavRegistrar(impl: UpdateNavRegistrar): NavRegistrar
+
+    @Binds
+    @IntoSet
+    fun bindDetailsDeepLinkResolver(impl: DetailsDeepLinkResolver): DeepLinkResolver
+
+    @Binds
+    @IntoSet
+    fun bindVideoDownloadDeepLinkResolver(impl: VideoDownloadDeepLinkResolver): DeepLinkResolver
 
     @Binds
     @IntoSet

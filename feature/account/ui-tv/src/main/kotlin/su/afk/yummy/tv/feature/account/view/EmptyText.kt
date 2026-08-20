@@ -3,7 +3,7 @@
 package su.afk.yummy.tv.feature.account.view
 
 import androidx.compose.runtime.Composable
-import su.afk.yummy.tv.core.designsystem.presenter.tv.TvStateMessage
+import su.afk.yummy.tv.core.designsystem.tv.TvStateMessage
 
 @Composable
 internal fun EmptyText(text: String) {

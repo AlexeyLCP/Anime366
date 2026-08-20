@@ -7,13 +7,13 @@ import su.afk.yummy.tv.core.model.settings.BackgroundStyle
 import su.afk.yummy.tv.core.model.settings.PosterCardSize
 import su.afk.yummy.tv.core.model.settings.PosterQuality
 import su.afk.yummy.tv.core.preferences.interface_mode.AppInterfaceMode
-import su.afk.yummy.tv.core.preferences.settings.model.DetailsButtonAction
-import su.afk.yummy.tv.core.preferences.settings.model.LibraryContinueWatchingCardSize
-import su.afk.yummy.tv.core.preferences.settings.model.PlayerOrientationMode
-import su.afk.yummy.tv.core.preferences.settings.model.PreferredPlayer
-import su.afk.yummy.tv.core.preferences.settings.model.PreferredVideoQuality
-import su.afk.yummy.tv.core.preferences.settings.model.PreviewCacheSize
-import su.afk.yummy.tv.core.preferences.settings.model.YaniContentLanguage
+import su.afk.yummy.tv.core.model.settings.DetailsButtonAction
+import su.afk.yummy.tv.core.model.settings.LibraryContinueWatchingCardSize
+import su.afk.yummy.tv.core.model.settings.PlayerOrientationMode
+import su.afk.yummy.tv.core.model.settings.PreferredPlayer
+import su.afk.yummy.tv.core.model.settings.PreferredVideoQuality
+import su.afk.yummy.tv.core.model.settings.PreviewCacheSize
+import su.afk.yummy.tv.core.model.settings.YaniContentLanguage
 import su.afk.yummy.tv.feature.settings.model.DetailsButtonMoveDirection
 import javax.inject.Inject
 

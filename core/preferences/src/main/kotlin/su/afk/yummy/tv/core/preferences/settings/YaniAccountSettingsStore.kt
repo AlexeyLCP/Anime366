@@ -1,8 +1,8 @@
 package su.afk.yummy.tv.core.preferences.settings
 
 import kotlinx.coroutines.flow.Flow
-import su.afk.yummy.tv.core.preferences.settings.model.YaniApplicationTokenState
-import su.afk.yummy.tv.core.preferences.settings.model.YaniContentLanguage
+import su.afk.yummy.tv.core.model.settings.YaniApplicationTokenState
+import su.afk.yummy.tv.core.model.settings.YaniContentLanguage
 
 /** Идентичность и учётная запись Yani: токен, профиль, язык контента. */
 interface YaniAccountSettingsStore {

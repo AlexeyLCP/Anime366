@@ -17,9 +17,8 @@ import su.afk.yummy.tv.core.analytics.api.coroutine.ErrorCoroutineAnalytics
 import su.afk.yummy.tv.core.preferences.settings.AppLifecycleSettingsStore
 import su.afk.yummy.tv.core.storage.watchprogress.WatchProgressStorage
 import su.afk.yummy.tv.core.tv.api.ITvIntegration
+import su.afk.yummy.tv.core.tv.api.TvChannelContentProvider
 import su.afk.yummy.tv.core.utils.coroutines.di.IoApplicationScope
-import su.afk.yummy.tv.domain.home.model.HomeFeedSectionType
-import su.afk.yummy.tv.domain.home.usecase.GetHomeFeedUseCase
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.time.Duration.Companion.seconds
@@ -29,7 +28,7 @@ internal class TvIntegration @Inject constructor(
     private val watchProgressStore: WatchProgressStorage,
     private val watchNextManager: WatchNextManager,
     private val previewChannelManager: PreviewChannelManager,
-    private val getHomeFeed: GetHomeFeedUseCase,
+    private val channelContentProvider: TvChannelContentProvider,
     private val settingsStore: AppLifecycleSettingsStore,
     private val errorCoroutineAnalytics: ErrorCoroutineAnalytics,
     @IoApplicationScope private val ioApplicationScope: CoroutineScope,
@@ -98,14 +97,8 @@ internal class TvIntegration @Inject constructor(
             // Задержка, чтобы не соревноваться за сеть/CPU с загрузкой домашнего экрана при холодном
             // старте — синхронизация preview-канала не блокирует ничего и может подождать.
             delay(5.seconds)
-            runCatching { getHomeFeed() }.onSuccess { feed ->
-                val newItems = feed.sections
-                    .firstOrNull { it.type == HomeFeedSectionType.NEW_RELEASES }
-                    ?.items
-                    ?: feed.sections.firstOrNull()?.items
-                    ?: emptyList()
-                previewChannelManager.syncNewContent(newItems)
-            }
+            runCatching { channelContentProvider.newReleases() }
+                .onSuccess(previewChannelManager::syncNewContent)
         }
     }
 }

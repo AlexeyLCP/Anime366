@@ -9,4 +9,13 @@
     <string name="notification_permission_settings_reminder">You can enable notifications in Settings later.</string>
     <string name="notification_permission_changed_mind">I changed my mind, enable them now</string>
     <string name="notification_permission_ok">OK</string>
+    <string name="error_title_fallback">Error</string>
+    <string name="copy">Copy</string>
+    <string name="details">Details</string>
+    <string name="hide_details">Hide details</string>
+    <string name="error_http_code">HTTP: %1$s</string>
+    <string name="error_method">Method: %1$s</string>
+    <string name="error_url">URL: %1$s</string>
+    <string name="error_request_id">Request ID: %1$s</string>
+    <string name="error_body">Body:\n%1$s</string>
 </resources>

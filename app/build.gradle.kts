@@ -64,14 +64,16 @@ androidComponents {
 dependencies {
     implementation(project(":core:analytics"))
     implementation(project(":core:deeplink"))
+    implementation(project(":core:deeplink:api"))
     implementation(project(":core:designsystem"))
+    // реализация обработки ошибок: биндинги нужны в графе, хотя фичи знают только core:error:api
+    implementation(project(":core:error"))
     implementation(project(":core:navigation"))
     implementation(project(":core:network"))
     implementation(project(":core:preferences"))
     implementation(project(":core:storage"))
     implementation(project(":core:utils"))
     implementation(project(":core:featuretoggle"))
-    implementation(project(":core:update"))
     implementation(project(":core:tv"))
     implementation(project(":feature:account:api"))
     implementation(project(":feature:account:domain"))
@@ -150,6 +152,10 @@ dependencies {
     implementation(project(":feature:video-download:data"))
     implementation(project(":feature:video-download:domain"))
     implementation(project(":feature:video-download:ui-mobile"))
+    implementation(project(":feature:update:api"))
+    implementation(project(":feature:update:data"))
+    implementation(project(":feature:update:presentation"))
+    implementation(project(":feature:update:ui"))
 
     implementation(libs.bundles.coil.full)
     implementation(libs.ktor.client.okhttp)

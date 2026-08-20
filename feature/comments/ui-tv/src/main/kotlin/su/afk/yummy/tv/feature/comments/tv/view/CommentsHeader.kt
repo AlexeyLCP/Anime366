@@ -18,8 +18,8 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import su.afk.yummy.tv.core.designsystem.presenter.focus.tvFocusableClick
-import su.afk.yummy.tv.core.designsystem.presenter.tv.TvChip
+import su.afk.yummy.tv.core.designsystem.focus.tvFocusableClick
+import su.afk.yummy.tv.core.designsystem.tv.TvChip
 import su.afk.yummy.tv.domain.comments.model.CommentSort
 import su.afk.yummy.tv.feature.comments.tv.R
 import su.afk.yummy.tv.feature.comments.tv.utils.labelRes

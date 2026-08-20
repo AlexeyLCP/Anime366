@@ -19,10 +19,10 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import su.afk.yummy.tv.core.designsystem.presenter.focus.TvLazyFocusRestoreState
-import su.afk.yummy.tv.core.designsystem.presenter.focus.launchTvLazyListKeyFocusRestore
-import su.afk.yummy.tv.core.designsystem.presenter.focus.rememberTvLazyFocusRestoreState
-import su.afk.yummy.tv.core.designsystem.presenter.focus.requestFocusUntilTimeout
+import su.afk.yummy.tv.core.designsystem.focus.TvLazyFocusRestoreState
+import su.afk.yummy.tv.core.designsystem.focus.launchTvLazyListKeyFocusRestore
+import su.afk.yummy.tv.core.designsystem.focus.rememberTvLazyFocusRestoreState
+import su.afk.yummy.tv.core.designsystem.focus.requestFocusUntilTimeout
 import su.afk.yummy.tv.feature.account.account.model.AccountUiError
 import su.afk.yummy.tv.feature.account.account.model.PendingNotificationDeleteFocus
 import su.afk.yummy.tv.feature.account.account.model.PendingNotificationOpenRequest

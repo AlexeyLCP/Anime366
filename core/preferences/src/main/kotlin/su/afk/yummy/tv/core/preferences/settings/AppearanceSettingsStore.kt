@@ -5,8 +5,8 @@ import su.afk.yummy.tv.core.model.settings.AppTheme
 import su.afk.yummy.tv.core.model.settings.BackgroundStyle
 import su.afk.yummy.tv.core.model.settings.PosterCardSize
 import su.afk.yummy.tv.core.model.settings.PosterQuality
-import su.afk.yummy.tv.core.preferences.settings.model.DetailsButtonAction
-import su.afk.yummy.tv.core.preferences.settings.model.LibraryContinueWatchingCardSize
+import su.afk.yummy.tv.core.model.settings.DetailsButtonAction
+import su.afk.yummy.tv.core.model.settings.LibraryContinueWatchingCardSize
 
 /** Оформление интерфейса: тема, постеры, порядок и размеры карточек. */
 interface AppearanceSettingsStore {

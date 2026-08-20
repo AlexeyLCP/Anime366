@@ -7,8 +7,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.launch
-import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.BaseViewModelNew
-import su.afk.yummy.tv.core.error.api.IErrorHandlerUseCase
+import su.afk.yummy.tv.core.mvi.BaseViewModel
+import su.afk.yummy.tv.core.error.api.ErrorHandler
 import su.afk.yummy.tv.core.error.api.RetryStorage
 import su.afk.yummy.tv.core.navigation.manager.INavigationManager
 import su.afk.yummy.tv.feature.details.DetailsAnalytics
@@ -18,12 +18,12 @@ import su.afk.yummy.tv.feature.details.details.handler.ScreenSubscriptionBaseRes
 @HiltViewModel(assistedFactory = SubscriptionsViewModel.Factory::class)
 class SubscriptionsViewModel @AssistedInject internal constructor(
     @Assisted private val animeId: Int,
-    override val errorHandler: IErrorHandlerUseCase,
+    override val errorHandler: ErrorHandler,
     override val retryStorage: RetryStorage,
     private val nav: INavigationManager,
     private val subscriptionHandler: DetailsSubscriptionHandler,
     private val analytics: DetailsAnalytics,
-) : BaseViewModelNew<SubscriptionsState.State, SubscriptionsState.Event, SubscriptionsState.Effect>() {
+) : BaseViewModel<SubscriptionsState.State, SubscriptionsState.Event, SubscriptionsState.Effect>() {
 
     @AssistedFactory
     interface Factory {

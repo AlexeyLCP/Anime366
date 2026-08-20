@@ -44,10 +44,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import su.afk.yummy.tv.core.designsystem.presenter.focus.requestFocusUntilTimeout
-import su.afk.yummy.tv.core.designsystem.presenter.theme.YummySemanticColors
-import su.afk.yummy.tv.core.preferences.settings.model.PlayerResizeMode
-import su.afk.yummy.tv.core.preferences.settings.model.PlayerZoomLevel
+import su.afk.yummy.tv.core.designsystem.focus.requestFocusUntilTimeout
+import su.afk.yummy.tv.core.designsystem.theme.YummySemanticColors
+import su.afk.yummy.tv.core.model.settings.PlayerResizeMode
+import su.afk.yummy.tv.core.model.settings.PlayerZoomLevel
 import su.afk.yummy.tv.feature.player.presentation.R
 import su.afk.yummy.tv.feature.player.utils.tvResizeLabel
 import su.afk.yummy.tv.feature.player.utils.tvResizeMeta

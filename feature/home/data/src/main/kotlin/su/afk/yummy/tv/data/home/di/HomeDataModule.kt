@@ -1,5 +1,6 @@
 package su.afk.yummy.tv.data.home.di
 
+import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -10,10 +11,23 @@ import su.afk.yummy.tv.core.network.yani.YaniHttpClientProvider
 import su.afk.yummy.tv.core.preferences.settings.YaniAccountSettingsStore
 import su.afk.yummy.tv.core.storage.home.HomeFeedStorage
 import su.afk.yummy.tv.core.storage.watchprogress.WatchProgressStorage
+import su.afk.yummy.tv.core.tv.api.TvChannelContentProvider
 import su.afk.yummy.tv.data.home.network.YaniHomeApi
+import su.afk.yummy.tv.data.home.tv.HomeTvChannelContentProvider
 import su.afk.yummy.tv.data.home.repository.YaniHomeFeedRepository
 import su.afk.yummy.tv.domain.home.repository.HomeFeedRepository
 import javax.inject.Singleton
+
+@Module
+@InstallIn(SingletonComponent::class)
+internal interface HomeTvIntegrationModule {
+
+    @Binds
+    @Singleton
+    fun bindTvChannelContentProvider(
+        impl: HomeTvChannelContentProvider,
+    ): TvChannelContentProvider
+}
 
 @Module
 @InstallIn(SingletonComponent::class)

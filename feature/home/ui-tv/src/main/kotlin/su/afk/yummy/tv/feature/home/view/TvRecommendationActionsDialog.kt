@@ -28,7 +28,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import kotlinx.coroutines.delay
-import su.afk.yummy.tv.core.designsystem.presenter.focus.TvRetryButton
+import su.afk.yummy.tv.core.designsystem.focus.TvRetryButton
 import su.afk.yummy.tv.feature.home.R
 
 /** Подтверждение скрытия тайтла из блока рекомендаций на главной. */

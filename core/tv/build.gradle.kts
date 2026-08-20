@@ -8,14 +8,12 @@ android {
 }
 
 dependencies {
-    api(libs.androidx.activity)
-    api(libs.kotlinx.coroutines.android)
+    api(project(":core:tv:api"))
 
     implementation(project(":core:analytics"))
     implementation(project(":core:preferences"))
     implementation(project(":core:storage"))
     implementation(project(":core:utils"))
-    implementation(project(":feature:home:domain"))
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.tvprovider)
     implementation(libs.work.runtime.ktx)

@@ -5,8 +5,8 @@ import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.BaseViewModelNew
-import su.afk.yummy.tv.core.error.api.IErrorHandlerUseCase
+import su.afk.yummy.tv.core.mvi.BaseViewModel
+import su.afk.yummy.tv.core.error.api.ErrorHandler
 import su.afk.yummy.tv.core.error.api.RetryStorage
 import su.afk.yummy.tv.core.error.api.StringProvider
 import su.afk.yummy.tv.core.navigation.manager.INavigationManager
@@ -22,13 +22,13 @@ class RelationViewModel @AssistedInject internal constructor(
     @Assisted private val kind: DetailsRelationKind,
     @Assisted private val id: Int,
     @Assisted private val url: String?,
-    override val errorHandler: IErrorHandlerUseCase,
+    override val errorHandler: ErrorHandler,
     override val retryStorage: RetryStorage,
     private val nav: INavigationManager,
     private val detailsNavigator: IDetailsNavigator,
     private val getAnimeRelation: GetAnimeRelationUseCase,
     private val stringProvider: StringProvider,
-) : BaseViewModelNew<RelationState.State, RelationState.Event, RelationState.Effect>() {
+) : BaseViewModel<RelationState.State, RelationState.Event, RelationState.Effect>() {
 
     @AssistedFactory
     interface Factory {

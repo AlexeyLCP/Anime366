@@ -12,8 +12,8 @@ import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.BaseViewModelNew
-import su.afk.yummy.tv.core.error.api.IErrorHandlerUseCase
+import su.afk.yummy.tv.core.mvi.BaseViewModel
+import su.afk.yummy.tv.core.error.api.ErrorHandler
 import su.afk.yummy.tv.core.error.api.RetryStorage
 import su.afk.yummy.tv.core.error.api.StringProvider
 import su.afk.yummy.tv.core.navigation.manager.INavigationManager
@@ -44,7 +44,7 @@ private const val COMMENTS_PAGE_SIZE = 20
 class CommentsViewModel @AssistedInject internal constructor(
     @Assisted private val targetType: CommentTargetType,
     @Assisted private val targetId: Int,
-    override val errorHandler: IErrorHandlerUseCase,
+    override val errorHandler: ErrorHandler,
     override val retryStorage: RetryStorage,
     private val nav: INavigationManager,
     private val accountNavigator: IAccountNavigator,
@@ -54,7 +54,7 @@ class CommentsViewModel @AssistedInject internal constructor(
     private val getCommentChildren: GetCommentChildrenUseCase,
     private val mutationHandler: CommentsMutationHandler,
     private val analytics: CommentsAnalytics,
-) : BaseViewModelNew<CommentsState.State, CommentsState.Event, CommentsState.Effect>() {
+) : BaseViewModel<CommentsState.State, CommentsState.Event, CommentsState.Effect>() {
 
     @AssistedFactory
     interface Factory {

@@ -2,9 +2,11 @@ package su.afk.yummy.tv.buildlogic
 
 import com.android.build.api.dsl.ApplicationExtension
 import com.android.build.api.dsl.LibraryExtension
+import org.gradle.api.GradleException
 import org.gradle.api.JavaVersion
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.artifacts.ProjectDependency
 import org.gradle.api.artifacts.VersionCatalog
 import org.gradle.api.artifacts.VersionCatalogsExtension
 import org.gradle.kotlin.dsl.configure
@@ -22,6 +24,7 @@ class AndroidLibraryConventionPlugin : Plugin<Project> {
             configureJava21()
         }
         addCoreLibraryDesugaring()
+        enforceLayering()
     }
 }
 
@@ -95,6 +98,31 @@ private fun ApplicationExtension.configureJava21() {
         sourceCompatibility = JavaVersion.VERSION_21
         targetCompatibility = JavaVersion.VERSION_21
         isCoreLibraryDesugaringEnabled = true
+    }
+}
+
+/**
+ * Направление зависимостей между слоями: `core:` — фундамент, он не знает про фичи.
+ * Обратная зависимость `core:* -> feature:*` означает, что порт объявлен не на той стороне —
+ * контракт должен принадлежать core-модулю, а реализация жить в фиче (см. NavRegistrar).
+ *
+ * `-PstrictLayering=false` временно понижает нарушение до предупреждения.
+ */
+private fun Project.enforceLayering() {
+    val consumer = path
+    if (!consumer.startsWith(":core:")) return
+    val strict = providers.gradleProperty("strictLayering").orNull != "false"
+    val log = logger
+    configurations.configureEach {
+        dependencies.whenObjectAdded {
+            val target = (this as? ProjectDependency)?.path
+            if (target != null && target.startsWith(":feature:")) {
+                val message = "Нарушение слоёв: $consumer зависит от $target. " +
+                        "core-модули не должны знать про feature-модули — объявите порт " +
+                        "в core и реализуйте его в фиче."
+                if (strict) throw GradleException(message) else log.warn("w: $message")
+            }
+        }
     }
 }
 

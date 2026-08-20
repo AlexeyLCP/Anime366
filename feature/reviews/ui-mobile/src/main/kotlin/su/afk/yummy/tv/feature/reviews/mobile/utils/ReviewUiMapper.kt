@@ -4,7 +4,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
-import su.afk.yummy.tv.core.designsystem.presenter.theme.YummySemanticColors
+import su.afk.yummy.tv.core.designsystem.theme.YummySemanticColors
 import su.afk.yummy.tv.domain.reviews.model.ReviewStatus
 import su.afk.yummy.tv.feature.reviews.mobile.R
 

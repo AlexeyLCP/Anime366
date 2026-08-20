@@ -30,12 +30,12 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.Job
-import su.afk.yummy.tv.core.designsystem.presenter.dimensions.TvCardSpacing
-import su.afk.yummy.tv.core.designsystem.presenter.dimensions.TvScreenPadding
-import su.afk.yummy.tv.core.designsystem.presenter.focus.TvFocusedGridBringIntoViewSpec
-import su.afk.yummy.tv.core.designsystem.presenter.focus.launchTvLazyListKeyFocusRestore
-import su.afk.yummy.tv.core.designsystem.presenter.focus.rememberTvLazyFocusRestoreState
-import su.afk.yummy.tv.core.designsystem.presenter.focus.tvFocusRestorer
+import su.afk.yummy.tv.core.designsystem.dimensions.TvCardSpacing
+import su.afk.yummy.tv.core.designsystem.dimensions.TvScreenPadding
+import su.afk.yummy.tv.core.designsystem.focus.TvFocusedGridBringIntoViewSpec
+import su.afk.yummy.tv.core.designsystem.focus.launchTvLazyListKeyFocusRestore
+import su.afk.yummy.tv.core.designsystem.focus.rememberTvLazyFocusRestoreState
+import su.afk.yummy.tv.core.designsystem.focus.tvFocusRestorer
 import su.afk.yummy.tv.core.model.anime.AnimeViewingOrderItem
 import su.afk.yummy.tv.feature.details.R
 

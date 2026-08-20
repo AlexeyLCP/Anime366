@@ -4,7 +4,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
-import su.afk.yummy.tv.core.designsystem.presenter.components.toRatingColor
+import su.afk.yummy.tv.core.designsystem.components.toRatingColor
 import su.afk.yummy.tv.feature.details.details.model.ExternalRatingLabel
 
 @Composable

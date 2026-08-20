@@ -3,7 +3,7 @@ package su.afk.yummy.tv.feature.collection.mobile.navigator
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
-import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.ScreenNavigator
+import su.afk.yummy.tv.core.designsystem.baseScreen.ScreenNavigator
 import su.afk.yummy.tv.core.navigation.manager.INavigationManager
 import su.afk.yummy.tv.core.navigation.registrar.NavRegistrar
 import su.afk.yummy.tv.feature.collection.CollectionViewModel

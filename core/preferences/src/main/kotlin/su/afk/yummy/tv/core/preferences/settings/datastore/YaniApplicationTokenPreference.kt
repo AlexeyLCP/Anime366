@@ -1,0 +1,21 @@
+package su.afk.yummy.tv.core.preferences.settings.datastore
+
+import androidx.datastore.preferences.core.Preferences
+import su.afk.yummy.tv.core.model.settings.YaniApplicationTokenState
+import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.yaniApplicationTokenKey
+
+internal const val DEFAULT_YANI_APPLICATION_TOKEN = "ze645twqfeql6l1u"
+
+/** Токен приложения: пользовательский, если задан, иначе встроенный по умолчанию. */
+internal fun Preferences.yaniApplicationToken(): String =
+    this[yaniApplicationTokenKey]?.takeIf { it.isNotBlank() } ?: DEFAULT_YANI_APPLICATION_TOKEN
+
+/** Отличает пользовательский токен от встроенного — на этом строится подсказка в настройках. */
+internal fun Preferences.yaniApplicationTokenState(): YaniApplicationTokenState {
+    val token = this[yaniApplicationTokenKey]?.trim().orEmpty()
+    return if (token.isNotBlank() && token != DEFAULT_YANI_APPLICATION_TOKEN) {
+        YaniApplicationTokenState.CUSTOM
+    } else {
+        YaniApplicationTokenState.DEFAULT
+    }
+}

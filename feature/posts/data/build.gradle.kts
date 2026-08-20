@@ -8,7 +8,6 @@ android { namespace = "su.afk.yummy.tv.data.posts" }
 
 dependencies {
     implementation(project(":core:network"))
-    implementation(project(":core:preferences"))
     implementation(project(":core:storage"))
     implementation(project(":core:utils"))
     implementation(project(":feature:posts:domain"))

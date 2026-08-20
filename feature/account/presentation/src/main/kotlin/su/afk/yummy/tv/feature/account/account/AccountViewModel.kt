@@ -7,8 +7,8 @@ import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.BaseViewModelNew
-import su.afk.yummy.tv.core.error.api.IErrorHandlerUseCase
+import su.afk.yummy.tv.core.mvi.BaseViewModel
+import su.afk.yummy.tv.core.error.api.ErrorHandler
 import su.afk.yummy.tv.core.error.api.RetryStorage
 import su.afk.yummy.tv.core.navigation.manager.INavigationManager
 import su.afk.yummy.tv.core.preferences.settings.YaniAccountSettingsStore
@@ -36,7 +36,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AccountViewModel @Inject internal constructor(
-    override val errorHandler: IErrorHandlerUseCase,
+    override val errorHandler: ErrorHandler,
     override val retryStorage: RetryStorage,
     private val nav: INavigationManager,
     private val settingsStore: YaniAccountSettingsStore,
@@ -50,7 +50,7 @@ class AccountViewModel @Inject internal constructor(
     private val notificationHandler: AccountNotificationHandler,
     private val notificationMutationHandler: AccountNotificationMutationHandler,
     private val analytics: AccountAnalytics,
-) : BaseViewModelNew<AccountState.State, AccountState.Event, AccountState.Effect>() {
+) : BaseViewModel<AccountState.State, AccountState.Event, AccountState.Effect>() {
 
     override fun createInitialState() = AccountState.State()
 

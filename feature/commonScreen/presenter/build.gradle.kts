@@ -11,8 +11,9 @@ android {
 dependencies {
     api(project(":core:analytics"))
     implementation(project(":core:designsystem"))
-    implementation(project(":core:error"))
+    implementation(project(":core:error:api"))
     implementation(project(":core:model"))
+    api(project(":core:mvi"))
     implementation(project(":core:navigation"))
     implementation(project(":feature:commonScreen:api"))
     implementation(libs.kotlinx.serialization.json)

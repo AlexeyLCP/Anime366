@@ -1,7 +1,7 @@
 package su.afk.yummy.tv.feature.details.episodes.dubbings
 
 import su.afk.yummy.tv.core.model.anime.AnimeVideo
-import su.afk.yummy.tv.core.preferences.settings.model.PreferredPlayer
+import su.afk.yummy.tv.core.model.settings.PreferredPlayer
 import su.afk.yummy.tv.core.utils.episode.episodeGroupKey
 import su.afk.yummy.tv.feature.details.utils.matchesPreferredPlayer
 import su.afk.yummy.tv.feature.player.isSupportedPlayerUrl

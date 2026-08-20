@@ -1,7 +1,7 @@
 package su.afk.yummy.tv.feature.library.utils
 
 import androidx.compose.ui.graphics.Color
-import su.afk.yummy.tv.core.designsystem.presenter.theme.YummySemanticColors
+import su.afk.yummy.tv.core.designsystem.theme.YummySemanticColors
 import su.afk.yummy.tv.feature.library.model.LibraryTab
 
 /** Цвет статусных вкладок; null для CONTINUE_WATCHING/HISTORY — им нужен MaterialTheme-цвет. */

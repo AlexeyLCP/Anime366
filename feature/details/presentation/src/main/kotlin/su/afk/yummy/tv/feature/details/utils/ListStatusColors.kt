@@ -2,7 +2,7 @@ package su.afk.yummy.tv.feature.details.utils
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
-import su.afk.yummy.tv.core.designsystem.presenter.theme.YummySemanticColors
+import su.afk.yummy.tv.core.designsystem.theme.YummySemanticColors
 import su.afk.yummy.tv.domain.account.model.UserAnimeList
 
 @Composable

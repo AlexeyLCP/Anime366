@@ -12,8 +12,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import su.afk.yummy.tv.core.designsystem.presenter.components.RatingBadge
-import su.afk.yummy.tv.core.designsystem.presenter.tv.TvTitleCard
+import su.afk.yummy.tv.core.designsystem.components.RatingBadge
+import su.afk.yummy.tv.core.designsystem.tv.TvTitleCard
 import su.afk.yummy.tv.domain.top.model.AnimeTopItem
 
 @Composable

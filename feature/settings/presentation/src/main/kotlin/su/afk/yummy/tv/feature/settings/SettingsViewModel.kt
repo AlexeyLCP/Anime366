@@ -5,8 +5,8 @@ import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.BaseViewModelNew
-import su.afk.yummy.tv.core.error.api.IErrorHandlerUseCase
+import su.afk.yummy.tv.core.mvi.BaseViewModel
+import su.afk.yummy.tv.core.error.api.ErrorHandler
 import su.afk.yummy.tv.core.error.api.RetryStorage
 import su.afk.yummy.tv.core.navigation.manager.INavigationManager
 import su.afk.yummy.tv.core.preferences.interface_mode.AppInterfaceMode
@@ -22,7 +22,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SettingsViewModel @Inject internal constructor(
-    override val errorHandler: IErrorHandlerUseCase,
+    override val errorHandler: ErrorHandler,
     override val retryStorage: RetryStorage,
     private val settingsStore: SettingsStore,
     private val interfaceModePreferences: AppInterfaceModePreferences,
@@ -32,7 +32,7 @@ class SettingsViewModel @Inject internal constructor(
     private val observeVideoExportDestination: ObserveVideoExportDestinationUseCase,
     private val selectVideoExportDestination: SelectVideoExportDestinationUseCase,
     private val cacheStorageInspector: CacheStorageInspector,
-) : BaseViewModelNew<SettingsState.State, SettingsState.Event, SettingsState.Effect>() {
+) : BaseViewModel<SettingsState.State, SettingsState.Event, SettingsState.Effect>() {
 
     override fun createInitialState() = SettingsState.State(
         interfaceMode = interfaceModePreferences.selectedMode ?: AppInterfaceMode.MOBILE,

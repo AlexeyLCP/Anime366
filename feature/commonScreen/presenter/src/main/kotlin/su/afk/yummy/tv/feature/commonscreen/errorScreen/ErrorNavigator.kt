@@ -9,16 +9,16 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
 import dagger.hilt.android.EntryPointAccessors
-import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.ScreenNavigator
+import su.afk.yummy.tv.core.designsystem.baseScreen.ScreenNavigator
+import su.afk.yummy.tv.core.error.api.ErrorDestinationFactory
 import su.afk.yummy.tv.core.model.ErrorItem
 import su.afk.yummy.tv.core.navigation.manager.INavigationManager
 import su.afk.yummy.tv.core.navigation.registrar.NavRegistrar
 import su.afk.yummy.tv.feature.commonscreen.di.ErrorNavigatorEntryPoint
 import su.afk.yummy.tv.feature.commonscreen.navigator.CommonScreenDestination
-import su.afk.yummy.tv.feature.commonscreen.navigator.IErrorNavigator
 import javax.inject.Inject
 
-class ErrorNavigator @Inject constructor() : IErrorNavigator {
+class ErrorNavigator @Inject constructor() : ErrorDestinationFactory {
     override operator fun invoke(error: ErrorItem): NavKey =
         CommonScreenDestination.ErrorNavigatorDest(error = error)
 }

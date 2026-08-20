@@ -18,7 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
-import su.afk.yummy.tv.core.designsystem.presenter.focus.tvFocusableClick
+import su.afk.yummy.tv.core.designsystem.focus.tvFocusableClick
 
 /** Кнопка действия в стиле экрана деталей: видимый фокус (масштаб + рамка через [tvFocusableClick]). */
 @Composable

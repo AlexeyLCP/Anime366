@@ -1,0 +1,11 @@
+package su.afk.yummy.tv.core.model.settings
+
+data class MainSettingsSnapshot(
+    val appTheme: AppTheme,
+    val backgroundStyle: BackgroundStyle,
+    val posterQuality: PosterQuality,
+    val posterCardSize: PosterCardSize,
+    val yaniNickname: String,
+    val yaniAvatarUrl: String,
+    val yaniUnreadNotificationsCount: Int,
+)

@@ -9,7 +9,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import su.afk.yummy.tv.core.designsystem.presenter.focus.tvFocusableClick
+import su.afk.yummy.tv.core.designsystem.focus.tvFocusableClick
 
 /** Кнопка действия с видимым фокусом (масштаб + рамка через [tvFocusableClick]). */
 @Composable

@@ -12,7 +12,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import su.afk.yummy.tv.core.designsystem.presenter.components.CachedAsyncImage
+import su.afk.yummy.tv.core.designsystem.components.CachedAsyncImage
 
 @Composable
 internal fun TvPostFullscreenImageDialog(

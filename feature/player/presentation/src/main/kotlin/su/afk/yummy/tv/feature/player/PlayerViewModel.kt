@@ -11,15 +11,15 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.BaseViewModelNew
-import su.afk.yummy.tv.core.error.api.IErrorHandlerUseCase
+import su.afk.yummy.tv.core.mvi.BaseViewModel
+import su.afk.yummy.tv.core.error.api.ErrorHandler
 import su.afk.yummy.tv.core.error.api.RetryStorage
 import su.afk.yummy.tv.core.error.api.StringProvider
 import su.afk.yummy.tv.core.navigation.manager.INavigationManager
-import su.afk.yummy.tv.core.preferences.settings.model.PlayerMobileVideoTransformSettings
-import su.afk.yummy.tv.core.preferences.settings.model.PlayerResizeMode
-import su.afk.yummy.tv.core.preferences.settings.model.PlayerResizeSettings
-import su.afk.yummy.tv.core.preferences.settings.model.PlayerZoomLevel
+import su.afk.yummy.tv.core.model.settings.PlayerMobileVideoTransformSettings
+import su.afk.yummy.tv.core.model.settings.PlayerResizeMode
+import su.afk.yummy.tv.core.model.settings.PlayerResizeSettings
+import su.afk.yummy.tv.core.model.settings.PlayerZoomLevel
 import su.afk.yummy.tv.domain.player.model.AllohaAudioTrack
 import su.afk.yummy.tv.domain.player.model.AllohaSubtitleTrack
 import su.afk.yummy.tv.domain.videodownload.usecase.GetVideoDownloadUseCase
@@ -49,7 +49,7 @@ import su.afk.yummy.tv.feature.player.utils.activeIframeUrl
 @HiltViewModel(assistedFactory = PlayerViewModel.Factory::class)
 class PlayerViewModel @AssistedInject internal constructor(
     @Assisted private val dest: PlayerDestination,
-    override val errorHandler: IErrorHandlerUseCase,
+    override val errorHandler: ErrorHandler,
     override val retryStorage: RetryStorage,
     private val nav: INavigationManager,
     private val detailsNavigator: IDetailsNavigator,
@@ -67,7 +67,7 @@ class PlayerViewModel @AssistedInject internal constructor(
     private val playbackRetry: PlayerPlaybackRetryHandler,
     private val allohaSession: PlayerAllohaSessionHandler,
     private val allohaTrackPreference: PlayerAllohaTrackPreferenceHandler,
-) : BaseViewModelNew<PlayerState.State, PlayerState.Event, PlayerState.Effect>() {
+) : BaseViewModel<PlayerState.State, PlayerState.Event, PlayerState.Effect>() {
 
     @AssistedFactory
     interface Factory {

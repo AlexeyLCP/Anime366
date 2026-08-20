@@ -3,8 +3,8 @@ package su.afk.yummy.tv.feature.bloggers.mobile.view
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import su.afk.yummy.tv.core.designsystem.presenter.mobile.MobileReactionSelection
-import su.afk.yummy.tv.core.designsystem.presenter.mobile.MobileReactionsCard
+import su.afk.yummy.tv.core.designsystem.mobile.MobileReactionSelection
+import su.afk.yummy.tv.core.designsystem.mobile.MobileReactionsCard
 import su.afk.yummy.tv.domain.bloggers.model.BloggerVideoReaction
 import su.afk.yummy.tv.domain.bloggers.model.BloggerVideoVote
 import su.afk.yummy.tv.feature.bloggers.mobile.R

@@ -4,7 +4,7 @@ import coil3.ImageLoader
 import coil3.fetch.FetchResult
 import coil3.fetch.Fetcher
 import coil3.request.Options
-import su.afk.yummy.tv.core.model.anime.kodikThumbnailIframeUrl
+import su.afk.yummy.tv.core.utils.kodik.kodikThumbnailIframeUrl
 import su.afk.yummy.tv.core.utils.episode.episodeGroupKey
 import su.afk.yummy.tv.core.utils.kodik.KodikThumbnail
 import su.afk.yummy.tv.core.utils.kodik.KodikThumbnailCacheIO

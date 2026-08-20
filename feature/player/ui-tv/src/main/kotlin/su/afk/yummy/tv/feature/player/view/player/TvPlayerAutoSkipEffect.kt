@@ -5,7 +5,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
 import kotlinx.coroutines.delay
-import su.afk.yummy.tv.core.designsystem.presenter.focus.requestFocusUntilTimeout
+import su.afk.yummy.tv.core.designsystem.focus.requestFocusUntilTimeout
 import su.afk.yummy.tv.feature.player.common.PlayerAutoHideController
 import su.afk.yummy.tv.feature.player.common.PlayerSkipUiState
 import su.afk.yummy.tv.feature.player.common.model.PlayerActiveSkip

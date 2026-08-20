@@ -5,8 +5,8 @@ import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.BaseViewModelNew
-import su.afk.yummy.tv.core.error.api.IErrorHandlerUseCase
+import su.afk.yummy.tv.core.mvi.BaseViewModel
+import su.afk.yummy.tv.core.error.api.ErrorHandler
 import su.afk.yummy.tv.core.error.api.RetryStorage
 import su.afk.yummy.tv.core.error.api.StringProvider
 import su.afk.yummy.tv.core.navigation.manager.INavigationManager
@@ -27,7 +27,7 @@ import su.afk.yummy.tv.feature.details.IDetailsNavigator
 @HiltViewModel(assistedFactory = CollectionViewModel.Factory::class)
 class CollectionViewModel @AssistedInject internal constructor(
     @Assisted private val collectionId: Int,
-    override val errorHandler: IErrorHandlerUseCase,
+    override val errorHandler: ErrorHandler,
     override val retryStorage: RetryStorage,
     private val nav: INavigationManager,
     private val detailsNavigator: IDetailsNavigator,
@@ -40,7 +40,7 @@ class CollectionViewModel @AssistedInject internal constructor(
     private val deleteCollection: DeleteCollectionUseCase,
     private val stringProvider: StringProvider,
     private val analytics: CollectionAnalytics,
-) : BaseViewModelNew<CollectionState.State, CollectionState.Event, CollectionState.Effect>() {
+) : BaseViewModel<CollectionState.State, CollectionState.Event, CollectionState.Effect>() {
 
     @AssistedFactory
     interface Factory {

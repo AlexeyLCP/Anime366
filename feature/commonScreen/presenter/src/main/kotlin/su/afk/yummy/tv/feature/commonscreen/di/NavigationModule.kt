@@ -5,12 +5,12 @@ import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import dagger.multibindings.IntoSet
+import su.afk.yummy.tv.core.error.api.ErrorDestinationFactory
 import su.afk.yummy.tv.core.navigation.registrar.NavRegistrar
 import su.afk.yummy.tv.feature.commonscreen.errorScreen.ErrorNavigator
 import su.afk.yummy.tv.feature.commonscreen.errorScreen.ErrorNavigatorRegister
 import su.afk.yummy.tv.feature.commonscreen.navigator.ImageViewNavigator
 import su.afk.yummy.tv.feature.commonscreen.navigator.ImageViewNavigatorRegister
-import su.afk.yummy.tv.feature.commonscreen.navigator.IErrorNavigator
 import su.afk.yummy.tv.feature.commonscreen.navigator.IImageViewNavigator
 import javax.inject.Singleton
 
@@ -24,7 +24,7 @@ interface NavigationModule {
 
     @Binds
     @Singleton
-    fun bindErrorNavigator(impl: ErrorNavigator): IErrorNavigator
+    fun bindErrorNavigator(impl: ErrorNavigator): ErrorDestinationFactory
 
     @Binds
     @IntoSet

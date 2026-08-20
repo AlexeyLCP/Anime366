@@ -12,8 +12,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import su.afk.yummy.tv.core.designsystem.presenter.mobile.MobileSectionHeader
-import su.afk.yummy.tv.core.designsystem.presenter.mobile.cards.MobileProgressMediaCard
+import su.afk.yummy.tv.core.designsystem.mobile.MobileSectionHeader
+import su.afk.yummy.tv.core.designsystem.mobile.cards.MobileProgressMediaCard
 import su.afk.yummy.tv.core.utils.kodik.KodikThumbnail
 import su.afk.yummy.tv.core.utils.kodik.resolveContinueWatchingImageModel
 import su.afk.yummy.tv.domain.home.model.HomeContinueWatchingItem

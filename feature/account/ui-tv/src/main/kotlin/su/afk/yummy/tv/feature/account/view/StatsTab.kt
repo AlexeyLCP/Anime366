@@ -28,9 +28,9 @@ import androidx.compose.ui.input.key.type
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
-import su.afk.yummy.tv.core.designsystem.presenter.focus.requestFocusUntilTimeout
-import su.afk.yummy.tv.core.designsystem.presenter.locals.LocalMainMenuFocusRequester
-import su.afk.yummy.tv.core.designsystem.presenter.tv.TvLoadingScreen
+import su.afk.yummy.tv.core.designsystem.focus.requestFocusUntilTimeout
+import su.afk.yummy.tv.core.designsystem.locals.LocalMainMenuFocusRequester
+import su.afk.yummy.tv.core.designsystem.tv.TvLoadingScreen
 import su.afk.yummy.tv.domain.account.model.ratingsByValue
 import su.afk.yummy.tv.domain.account.model.topGenres
 import su.afk.yummy.tv.feature.account.R

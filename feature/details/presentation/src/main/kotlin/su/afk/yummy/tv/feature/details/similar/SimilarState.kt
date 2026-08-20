@@ -3,9 +3,9 @@ package su.afk.yummy.tv.feature.details.similar
 import androidx.compose.runtime.Immutable
 import kotlinx.collections.immutable.PersistentSet
 import kotlinx.collections.immutable.persistentSetOf
-import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiEffect
-import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiEvent
-import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiState
+import su.afk.yummy.tv.core.mvi.UiEffect
+import su.afk.yummy.tv.core.mvi.UiEvent
+import su.afk.yummy.tv.core.mvi.UiState
 import su.afk.yummy.tv.core.model.anime.AnimeRecommendationVote
 import su.afk.yummy.tv.feature.details.details.model.SimilarUiState
 

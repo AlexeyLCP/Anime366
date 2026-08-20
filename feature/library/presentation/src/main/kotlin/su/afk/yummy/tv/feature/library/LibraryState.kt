@@ -8,11 +8,11 @@ import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
-import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiEffect
-import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiEvent
-import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiState
+import su.afk.yummy.tv.core.mvi.UiEffect
+import su.afk.yummy.tv.core.mvi.UiEvent
+import su.afk.yummy.tv.core.mvi.UiState
 import su.afk.yummy.tv.core.model.anime.AnimeWatchProgress
-import su.afk.yummy.tv.core.preferences.settings.model.LibraryContinueWatchingCardSize
+import su.afk.yummy.tv.core.model.settings.LibraryContinueWatchingCardSize
 import su.afk.yummy.tv.domain.home.model.HomeContinueWatchingItem
 import su.afk.yummy.tv.domain.library.model.LibraryItem
 import su.afk.yummy.tv.domain.library.model.WatchHistoryEntry

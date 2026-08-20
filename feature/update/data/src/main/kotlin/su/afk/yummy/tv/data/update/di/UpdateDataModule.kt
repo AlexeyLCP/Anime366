@@ -1,0 +1,30 @@
+package su.afk.yummy.tv.data.update.di
+
+import dagger.Binds
+import dagger.Module
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
+import su.afk.yummy.tv.data.update.apk.ApkDownloaderImpl
+import su.afk.yummy.tv.data.update.apk.ApkInstallerImpl
+import su.afk.yummy.tv.data.update.repository.GitHubUpdateRepository
+import su.afk.yummy.tv.domain.update.repository.ApkDownloader
+import su.afk.yummy.tv.domain.update.repository.ApkInstaller
+import su.afk.yummy.tv.domain.update.repository.UpdateRepository
+import javax.inject.Singleton
+
+@Module
+@InstallIn(SingletonComponent::class)
+internal interface UpdateDataModule {
+
+    @Binds
+    @Singleton
+    fun bindUpdateRepository(impl: GitHubUpdateRepository): UpdateRepository
+
+    @Binds
+    @Singleton
+    fun bindApkDownloader(impl: ApkDownloaderImpl): ApkDownloader
+
+    @Binds
+    @Singleton
+    fun bindApkInstaller(impl: ApkInstallerImpl): ApkInstaller
+}

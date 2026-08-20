@@ -1,6 +1,5 @@
 plugins {
     id("yummytv.android.library.compose")
-    id("yummytv.android.hilt")
 }
 
 android {
@@ -10,7 +9,7 @@ android {
 dependencies {
     api(project(":core:model"))
 
-    implementation(project(":core:error"))
+    implementation(project(":core:mvi"))
     implementation(project(":core:utils"))
 
     implementation(libs.bundles.compose.core)

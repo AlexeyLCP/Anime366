@@ -8,9 +8,8 @@ android {
 }
 
 dependencies {
+    api(project(":core:deeplink:api"))
+
     implementation(project(":core:navigation"))
-    implementation(project(":feature:details:api"))
-    implementation(project(":feature:player:api"))
-    implementation(project(":feature:video-download:api"))
     implementation(libs.jetbrains.navigation3.ui)
 }

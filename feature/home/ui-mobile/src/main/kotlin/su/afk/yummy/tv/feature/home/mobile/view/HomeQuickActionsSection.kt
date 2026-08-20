@@ -25,8 +25,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import su.afk.yummy.tv.core.designsystem.presenter.mobile.MobileSectionHeader
-import su.afk.yummy.tv.core.designsystem.presenter.preview.ScreenPreviewTheme
+import su.afk.yummy.tv.core.designsystem.mobile.MobileSectionHeader
+import su.afk.yummy.tv.core.designsystem.preview.ScreenPreviewTheme
 
 @Composable
 internal fun HomeQuickActionsSection(

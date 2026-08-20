@@ -6,8 +6,8 @@ import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.launch
-import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.BaseViewModelNew
-import su.afk.yummy.tv.core.error.api.IErrorHandlerUseCase
+import su.afk.yummy.tv.core.mvi.BaseViewModel
+import su.afk.yummy.tv.core.error.api.ErrorHandler
 import su.afk.yummy.tv.core.error.api.RetryStorage
 import su.afk.yummy.tv.core.navigation.manager.INavigationManager
 import su.afk.yummy.tv.core.utils.coroutines.runSuspendCatching
@@ -23,7 +23,7 @@ private const val ALL_CATEGORY_ID = "all"
 
 @HiltViewModel(assistedFactory = BloggerVideosListViewModel.Factory::class)
 class BloggerVideosListViewModel @AssistedInject constructor(
-    override val errorHandler: IErrorHandlerUseCase,
+    override val errorHandler: ErrorHandler,
     override val retryStorage: RetryStorage,
     private val nav: INavigationManager,
     private val getVideos: GetBloggerVideosUseCase,
@@ -31,7 +31,7 @@ class BloggerVideosListViewModel @AssistedInject constructor(
     private val getDirectory: GetBloggersDirectoryUseCase,
     private val bloggerNavigator: IBloggerVideosNavigator,
     @Assisted private val animeId: Int?,
-) : BaseViewModelNew<BloggerVideosListState.State, BloggerVideosListState.Event, BloggerVideosListState.Effect>() {
+) : BaseViewModel<BloggerVideosListState.State, BloggerVideosListState.Event, BloggerVideosListState.Effect>() {
     override fun createInitialState() = BloggerVideosListState.State(
         animeId = animeId,
         videos = createFlow(ALL_CATEGORY_ID, bloggerId = null, sort = BloggerVideoSort.NEW),

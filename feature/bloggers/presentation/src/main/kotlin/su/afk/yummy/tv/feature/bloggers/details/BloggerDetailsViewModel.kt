@@ -9,8 +9,8 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.BaseViewModelNew
-import su.afk.yummy.tv.core.error.api.IErrorHandlerUseCase
+import su.afk.yummy.tv.core.mvi.BaseViewModel
+import su.afk.yummy.tv.core.error.api.ErrorHandler
 import su.afk.yummy.tv.core.error.api.RetryStorage
 import su.afk.yummy.tv.core.error.api.StringProvider
 import su.afk.yummy.tv.core.navigation.manager.INavigationManager
@@ -26,7 +26,7 @@ import su.afk.yummy.tv.feature.bloggers.presentation.R
 @HiltViewModel(assistedFactory = BloggerDetailsViewModel.Factory::class)
 class BloggerDetailsViewModel @AssistedInject constructor(
     @Assisted private val bloggerId: Int,
-    override val errorHandler: IErrorHandlerUseCase,
+    override val errorHandler: ErrorHandler,
     override val retryStorage: RetryStorage,
     private val nav: INavigationManager,
     private val navigator: IBloggerVideosNavigator,
@@ -35,7 +35,7 @@ class BloggerDetailsViewModel @AssistedInject constructor(
     private val setSubscribed: SetBloggerSubscribedUseCase,
     private val strings: StringProvider,
     settingsStore: YaniAccountSettingsStore,
-) : BaseViewModelNew<BloggerDetailsState.State, BloggerDetailsState.Event, BloggerDetailsState.Effect>() {
+) : BaseViewModel<BloggerDetailsState.State, BloggerDetailsState.Event, BloggerDetailsState.Effect>() {
     override fun createInitialState() = BloggerDetailsState.State()
 
     init {

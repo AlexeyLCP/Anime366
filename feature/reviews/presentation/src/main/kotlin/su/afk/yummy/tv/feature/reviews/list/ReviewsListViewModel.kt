@@ -10,8 +10,8 @@ import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.BaseViewModelNew
-import su.afk.yummy.tv.core.error.api.IErrorHandlerUseCase
+import su.afk.yummy.tv.core.mvi.BaseViewModel
+import su.afk.yummy.tv.core.error.api.ErrorHandler
 import su.afk.yummy.tv.core.error.api.RetryStorage
 import su.afk.yummy.tv.core.error.api.StringProvider
 import su.afk.yummy.tv.core.navigation.manager.INavigationManager
@@ -32,7 +32,7 @@ import su.afk.yummy.tv.feature.reviews.presentation.R
 @HiltViewModel(assistedFactory = ReviewsListViewModel.Factory::class)
 class ReviewsListViewModel @AssistedInject constructor(
     @Assisted private val animeId: Int?,
-    override val errorHandler: IErrorHandlerUseCase,
+    override val errorHandler: ErrorHandler,
     override val retryStorage: RetryStorage,
     private val nav: INavigationManager,
     private val navigator: IReviewsNavigator,
@@ -43,7 +43,7 @@ class ReviewsListViewModel @AssistedInject constructor(
     private val strings: StringProvider,
     mutationNotifier: ReviewMutationNotifier,
     settingsStore: YaniAccountSettingsStore,
-) : BaseViewModelNew<ReviewsListState.State, ReviewsListState.Event, ReviewsListState.Effect>() {
+) : BaseViewModel<ReviewsListState.State, ReviewsListState.Event, ReviewsListState.Effect>() {
     @AssistedFactory
     interface Factory {
         fun create(animeId: Int?): ReviewsListViewModel

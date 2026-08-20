@@ -29,17 +29,17 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.ScreenNavigator
-import su.afk.yummy.tv.core.designsystem.presenter.locals.LocalPosterCardSize
-import su.afk.yummy.tv.core.designsystem.presenter.locals.LocalPosterQuality
-import su.afk.yummy.tv.core.designsystem.presenter.theme.YummyTvTheme
+import su.afk.yummy.tv.core.designsystem.baseScreen.ScreenNavigator
+import su.afk.yummy.tv.core.designsystem.locals.LocalPosterCardSize
+import su.afk.yummy.tv.core.designsystem.locals.LocalPosterQuality
+import su.afk.yummy.tv.core.designsystem.theme.YummyTvTheme
 import su.afk.yummy.tv.core.navigation.host.AppNavHost
 import su.afk.yummy.tv.core.navigation.manager.INavigationManager
 import su.afk.yummy.tv.core.navigation.registrar.NavRegistrar
 import su.afk.yummy.tv.core.navigation.registrar.TvUi
 import su.afk.yummy.tv.core.navigation.root.RootTab
-import su.afk.yummy.tv.core.update.nav.UpdateDestination
-import su.afk.yummy.tv.feature.main.api.IMainGraph
+import su.afk.yummy.tv.feature.update.navigator.UpdateDestination
+import su.afk.yummy.tv.feature.main.api.MainGraph
 import su.afk.yummy.tv.feature.main.model.TvMenuItem
 import su.afk.yummy.tv.feature.main.view.TvMainScaffold
 import su.afk.yummy.tv.feature.player.navigator.PlayerDestination
@@ -52,7 +52,7 @@ class TvMainGraph @Inject constructor(
     private val navManager: INavigationManager,
     private val commonRegistrars: Set<@JvmSuppressWildcards NavRegistrar>,
     @param:TvUi private val tvRegistrars: Set<@JvmSuppressWildcards NavRegistrar>,
-) : IMainGraph {
+) : MainGraph {
 
     private val menuItems = listOf(
         TvMenuItem(R.string.main_tab_search, RootTab.SEARCH, Icons.Default.Search),

@@ -1,6 +1,6 @@
 package su.afk.yummy.tv.data.reviews.repository
 
-import su.afk.yummy.tv.core.network.cache.UserScopedCache
+import su.afk.yummy.tv.core.storage.document.UserScopedCache
 import su.afk.yummy.tv.core.preferences.settings.YaniAccountSettingsStore
 import su.afk.yummy.tv.core.preferences.settings.currentLanguageCode
 import su.afk.yummy.tv.core.storage.anime.AnimeStorage

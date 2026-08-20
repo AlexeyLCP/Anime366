@@ -3,8 +3,8 @@ package su.afk.yummy.tv.feature.schedule
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.launch
-import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.BaseViewModelNew
-import su.afk.yummy.tv.core.error.api.IErrorHandlerUseCase
+import su.afk.yummy.tv.core.mvi.BaseViewModel
+import su.afk.yummy.tv.core.error.api.ErrorHandler
 import su.afk.yummy.tv.core.error.api.RetryStorage
 import su.afk.yummy.tv.core.navigation.manager.INavigationManager
 import su.afk.yummy.tv.domain.schedule.usecase.GetAnimeScheduleUseCase
@@ -15,13 +15,13 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ScheduleViewModel @Inject internal constructor(
-    override val errorHandler: IErrorHandlerUseCase,
+    override val errorHandler: ErrorHandler,
     override val retryStorage: RetryStorage,
     private val getSchedule: GetAnimeScheduleUseCase,
     private val nav: INavigationManager,
     private val detailsNavigator: IDetailsNavigator,
     private val analytics: ScheduleAnalytics,
-) : BaseViewModelNew<ScheduleState.State, ScheduleState.Event, ScheduleState.Effect>() {
+) : BaseViewModel<ScheduleState.State, ScheduleState.Event, ScheduleState.Effect>() {
 
     override fun createInitialState() = ScheduleState.State()
 

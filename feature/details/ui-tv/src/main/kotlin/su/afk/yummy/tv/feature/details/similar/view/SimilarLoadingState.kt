@@ -25,7 +25,7 @@ import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
-import su.afk.yummy.tv.core.designsystem.presenter.dimensions.TvCardSpacing
+import su.afk.yummy.tv.core.designsystem.dimensions.TvCardSpacing
 
 private val SkeletonCardWidth = 188.dp
 private val SkeletonPosterHeight = 258.dp

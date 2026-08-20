@@ -11,11 +11,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import kotlinx.coroutines.flow.Flow
-import su.afk.yummy.tv.core.designsystem.presenter.baseScreen.BaseScreen
-import su.afk.yummy.tv.core.designsystem.presenter.components.rememberCachedImageRequest
-import su.afk.yummy.tv.core.designsystem.presenter.mobile.MobileFullscreenImageDialog
-import su.afk.yummy.tv.core.designsystem.presenter.mobile.bar.MobileTopBar
-import su.afk.yummy.tv.core.designsystem.presenter.mobile.state.MobileStateContent
+import su.afk.yummy.tv.core.designsystem.baseScreen.BaseScreen
+import su.afk.yummy.tv.core.designsystem.components.rememberCachedImageRequest
+import su.afk.yummy.tv.core.designsystem.mobile.MobileFullscreenImageDialog
+import su.afk.yummy.tv.core.designsystem.mobile.bar.MobileTopBar
+import su.afk.yummy.tv.core.designsystem.mobile.state.MobileStateContent
 import su.afk.yummy.tv.feature.posts.details.PostDetailsState
 import su.afk.yummy.tv.feature.posts.mobile.R
 import su.afk.yummy.tv.feature.posts.mobile.view.PostDetailsBody

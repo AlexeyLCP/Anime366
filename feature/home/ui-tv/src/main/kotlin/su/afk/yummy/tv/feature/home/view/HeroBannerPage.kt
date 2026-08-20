@@ -39,10 +39,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import coil3.compose.AsyncImage
-import su.afk.yummy.tv.core.designsystem.presenter.components.RatingBadge
-import su.afk.yummy.tv.core.designsystem.presenter.focus.TvFocusOverlay
-import su.afk.yummy.tv.core.designsystem.presenter.focus.tvFocusableClick
-import su.afk.yummy.tv.core.designsystem.presenter.locals.LocalPosterQuality
+import su.afk.yummy.tv.core.designsystem.components.RatingBadge
+import su.afk.yummy.tv.core.designsystem.focus.TvFocusOverlay
+import su.afk.yummy.tv.core.designsystem.focus.tvFocusableClick
+import su.afk.yummy.tv.core.designsystem.locals.LocalPosterQuality
 import su.afk.yummy.tv.domain.home.model.HomeFeedItem
 import su.afk.yummy.tv.feature.home.utils.posterUrl
 

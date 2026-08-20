@@ -6,8 +6,8 @@ import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.launch
-import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.BaseViewModelNew
-import su.afk.yummy.tv.core.error.api.IErrorHandlerUseCase
+import su.afk.yummy.tv.core.mvi.BaseViewModel
+import su.afk.yummy.tv.core.error.api.ErrorHandler
 import su.afk.yummy.tv.core.error.api.RetryStorage
 import su.afk.yummy.tv.core.navigation.manager.INavigationManager
 import su.afk.yummy.tv.domain.anime.usecase.GetAnimeDetailsUseCase
@@ -17,13 +17,13 @@ import su.afk.yummy.tv.feature.details.IDetailsNavigator
 @HiltViewModel(assistedFactory = ViewingOrderViewModel.Factory::class)
 class ViewingOrderViewModel @AssistedInject internal constructor(
     @Assisted private val animeId: Int,
-    override val errorHandler: IErrorHandlerUseCase,
+    override val errorHandler: ErrorHandler,
     override val retryStorage: RetryStorage,
     private val nav: INavigationManager,
     private val detailsNavigator: IDetailsNavigator,
     private val getAnimeDetails: GetAnimeDetailsUseCase,
     private val analytics: DetailsAnalytics,
-) : BaseViewModelNew<ViewingOrderState.State, ViewingOrderState.Event, ViewingOrderState.Effect>() {
+) : BaseViewModel<ViewingOrderState.State, ViewingOrderState.Event, ViewingOrderState.Effect>() {
 
     @AssistedFactory
     interface Factory {

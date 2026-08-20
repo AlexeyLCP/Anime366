@@ -10,8 +10,8 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
-import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.BaseViewModelNew
-import su.afk.yummy.tv.core.error.api.IErrorHandlerUseCase
+import su.afk.yummy.tv.core.mvi.BaseViewModel
+import su.afk.yummy.tv.core.error.api.ErrorHandler
 import su.afk.yummy.tv.core.error.api.RetryStorage
 import su.afk.yummy.tv.core.navigation.manager.INavigationManager
 import su.afk.yummy.tv.core.utils.paging.OffsetPage
@@ -27,7 +27,7 @@ import kotlin.time.Duration.Companion.seconds
 
 @HiltViewModel
 class SearchViewModel @Inject internal constructor(
-    override val errorHandler: IErrorHandlerUseCase,
+    override val errorHandler: ErrorHandler,
     override val retryStorage: RetryStorage,
     private val nav: INavigationManager,
     private val detailsNavigator: IDetailsNavigator,
@@ -35,7 +35,7 @@ class SearchViewModel @Inject internal constructor(
     private val getRandomAnime: GetRandomAnimeUseCase,
     private val search: SearchUseCase,
     private val analytics: SearchAnalytics,
-) : BaseViewModelNew<SearchState.State, SearchState.Event, SearchState.Effect>() {
+) : BaseViewModel<SearchState.State, SearchState.Event, SearchState.Effect>() {
 
     override fun createInitialState() = SearchState.State()
 

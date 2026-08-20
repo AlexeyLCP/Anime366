@@ -6,8 +6,8 @@ import androidx.paging.cachedIn
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.BaseViewModelNew
-import su.afk.yummy.tv.core.error.api.IErrorHandlerUseCase
+import su.afk.yummy.tv.core.mvi.BaseViewModel
+import su.afk.yummy.tv.core.error.api.ErrorHandler
 import su.afk.yummy.tv.core.error.api.RetryStorage
 import su.afk.yummy.tv.core.navigation.manager.INavigationManager
 import su.afk.yummy.tv.core.preferences.settings.AppearanceSettingsStore
@@ -21,14 +21,14 @@ import javax.inject.Inject
 
 @HiltViewModel
 class TopViewModel @Inject internal constructor(
-    override val errorHandler: IErrorHandlerUseCase,
+    override val errorHandler: ErrorHandler,
     override val retryStorage: RetryStorage,
     private val nav: INavigationManager,
     private val detailsNavigator: IDetailsNavigator,
     private val getAnimeTop: GetAnimeTopUseCase,
     settingsStore: AppearanceSettingsStore,
     private val analytics: TopAnalytics,
-) : BaseViewModelNew<TopState.State, TopState.Event, TopState.Effect>() {
+) : BaseViewModel<TopState.State, TopState.Event, TopState.Effect>() {
 
     override fun createInitialState() = TopState.State(items = createPagingFlow(AnimeTopType.TV))
 

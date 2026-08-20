@@ -10,11 +10,9 @@ android {
 dependencies {
     implementation(project(":core:analytics"))
     implementation(project(":core:designsystem"))
-    implementation(project(":core:error"))
     implementation(project(":core:navigation"))
-    implementation(project(":core:preferences"))
     implementation(project(":core:storage"))
-    implementation(project(":core:update"))
+    implementation(project(":feature:update:api"))
     implementation(project(":feature:account:api"))
     implementation(project(":feature:home:ui-tv"))
     implementation(project(":feature:library:ui-tv"))

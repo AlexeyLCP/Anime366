@@ -3,9 +3,9 @@ package su.afk.yummy.tv.feature.account.profileedit
 import androidx.compose.runtime.Immutable
 import kotlinx.collections.immutable.ImmutableSet
 import kotlinx.collections.immutable.persistentSetOf
-import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiEffect
-import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiEvent
-import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.UiState
+import su.afk.yummy.tv.core.mvi.UiEffect
+import su.afk.yummy.tv.core.mvi.UiEvent
+import su.afk.yummy.tv.core.mvi.UiState
 import su.afk.yummy.tv.domain.account.model.LinkedAccountProvider
 import su.afk.yummy.tv.domain.account.model.ProfileImageKind
 import su.afk.yummy.tv.domain.account.model.ProfileListPrivacy

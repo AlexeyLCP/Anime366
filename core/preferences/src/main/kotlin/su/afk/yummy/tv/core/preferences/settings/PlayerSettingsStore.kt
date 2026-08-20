@@ -1,14 +1,14 @@
 package su.afk.yummy.tv.core.preferences.settings
 
 import kotlinx.coroutines.flow.Flow
-import su.afk.yummy.tv.core.preferences.settings.model.PlayerMobileVideoTransformSettings
-import su.afk.yummy.tv.core.preferences.settings.model.PlayerOrientationMode
-import su.afk.yummy.tv.core.preferences.settings.model.PlayerResizeMode
-import su.afk.yummy.tv.core.preferences.settings.model.PlayerResizeSettings
-import su.afk.yummy.tv.core.preferences.settings.model.PlayerSubtitleStyleSettings
-import su.afk.yummy.tv.core.preferences.settings.model.PlayerZoomLevel
-import su.afk.yummy.tv.core.preferences.settings.model.PreferredPlayer
-import su.afk.yummy.tv.core.preferences.settings.model.PreferredVideoQuality
+import su.afk.yummy.tv.core.model.settings.PlayerMobileVideoTransformSettings
+import su.afk.yummy.tv.core.model.settings.PlayerOrientationMode
+import su.afk.yummy.tv.core.model.settings.PlayerResizeMode
+import su.afk.yummy.tv.core.model.settings.PlayerResizeSettings
+import su.afk.yummy.tv.core.model.settings.PlayerSubtitleStyleSettings
+import su.afk.yummy.tv.core.model.settings.PlayerZoomLevel
+import su.afk.yummy.tv.core.model.settings.PreferredPlayer
+import su.afk.yummy.tv.core.model.settings.PreferredVideoQuality
 
 /** Поведение и настройки плеера: воспроизведение, жесты, громкость, размер кадра. */
 interface PlayerSettingsStore {

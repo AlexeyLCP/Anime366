@@ -1,5 +1,5 @@
 plugins {
-    id("yummytv.android.library.compose")
+    id("yummytv.android.library")
     id("yummytv.android.hilt")
 }
 
@@ -8,16 +8,12 @@ android {
 }
 
 dependencies {
-    implementation(project(":core:analytics"))
-    api(project(":core:model"))
+    api(project(":core:error:api"))
 
+    implementation(project(":core:analytics"))
+    implementation(project(":core:model"))
     implementation(project(":core:navigation"))
-    implementation(project(":feature:commonScreen:api"))
+
     implementation(libs.ktor.client.core)
     implementation(libs.kotlinx.serialization.json)
-    implementation(libs.compose.ui)
-    implementation(libs.compose.foundation)
-    implementation(libs.compose.material3)
-
-    debugImplementation(libs.compose.uiTooling)
 }

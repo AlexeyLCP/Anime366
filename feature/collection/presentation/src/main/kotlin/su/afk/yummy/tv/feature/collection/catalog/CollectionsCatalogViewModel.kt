@@ -7,8 +7,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
-import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.BaseViewModelNew
-import su.afk.yummy.tv.core.error.api.IErrorHandlerUseCase
+import su.afk.yummy.tv.core.mvi.BaseViewModel
+import su.afk.yummy.tv.core.error.api.ErrorHandler
 import su.afk.yummy.tv.core.error.api.RetryStorage
 import su.afk.yummy.tv.core.error.api.StringProvider
 import su.afk.yummy.tv.core.navigation.manager.INavigationManager
@@ -28,7 +28,7 @@ private const val COLLECTIONS_PAGE_SIZE = 20
 
 @HiltViewModel
 class CollectionsCatalogViewModel @Inject internal constructor(
-    override val errorHandler: IErrorHandlerUseCase,
+    override val errorHandler: ErrorHandler,
     override val retryStorage: RetryStorage,
     private val nav: INavigationManager,
     private val collectionNavigator: ICollectionNavigator,
@@ -37,7 +37,7 @@ class CollectionsCatalogViewModel @Inject internal constructor(
     private val createCollection: CreateCollectionUseCase,
     private val getAccountSession: GetAccountSessionUseCase,
     private val stringProvider: StringProvider,
-) : BaseViewModelNew<CollectionsCatalogState.State, CollectionsCatalogState.Event, CollectionsCatalogState.Effect>() {
+) : BaseViewModel<CollectionsCatalogState.State, CollectionsCatalogState.Event, CollectionsCatalogState.Effect>() {
 
     override fun createInitialState() =
         CollectionsCatalogState.State(items = createPagingFlow())

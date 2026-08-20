@@ -11,8 +11,8 @@ import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
-import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.BaseViewModelNew
-import su.afk.yummy.tv.core.error.api.IErrorHandlerUseCase
+import su.afk.yummy.tv.core.mvi.BaseViewModel
+import su.afk.yummy.tv.core.error.api.ErrorHandler
 import su.afk.yummy.tv.core.error.api.RetryStorage
 import su.afk.yummy.tv.core.navigation.manager.INavigationManager
 import su.afk.yummy.tv.core.utils.paging.OffsetPage
@@ -36,7 +36,7 @@ private const val USER_PROFILE_PAGE_SIZE = 20
 @HiltViewModel(assistedFactory = UserProfileViewModel.Factory::class)
 class UserProfileViewModel @AssistedInject internal constructor(
     @Assisted private val userId: Int,
-    override val errorHandler: IErrorHandlerUseCase,
+    override val errorHandler: ErrorHandler,
     override val retryStorage: RetryStorage,
     private val nav: INavigationManager,
     private val accountNavigator: IAccountNavigator,
@@ -51,7 +51,7 @@ class UserProfileViewModel @AssistedInject internal constructor(
     private val friendshipHandler: UserProfileFriendshipHandler,
     private val collectionMutationNotifier: CollectionMutationNotifier,
     private val analytics: UserProfileAnalytics,
-) : BaseViewModelNew<UserProfileState.State, UserProfileState.Event, UserProfileState.Effect>() {
+) : BaseViewModel<UserProfileState.State, UserProfileState.Event, UserProfileState.Effect>() {
 
     @AssistedFactory
     interface Factory {

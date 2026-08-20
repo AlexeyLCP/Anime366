@@ -5,8 +5,8 @@ import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.BaseViewModelNew
-import su.afk.yummy.tv.core.error.api.IErrorHandlerUseCase
+import su.afk.yummy.tv.core.mvi.BaseViewModel
+import su.afk.yummy.tv.core.error.api.ErrorHandler
 import su.afk.yummy.tv.core.error.api.RetryStorage
 import su.afk.yummy.tv.core.navigation.manager.INavigationManager
 import su.afk.yummy.tv.domain.account.usecase.GetUserProfileByNicknameUseCase
@@ -15,12 +15,12 @@ import su.afk.yummy.tv.feature.account.IAccountNavigator
 @HiltViewModel(assistedFactory = UserProfileResolverViewModel.Factory::class)
 class UserProfileResolverViewModel @AssistedInject constructor(
     @Assisted private val nickname: String,
-    override val errorHandler: IErrorHandlerUseCase,
+    override val errorHandler: ErrorHandler,
     override val retryStorage: RetryStorage,
     private val nav: INavigationManager,
     private val accountNavigator: IAccountNavigator,
     private val getProfile: GetUserProfileByNicknameUseCase,
-) : BaseViewModelNew<UserProfileResolverState.State, UserProfileResolverState.Event, UserProfileResolverState.Effect>() {
+) : BaseViewModel<UserProfileResolverState.State, UserProfileResolverState.Event, UserProfileResolverState.Effect>() {
     @AssistedFactory
     interface Factory {
         fun create(nickname: String): UserProfileResolverViewModel

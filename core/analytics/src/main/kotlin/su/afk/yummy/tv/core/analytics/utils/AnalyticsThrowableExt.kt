@@ -13,7 +13,7 @@ fun Throwable.analyticsType(): String =
  * Отмена корутины ([CancellationException], в т.ч. обфусцированный `JobCancellationException`
  * «Job was cancelled») и сетевые/оффлайн-ошибки ([IOException]: нет DNS, обрыв соединения,
  * таймаут) — не баги приложения, а внешние обстоятельства, поэтому шумят в логах впустую.
- * Ср. политику в `ErrorHandlerUseCaseImpl`.
+ * Ср. политику в `ErrorHandlerImpl`.
  */
 fun Throwable.isReportableError(): Boolean =
     this !is CancellationException && this !is IOException

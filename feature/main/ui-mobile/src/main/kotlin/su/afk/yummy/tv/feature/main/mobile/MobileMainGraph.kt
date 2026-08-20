@@ -29,28 +29,28 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.ScreenNavigator
-import su.afk.yummy.tv.core.designsystem.presenter.locals.LocalMarkNotificationPermissionRequested
-import su.afk.yummy.tv.core.designsystem.presenter.locals.LocalNotificationPermissionRequested
-import su.afk.yummy.tv.core.designsystem.presenter.locals.LocalPosterCardSize
-import su.afk.yummy.tv.core.designsystem.presenter.locals.LocalPosterQuality
-import su.afk.yummy.tv.core.designsystem.presenter.locals.LocalResolveKodikThumbnailUrl
-import su.afk.yummy.tv.core.designsystem.presenter.mobile.bar.LocalMobileBottomBarUpFocusRequester
-import su.afk.yummy.tv.core.designsystem.presenter.mobile.bar.LocalMobileMainActions
-import su.afk.yummy.tv.core.designsystem.presenter.mobile.bar.MobileMainActions
-import su.afk.yummy.tv.core.designsystem.presenter.theme.YummyTvTheme
+import su.afk.yummy.tv.core.designsystem.baseScreen.ScreenNavigator
+import su.afk.yummy.tv.core.designsystem.locals.LocalMarkNotificationPermissionRequested
+import su.afk.yummy.tv.core.designsystem.locals.LocalNotificationPermissionRequested
+import su.afk.yummy.tv.core.designsystem.locals.LocalPosterCardSize
+import su.afk.yummy.tv.core.designsystem.locals.LocalPosterQuality
+import su.afk.yummy.tv.core.designsystem.locals.LocalResolveKodikThumbnailUrl
+import su.afk.yummy.tv.core.designsystem.mobile.bar.LocalMobileBottomBarUpFocusRequester
+import su.afk.yummy.tv.core.designsystem.mobile.bar.LocalMobileMainActions
+import su.afk.yummy.tv.core.designsystem.mobile.bar.MobileMainActions
+import su.afk.yummy.tv.core.designsystem.theme.YummyTvTheme
 import su.afk.yummy.tv.core.navigation.host.AppNavHost
 import su.afk.yummy.tv.core.navigation.manager.INavigationManager
 import su.afk.yummy.tv.core.navigation.registrar.MobileUi
 import su.afk.yummy.tv.core.navigation.registrar.NavRegistrar
 import su.afk.yummy.tv.core.navigation.root.RootTab
 import su.afk.yummy.tv.core.preferences.settings.AppLifecycleSettingsStore
-import su.afk.yummy.tv.core.update.nav.UpdateDestination
+import su.afk.yummy.tv.feature.update.navigator.UpdateDestination
 import su.afk.yummy.tv.core.utils.kodik.ResolveKodikThumbnailUrlUseCase
 import su.afk.yummy.tv.feature.faq.IFaqNavigator
 import su.afk.yummy.tv.feature.main.MainState
 import su.afk.yummy.tv.feature.main.MainViewModel
-import su.afk.yummy.tv.feature.main.api.IMainGraph
+import su.afk.yummy.tv.feature.main.api.MainGraph
 import su.afk.yummy.tv.feature.main.mobile.model.MobileMenuItem
 import su.afk.yummy.tv.feature.main.mobile.view.MobileMainScaffold
 import su.afk.yummy.tv.feature.pages.ISitePagesNavigator
@@ -71,7 +71,7 @@ class MobileMainGraph @Inject internal constructor(
     @param:MobileUi private val mobileRegistrars: Set<@JvmSuppressWildcards NavRegistrar>,
     private val resolveKodikThumbnailUrl: ResolveKodikThumbnailUrlUseCase,
     private val appLifecycleSettingsStore: AppLifecycleSettingsStore,
-) : IMainGraph {
+) : MainGraph {
 
     @Composable
     override fun MainGraph() {

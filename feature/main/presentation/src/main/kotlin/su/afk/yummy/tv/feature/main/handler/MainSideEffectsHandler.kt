@@ -3,7 +3,7 @@ package su.afk.yummy.tv.feature.main.handler
 import kotlinx.coroutines.withTimeoutOrNull
 import su.afk.yummy.tv.core.featuretoggle.api.VersionSupportChecker
 import su.afk.yummy.tv.core.preferences.settings.SettingsStore
-import su.afk.yummy.tv.core.update.api.UpdateChecker
+import su.afk.yummy.tv.domain.update.usecase.GetLatestAppReleaseUseCase
 import su.afk.yummy.tv.domain.account.usecase.GetAccountSessionUseCase
 import su.afk.yummy.tv.domain.account.usecase.GetNotificationCountsUseCase
 import su.afk.yummy.tv.domain.account.usecase.RefreshAccountUseCase
@@ -16,7 +16,7 @@ import kotlin.time.Duration.Companion.seconds
 
 /** Checks for app updates, refreshes notification counts and the account session. */
 internal class MainSideEffectsHandler @Inject constructor(
-    private val updateChecker: UpdateChecker,
+    private val getLatestAppRelease: GetLatestAppReleaseUseCase,
     private val versionSupportChecker: VersionSupportChecker,
     private val getNotificationCounts: GetNotificationCountsUseCase,
     private val getAccountSession: GetAccountSessionUseCase,
@@ -28,16 +28,13 @@ internal class MainSideEffectsHandler @Inject constructor(
         runCatching {
             val isCurrentVersionSupported = versionSupportChecker.isCurrentVersionSupported()
             val release = withTimeoutOrNull(GITHUB_UPDATE_TIMEOUT) {
-                updateChecker.getLatestRelease()
+                getLatestAppRelease()
             } ?: return@runCatching MainUpdateCheckResult.NotAvailable
-            val remoteVersion = release.tagName.trimStart('v')
-            val apkUrl = release.assets.firstOrNull()?.browserDownloadUrl
-                ?: return@runCatching MainUpdateCheckResult.NotAvailable
-            if (!isCurrentVersionSupported || isNewer(versionName, remoteVersion)) {
+            if (!isCurrentVersionSupported || isNewer(versionName, release.version)) {
                 MainUpdateCheckResult.Available(
-                    version = remoteVersion,
-                    apkUrl = apkUrl,
-                    changelog = release.body.orEmpty(),
+                    version = release.version,
+                    apkUrl = release.apkUrl,
+                    changelog = release.changelog,
                     required = !isCurrentVersionSupported,
                 )
             } else {

@@ -5,8 +5,8 @@ import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.BaseViewModelNew
-import su.afk.yummy.tv.core.error.api.IErrorHandlerUseCase
+import su.afk.yummy.tv.core.mvi.BaseViewModel
+import su.afk.yummy.tv.core.error.api.ErrorHandler
 import su.afk.yummy.tv.core.error.api.RetryStorage
 import su.afk.yummy.tv.core.navigation.manager.INavigationManager
 import su.afk.yummy.tv.domain.videodownload.model.VideoDownloadItem
@@ -27,7 +27,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class VideoDownloadViewModel @Inject constructor(
-    override val errorHandler: IErrorHandlerUseCase,
+    override val errorHandler: ErrorHandler,
     override val retryStorage: RetryStorage,
     private val nav: INavigationManager,
     private val observeVideoDownloads: ObserveVideoDownloadsUseCase,
@@ -41,7 +41,7 @@ class VideoDownloadViewModel @Inject constructor(
     private val checkExportedFileExists: CheckExportedFileExistsUseCase,
     private val playerNavigator: IPlayerNavigator,
     private val detailsNavigator: IDetailsNavigator,
-) : BaseViewModelNew<VideoDownloadState.State, VideoDownloadState.Event, VideoDownloadState.Effect>() {
+) : BaseViewModel<VideoDownloadState.State, VideoDownloadState.Event, VideoDownloadState.Effect>() {
     private var pendingExportIds: List<Long> = emptyList()
 
     init {

@@ -18,10 +18,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import su.afk.yummy.tv.core.designsystem.presenter.components.GlobalToastOverlay
-import su.afk.yummy.tv.core.designsystem.presenter.locals.LocalContentFocusRequester
-import su.afk.yummy.tv.core.designsystem.presenter.locals.LocalMainMenuFocusRequester
-import su.afk.yummy.tv.core.designsystem.presenter.locals.LocalPreferredContentFocusRequester
+import su.afk.yummy.tv.core.designsystem.components.GlobalToastOverlay
+import su.afk.yummy.tv.core.designsystem.locals.LocalContentFocusRequester
+import su.afk.yummy.tv.core.designsystem.locals.LocalMainMenuFocusRequester
+import su.afk.yummy.tv.core.designsystem.locals.LocalPreferredContentFocusRequester
 import su.afk.yummy.tv.core.navigation.root.RootTab
 import su.afk.yummy.tv.feature.main.MainState
 import su.afk.yummy.tv.feature.main.model.TvMenuItem

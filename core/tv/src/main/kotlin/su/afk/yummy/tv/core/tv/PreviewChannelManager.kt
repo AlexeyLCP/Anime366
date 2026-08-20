@@ -12,8 +12,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
-import su.afk.yummy.tv.domain.home.model.HomeFeedItem
-import su.afk.yummy.tv.domain.home.model.HomeFeedItemAction
+import su.afk.yummy.tv.core.tv.api.TvChannelContent
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -23,6 +22,8 @@ private const val KEY_CHANNEL_ID = "preview_channel_id"
 // TvContractCompat.ProgramColumns constants are @RestrictTo — use raw column names instead.
 private const val PROGRAM_COLUMN_TITLE = "title"
 private const val PROGRAM_COLUMN_POSTER_ART_URI = "poster_art_uri"
+
+private const val MAX_PROGRAMS = 20
 
 @Singleton
 internal class PreviewChannelManager @Inject constructor(
@@ -47,7 +48,7 @@ internal class PreviewChannelManager @Inject constructor(
         _browsableRequest.tryEmit(channelId)
     }
 
-    fun syncNewContent(items: List<HomeFeedItem>) {
+    fun syncNewContent(items: List<TvChannelContent>) {
         if (items.isEmpty()) return
         val channelId = getOrCreateChannel() ?: return
 
@@ -58,18 +59,12 @@ internal class PreviewChannelManager @Inject constructor(
             )
         }
 
-        items.take(20).forEach { item ->
-            val animeId = when (val action = item.action) {
-                is HomeFeedItemAction.OpenSeries -> action.seriesId
-                is HomeFeedItemAction.OpenVideo -> action.videoId
-                is HomeFeedItemAction.OpenCollection -> return@forEach
-            }
-            insertProgram(channelId, animeId, item)
-        }
+        items.take(MAX_PROGRAMS).forEach { item -> insertProgram(channelId, item) }
     }
 
-    private fun insertProgram(channelId: Long, animeId: Int, item: HomeFeedItem) {
-        val posterUrl = item.poster?.run { medium ?: big ?: fullsize ?: small }
+    private fun insertProgram(channelId: Long, item: TvChannelContent) {
+        val animeId = item.animeId
+        val posterUrl = item.posterUrl
         val values = ContentValues().apply {
             put(TvContractCompat.PreviewPrograms.COLUMN_CHANNEL_ID, channelId)
             put(

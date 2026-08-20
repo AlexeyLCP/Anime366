@@ -1,0 +1,10 @@
+package su.afk.yummy.tv.core.designsystem.components
+
+import androidx.compose.ui.graphics.Color
+import su.afk.yummy.tv.core.designsystem.theme.YummySemanticColors
+
+fun Double.toRatingColor(): Color = when {
+    this < 6.0 -> YummySemanticColors.RatingBadgeLow
+    this < 8.0 -> YummySemanticColors.StatusPostponed
+    else -> YummySemanticColors.RatingBadgeHigh
+}

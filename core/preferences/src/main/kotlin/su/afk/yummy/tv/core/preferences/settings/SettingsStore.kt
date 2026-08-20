@@ -1,9 +1,9 @@
 package su.afk.yummy.tv.core.preferences.settings
 
 import kotlinx.coroutines.flow.Flow
-import su.afk.yummy.tv.core.preferences.settings.model.DetailsButtonAction
-import su.afk.yummy.tv.core.preferences.settings.model.MainSettingsSnapshot
-import su.afk.yummy.tv.core.preferences.settings.model.SettingsSnapshot
+import su.afk.yummy.tv.core.model.settings.DetailsButtonAction
+import su.afk.yummy.tv.core.model.settings.MainSettingsSnapshot
+import su.afk.yummy.tv.core.model.settings.SettingsSnapshot
 
 /**
  * Фасад над доменными хранилищами настроек ([YaniAccountSettingsStore], [PlayerSettingsStore],

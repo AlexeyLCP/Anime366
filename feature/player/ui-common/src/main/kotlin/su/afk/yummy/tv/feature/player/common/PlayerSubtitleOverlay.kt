@@ -15,7 +15,7 @@ import androidx.media3.common.text.Cue
 import androidx.media3.common.text.CueGroup
 import androidx.media3.ui.CaptionStyleCompat
 import androidx.media3.ui.SubtitleView
-import su.afk.yummy.tv.core.preferences.settings.model.PlayerSubtitleStyleSettings
+import su.afk.yummy.tv.core.model.settings.PlayerSubtitleStyleSettings
 
 /**
  * Рендер текущих субтитров поверх видео. Player сам решает, есть ли активная text-дорожка

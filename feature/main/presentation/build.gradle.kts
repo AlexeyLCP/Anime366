@@ -9,12 +9,13 @@ android {
 
 dependencies {
     implementation(project(":core:analytics"))
-    implementation(project(":core:designsystem"))
-    implementation(project(":core:error"))
+    implementation(project(":core:error:api"))
     implementation(project(":core:featuretoggle"))
+    implementation(project(":core:model"))
+    api(project(":core:mvi"))
     implementation(project(":core:navigation"))
     implementation(project(":core:preferences"))
-    implementation(project(":core:update"))
+    implementation(project(":feature:update:domain"))
     implementation(project(":feature:account:api"))
     implementation(project(":feature:account:domain"))
     implementation(project(":feature:settings:api"))

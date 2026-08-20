@@ -12,7 +12,9 @@ dependencies {
 
     implementation(project(":core:analytics"))
     implementation(project(":core:designsystem"))
-    implementation(project(":core:error"))
+    implementation(project(":core:error:api"))
+    implementation(project(":core:model"))
+    api(project(":core:mvi"))
     implementation(project(":core:navigation"))
     implementation(project(":core:preferences"))
     implementation(project(":core:utils"))

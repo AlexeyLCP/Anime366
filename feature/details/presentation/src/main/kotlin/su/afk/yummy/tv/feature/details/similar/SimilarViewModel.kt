@@ -11,8 +11,8 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.BaseViewModelNew
-import su.afk.yummy.tv.core.error.api.IErrorHandlerUseCase
+import su.afk.yummy.tv.core.mvi.BaseViewModel
+import su.afk.yummy.tv.core.error.api.ErrorHandler
 import su.afk.yummy.tv.core.error.api.RetryStorage
 import su.afk.yummy.tv.core.error.api.StringProvider
 import su.afk.yummy.tv.core.model.anime.AnimeRecommendation
@@ -31,7 +31,7 @@ import su.afk.yummy.tv.feature.details.similar.utils.updateItem
 @HiltViewModel(assistedFactory = SimilarViewModel.Factory::class)
 class SimilarViewModel @AssistedInject internal constructor(
     @Assisted private val animeId: Int,
-    override val errorHandler: IErrorHandlerUseCase,
+    override val errorHandler: ErrorHandler,
     override val retryStorage: RetryStorage,
     private val nav: INavigationManager,
     private val detailsNavigator: IDetailsNavigator,
@@ -41,7 +41,7 @@ class SimilarViewModel @AssistedInject internal constructor(
     private val settingsStore: YaniAccountSettingsStore,
     private val stringProvider: StringProvider,
     private val analytics: DetailsAnalytics,
-) : BaseViewModelNew<SimilarState.State, SimilarState.Event, SimilarState.Effect>() {
+) : BaseViewModel<SimilarState.State, SimilarState.Event, SimilarState.Effect>() {
 
     @AssistedFactory
     interface Factory {

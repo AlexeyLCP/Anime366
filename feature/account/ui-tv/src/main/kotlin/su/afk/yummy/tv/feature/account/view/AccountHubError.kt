@@ -5,7 +5,7 @@ package su.afk.yummy.tv.feature.account.view
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.runtime.Composable
-import su.afk.yummy.tv.core.designsystem.presenter.tv.TvStateMessage
+import su.afk.yummy.tv.core.designsystem.tv.TvStateMessage
 
 /** Компактная центрированная ошибка хаба аккаунта с кнопкой «Повторить». */
 @Composable

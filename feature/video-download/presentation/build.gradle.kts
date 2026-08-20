@@ -8,8 +8,8 @@ android {
 }
 
 dependencies {
-    implementation(project(":core:designsystem"))
-    implementation(project(":core:error"))
+    implementation(project(":core:error:api"))
+    api(project(":core:mvi"))
     implementation(project(":core:navigation"))
     implementation(project(":core:utils"))
     implementation(project(":feature:details:api"))

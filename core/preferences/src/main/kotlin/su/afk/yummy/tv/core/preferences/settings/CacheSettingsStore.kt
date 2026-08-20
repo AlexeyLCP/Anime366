@@ -1,7 +1,7 @@
 package su.afk.yummy.tv.core.preferences.settings
 
 import kotlinx.coroutines.flow.Flow
-import su.afk.yummy.tv.core.preferences.settings.model.PreviewCacheSize
+import su.afk.yummy.tv.core.model.settings.PreviewCacheSize
 
 /** Размер кэша превьюшек и разовые флаги его миграции. */
 interface CacheSettingsStore {

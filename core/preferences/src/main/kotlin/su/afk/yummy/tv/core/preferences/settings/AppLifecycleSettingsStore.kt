@@ -1,7 +1,7 @@
 package su.afk.yummy.tv.core.preferences.settings
 
 import kotlinx.coroutines.flow.Flow
-import su.afk.yummy.tv.core.preferences.settings.model.SupportPromptSnapshot
+import su.afk.yummy.tv.core.model.settings.SupportPromptSnapshot
 
 /** Разовые/lifecycle-флаги приложения: watch-next, support-prompt, объявления, версия установки. */
 interface AppLifecycleSettingsStore {

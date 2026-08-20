@@ -8,6 +8,7 @@ android {
 }
 
 dependencies {
+    implementation(project(":core:deeplink:api"))
     api(libs.bundles.navigation.serialization)
     implementation(libs.javax.inject)
 }

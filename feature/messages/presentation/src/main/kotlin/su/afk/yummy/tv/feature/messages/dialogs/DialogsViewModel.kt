@@ -6,8 +6,8 @@ import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
-import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.BaseViewModelNew
-import su.afk.yummy.tv.core.error.api.IErrorHandlerUseCase
+import su.afk.yummy.tv.core.mvi.BaseViewModel
+import su.afk.yummy.tv.core.error.api.ErrorHandler
 import su.afk.yummy.tv.core.error.api.RetryStorage
 import su.afk.yummy.tv.core.navigation.manager.INavigationManager
 import su.afk.yummy.tv.core.utils.paging.PagedSource
@@ -25,7 +25,7 @@ private const val DIALOGS_PAGE_SIZE = 20
 
 @HiltViewModel
 class DialogsViewModel @Inject constructor(
-    override val errorHandler: IErrorHandlerUseCase,
+    override val errorHandler: ErrorHandler,
     override val retryStorage: RetryStorage,
     private val nav: INavigationManager,
     private val navigator: IMessagesNavigator,
@@ -33,7 +33,7 @@ class DialogsViewModel @Inject constructor(
     private val observeAccountSession: ObserveAccountSessionUseCase,
     private val getDialogs: GetDialogsUseCase,
     mutationNotifier: MessagesMutationNotifier,
-) : BaseViewModelNew<DialogsState.State, DialogsState.Event, DialogsState.Effect>() {
+) : BaseViewModel<DialogsState.State, DialogsState.Event, DialogsState.Effect>() {
     private var pagedSource: PagedSource<DialogSummary>? = null
 
     override fun createInitialState() = DialogsState.State()

@@ -3,10 +3,10 @@ package su.afk.yummy.tv.feature.player.handler
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import su.afk.yummy.tv.core.preferences.settings.PlayerSettingsStore
-import su.afk.yummy.tv.core.preferences.settings.model.PlayerMobileVideoTransformSettings
-import su.afk.yummy.tv.core.preferences.settings.model.PlayerOrientationMode
-import su.afk.yummy.tv.core.preferences.settings.model.PlayerResizeSettings
-import su.afk.yummy.tv.core.preferences.settings.model.PlayerSubtitleStyleSettings
+import su.afk.yummy.tv.core.model.settings.PlayerMobileVideoTransformSettings
+import su.afk.yummy.tv.core.model.settings.PlayerOrientationMode
+import su.afk.yummy.tv.core.model.settings.PlayerResizeSettings
+import su.afk.yummy.tv.core.model.settings.PlayerSubtitleStyleSettings
 import su.afk.yummy.tv.feature.player.utils.PlayerResizeSettingsScope
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.milliseconds

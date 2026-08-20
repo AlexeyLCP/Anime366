@@ -10,8 +10,8 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.BaseViewModelNew
-import su.afk.yummy.tv.core.error.api.IErrorHandlerUseCase
+import su.afk.yummy.tv.core.mvi.BaseViewModel
+import su.afk.yummy.tv.core.error.api.ErrorHandler
 import su.afk.yummy.tv.core.error.api.RetryStorage
 import su.afk.yummy.tv.core.error.api.StringProvider
 import su.afk.yummy.tv.core.featuretoggle.api.FeatureToggleUpdateObserver
@@ -27,7 +27,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject internal constructor(
-    override val errorHandler: IErrorHandlerUseCase,
+    override val errorHandler: ErrorHandler,
     override val retryStorage: RetryStorage,
     private val analytics: MainAnalytics,
     private val settingsStore: SettingsStore,
@@ -37,7 +37,7 @@ class MainViewModel @Inject internal constructor(
     private val mainSideEffectsHandler: MainSideEffectsHandler,
     private val accountMutationErrorNotifier: AccountMutationErrorNotifier,
     private val stringProvider: StringProvider,
-) : BaseViewModelNew<MainState.State, MainState.Event, MainState.Effect>() {
+) : BaseViewModel<MainState.State, MainState.Event, MainState.Effect>() {
 
     override fun createInitialState() = MainState.State()
 

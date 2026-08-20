@@ -9,6 +9,8 @@ android {
 
 dependencies {
     implementation(project(":core:model"))
+    // UserScopedCache скоупит ключи по текущему пользователю и языку контента
+    implementation(project(":core:preferences"))
     implementation(project(":core:utils"))
 
     implementation(libs.bundles.room)

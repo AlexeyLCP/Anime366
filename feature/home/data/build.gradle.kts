@@ -13,10 +13,11 @@ android {
 
 dependencies {
     implementation(project(":core:analytics"))
-    implementation(project(":core:error"))
+    implementation(project(":core:error:api"))
     implementation(project(":core:network"))
     implementation(project(":core:preferences"))
     implementation(project(":core:storage"))
+    implementation(project(":core:tv:api"))
     implementation(project(":core:utils"))
     implementation(project(":feature:home:domain"))
 

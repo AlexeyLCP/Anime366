@@ -7,8 +7,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.BaseViewModelNew
-import su.afk.yummy.tv.core.error.api.IErrorHandlerUseCase
+import su.afk.yummy.tv.core.mvi.BaseViewModel
+import su.afk.yummy.tv.core.error.api.ErrorHandler
 import su.afk.yummy.tv.core.error.api.RetryStorage
 import su.afk.yummy.tv.core.error.api.StringProvider
 import su.afk.yummy.tv.core.navigation.manager.INavigationManager
@@ -26,7 +26,7 @@ import su.afk.yummy.tv.feature.reviews.presentation.R
 @HiltViewModel(assistedFactory = ReviewDetailsViewModel.Factory::class)
 class ReviewDetailsViewModel @AssistedInject constructor(
     @Assisted private val reviewId: Int,
-    override val errorHandler: IErrorHandlerUseCase,
+    override val errorHandler: ErrorHandler,
     override val retryStorage: RetryStorage,
     private val nav: INavigationManager,
     private val accountNavigator: IAccountNavigator,
@@ -37,7 +37,7 @@ class ReviewDetailsViewModel @AssistedInject constructor(
     private val deleteReview: DeleteReviewUseCase,
     private val strings: StringProvider,
     settingsStore: YaniAccountSettingsStore,
-) : BaseViewModelNew<ReviewDetailsState.State, ReviewDetailsState.Event, ReviewDetailsState.Effect>() {
+) : BaseViewModel<ReviewDetailsState.State, ReviewDetailsState.Event, ReviewDetailsState.Effect>() {
     @AssistedFactory
     interface Factory {
         fun create(reviewId: Int): ReviewDetailsViewModel

@@ -8,8 +8,8 @@ android { namespace = "su.afk.yummy.tv.feature.posts.presentation" }
 dependencies {
     implementation(project(":feature:comments:api"))
     api(project(":feature:posts:domain"))
-    implementation(project(":core:designsystem"))
-    implementation(project(":core:error"))
+    implementation(project(":core:error:api"))
+    api(project(":core:mvi"))
     implementation(project(":core:navigation"))
     implementation(project(":core:preferences"))
     implementation(project(":core:utils"))

@@ -3,8 +3,8 @@ package su.afk.yummy.tv.feature.posts.list
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.launch
-import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.BaseViewModelNew
-import su.afk.yummy.tv.core.error.api.IErrorHandlerUseCase
+import su.afk.yummy.tv.core.mvi.BaseViewModel
+import su.afk.yummy.tv.core.error.api.ErrorHandler
 import su.afk.yummy.tv.core.error.api.RetryStorage
 import su.afk.yummy.tv.core.navigation.manager.INavigationManager
 import su.afk.yummy.tv.core.utils.paging.pagingFlow
@@ -16,13 +16,13 @@ import javax.inject.Inject
 
 @HiltViewModel
 class PostsListViewModel @Inject constructor(
-    override val errorHandler: IErrorHandlerUseCase,
+    override val errorHandler: ErrorHandler,
     override val retryStorage: RetryStorage,
     private val nav: INavigationManager,
     private val navigator: IPostsNavigator,
     private val getPostCategories: GetPostCategoriesUseCase,
     private val getPosts: GetPostsUseCase,
-) : BaseViewModelNew<PostsListState.State, PostsListState.Event, PostsListState.Effect>() {
+) : BaseViewModel<PostsListState.State, PostsListState.Event, PostsListState.Effect>() {
     override fun createInitialState() = PostsListState.State(posts = createFlow(null, PostSort.NEW))
 
     init {

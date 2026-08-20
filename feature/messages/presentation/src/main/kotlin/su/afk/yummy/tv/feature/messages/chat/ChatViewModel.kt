@@ -15,8 +15,8 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import su.afk.yummy.tv.core.designsystem.presenter.baseViewModel.BaseViewModelNew
-import su.afk.yummy.tv.core.error.api.IErrorHandlerUseCase
+import su.afk.yummy.tv.core.mvi.BaseViewModel
+import su.afk.yummy.tv.core.error.api.ErrorHandler
 import su.afk.yummy.tv.core.error.api.RetryStorage
 import su.afk.yummy.tv.core.navigation.manager.INavigationManager
 import su.afk.yummy.tv.domain.account.usecase.ObserveAccountSessionUseCase
@@ -37,7 +37,7 @@ class ChatViewModel @AssistedInject constructor(
     @Assisted("nickname") private val nickname: String,
     @Assisted("avatarUrl") private val avatarUrl: String?,
     private val savedStateHandle: SavedStateHandle,
-    override val errorHandler: IErrorHandlerUseCase,
+    override val errorHandler: ErrorHandler,
     override val retryStorage: RetryStorage,
     private val nav: INavigationManager,
     private val accountNavigator: IAccountNavigator,
@@ -47,7 +47,7 @@ class ChatViewModel @AssistedInject constructor(
     private val pollingHandler: ChatPollingHandler,
     private val mutationHandler: ChatMutationHandler,
     private val mutationNotifier: MessagesMutationNotifier,
-) : BaseViewModelNew<ChatState.State, ChatState.Event, ChatState.Effect>() {
+) : BaseViewModel<ChatState.State, ChatState.Event, ChatState.Effect>() {
     @AssistedFactory
     interface Factory {
         fun create(
