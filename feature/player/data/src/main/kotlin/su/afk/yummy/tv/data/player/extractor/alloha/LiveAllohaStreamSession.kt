@@ -23,6 +23,18 @@ private const val LOG_TAG = "AllohaExtractor"
 // still valid when the forced commit lands.
 private const val STAGED_COMMIT_TIMEOUT_MS = 8_000L
 
+/**
+ * Mutable state of one live Alloha session: the anti-bot headers, the currently signed master URL,
+ * its TTL and a monotonically growing [generation] the proxy uses to notice that the session was
+ * replaced. Also owns the selected dubbing/quality and the loopback proxy serving them.
+ *
+ * The tricky part is rotation. A WebView reload re-emits its signals in stages, so writing them
+ * straight into the live state would leave the proxy serving a half-updated, unauthorized session
+ * for that whole window. Instead every update during a rotation lands in a shadow [StagedState] and
+ * is swapped in atomically - the still-valid previous token keeps serving until then. See
+ * `docs/alloha-player.md` for how this fits the rest, and [sawConfigUpdate] for why the rotation
+ * cannot wait on the signal it was originally designed around.
+ */
 internal class LiveAllohaStreamSession(
     private val handler: Handler,
     override val sourceKey: String,

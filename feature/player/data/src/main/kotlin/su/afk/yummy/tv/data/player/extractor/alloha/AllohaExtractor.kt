@@ -13,6 +13,9 @@ import kotlinx.coroutines.withContext
 import su.afk.yummy.tv.core.analytics.api.AnalyticsTracker
 import su.afk.yummy.tv.core.utils.coroutines.ioScope
 import su.afk.yummy.tv.data.player.extractor.SessionAwarePlayerStreamExtractor
+import su.afk.yummy.tv.data.player.extractor.alloha.AllohaExtractor.Companion.MASTER_WAIT_TIMEOUT_MS
+import su.afk.yummy.tv.data.player.extractor.alloha.AllohaExtractor.Companion.NO_SIGNAL_TIMEOUT_MS
+import su.afk.yummy.tv.data.player.extractor.alloha.AllohaExtractor.Companion.TIMEOUT_MS
 import su.afk.yummy.tv.data.player.extractor.common.logExtractorFailure
 import su.afk.yummy.tv.domain.player.isAllohaPlayerUrl
 import su.afk.yummy.tv.domain.player.model.AllohaStreamSession
@@ -24,7 +27,23 @@ import javax.inject.Inject
 import kotlin.coroutines.resume
 import kotlin.random.Random
 
-/** Extracts Alloha's signed HLS session by observing the iframe's own network stack. */
+/**
+ * Opens Alloha's signed HLS session by loading the player page in a hidden WebView and observing
+ * its own network stack. Alloha is the only balancer that never hands out a playable URL: what it
+ * gives is a live, signed session that has to be captured, kept alive and proxied. See
+ * `docs/alloha-player.md` for the end-to-end picture.
+ *
+ * This class is the orchestrator; the actual work is split up as:
+ *  - [wrapperHtml] injects the JS that hooks the page's XHR/fetch/WebSocket and calls back in
+ *    through [BRIDGE_NAME].
+ *  - [parseSources] turns the captured `bnsi` payload into the dubbing/quality ladder.
+ *  - [LiveAllohaStreamSession] owns the resulting live state and its rotation.
+ *  - [AllohaStreamProxy] serves it to Media3 over loopback with this session's headers.
+ *
+ * A session is delivered once BOTH the parsed sources and a correctly signed master URL have
+ * arrived. The three timeouts guarding that wait are deliberately layered - see
+ * [NO_SIGNAL_TIMEOUT_MS], [MASTER_WAIT_TIMEOUT_MS] and [TIMEOUT_MS].
+ */
 internal class AllohaExtractor @Inject constructor(
     private val analyticsTracker: AnalyticsTracker,
 ) : SessionAwarePlayerStreamExtractor {
