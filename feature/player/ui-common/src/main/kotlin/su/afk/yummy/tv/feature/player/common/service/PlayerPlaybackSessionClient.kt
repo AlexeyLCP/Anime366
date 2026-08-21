@@ -1,8 +1,7 @@
 package su.afk.yummy.tv.feature.player.common.service
 
 import android.content.ComponentName
-import android.content.Context
-import android.content.Intent
+import android.os.Bundle
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.Stable
@@ -14,28 +13,31 @@ import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
 
 @Stable
-class PlayerPlaybackSessionClient internal constructor(context: Context) {
-    private val applicationContext = context.applicationContext
+class PlayerPlaybackSessionClient internal constructor() {
     private val playerState = mutableStateOf<MediaController?>(null)
     private var stopRequested = false
     private var stoppedPlayer: MediaController? = null
-    private var serviceStoppedWithoutPlayer = false
 
     val player: MediaController?
         get() = playerState.value
 
-    /** Останавливает playback-сессию и сервис; повторные вызовы безопасны. */
+    /**
+     * Останавливает playback-сессию и сервис; повторные вызовы безопасны.
+     *
+     * Сервис не гасится через Context.stopService: команда едет по тому же IPC-каналу, что pause и
+     * clearMediaItems, поэтому порядок гарантирован, а завершение выполняет сам сервис
+     * (pauseAllPlayersAndStopSelf) уже после выхода из foreground. Внешний снос foreground-сервиса
+     * система расценивает как startForegroundService() без startForeground() и убивает процесс.
+     */
     fun stopPlaybackAndService() {
         stopRequested = true
-        val currentPlayer = playerState.value
-        if (currentPlayer != null && stoppedPlayer !== currentPlayer) {
-            runCatching { currentPlayer.pause() }
-            runCatching { currentPlayer.clearMediaItems() }
-            stoppedPlayer = currentPlayer
-            stopService()
-        } else if (currentPlayer == null && !serviceStoppedWithoutPlayer) {
-            serviceStoppedWithoutPlayer = true
-            stopService()
+        val currentPlayer = playerState.value ?: return
+        if (stoppedPlayer === currentPlayer) return
+        stoppedPlayer = currentPlayer
+        runCatching { currentPlayer.pause() }
+        runCatching { currentPlayer.clearMediaItems() }
+        runCatching {
+            currentPlayer.sendCustomCommand(PlayerSessionCommands.STOP_SERVICE, Bundle.EMPTY)
         }
     }
 
@@ -47,20 +49,12 @@ class PlayerPlaybackSessionClient internal constructor(context: Context) {
     internal fun disconnect() {
         playerState.value = null
     }
-
-    private fun stopService() {
-        runCatching {
-            applicationContext.stopService(
-                Intent(applicationContext, PlayerMediaSessionService::class.java)
-            )
-        }
-    }
 }
 
 @Composable
 fun rememberPlayerPlaybackSessionClient(): PlayerPlaybackSessionClient {
     val context = LocalContext.current
-    val client = remember(context) { PlayerPlaybackSessionClient(context) }
+    val client = remember(context) { PlayerPlaybackSessionClient() }
     DisposableEffect(context, client) {
         var active = true
         val token =

@@ -3,6 +3,7 @@ package su.afk.yummy.tv.feature.player.common.service
 import android.app.ActivityManager
 import android.app.PendingIntent
 import android.content.Intent
+import android.os.Bundle
 import android.util.Log
 import androidx.annotation.OptIn
 import androidx.media3.common.C
@@ -18,6 +19,10 @@ import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
 import androidx.media3.exoplayer.trackselection.DefaultTrackSelector
 import androidx.media3.session.MediaSession
 import androidx.media3.session.MediaSessionService
+import androidx.media3.session.SessionCommand
+import androidx.media3.session.SessionResult
+import com.google.common.util.concurrent.Futures
+import com.google.common.util.concurrent.ListenableFuture
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -64,6 +69,11 @@ class PlayerMediaSessionService : MediaSessionService() {
 
     override fun onCreate() {
         super.onCreate()
+        // Фонового воспроизведения без экрана нет, поэтому «user engaged» окно не нужно: с
+        // дефолтными 10 минутами media3 ещё долго после паузы считает playback ongoing и держит
+        // сервис foreground-нужным, а любое завершение сервиса в этом окне система расценивает
+        // как startForegroundService() без startForeground() и убивает процесс.
+        setForegroundServiceTimeoutMs(0)
         val isLowRamDevice = isLowRamDevice()
         val trackSelector = DefaultTrackSelector(this).apply {
             // На слабых устройствах отдаём выбор битрейта адаптивному алгоритму вместо
@@ -151,6 +161,7 @@ class PlayerMediaSessionService : MediaSessionService() {
             .launchIn(serviceScope)
         mediaSession = MediaSession.Builder(this, exoPlayer)
             .setSessionActivity(createSessionActivityPendingIntent())
+            .setCallback(PlayerSessionCallback())
             .build()
     }
 
@@ -160,7 +171,41 @@ class PlayerMediaSessionService : MediaSessionService() {
     override fun onTaskRemoved(rootIntent: Intent?) {
         // Видео-плеер не поддерживает воспроизведение звука в фоне без экрана: если пользователь
         // смахнул приложение из Recents, держать ExoPlayer (буфер + стриминг-кэш) в памяти незачем.
-        stopSelf()
+        // Гасим только через pauseAllPlayersAndStopSelf(): голый stopSelf() при ongoing playback
+        // роняет процесс системным RemoteServiceException.
+        pauseAllPlayersAndStopSelf()
+    }
+
+    /**
+     * Останавливать сервис снаружи (Context.stopService) нельзя: pause/clearMediaItems едут по IPC
+     * асинхронно и могут прийти уже после сноса сервиса. Поэтому UI присылает команду, а решение
+     * о завершении принимает сам сервис — после выхода из foreground-состояния.
+     */
+    private inner class PlayerSessionCallback : MediaSession.Callback {
+        override fun onConnect(
+            session: MediaSession,
+            controller: MediaSession.ControllerInfo,
+        ): MediaSession.ConnectionResult =
+            MediaSession.ConnectionResult.AcceptedResultBuilder(session)
+                .setAvailableSessionCommands(
+                    MediaSession.ConnectionResult.DEFAULT_SESSION_COMMANDS.buildUpon()
+                        .add(PlayerSessionCommands.STOP_SERVICE)
+                        .build()
+                )
+                .build()
+
+        override fun onCustomCommand(
+            session: MediaSession,
+            controller: MediaSession.ControllerInfo,
+            customCommand: SessionCommand,
+            args: Bundle,
+        ): ListenableFuture<SessionResult> {
+            if (customCommand.customAction != PlayerSessionCommands.ACTION_STOP_SERVICE) {
+                return super.onCustomCommand(session, controller, customCommand, args)
+            }
+            pauseAllPlayersAndStopSelf()
+            return Futures.immediateFuture(SessionResult(SessionResult.RESULT_SUCCESS))
+        }
     }
 
     override fun onDestroy() {
