@@ -17,12 +17,20 @@ import kotlin.math.abs
  * корректно учитывает размер самого элемента (в отличие от pivotFraction = 0.5f, который тянул
  * бы leading edge элемента к середине контейнера, а не центрировал бы сам элемент). Если false,
  * используется [pivotFraction] от leading edge контейнера.
+ *
+ * [toleranceFraction] — доля размера элемента, в пределах которой промах мимо цели считается
+ * нулевым. Нужна там, где выключен [skipIfFullyVisible]: сфокусированная карточка увеличена
+ * `graphicsLayer`-скейлом ([tvFocusableClick]), а `ContentInViewNode` берёт границы узла уже с
+ * трансформацией слоя — то есть её верх выше невыбранной на половину прироста (при скейле 1.04 это
+ * 2% высоты). Без допуска каждый переход вбок доскролливал бы эту разницу, да ещё и по мере того,
+ * как скейл анимируется пружиной — визуально это дёрганье экрана.
  */
 @OptIn(ExperimentalFoundationApi::class)
 class TvPivotBringIntoViewSpec(
     private val skipIfFullyVisible: Boolean = true,
     private val centered: Boolean = false,
     private val pivotFraction: Float = FocusedItemPivotFraction,
+    private val toleranceFraction: Float = 0f,
 ) : BringIntoViewSpec {
     override fun calculateScrollDistance(
         offset: Float,
@@ -41,13 +49,36 @@ class TvPivotBringIntoViewSpec(
             centered -> offset - (containerSize - size) / 2f
             else -> offset - containerSize * pivotFraction
         }
-        return if (abs(distance) <= MinScrollDistancePx) 0f else distance
+        val tolerance = maxOf(MinScrollDistancePx, size * toleranceFraction)
+        return if (abs(distance) <= tolerance) 0f else distance
     }
 }
 
 /** Прежнее поведение: пропускает уже видимые элементы, иначе тянет к 12% от leading edge. */
 val TvFocusedGridBringIntoViewSpec: BringIntoViewSpec =
     TvPivotBringIntoViewSpec(skipIfFullyVisible = true, centered = false)
+
+/**
+ * Для вертикальных TV-гридов, где сфокусированный ряд должен всегда стоять на [пивоте][
+ * FocusedItemPivotFraction] от верхней кромки: над ним видно край предыдущего ряда, под ним —
+ * начало следующего.
+ *
+ * Именно поэтому здесь `skipIfFullyVisible = false`. Со `skipIfFullyVisible = true` спек
+ * пересчитывается каждый кадр анимации (`ContentInViewNode.afterFrame`) и возвращает 0 сразу, как
+ * только ряд поместился целиком — ряд паркуется впритык к нижней кромке, а под ним остаётся
+ * случайный «перелёт» пружины за последний кадр (0–30 dp). Окно композиции грида заканчивается
+ * ровно на кромке (`maxMainAxis = mainAxisAvailableSize + afterContentPadding`, где
+ * `mainAxisAvailableSize` — высота уже без паддингов), поэтому при нулевом перелёте следующий ряд
+ * не компонуется, и DPAD-вниз уезжает в beyond-bounds поиск, теряя колонку.
+ *
+ * Лишнего «подскролла» при переходе вбок это не даёт: ряд уже стоит на пивоте, дистанция 0.
+ */
+val TvPivotedGridBringIntoViewSpec: BringIntoViewSpec =
+    TvPivotBringIntoViewSpec(
+        skipIfFullyVisible = false,
+        centered = false,
+        toleranceFraction = FocusedCardScaleTolerance,
+    )
 
 /**
  * Для вертикальных гридов, где промах должен центрировать ряд (а не подтягивать его к 12%
@@ -65,5 +96,11 @@ val TvCenteredGridBringIntoViewSpec: BringIntoViewSpec =
 val TvCenteredCarouselBringIntoViewSpec: BringIntoViewSpec =
     TvPivotBringIntoViewSpec(skipIfFullyVisible = false, centered = true)
 
-private const val FocusedItemPivotFraction = 0.12f
+internal const val FocusedItemPivotFraction = 0.12f
+
+/**
+ * С запасом перекрывает сдвиг границ от скейла фокуса (при 1.04f это 2% высоты элемента),
+ * оставаясь незаметным на глаз промахом мимо пивота.
+ */
+private const val FocusedCardScaleTolerance = 0.05f
 private const val MinScrollDistancePx = 1f

@@ -40,11 +40,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.itemKey
-import kotlinx.coroutines.launch
 import su.afk.yummy.tv.core.designsystem.dimensions.TvCardSpacing
 import su.afk.yummy.tv.core.designsystem.dimensions.TvScreenPadding
 import su.afk.yummy.tv.core.designsystem.dimensions.currentTvTitleCardDimensions
-import su.afk.yummy.tv.core.designsystem.focus.TvFocusedGridBringIntoViewSpec
+import su.afk.yummy.tv.core.designsystem.focus.TvPivotedGridBringIntoViewSpec
+import su.afk.yummy.tv.core.designsystem.focus.tvLazyGridRowFocusNavigation
 import su.afk.yummy.tv.core.designsystem.locals.LocalMainMenuFocusRequester
 import su.afk.yummy.tv.core.designsystem.theme.YummySemanticColors
 import su.afk.yummy.tv.core.designsystem.tv.TvLoadingFooter
@@ -76,7 +76,7 @@ internal fun CollectionsCatalogGrid(
                 .coerceAtLeast(1)
 
         CompositionLocalProvider(
-            LocalBringIntoViewSpec provides TvFocusedGridBringIntoViewSpec,
+            LocalBringIntoViewSpec provides TvPivotedGridBringIntoViewSpec,
         ) {
             LazyVerticalGrid(
                 state = gridState,
@@ -110,17 +110,21 @@ internal fun CollectionsCatalogGrid(
                         title = item.title,
                         posterUrl = item.posterUrl,
                         onClick = { onCollectionSelected(item.id) },
-                        onFocused = {
-                            onCollectionFocused(item.id)
-                            // Спек BringIntoView не трогает уже видимый ряд (см. фикс дёрганья),
-                            // поэтому верхний ряд карточек сам не подскролливает грид настолько,
-                            // чтобы показать заголовок "Коллекции" над ним — делаем это явно.
-                            if (index < gridColumnCount) {
-                                scope.launch { gridState.scrollToItem(0) }
-                            }
-                        },
+                        // Подскролл к заголовку вручную больше не нужен: пивот-спек сам
+                        // оставляет над верхним рядом 12% высоты, и "Коллекции" видно целиком.
+                        onFocused = { onCollectionFocused(item.id) },
                         modifier = Modifier
                             .focusRequester(itemFocusRequesters[index])
+                            .tvLazyGridRowFocusNavigation(
+                                index = index,
+                                columnCount = gridColumnCount,
+                                itemCount = itemCount,
+                                gridState = gridState,
+                                scope = scope,
+                                focusRequesterAt = itemFocusRequesters::getOrNull,
+                                // нулевой lazy-индекс занимает шапка "Коллекции"
+                                lazyIndexOffset = 1,
+                            )
                             .onPreviewKeyEvent { event ->
                                 if (event.type != KeyEventType.KeyDown) return@onPreviewKeyEvent false
                                 if (event.key != Key.DirectionLeft) return@onPreviewKeyEvent false

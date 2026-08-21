@@ -40,10 +40,11 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import su.afk.yummy.tv.core.designsystem.dimensions.TvCardSpacing
 import su.afk.yummy.tv.core.designsystem.dimensions.TvScreenPadding
 import su.afk.yummy.tv.core.designsystem.dimensions.currentTvTitleCardDimensions
-import su.afk.yummy.tv.core.designsystem.focus.TvFocusedGridBringIntoViewSpec
+import su.afk.yummy.tv.core.designsystem.focus.TvPivotedGridBringIntoViewSpec
 import su.afk.yummy.tv.core.designsystem.focus.launchTvLazyGridKeyFocusRestore
 import su.afk.yummy.tv.core.designsystem.focus.rememberTvLazyFocusRestoreState
 import su.afk.yummy.tv.core.designsystem.focus.tvFocusRestorer
+import su.afk.yummy.tv.core.designsystem.focus.tvLazyGridRowFocusNavigation
 import su.afk.yummy.tv.core.designsystem.locals.LocalMainMenuFocusRequester
 import su.afk.yummy.tv.core.designsystem.tv.TvLoadingScreen
 import su.afk.yummy.tv.core.designsystem.tv.TvStateMessage
@@ -218,7 +219,7 @@ private fun CollectionGrid(
                     (cardWidth.value + horizontalSpacing.value)).toInt().coerceAtLeast(1)
 
         CompositionLocalProvider(
-            LocalBringIntoViewSpec provides TvFocusedGridBringIntoViewSpec,
+            LocalBringIntoViewSpec provides TvPivotedGridBringIntoViewSpec,
         ) {
             LazyVerticalGrid(
                 state = gridState,
@@ -278,6 +279,16 @@ private fun CollectionGrid(
                     CollectionAnimeCard(
                         modifier = Modifier
                             .focusRequester(focusRequesters[index])
+                            .tvLazyGridRowFocusNavigation(
+                                index = index,
+                                columnCount = gridColumnCount,
+                                itemCount = animes.size,
+                                gridState = gridState,
+                                scope = scope,
+                                focusRequesterAt = focusRequesters::getOrNull,
+                                // нулевой lazy-индекс занимает шапка коллекции
+                                lazyIndexOffset = 1,
+                            )
                             .focusProperties {
                                 if (index % gridColumnCount == 0) {
                                     mainMenuFocusRequester?.let { left = it }
