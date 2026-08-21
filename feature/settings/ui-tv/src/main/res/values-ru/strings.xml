@@ -199,9 +199,9 @@
     <string name="settings_player_buffer_minimal">Минимальный</string>
     <string name="settings_player_buffer_minimal_hint">5–15 с запаса, до 16 МБ ОЗУ. Самый быстрый старт, но чаще подгрузка.</string>
     <string name="settings_player_buffer_small">Малый</string>
-    <string name="settings_player_buffer_small_hint">10–30 с запаса, до 24 МБ ОЗУ. Для приставок с малым объёмом памяти.</string>
+    <string name="settings_player_buffer_small_hint">10–30 с запаса, до 24 МБ ОЗУ. Экономит память.</string>
     <string name="settings_player_buffer_medium">Средний</string>
-    <string name="settings_player_buffer_medium_hint">15–60 с запаса, до 64 МБ ОЗУ. Сбалансированный вариант по умолчанию.</string>
+    <string name="settings_player_buffer_medium_hint">15–60 с запаса, до 64 МБ ОЗУ. Больше запас на среднем соединении.</string>
     <string name="settings_player_buffer_large">Большой</string>
     <string name="settings_player_buffer_large_hint">30–120 с запаса, до 96 МБ ОЗУ. Для нестабильного соединения.</string>
 </resources>
