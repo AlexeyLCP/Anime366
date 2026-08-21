@@ -5,23 +5,24 @@ import androidx.compose.runtime.Immutable
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
-import su.afk.yummy.tv.core.mvi.UiEffect
-import su.afk.yummy.tv.core.mvi.UiEvent
-import su.afk.yummy.tv.core.mvi.UiState
 import su.afk.yummy.tv.core.model.settings.AppTheme
 import su.afk.yummy.tv.core.model.settings.BackgroundStyle
-import su.afk.yummy.tv.core.model.settings.PosterCardSize
-import su.afk.yummy.tv.core.model.settings.PosterQuality
-import su.afk.yummy.tv.core.preferences.interface_mode.AppInterfaceMode
-import su.afk.yummy.tv.core.preferences.settings.SettingsStore
 import su.afk.yummy.tv.core.model.settings.DetailsButtonAction
 import su.afk.yummy.tv.core.model.settings.LibraryContinueWatchingCardSize
+import su.afk.yummy.tv.core.model.settings.PlayerBufferProfile
 import su.afk.yummy.tv.core.model.settings.PlayerOrientationMode
 import su.afk.yummy.tv.core.model.settings.PlayerSubtitleStyleSettings
+import su.afk.yummy.tv.core.model.settings.PosterCardSize
+import su.afk.yummy.tv.core.model.settings.PosterQuality
 import su.afk.yummy.tv.core.model.settings.PreferredPlayer
 import su.afk.yummy.tv.core.model.settings.PreferredVideoQuality
 import su.afk.yummy.tv.core.model.settings.PreviewCacheSize
 import su.afk.yummy.tv.core.model.settings.YaniContentLanguage
+import su.afk.yummy.tv.core.mvi.UiEffect
+import su.afk.yummy.tv.core.mvi.UiEvent
+import su.afk.yummy.tv.core.mvi.UiState
+import su.afk.yummy.tv.core.preferences.interface_mode.AppInterfaceMode
+import su.afk.yummy.tv.core.preferences.settings.SettingsStore
 import su.afk.yummy.tv.core.utils.system.CacheStorageEntry
 import su.afk.yummy.tv.feature.settings.model.DetailsButtonMoveDirection
 
@@ -55,6 +56,7 @@ class SettingsState {
         val tvPlayerVolumeKeysEnabled: Boolean = false,
         val advancedPlayerVolumeEnabled: Boolean = false,
         val volumeStabilizationEnabled: Boolean = false,
+        val playerBufferProfile: PlayerBufferProfile = PlayerBufferProfile.SMALL,
         /** Сжатие динамического диапазона (DynamicsProcessing) доступно только с Android 9 (API 28). */
         val volumeStabilizationSupported: Boolean = Build.VERSION.SDK_INT >= Build.VERSION_CODES.P,
         val videoExportAutoEnabled: Boolean = false,
@@ -101,6 +103,9 @@ class SettingsState {
 
         /** Пользователь выбрал предпочитаемое качество видео. */
         data class PreferredVideoQualitySelected(val quality: PreferredVideoQuality) : Event
+
+        /** Пользователь выбрал размер буфера плеера. */
+        data class PlayerBufferProfileSelected(val profile: PlayerBufferProfile) : Event
 
         /** Пользователь запросил доступность preview-канала на TV. */
         data object RequestPreviewChannelBrowsable : Event

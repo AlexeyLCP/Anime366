@@ -1,6 +1,7 @@
 package su.afk.yummy.tv.core.preferences.settings
 
 import kotlinx.coroutines.flow.Flow
+import su.afk.yummy.tv.core.model.settings.PlayerBufferProfile
 import su.afk.yummy.tv.core.model.settings.PlayerMobileVideoTransformSettings
 import su.afk.yummy.tv.core.model.settings.PlayerOrientationMode
 import su.afk.yummy.tv.core.model.settings.PlayerResizeMode
@@ -37,6 +38,9 @@ interface PlayerSettingsStore {
 
     /** Стабилизация громкости (сжатие динамического диапазона аудио). */
     val volumeStabilizationEnabled: Flow<Boolean>
+
+    /** Размер оперативного буфера ExoPlayer: запас видео впереди позиции и лимит памяти под него. */
+    val playerBufferProfile: Flow<PlayerBufferProfile>
     val playerResizeMode: Flow<PlayerResizeMode>
     val playerZoomLevel: Flow<PlayerZoomLevel>
 
@@ -73,6 +77,7 @@ interface PlayerSettingsStore {
     suspend fun setAdvancedPlayerVolumeEnabled(enabled: Boolean)
     suspend fun setAdvancedPlayerVolumePercent(percent: Int)
     suspend fun setVolumeStabilizationEnabled(enabled: Boolean)
+    suspend fun setPlayerBufferProfile(profile: PlayerBufferProfile)
     suspend fun setPlayerResizeMode(mode: PlayerResizeMode)
     suspend fun setPlayerZoomLevel(level: PlayerZoomLevel)
     suspend fun setPlayerSubtitleStyle(settings: PlayerSubtitleStyleSettings)

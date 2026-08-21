@@ -4,20 +4,21 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import su.afk.yummy.tv.core.model.settings.AppTheme
 import su.afk.yummy.tv.core.model.settings.BackgroundStyle
-import su.afk.yummy.tv.core.model.settings.PosterCardSize
-import su.afk.yummy.tv.core.model.settings.PosterQuality
-import su.afk.yummy.tv.core.preferences.interface_mode.AppInterfaceMode
 import su.afk.yummy.tv.core.model.settings.DetailsButtonAction
 import su.afk.yummy.tv.core.model.settings.LibraryContinueWatchingCardSize
+import su.afk.yummy.tv.core.model.settings.PlayerBufferProfile
 import su.afk.yummy.tv.core.model.settings.PlayerOrientationMode
 import su.afk.yummy.tv.core.model.settings.PlayerSubtitleBackground
 import su.afk.yummy.tv.core.model.settings.PlayerSubtitleOffset
 import su.afk.yummy.tv.core.model.settings.PlayerSubtitleTextColor
 import su.afk.yummy.tv.core.model.settings.PlayerSubtitleTextSize
+import su.afk.yummy.tv.core.model.settings.PosterCardSize
+import su.afk.yummy.tv.core.model.settings.PosterQuality
 import su.afk.yummy.tv.core.model.settings.PreferredPlayer
 import su.afk.yummy.tv.core.model.settings.PreferredVideoQuality
 import su.afk.yummy.tv.core.model.settings.PreviewCacheSize
 import su.afk.yummy.tv.core.model.settings.YaniContentLanguage
+import su.afk.yummy.tv.core.preferences.interface_mode.AppInterfaceMode
 import su.afk.yummy.tv.feature.settings.mobile.R
 import su.afk.yummy.tv.feature.settings.mobile.model.DetailsButtonOrderItem
 
@@ -336,5 +337,25 @@ internal fun PlayerSubtitleBackground.label(): String = stringResource(
         PlayerSubtitleBackground.NONE -> R.string.settings_subtitle_background_none
         PlayerSubtitleBackground.TRANSLUCENT -> R.string.settings_subtitle_background_translucent
         PlayerSubtitleBackground.SOLID -> R.string.settings_subtitle_background_solid
+    },
+)
+
+@Composable
+internal fun PlayerBufferProfile.label(): String = stringResource(
+    when (this) {
+        PlayerBufferProfile.MINIMAL -> R.string.settings_player_buffer_minimal
+        PlayerBufferProfile.SMALL -> R.string.settings_player_buffer_small
+        PlayerBufferProfile.MEDIUM -> R.string.settings_player_buffer_medium
+        PlayerBufferProfile.LARGE -> R.string.settings_player_buffer_large
+    },
+)
+
+@Composable
+internal fun PlayerBufferProfile.hint(): String = stringResource(
+    when (this) {
+        PlayerBufferProfile.MINIMAL -> R.string.settings_player_buffer_minimal_hint
+        PlayerBufferProfile.SMALL -> R.string.settings_player_buffer_small_hint
+        PlayerBufferProfile.MEDIUM -> R.string.settings_player_buffer_medium_hint
+        PlayerBufferProfile.LARGE -> R.string.settings_player_buffer_large_hint
     },
 )

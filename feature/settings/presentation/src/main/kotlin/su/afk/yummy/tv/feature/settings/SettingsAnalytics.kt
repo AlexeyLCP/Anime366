@@ -4,16 +4,17 @@ import su.afk.yummy.tv.core.analytics.api.AnalyticsTracker
 import su.afk.yummy.tv.core.analytics.utils.analyticsParamsOf
 import su.afk.yummy.tv.core.model.settings.AppTheme
 import su.afk.yummy.tv.core.model.settings.BackgroundStyle
-import su.afk.yummy.tv.core.model.settings.PosterCardSize
-import su.afk.yummy.tv.core.model.settings.PosterQuality
-import su.afk.yummy.tv.core.preferences.interface_mode.AppInterfaceMode
 import su.afk.yummy.tv.core.model.settings.DetailsButtonAction
 import su.afk.yummy.tv.core.model.settings.LibraryContinueWatchingCardSize
+import su.afk.yummy.tv.core.model.settings.PlayerBufferProfile
 import su.afk.yummy.tv.core.model.settings.PlayerOrientationMode
+import su.afk.yummy.tv.core.model.settings.PosterCardSize
+import su.afk.yummy.tv.core.model.settings.PosterQuality
 import su.afk.yummy.tv.core.model.settings.PreferredPlayer
 import su.afk.yummy.tv.core.model.settings.PreferredVideoQuality
 import su.afk.yummy.tv.core.model.settings.PreviewCacheSize
 import su.afk.yummy.tv.core.model.settings.YaniContentLanguage
+import su.afk.yummy.tv.core.preferences.interface_mode.AppInterfaceMode
 import su.afk.yummy.tv.feature.settings.model.DetailsButtonMoveDirection
 import javax.inject.Inject
 
@@ -123,6 +124,18 @@ internal class SettingsAnalytics @Inject constructor(
         tracker.track(
             EVENT_PREFERRED_VIDEO_QUALITY_SELECTED,
             analyticsParamsOf(PARAM_VALUE to quality.name.lowercase()),
+        )
+    }
+
+    /**
+     * Пользователь изменил размер буфера плеера.
+     *
+     * Параметры: value.
+     */
+    fun eventPlayerBufferProfileSelected(profile: PlayerBufferProfile) {
+        tracker.track(
+            EVENT_PLAYER_BUFFER_PROFILE_SELECTED,
+            analyticsParamsOf(PARAM_VALUE to profile.name.lowercase()),
         )
     }
 
@@ -328,6 +341,7 @@ internal class SettingsAnalytics @Inject constructor(
         const val EVENT_POSTER_CARD_SIZE_SELECTED = "settings_poster_card_size_selected"
         const val EVENT_POSTER_QUALITY_SELECTED = "settings_poster_quality_selected"
         const val EVENT_PREFERRED_PLAYER_SELECTED = "settings_preferred_player_selected"
+        const val EVENT_PLAYER_BUFFER_PROFILE_SELECTED = "settings_player_buffer_profile_selected"
         const val EVENT_PREFERRED_VIDEO_QUALITY_SELECTED =
             "settings_preferred_video_quality_selected"
         const val EVENT_PREVIEW_CACHE_SIZE_SELECTED = "settings_preview_cache_size_selected"

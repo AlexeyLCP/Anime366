@@ -6,6 +6,7 @@ import su.afk.yummy.tv.core.model.settings.AppTheme
 import su.afk.yummy.tv.core.model.settings.BackgroundStyle
 import su.afk.yummy.tv.core.model.settings.LibraryContinueWatchingCardSize
 import su.afk.yummy.tv.core.model.settings.MainSettingsSnapshot
+import su.afk.yummy.tv.core.model.settings.PlayerBufferProfile
 import su.afk.yummy.tv.core.model.settings.PlayerOrientationMode
 import su.afk.yummy.tv.core.model.settings.PosterCardSize
 import su.afk.yummy.tv.core.model.settings.PreferredPlayer
@@ -25,6 +26,7 @@ import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.backgrou
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.detailsButtonOrderKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.libraryContinueWatchingCardSizeKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.pictureInPictureEnabledKey
+import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.playerBufferProfileKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.playerOrientationModeKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.posterCardSizeKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.posterQualityKey
@@ -104,6 +106,7 @@ internal class DataStoreSettingsStore @Inject constructor(
             tvPlayerVolumeKeysEnabled = prefs[tvPlayerVolumeKeysEnabledKey] ?: false,
             advancedPlayerVolumeEnabled = prefs[advancedPlayerVolumeEnabledKey] ?: false,
             volumeStabilizationEnabled = prefs[volumeStabilizationEnabledKey] ?: false,
+            playerBufferProfile = prefs.enum(playerBufferProfileKey, PlayerBufferProfile.SMALL),
             videoExportAutoEnabled = prefs[videoExportAutoEnabledKey] ?: false,
             yaniApplicationToken = prefs.yaniApplicationToken(),
             contentLanguage = YaniContentLanguage.fromPreferenceValue(prefs[yaniContentLanguageKey])

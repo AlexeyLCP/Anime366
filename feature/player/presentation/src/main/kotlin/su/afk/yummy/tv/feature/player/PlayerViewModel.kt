@@ -11,15 +11,15 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import su.afk.yummy.tv.core.mvi.BaseViewModel
 import su.afk.yummy.tv.core.error.api.ErrorHandler
 import su.afk.yummy.tv.core.error.api.RetryStorage
 import su.afk.yummy.tv.core.error.api.StringProvider
-import su.afk.yummy.tv.core.navigation.manager.INavigationManager
 import su.afk.yummy.tv.core.model.settings.PlayerMobileVideoTransformSettings
 import su.afk.yummy.tv.core.model.settings.PlayerResizeMode
 import su.afk.yummy.tv.core.model.settings.PlayerResizeSettings
 import su.afk.yummy.tv.core.model.settings.PlayerZoomLevel
+import su.afk.yummy.tv.core.mvi.BaseViewModel
+import su.afk.yummy.tv.core.navigation.manager.INavigationManager
 import su.afk.yummy.tv.domain.player.model.AllohaAudioTrack
 import su.afk.yummy.tv.domain.player.model.AllohaSubtitleTrack
 import su.afk.yummy.tv.domain.videodownload.usecase.GetVideoDownloadUseCase
@@ -38,6 +38,7 @@ import su.afk.yummy.tv.feature.player.handler.PlayerSourceSelectionHandler
 import su.afk.yummy.tv.feature.player.handler.PlayerSourceStreamHandler
 import su.afk.yummy.tv.feature.player.handler.PlayerStreamLoadResult
 import su.afk.yummy.tv.feature.player.handler.PlayerStreamResumeMode
+import su.afk.yummy.tv.feature.player.mapper.PlayerDestinationStateMapper
 import su.afk.yummy.tv.feature.player.model.PlayerFinalEpisodeAction
 import su.afk.yummy.tv.feature.player.navigator.PlayerDestination
 import su.afk.yummy.tv.feature.player.presentation.R

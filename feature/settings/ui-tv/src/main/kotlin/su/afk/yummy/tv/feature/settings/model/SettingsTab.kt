@@ -9,6 +9,7 @@ internal enum class SettingsTab(@param:StringRes val labelRes: Int) {
     BACKGROUND(R.string.settings_tab_background),
     PLAYER(R.string.settings_tab_player),
     PLAYER_QUALITY(R.string.settings_tab_player_quality),
+    PLAYER_BUFFER(R.string.settings_tab_player_buffer),
     PLAYER_SOURCE(R.string.settings_tab_player_source),
     PLAYER_SUBTITLES(R.string.settings_tab_player_subtitles),
     POSTER_SIZE(R.string.settings_tab_poster_size),

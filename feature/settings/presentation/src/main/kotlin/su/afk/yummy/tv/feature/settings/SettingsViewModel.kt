@@ -5,9 +5,9 @@ import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import su.afk.yummy.tv.core.mvi.BaseViewModel
 import su.afk.yummy.tv.core.error.api.ErrorHandler
 import su.afk.yummy.tv.core.error.api.RetryStorage
+import su.afk.yummy.tv.core.mvi.BaseViewModel
 import su.afk.yummy.tv.core.navigation.manager.INavigationManager
 import su.afk.yummy.tv.core.preferences.interface_mode.AppInterfaceMode
 import su.afk.yummy.tv.core.preferences.interface_mode.AppInterfaceModePreferences
@@ -66,6 +66,7 @@ class SettingsViewModel @Inject internal constructor(
                         tvPlayerVolumeKeysEnabled = snapshot.tvPlayerVolumeKeysEnabled,
                         advancedPlayerVolumeEnabled = snapshot.advancedPlayerVolumeEnabled,
                         volumeStabilizationEnabled = snapshot.volumeStabilizationEnabled,
+                        playerBufferProfile = snapshot.playerBufferProfile,
                         videoExportAutoEnabled = snapshot.videoExportAutoEnabled,
                         yaniApplicationToken = snapshot.yaniApplicationToken,
                         contentLanguage = snapshot.contentLanguage,
@@ -163,6 +164,11 @@ class SettingsViewModel @Inject internal constructor(
             is SettingsState.Event.PreferredVideoQualitySelected -> viewModelScope.launch {
                 analytics.eventPreferredVideoQualitySelected(event.quality)
                 settingsStore.setPreferredVideoQuality(event.quality)
+            }
+
+            is SettingsState.Event.PlayerBufferProfileSelected -> viewModelScope.launch {
+                analytics.eventPlayerBufferProfileSelected(event.profile)
+                settingsStore.setPlayerBufferProfile(event.profile)
             }
 
             is SettingsState.Event.SubtitleStyleSelected -> viewModelScope.launch {

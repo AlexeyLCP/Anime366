@@ -35,18 +35,19 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import su.afk.yummy.tv.core.model.settings.AppTheme
 import su.afk.yummy.tv.core.model.settings.BackgroundStyle
-import su.afk.yummy.tv.core.model.settings.PosterCardSize
-import su.afk.yummy.tv.core.model.settings.PosterQuality
-import su.afk.yummy.tv.core.preferences.interface_mode.AppInterfaceMode
 import su.afk.yummy.tv.core.model.settings.LibraryContinueWatchingCardSize
+import su.afk.yummy.tv.core.model.settings.PlayerBufferProfile
 import su.afk.yummy.tv.core.model.settings.PlayerSubtitleBackground
 import su.afk.yummy.tv.core.model.settings.PlayerSubtitleOffset
 import su.afk.yummy.tv.core.model.settings.PlayerSubtitleTextColor
 import su.afk.yummy.tv.core.model.settings.PlayerSubtitleTextSize
+import su.afk.yummy.tv.core.model.settings.PosterCardSize
+import su.afk.yummy.tv.core.model.settings.PosterQuality
 import su.afk.yummy.tv.core.model.settings.PreferredPlayer
 import su.afk.yummy.tv.core.model.settings.PreferredVideoQuality
 import su.afk.yummy.tv.core.model.settings.PreviewCacheSize
 import su.afk.yummy.tv.core.model.settings.YaniContentLanguage
+import su.afk.yummy.tv.core.preferences.interface_mode.AppInterfaceMode
 import su.afk.yummy.tv.core.utils.system.openExternalUri
 import su.afk.yummy.tv.feature.settings.BuildConfig
 import su.afk.yummy.tv.feature.settings.R
@@ -322,6 +323,36 @@ internal fun SettingsTvPanelHost(
                                     .restoreCategoryFocusOnLeft(tabFocusRequester, index == 0),
                             )
                             if (index < PreferredVideoQuality.entries.lastIndex) {
+                                SettingsDivider()
+                            }
+                        }
+                    }
+
+                    SettingsTab.PLAYER_BUFFER -> {
+                        SettingsSectionTitle(text = stringResource(R.string.settings_player_buffer_title))
+                        PlayerBufferProfile.entries.forEachIndexed { index, profile ->
+                            QualityRow(
+                                label = profile.label(),
+                                hint = profile.hint(),
+                                selected = profile == state.playerBufferProfile,
+                                onClick = {
+                                    onEvent(
+                                        SettingsState.Event.PlayerBufferProfileSelected(
+                                            profile,
+                                        ),
+                                    )
+                                },
+                                modifier = Modifier
+                                    .then(
+                                        if (index == 0) {
+                                            Modifier.focusRequester(tabContentFocusRequester)
+                                        } else {
+                                            Modifier
+                                        },
+                                    )
+                                    .restoreCategoryFocusOnLeft(tabFocusRequester, index == 0),
+                            )
+                            if (index < PlayerBufferProfile.entries.lastIndex) {
                                 SettingsDivider()
                             }
                         }

@@ -23,9 +23,13 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeoutOrNull
 import su.afk.yummy.tv.core.analytics.api.AnalyticsTracker
+import su.afk.yummy.tv.core.model.settings.PlayerBufferProfile
 import su.afk.yummy.tv.core.preferences.settings.PlayerSettingsStore
 import su.afk.yummy.tv.domain.player.session.AllohaPlaybackSessionManager
 import su.afk.yummy.tv.feature.player.common.PlayerLoadControlFactory
@@ -81,7 +85,7 @@ class PlayerMediaSessionService : MediaSessionService() {
                 DefaultMediaSourceFactory(playbackConfig.dataSourceFactory())
                     .setLoadErrorHandlingPolicy(PlayerLoadErrorHandlingPolicy(playbackConfig))
             )
-            .setLoadControl(PlayerLoadControlFactory.create(isLowRamDevice))
+            .setLoadControl(PlayerLoadControlFactory.create(readBufferProfile()))
             .setHandleAudioBecomingNoisy(true)
             .build()
         exoPlayer.addAnalyticsListener(PlayerDecoderAnalyticsListener(analyticsTracker))
@@ -169,6 +173,18 @@ class PlayerMediaSessionService : MediaSessionService() {
         super.onDestroy()
     }
 
+    /**
+     * ExoPlayer.Builder требует LoadControl синхронно, поэтому профиль читается блокирующе — это
+     * не забытый Dispatchers.IO. Таймаут страхует от подвисшего первого чтения DataStore: в этом
+     * случае берётся то же значение по умолчанию, что и в настройках.
+     */
+    private fun readBufferProfile(): PlayerBufferProfile =
+        runBlocking {
+            withTimeoutOrNull(BUFFER_PROFILE_READ_TIMEOUT_MS) {
+                settingsStore.playerBufferProfile.first()
+            }
+        } ?: PlayerBufferProfile.SMALL
+
     private fun isLowRamDevice(): Boolean =
         (getSystemService(ACTIVITY_SERVICE) as? ActivityManager)?.isLowRamDevice == true
 
@@ -189,5 +205,6 @@ class PlayerMediaSessionService : MediaSessionService() {
         const val ALLOHA_AUDIO_LANGUAGE = "ru"
         const val AUDIO_RENDERER_INDEX = 1
         const val REQUEST_CODE_SESSION_ACTIVITY = 40_101
+        const val BUFFER_PROFILE_READ_TIMEOUT_MS = 500L
     }
 }

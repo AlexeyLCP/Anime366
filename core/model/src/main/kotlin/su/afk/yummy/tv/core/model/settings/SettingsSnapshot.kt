@@ -22,6 +22,7 @@ data class SettingsSnapshot(
     val tvPlayerVolumeKeysEnabled: Boolean,
     val advancedPlayerVolumeEnabled: Boolean,
     val volumeStabilizationEnabled: Boolean,
+    val playerBufferProfile: PlayerBufferProfile,
     val videoExportAutoEnabled: Boolean,
     val yaniApplicationToken: String,
     val contentLanguage: YaniContentLanguage,

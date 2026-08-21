@@ -1,5 +1,11 @@
-package su.afk.yummy.tv.feature.player
+package su.afk.yummy.tv.feature.player.mapper
 
+import su.afk.yummy.tv.feature.player.PlayerSourceBalancer
+import su.afk.yummy.tv.feature.player.PlayerSourceDubbing
+import su.afk.yummy.tv.feature.player.PlayerSourceEpisode
+import su.afk.yummy.tv.feature.player.PlayerSourceGraph
+import su.afk.yummy.tv.feature.player.PlayerSourceSelection
+import su.afk.yummy.tv.feature.player.PlayerState
 import su.afk.yummy.tv.feature.player.navigator.PlayerDestination
 import javax.inject.Inject
 

@@ -4,6 +4,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.stringPreferencesKey
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import su.afk.yummy.tv.core.model.settings.PlayerBufferProfile
 import su.afk.yummy.tv.core.model.settings.PlayerMobileVideoTransformSettings
 import su.afk.yummy.tv.core.model.settings.PlayerOrientationMode
 import su.afk.yummy.tv.core.model.settings.PlayerResizeMode
@@ -24,6 +25,7 @@ import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.autoPlay
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.autoSkipOpeningsEndingsKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.mobilePlayerGestureTutorialDismissedKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.pictureInPictureEnabledKey
+import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.playerBufferProfileKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.playerOrientationModeKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.playerResizeModeKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.playerZoomLevelKey
@@ -96,6 +98,9 @@ internal class DataStorePlayerSettingsStore @Inject constructor(
 
     override val volumeStabilizationEnabled: Flow<Boolean> =
         store.boolean(volumeStabilizationEnabledKey, false)
+
+    override val playerBufferProfile: Flow<PlayerBufferProfile> =
+        store.enumFlow(playerBufferProfileKey, PlayerBufferProfile.SMALL)
 
     override val playerResizeMode: Flow<PlayerResizeMode> =
         store.enumFlow(playerResizeModeKey, PlayerResizeMode.FIT)
@@ -193,6 +198,9 @@ internal class DataStorePlayerSettingsStore @Inject constructor(
 
     override suspend fun setVolumeStabilizationEnabled(enabled: Boolean) =
         store.setBoolean(volumeStabilizationEnabledKey, enabled)
+
+    override suspend fun setPlayerBufferProfile(profile: PlayerBufferProfile) =
+        store.setEnum(playerBufferProfileKey, profile)
 
     override suspend fun setPlayerResizeMode(mode: PlayerResizeMode) =
         store.setEnum(playerResizeModeKey, mode)

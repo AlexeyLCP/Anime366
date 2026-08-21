@@ -34,19 +34,20 @@ import su.afk.yummy.tv.core.designsystem.mobile.bar.MobileTopBar
 import su.afk.yummy.tv.core.designsystem.preview.ScreenPreviewTheme
 import su.afk.yummy.tv.core.model.settings.AppTheme
 import su.afk.yummy.tv.core.model.settings.BackgroundStyle
-import su.afk.yummy.tv.core.model.settings.PosterCardSize
-import su.afk.yummy.tv.core.model.settings.PosterQuality
-import su.afk.yummy.tv.core.preferences.interface_mode.AppInterfaceMode
 import su.afk.yummy.tv.core.model.settings.LibraryContinueWatchingCardSize
+import su.afk.yummy.tv.core.model.settings.PlayerBufferProfile
 import su.afk.yummy.tv.core.model.settings.PlayerOrientationMode
 import su.afk.yummy.tv.core.model.settings.PlayerSubtitleBackground
 import su.afk.yummy.tv.core.model.settings.PlayerSubtitleOffset
 import su.afk.yummy.tv.core.model.settings.PlayerSubtitleTextColor
 import su.afk.yummy.tv.core.model.settings.PlayerSubtitleTextSize
+import su.afk.yummy.tv.core.model.settings.PosterCardSize
+import su.afk.yummy.tv.core.model.settings.PosterQuality
 import su.afk.yummy.tv.core.model.settings.PreferredPlayer
 import su.afk.yummy.tv.core.model.settings.PreferredVideoQuality
 import su.afk.yummy.tv.core.model.settings.PreviewCacheSize
 import su.afk.yummy.tv.core.model.settings.YaniContentLanguage
+import su.afk.yummy.tv.core.preferences.interface_mode.AppInterfaceMode
 import su.afk.yummy.tv.core.utils.system.openExternalUri
 import su.afk.yummy.tv.core.utils.system.restartApplication
 import su.afk.yummy.tv.feature.settings.SettingsState
@@ -212,6 +213,12 @@ fun SettingsMobileScreen(
                         value = state.preferredVideoQuality.label(),
                         hint = state.preferredVideoQuality.hint(),
                         onClick = { activePicker = SettingsMobilePicker.VIDEO_QUALITY },
+                    )
+                    SettingsMobileOptionRow(
+                        label = stringResource(R.string.settings_player_buffer_title),
+                        value = state.playerBufferProfile.label(),
+                        hint = state.playerBufferProfile.hint(),
+                        onClick = { activePicker = SettingsMobilePicker.PLAYER_BUFFER },
                     )
                     SettingsMobileOptionRow(
                         label = stringResource(R.string.settings_player_orientation_title),
@@ -595,6 +602,23 @@ fun SettingsMobileScreen(
             onDismiss = { activePicker = null },
             onSelected = {
                 onEvent(SettingsState.Event.PlayerOrientationModeSelected(it))
+                activePicker = null
+            },
+        )
+
+        SettingsMobilePicker.PLAYER_BUFFER -> SettingsMobilePickerSheet(
+            title = stringResource(R.string.settings_player_buffer_title),
+            selectedValue = state.playerBufferProfile,
+            options = PlayerBufferProfile.entries.map {
+                SettingsMobilePickerOption(
+                    it,
+                    it.label(),
+                    it.hint()
+                )
+            },
+            onDismiss = { activePicker = null },
+            onSelected = {
+                onEvent(SettingsState.Event.PlayerBufferProfileSelected(it))
                 activePicker = null
             },
         )

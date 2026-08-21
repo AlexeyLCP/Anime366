@@ -3,38 +3,24 @@ package su.afk.yummy.tv.feature.player.common
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.DefaultLoadControl
 import androidx.media3.exoplayer.LoadControl
+import su.afk.yummy.tv.core.model.settings.PlayerBufferProfile
 
 @UnstableApi
 object PlayerLoadControlFactory {
-    // Увеличиваем только оперативный буфер ExoPlayer: это не дисковый кэш и не офлайн-загрузка.
-    // На low-RAM устройствах держим меньший запас данных, чтобы не отъедать заметную долю памяти.
-    fun create(isLowRamDevice: Boolean): LoadControl =
+    // Настраивается только оперативный буфер ExoPlayer: это не дисковый кэш и не офлайн-загрузка.
+    // Профиль выбирает пользователь в настройках; чем больше запас, тем больше памяти забирает
+    // плеер — на слабых приставках это заметно.
+    fun create(profile: PlayerBufferProfile): LoadControl =
         DefaultLoadControl.Builder()
             .setBufferDurationsMs(
-                if (isLowRamDevice) MIN_BUFFER_MS_LOW_RAM else MIN_BUFFER_MS,
-                if (isLowRamDevice) MAX_BUFFER_MS_LOW_RAM else MAX_BUFFER_MS,
-                BUFFER_FOR_PLAYBACK_MS,
-                BUFFER_FOR_PLAYBACK_AFTER_REBUFFER_MS,
+                profile.minBufferMs,
+                profile.maxBufferMs,
+                profile.bufferForPlaybackMs,
+                profile.bufferForPlaybackAfterRebufferMs,
             )
-            .setTargetBufferBytes(
-                if (isLowRamDevice) TARGET_BUFFER_BYTES_LOW_RAM else TARGET_BUFFER_BYTES
-            )
+            .setTargetBufferBytes(profile.targetBufferBytes)
             .setPrioritizeTimeOverSizeThresholds(PRIORITIZE_TIME_OVER_SIZE_THRESHOLDS)
             .build()
-
-    // Balanced-профиль: старт остаётся быстрым, а при воспроизведении плеер держит больший запас данных.
-    private const val MIN_BUFFER_MS = 15_000
-    private const val MAX_BUFFER_MS = 60_000
-    private const val BUFFER_FOR_PLAYBACK_MS = 2_500
-    private const val BUFFER_FOR_PLAYBACK_AFTER_REBUFFER_MS = 5_000
-
-    // Ограничиваем целевой размер буфера, чтобы слабые TV-устройства не забирали слишком много памяти.
-    private const val TARGET_BUFFER_BYTES = 64 * 1024 * 1024
-
-    // Профиль для ActivityManager.isLowRamDevice(): меньше буфер по времени и по памяти.
-    private const val MIN_BUFFER_MS_LOW_RAM = 10_000
-    private const val MAX_BUFFER_MS_LOW_RAM = 30_000
-    private const val TARGET_BUFFER_BYTES_LOW_RAM = 24 * 1024 * 1024
 
     // Не заставляем плеер любой ценой добирать время буфера, если уже достигнут лимит по памяти.
     private const val PRIORITIZE_TIME_OVER_SIZE_THRESHOLDS = false
