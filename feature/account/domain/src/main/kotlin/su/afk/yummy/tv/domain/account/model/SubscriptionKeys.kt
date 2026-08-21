@@ -21,6 +21,15 @@ object SubscriptionKeys {
 
     fun dubbingKey(dubbing: String): String = normalize(dubbing)
 
+    /**
+     * Ключ строки списка «Мои подписки» — пара «тайтл + балансер».
+     *
+     * `/users/{id}/lists/subs` отдаёт по строке на подписку, поэтому две озвучки одного балансера
+     * дают две неотличимые записи (озвучку список не сообщает, см. docs/subscriptions.md).
+     */
+    fun animePlayerKey(animeId: Int, playerId: Int?, player: String): String =
+        "$animeId|${playerKey(playerId, player)}"
+
     fun subscriptionKey(playerId: Int?, player: String, dubbing: String): String =
         "${playerKey(playerId, player)}|${dubbingKey(dubbing)}"
 

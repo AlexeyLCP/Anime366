@@ -21,6 +21,7 @@ import kotlinx.coroutines.flow.Flow
 import su.afk.yummy.tv.core.designsystem.baseScreen.BaseScreen
 import su.afk.yummy.tv.core.designsystem.mobile.bar.MobileTopBar
 import su.afk.yummy.tv.core.designsystem.mobile.state.MobileMessage
+import su.afk.yummy.tv.domain.account.model.SubscriptionKeys
 import su.afk.yummy.tv.feature.account.mobile.R
 import su.afk.yummy.tv.feature.account.mobile.mysubscriptions.view.MySubscriptionMobileRow
 import su.afk.yummy.tv.feature.account.mysubscriptions.MySubscriptionsState
@@ -71,7 +72,7 @@ fun MySubscriptionsMobileScreen(
             ) {
                 items(
                     state.subscriptions,
-                    key = { "${it.animeId}-${it.playerId}-${it.player}" },
+                    key = { SubscriptionKeys.animePlayerKey(it.animeId, it.playerId, it.player) },
                 ) { subscription ->
                     MySubscriptionMobileRow(
                         subscription = subscription,

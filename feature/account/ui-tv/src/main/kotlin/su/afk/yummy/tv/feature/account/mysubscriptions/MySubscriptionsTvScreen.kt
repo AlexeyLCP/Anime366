@@ -30,6 +30,7 @@ import su.afk.yummy.tv.core.designsystem.focus.TvPivotedGridBringIntoViewSpec
 import su.afk.yummy.tv.core.designsystem.focus.tvLazyGridRowFocusNavigation
 import su.afk.yummy.tv.core.designsystem.tv.TvStateContent
 import su.afk.yummy.tv.core.designsystem.tv.TvTitleCard
+import su.afk.yummy.tv.domain.account.model.SubscriptionKeys
 import su.afk.yummy.tv.feature.account.R
 
 @Composable
@@ -127,7 +128,7 @@ private inline fun androidx.compose.foundation.lazy.grid.LazyGridScope.itemsInde
         count = state.subscriptions.size,
         key = { index ->
             val item = state.subscriptions[index]
-            "${item.animeId}-${item.playerId}-${item.player}"
+            SubscriptionKeys.animePlayerKey(item.animeId, item.playerId, item.player)
         },
     ) { index ->
         val subscription = state.subscriptions[index]
