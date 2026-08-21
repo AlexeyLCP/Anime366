@@ -89,4 +89,7 @@
     <string name="account_error_load_notifications_failed">Could not load notifications</string>
     <string name="account_error_update_notification_failed">Could not update notification</string>
     <string name="account_error_update_notifications_failed">Could not update notifications</string>
+    <string name="account_my_subscriptions">My subscriptions</string>
+    <string name="account_my_subscriptions_empty">You have no subscriptions yet</string>
+    <string name="account_my_subscriptions_signed_out">Sign in to see your subscriptions</string>
 </resources>

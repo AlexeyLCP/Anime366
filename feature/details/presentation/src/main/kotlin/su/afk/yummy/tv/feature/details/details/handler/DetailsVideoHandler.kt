@@ -21,35 +21,26 @@ internal class DetailsVideoHandler @Inject constructor(
 ) {
     suspend fun loadCached(
         animeId: Int,
-        knownSubscriptions: List<SubscriptionOption>,
         pendingSubscriptionStates: Map<String, Boolean> = emptyMap(),
     ): DetailsVideosResult? =
         runCatching { getCachedAnimeVideos(animeId) }
             .getOrNull()
-            ?.toDetailsVideosResult(knownSubscriptions, pendingSubscriptionStates)
+            ?.toDetailsVideosResult(pendingSubscriptionStates)
 
     suspend fun load(
         animeId: Int,
-        knownSubscriptions: List<SubscriptionOption>,
         pendingSubscriptionStates: Map<String, Boolean> = emptyMap(),
     ): Result<DetailsVideosResult> =
         runCatching {
-            getAnimeVideos(animeId).toDetailsVideosResult(
-                knownSubscriptions,
-                pendingSubscriptionStates
-            )
+            getAnimeVideos(animeId).toDetailsVideosResult(pendingSubscriptionStates)
         }
 
     suspend fun refresh(
         animeId: Int,
-        knownSubscriptions: List<SubscriptionOption>,
         pendingSubscriptionStates: Map<String, Boolean> = emptyMap(),
     ): Result<DetailsVideosResult> =
         runCatching {
-            refreshAnimeVideos(animeId).toDetailsVideosResult(
-                knownSubscriptions,
-                pendingSubscriptionStates
-            )
+            refreshAnimeVideos(animeId).toDetailsVideosResult(pendingSubscriptionStates)
         }
 
     fun resolveWatchTarget(

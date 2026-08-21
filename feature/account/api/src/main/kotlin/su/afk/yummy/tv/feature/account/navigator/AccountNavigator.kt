@@ -11,6 +11,7 @@ class AccountNavigator @Inject constructor() : IAccountNavigator {
         UserProfileByNicknameDestination(nickname)
 
     override fun getUserSearchDest(): NavKey = UserSearchDestination
+    override fun getMySubscriptionsDest(): NavKey = MySubscriptionsDestination
     override fun getProfileEditDest(): NavKey = ProfileEditDestination
     override fun getPasswordResetDest(): NavKey = PasswordResetDestination
 }

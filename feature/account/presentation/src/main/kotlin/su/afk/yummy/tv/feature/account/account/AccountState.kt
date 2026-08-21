@@ -91,7 +91,14 @@ class AccountState {
         /** Пользователь открыл скачанные серии на устройстве. */
         data object DownloadedEpisodesSelected : Event
         data object MessagesSelected : Event
+
+        /** Экран показан — перечитываем уведомления, если их кэш успел устареть. */
+        data object ScreenShown : Event
+
         data object UserSearchSelected : Event
+
+        /** Переход к списку подписок пользователя. */
+        data object MySubscriptionsSelected : Event
         data object ProfileEditSelected : Event
         data object PasswordResetSelected : Event
 

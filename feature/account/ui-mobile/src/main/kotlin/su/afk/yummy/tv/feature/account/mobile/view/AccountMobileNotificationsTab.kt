@@ -27,6 +27,9 @@ internal fun AccountMobileNotificationsTab(
     var showDeleteAllConfirm by remember { mutableStateOf(false) }
     val unreadCount = state.unreadNotificationCount
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        AccountMobileMySubscriptionsRow(
+            onClick = { onEvent(AccountState.Event.MySubscriptionsSelected) },
+        )
         AccountMobileNotificationTypeBadges(state.unreadNotificationCounts)
         if (unreadCount > 0 || state.notifications.isNotEmpty()) {
             Row(

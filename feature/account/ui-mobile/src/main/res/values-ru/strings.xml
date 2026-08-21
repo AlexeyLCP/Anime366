@@ -180,4 +180,8 @@
     <string name="password_reset_success_description">Перейдите по ссылке из письма, чтобы завершить восстановление пароля.</string>
     <string name="password_reset_error">Не удалось отправить письмо для восстановления</string>
     <string name="password_reset_captcha_error">Не удалось пройти проверку captcha. Попробуйте ещё раз.</string>
+    <string name="account_mobile_my_subscriptions">Мои подписки</string>
+    <string name="account_mobile_my_subscriptions_empty">Подписок пока нет</string>
+    <string name="account_mobile_my_subscriptions_player">Балансер: %1$s</string>
+    <string name="account_mobile_my_subscriptions_player_unknown">Балансер неизвестен</string>
 </resources>

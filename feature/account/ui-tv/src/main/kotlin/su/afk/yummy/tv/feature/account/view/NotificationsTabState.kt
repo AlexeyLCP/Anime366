@@ -68,6 +68,12 @@ internal class NotificationsTabState internal constructor(
      * to "whatever the first thing in the list is" without knowing if the list is empty.
      */
     val contentFocusRequester = FocusRequester()
+
+    /**
+     * Кнопка «Мои подписки» — первый фокусируемый элемент под табами. Таб жёстко задаёт себе
+     * `down`, поэтому без явного requester'а фокус перепрыгивал её и уходил сразу в список.
+     */
+    val mySubscriptionsFocusRequester = FocusRequester()
     val openingOverlayFocusRequester = FocusRequester()
     val markAllReadFocusRequester = FocusRequester()
     val deleteAllFocusRequester = FocusRequester()

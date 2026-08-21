@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -62,6 +63,11 @@ fun AccountTvScreen(
     val registerPreferredContentFocusRequester = LocalPreferredContentFocusRequester.current
     val mainMenuFocusRequester = LocalMainMenuFocusRequester.current
     val isActiveDestination = LocalAccountTvActiveDestination.current
+
+    // Экран снова активен (вернулись из подэкрана) — перечитываем уведомления по TTL.
+    LaunchedEffect(isActiveDestination) {
+        if (isActiveDestination) onEvent(AccountState.Event.ScreenShown)
+    }
     val scope = rememberCoroutineScope()
     var isStatsContentFocused by remember { mutableStateOf(false) }
 

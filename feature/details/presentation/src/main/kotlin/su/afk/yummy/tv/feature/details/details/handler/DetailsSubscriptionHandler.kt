@@ -2,12 +2,11 @@ package su.afk.yummy.tv.feature.details.details.handler
 
 import kotlinx.coroutines.delay
 import su.afk.yummy.tv.core.model.anime.AnimeDetails
-import su.afk.yummy.tv.core.model.anime.AnimeVideo
 import su.afk.yummy.tv.domain.account.usecase.GetAccountSessionUseCase
-import su.afk.yummy.tv.domain.account.usecase.GetAnimeSubscriptionStateUseCase
 import su.afk.yummy.tv.domain.account.usecase.SetVideoSubscriptionUseCase
 import su.afk.yummy.tv.domain.anime.usecase.GetAnimeDetailsUseCase
 import su.afk.yummy.tv.domain.anime.usecase.GetAnimeVideosUseCase
+import su.afk.yummy.tv.domain.anime.usecase.RefreshAnimeVideosUseCase
 import su.afk.yummy.tv.feature.details.details.model.SubscriptionOption
 import su.afk.yummy.tv.feature.details.mapper.toSubscriptionOptions
 import su.afk.yummy.tv.feature.details.utils.SUBSCRIPTION_REFRESH_DELAY
@@ -20,12 +19,12 @@ internal class DetailsSubscriptionHandler @Inject constructor(
     private val getAccountSession: GetAccountSessionUseCase,
     private val getAnimeDetails: GetAnimeDetailsUseCase,
     private val getAnimeVideos: GetAnimeVideosUseCase,
-    private val getAnimeSubscriptionState: GetAnimeSubscriptionStateUseCase,
+    private val refreshAnimeVideos: RefreshAnimeVideosUseCase,
     private val setVideoSubscription: SetVideoSubscriptionUseCase,
 ) {
     /**
-     * Значения кнопок, пока запрос в полёте. Записи живут только на время мутации: после ответа
-     * источником правды снова становится [GetAnimeSubscriptionStateUseCase].
+     * Значения кнопок, пока запрос в полёте. Записи живут только на время мутации: дальше состояние
+     * снова приходит от сервера полем `subscribed` в списке видео.
      */
     private var pendingStatesByAnimeId = emptyMap<Int, Map<String, Boolean>>()
 
@@ -39,18 +38,12 @@ internal class DetailsSubscriptionHandler @Inject constructor(
         val details = runCatching { getAnimeDetails(animeId) }.getOrNull()
         return runCatching { getAnimeVideos(animeId) }.fold(
             onSuccess = { videos ->
-                val subscriptions = loadSubscriptions(
-                    animeId = animeId,
-                    details = details,
-                    videos = videos,
-                    userId = session.userId,
-                ).getOrElse { videos.toSubscriptionOptions() }
                 ScreenSubscriptionBaseResult.Content(
                     ScreenSubscriptionBase(
-                        userId = session.userId,
                         details = details,
-                        videos = videos,
-                        subscriptions = subscriptions,
+                        subscriptions = videos.toSubscriptionOptions(
+                            pendingStates = pendingSubscriptionStates(animeId),
+                        ),
                     )
                 )
             },
@@ -58,43 +51,27 @@ internal class DetailsSubscriptionHandler @Inject constructor(
         )
     }
 
-    suspend fun loadSubscriptions(
-        animeId: Int,
-        details: AnimeDetails?,
-        videos: List<AnimeVideo>,
-        userId: Int,
-    ): Result<List<SubscriptionOption>> = runCatching {
-        val state = getAnimeSubscriptionState(
-            userId = userId,
-            animeId = animeId,
-            animeUrl = details?.animeUrl,
-        )
-        videos.toSubscriptionOptions(
-            state = state,
-            pendingStates = pendingSubscriptionStates(animeId),
-        )
-    }
+    /**
+     * Перечитывает список видео с сервера: подписка меняется именно там, а кэш видео живёт 5 минут,
+     * и без принудительного запроса галочка вернулась бы в прежнее состояние.
+     */
+    suspend fun reloadSubscriptions(animeId: Int): Result<List<SubscriptionOption>> =
+        runCatching {
+            refreshAnimeVideos(animeId).toSubscriptionOptions(
+                pendingStates = pendingSubscriptionStates(animeId),
+            )
+        }
 
     suspend fun commitSubscriptionChange(
-        userId: Int,
         animeId: Int,
         option: SubscriptionOption,
-        subscribed: Boolean,
+        subscribed: Boolean
     ): Boolean {
         setPendingState(animeId, option.key, subscribed)
         return try {
-            val result = runCatching {
-                setVideoSubscription(
-                    userId = userId,
-                    animeId = animeId,
-                    playerId = option.playerId,
-                    player = option.player,
-                    dubbing = option.dubbing,
-                    videoId = option.subscriptionVideoId,
-                    subscribed = subscribed,
-                )
-            }
-            val changed = result.getOrDefault(false)
+            val changed = runCatching {
+                setVideoSubscription(option.subscriptionVideoId, subscribed)
+            }.getOrDefault(false)
             if (changed) delay(SUBSCRIPTION_REFRESH_DELAY)
             changed
         } finally {
@@ -117,11 +94,9 @@ internal class DetailsSubscriptionHandler @Inject constructor(
     }
 }
 
-/** Base subscription screen data loaded before remote subscription state is merged. */
+/** Base subscription screen data. */
 internal data class ScreenSubscriptionBase(
-    val userId: Int,
     val details: AnimeDetails?,
-    val videos: List<AnimeVideo>,
     val subscriptions: List<SubscriptionOption>,
 )
 

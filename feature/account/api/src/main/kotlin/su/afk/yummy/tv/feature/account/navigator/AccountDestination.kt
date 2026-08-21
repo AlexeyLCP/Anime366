@@ -16,6 +16,9 @@ data class UserProfileByNicknameDestination(val nickname: String) : NavKey
 data object UserSearchDestination : NavKey
 
 @Serializable
+data object MySubscriptionsDestination : NavKey
+
+@Serializable
 data object ProfileEditDestination : NavKey
 
 @Serializable

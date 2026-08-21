@@ -87,12 +87,22 @@ internal fun NotificationsTab(
                         selected = state.selectedTab,
                         onSelected = { onEvent(AccountState.Event.TabSelected(it)) },
                         selectedTabFocusRequester = selectedTabFocusRequester,
-                        contentFocusRequester = notificationsTabState.contentFocusRequester,
+                        // Вниз с таба — на «Мои подписки»: дальше по колонке фокус ходит сам.
+                        contentFocusRequester = notificationsTabState.mySubscriptionsFocusRequester,
                         onContentRequested = {
-                            notificationsTabState.requestContentFocusFromTabs(notificationIds)
+                            notificationsTabState.requestFocusSafely(
+                                notificationsTabState.mySubscriptionsFocusRequester
+                            )
                         },
                         autoFocusSelected = !notificationsTabState.notificationContentHasFocus &&
                                 !notificationsTabState.suppressNotificationFocusUpdates,
+                    )
+                    AccountAction(
+                        label = stringResource(R.string.account_my_subscriptions),
+                        onClick = { onEvent(AccountState.Event.MySubscriptionsSelected) },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .focusRequester(notificationsTabState.mySubscriptionsFocusRequester),
                     )
                     if (state.notificationCounts.any { it.count > 0 } || state.notifications.isNotEmpty()) {
                         NotificationTypeBadges(state.notificationCounts)

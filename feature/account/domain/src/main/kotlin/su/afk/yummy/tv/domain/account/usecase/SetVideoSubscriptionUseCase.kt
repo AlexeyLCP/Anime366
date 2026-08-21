@@ -1,33 +1,22 @@
 package su.afk.yummy.tv.domain.account.usecase
 
-import su.afk.yummy.tv.domain.account.model.SubscriptionKeys
-import su.afk.yummy.tv.domain.account.model.VideoSubscriptionSelection
 import su.afk.yummy.tv.domain.account.mutation.AccountMutationAction
 import su.afk.yummy.tv.domain.account.mutation.AccountMutationErrorNotifier
 import su.afk.yummy.tv.domain.account.repository.VideoSubscriptionRepository
 import javax.inject.Inject
 
 /**
- * Переключает подписку на обновления выбранной озвучки.
+ * Переключает подписку на новые серии выбранной озвучки.
  *
- * Сервер принимает только `video_id`, а в ответе списка подписок озвучку не возвращает, поэтому
- * выбранная озвучка и использованный `video_id` сохраняются локально — иначе отписаться ровно от неё
- * будет нечем.
+ * Сервер принимает `video_id` любой серии нужной озвучки и сам сводит его к тройке
+ * «тайтл + балансер + озвучка».
  */
 class SetVideoSubscriptionUseCase @Inject constructor(
     private val repository: VideoSubscriptionRepository,
     private val mutationErrorNotifier: AccountMutationErrorNotifier,
 ) {
-    suspend operator fun invoke(
-        userId: Int,
-        animeId: Int,
-        playerId: Int?,
-        player: String,
-        dubbing: String,
-        videoId: Int,
-        subscribed: Boolean,
-    ): Boolean {
-        val changed = notifyBooleanMutationFailure(
+    suspend operator fun invoke(videoId: Int, subscribed: Boolean): Boolean =
+        notifyBooleanMutationFailure(
             mutationErrorNotifier,
             if (subscribed) {
                 AccountMutationAction.SET_VIDEO_SUBSCRIPTION
@@ -37,24 +26,4 @@ class SetVideoSubscriptionUseCase @Inject constructor(
         ) {
             repository.setSubscribed(videoId, subscribed)
         }
-        if (!changed) return false
-
-        val playerKey = SubscriptionKeys.playerKey(playerId, player)
-        val dubbingKey = SubscriptionKeys.dubbingKey(dubbing)
-        if (subscribed) {
-            repository.saveSelection(
-                userId = userId,
-                selection = VideoSubscriptionSelection(
-                    animeId = animeId,
-                    playerKey = playerKey,
-                    dubbingKey = dubbingKey,
-                    videoId = videoId,
-                    updatedAt = System.currentTimeMillis(),
-                ),
-            )
-        } else {
-            repository.removeSelection(userId, animeId, playerKey, dubbingKey)
-        }
-        return true
-    }
 }

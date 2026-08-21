@@ -38,7 +38,7 @@ class YaniProfileNotificationsRepository(
             if (userId <= 0) return@withContext emptyList()
             offlineFirstCache(
                 read = { accountStorage.getNotificationCounts(userId) },
-                isFresh = { it.isFresh(ACCOUNT_SHORT_TTL_MS) },
+                isFresh = { it.isFresh(ACCOUNT_NOTIFICATIONS_TTL_MS) },
                 toDomain = { it.toNotificationCounts() },
                 fetchAndSave = {
                     val cache = api.getNotificationCounts().toNotificationCountsCache(
@@ -100,7 +100,7 @@ class YaniProfileNotificationsRepository(
         offset: Int,
     ): List<ProfileNotification> = offlineFirstCache(
         read = { accountStorage.getNotifications(userId, languageCode, limit, offset) },
-        isFresh = { it.isFresh(ACCOUNT_SHORT_TTL_MS) },
+        isFresh = { it.isFresh(ACCOUNT_NOTIFICATIONS_TTL_MS) },
         toDomain = { it.toNotifications() },
         fetchAndSave = { fetchNotifications(userId, languageCode, limit, offset) },
     )

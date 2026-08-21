@@ -7,9 +7,9 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.launch
-import su.afk.yummy.tv.core.mvi.BaseViewModel
 import su.afk.yummy.tv.core.error.api.ErrorHandler
 import su.afk.yummy.tv.core.error.api.RetryStorage
+import su.afk.yummy.tv.core.mvi.BaseViewModel
 import su.afk.yummy.tv.core.navigation.manager.INavigationManager
 import su.afk.yummy.tv.feature.details.DetailsAnalytics
 import su.afk.yummy.tv.feature.details.details.handler.DetailsSubscriptionHandler
@@ -31,8 +31,6 @@ class SubscriptionsViewModel @AssistedInject internal constructor(
     }
 
     override fun createInitialState() = SubscriptionsState.State()
-
-    private var userId: Int = 0
 
     init {
         analytics.eventSubscriptionsScreenOpened(animeId)
@@ -62,7 +60,6 @@ class SubscriptionsViewModel @AssistedInject internal constructor(
             }
 
             is ScreenSubscriptionBaseResult.Content -> {
-                userId = result.base.userId
                 setState {
                     copy(
                         isLoading = false,
@@ -87,8 +84,6 @@ class SubscriptionsViewModel @AssistedInject internal constructor(
 
     private fun toggleSubscription(key: String) {
         val option = currentState.subscriptions.firstOrNull { it.key == key } ?: return
-        val currentUserId = userId
-        if (currentUserId <= 0) return
         val wasSubscribed = option.isSubscribed
         analytics.eventSubscriptionsSubscriptionToggled(
             animeId = animeId,
@@ -98,15 +93,16 @@ class SubscriptionsViewModel @AssistedInject internal constructor(
         setSubscriptionState(key, !wasSubscribed)
         viewModelScope.launch {
             val changed = subscriptionHandler.commitSubscriptionChange(
-                userId = currentUserId,
                 animeId = animeId,
                 option = option,
                 subscribed = !wasSubscribed,
             )
             if (!changed) {
                 setSubscriptionState(key, wasSubscribed)
-            } else {
-                load(showLoading = false)
+                return@launch
+            }
+            subscriptionHandler.reloadSubscriptions(animeId).onSuccess { subscriptions ->
+                setState { copy(subscriptions = subscriptions.toImmutableList()) }
             }
         }
     }

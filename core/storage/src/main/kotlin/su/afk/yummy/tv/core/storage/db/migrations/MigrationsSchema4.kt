@@ -154,3 +154,14 @@ internal val MIGRATION_45_46 = object : Migration(45, 46) {
         )
     }
 }
+
+internal val MIGRATION_46_47 = object : Migration(46, 47) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("ALTER TABLE anime_videos ADD COLUMN subscribed INTEGER NOT NULL DEFAULT 0")
+        // Состояние подписки отдаёт сам сервер в /anime/{id}/videos — локальная таблица не нужна.
+        db.execSQL("DROP TABLE IF EXISTS video_subscription_selection")
+        // Флаг subscribed появляется только в авторизованном ответе: помечаем кэш видео устаревшим,
+        // чтобы первый показ перечитал его с сервера.
+        db.execSQL("UPDATE anime_video_caches SET cachedAt = 0")
+    }
+}

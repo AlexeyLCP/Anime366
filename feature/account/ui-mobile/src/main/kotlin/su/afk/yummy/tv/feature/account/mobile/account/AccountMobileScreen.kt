@@ -13,6 +13,7 @@ import androidx.compose.material.icons.filled.VideoLibrary
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -78,6 +79,8 @@ fun AccountMobileScreen(
     effect: Flow<AccountState.Effect>,
     onEvent: (AccountState.Event) -> Unit,
 ) {
+    LaunchedEffect(Unit) { onEvent(AccountState.Event.ScreenShown) }
+
     var showLogoutConfirm by remember { mutableStateOf(false) }
     val mainActions = LocalMobileMainActions.current
     val bottomBarUpFocusRequester = LocalMobileBottomBarUpFocusRequester.current

@@ -261,6 +261,7 @@ internal fun List<YaniAnimeVideoDto>.toAnimeVideosCache(
                 views = video.views,
                 watchedEndTimeSeconds = video.watched?.endTime,
                 watchedDateSeconds = video.watched?.date,
+                subscribed = video.subscribed,
                 openingStartMs = opening?.first,
                 openingEndMs = opening?.second,
                 endingStartMs = ending?.first,
@@ -470,6 +471,7 @@ private fun AnimeVideoEntry.toAnimeVideo(): AnimeVideo =
         views = views,
         watchedEndTimeSeconds = watchedEndTimeSeconds,
         watchedDateSeconds = watchedDateSeconds,
+        isSubscribed = subscribed,
         skips = AnimeVideoSkips(
             opening = skipSegment(openingStartMs, openingEndMs),
             ending = skipSegment(endingStartMs, endingEndMs),

@@ -164,6 +164,7 @@ data class AnimeVideoEntry(
     val views: Int? = null,
     val watchedEndTimeSeconds: Int? = null,
     val watchedDateSeconds: Long? = null,
+    val subscribed: Boolean = false,
     val openingStartMs: Long? = null,
     val openingEndMs: Long? = null,
     val endingStartMs: Long? = null,

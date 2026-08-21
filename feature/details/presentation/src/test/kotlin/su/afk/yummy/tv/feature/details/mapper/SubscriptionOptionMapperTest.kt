@@ -5,31 +5,27 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import su.afk.yummy.tv.core.model.anime.AnimeVideo
-import su.afk.yummy.tv.domain.account.model.AnimeSubscriptionState
 import su.afk.yummy.tv.domain.account.model.SubscriptionKeys
 
 /**
- * Регресс на подписки: раньше состояние восстанавливалось сравнением названий озвучек «на contains»,
- * из-за чего одна подписка подсвечивала все озвучки с похожим названием. Названия здесь — реальные,
- * из `GET /anime/{id}/videos`.
+ * Состояние подписки приходит от сервера полем `subscribed` у каждого видео. Регресс: раньше оно
+ * восстанавливалось сравнением названий озвучек, и одна подписка подсвечивала весь балансер.
+ * Названия здесь реальные, из `GET /anime/{id}/videos`.
  */
 class SubscriptionOptionMapperTest {
 
     private val videos = listOf(
-        video(id = 10, episode = "1", dubbing = SUBS, player = KODIK, playerId = 4),
-        video(id = 11, episode = "2", dubbing = SUBS, player = KODIK, playerId = 4),
-        video(id = 20, episode = "1", dubbing = SUBS_WAKANIM, player = KODIK, playerId = 4),
-        video(id = 30, episode = "1", dubbing = SUBS_YAKUSUB, player = KODIK, playerId = 4),
+        video(id = 10, episode = "1", dubbing = SUBS, player = KODIK, subscribed = true),
+        video(id = 11, episode = "2", dubbing = SUBS, player = KODIK, subscribed = true),
+        video(id = 20, episode = "1", dubbing = SUBS_WAKANIM, player = KODIK),
+        video(id = 30, episode = "1", dubbing = SUBS_YAKUSUB, player = KODIK),
         video(id = 40, episode = "1", dubbing = SUBS, player = CVH, playerId = 3),
     )
 
     @Test
     fun `subscription lights up only its own dubbing`() {
-        val options = videos.toSubscriptionOptions(
-            state = AnimeSubscriptionState(subscribedKeys = setOf(key(4, KODIK, SUBS))),
-        )
+        val subscribed = videos.toSubscriptionOptions().filter { it.isSubscribed }
 
-        val subscribed = options.filter { it.isSubscribed }
         assertEquals(1, subscribed.size)
         assertEquals(SUBS, subscribed.single().dubbing)
         assertEquals(KODIK, subscribed.single().player)
@@ -37,42 +33,39 @@ class SubscriptionOptionMapperTest {
 
     @Test
     fun `same dubbing on another balancer stays unsubscribed`() {
-        val options = videos.toSubscriptionOptions(
-            state = AnimeSubscriptionState(subscribedKeys = setOf(key(4, KODIK, SUBS))),
-        )
-
-        val cvh = options.single { it.player == CVH }
-        assertFalse(cvh.isSubscribed)
-    }
-
-    @Test
-    fun `stored video id is used for the subscription request`() {
-        val subscriptionKey = key(4, KODIK, SUBS)
-        val options = videos.toSubscriptionOptions(
-            state = AnimeSubscriptionState(
-                subscribedKeys = setOf(subscriptionKey),
-                videoIdsByKey = mapOf(subscriptionKey to 10),
-            ),
-        )
-
-        assertEquals(10, options.single { it.key == subscriptionKey }.subscriptionVideoId)
-    }
-
-    @Test
-    fun `without a stored video id the latest episode is used`() {
         val options = videos.toSubscriptionOptions()
 
-        assertEquals(11, options.single { it.key == key(4, KODIK, SUBS) }.subscriptionVideoId)
+        assertFalse(options.single { it.player == CVH }.isSubscribed)
+    }
+
+    @Test
+    fun `the subscribed video is used for the request`() {
+        val options = videos.toSubscriptionOptions()
+
+        assertEquals(10, options.single { it.key == key(KODIK, SUBS) }.subscriptionVideoId)
+    }
+
+    @Test
+    fun `without a subscription the latest episode is used`() {
+        val options = videos.toSubscriptionOptions()
+
+        assertEquals(30, options.single { it.key == key(KODIK, SUBS_YAKUSUB) }.subscriptionVideoId)
     }
 
     @Test
     fun `pending state wins while the request is in flight`() {
-        val subscriptionKey = key(4, KODIK, SUBS_WAKANIM)
-        val options = videos.toSubscriptionOptions(
-            pendingStates = mapOf(subscriptionKey to true),
-        )
+        val pendingKey = key(KODIK, SUBS_WAKANIM)
+        val options = videos.toSubscriptionOptions(pendingStates = mapOf(pendingKey to true))
 
-        assertTrue(options.single { it.key == subscriptionKey }.isSubscribed)
+        assertTrue(options.single { it.key == pendingKey }.isSubscribed)
+    }
+
+    @Test
+    fun `pending unsubscribe overrides the server flag`() {
+        val subscribedKey = key(KODIK, SUBS)
+        val options = videos.toSubscriptionOptions(pendingStates = mapOf(subscribedKey to false))
+
+        assertFalse(options.single { it.key == subscribedKey }.isSubscribed)
     }
 
     @Test
@@ -80,18 +73,19 @@ class SubscriptionOptionMapperTest {
         val options = videos.toSubscriptionOptions()
 
         assertEquals(4, options.size)
-        assertEquals(2, options.single { it.key == key(4, KODIK, SUBS) }.episodesCount)
+        assertEquals(2, options.single { it.key == key(KODIK, SUBS) }.episodesCount)
     }
 
-    private fun key(playerId: Int, player: String, dubbing: String): String =
-        SubscriptionKeys.subscriptionKey(playerId, player, dubbing)
+    private fun key(player: String, dubbing: String): String =
+        SubscriptionKeys.subscriptionKey(if (player == KODIK) 4 else 3, player, dubbing)
 
     private fun video(
         id: Int,
         episode: String,
         dubbing: String,
         player: String,
-        playerId: Int,
+        playerId: Int = 4,
+        subscribed: Boolean = false,
     ) = AnimeVideo(
         id = id,
         episode = episode,
@@ -100,6 +94,7 @@ class SubscriptionOptionMapperTest {
         playerId = playerId,
         iframeUrl = "https://example.test/$id",
         durationSeconds = null,
+        isSubscribed = subscribed,
     )
 
     private companion object {

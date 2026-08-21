@@ -39,6 +39,8 @@ internal class AccountSessionHandler @Inject constructor(
         isMissingProfileRefreshRunning = false
     }
 
+    fun isHubLoadedFor(userId: Int): Boolean = userId > 0 && loadedUserId == userId
+
     fun markHubLoadIfNeeded(state: AccountState.State, force: Boolean): Boolean {
         if (!state.isSignedIn || state.userId <= 0) return false
         if (!force && loadedUserId == state.userId) return false

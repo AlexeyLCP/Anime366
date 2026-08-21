@@ -11,5 +11,7 @@ data class AnimeVideo(
     val views: Int? = null,
     val watchedEndTimeSeconds: Int? = null,
     val watchedDateSeconds: Long? = null,
+    /** Подписка на новые серии этой озвучки и балансера — состояние приходит от сервера. */
+    val isSubscribed: Boolean = false,
     val skips: AnimeVideoSkips = AnimeVideoSkips(),
 )

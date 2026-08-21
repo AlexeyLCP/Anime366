@@ -13,15 +13,15 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import su.afk.yummy.tv.core.mvi.BaseViewModel
 import su.afk.yummy.tv.core.error.api.ErrorHandler
 import su.afk.yummy.tv.core.error.api.RetryStorage
 import su.afk.yummy.tv.core.error.api.StringProvider
 import su.afk.yummy.tv.core.model.anime.AnimeDetails
 import su.afk.yummy.tv.core.model.anime.AnimeVideo
 import su.afk.yummy.tv.core.model.anime.AnimeWatchProgress
-import su.afk.yummy.tv.core.navigation.manager.INavigationManager
 import su.afk.yummy.tv.core.model.settings.PreferredPlayer
+import su.afk.yummy.tv.core.mvi.BaseViewModel
+import su.afk.yummy.tv.core.navigation.manager.INavigationManager
 import su.afk.yummy.tv.core.utils.episode.episodeGroupKey
 import su.afk.yummy.tv.domain.account.model.UserAnimeList
 import su.afk.yummy.tv.feature.bloggers.IBloggerVideosNavigator
@@ -392,7 +392,6 @@ class DetailsViewModel @AssistedInject internal constructor(
         setState { copy(videosState = VideosUiState.Loading) }
         videoHandler.load(
             animeId = animeId,
-            knownSubscriptions = currentState.subscriptions,
             pendingSubscriptionStates = subscriptionHandler.pendingSubscriptionStates(animeId),
         ).fold(
             onSuccess = { result ->
@@ -420,7 +419,6 @@ class DetailsViewModel @AssistedInject internal constructor(
     private suspend fun loadVideosIfCacheMissing() {
         val cached = videoHandler.loadCached(
             animeId = animeId,
-            knownSubscriptions = currentState.subscriptions,
             pendingSubscriptionStates = subscriptionHandler.pendingSubscriptionStates(animeId),
         )
         if (cached != null) {
@@ -446,7 +444,6 @@ class DetailsViewModel @AssistedInject internal constructor(
     private suspend fun refreshVideosFromNetwork() {
         videoHandler.refresh(
             animeId = animeId,
-            knownSubscriptions = currentState.subscriptions,
             pendingSubscriptionStates = subscriptionHandler.pendingSubscriptionStates(animeId),
         ).onSuccess { result ->
             setVideos(result)
@@ -524,19 +521,12 @@ class DetailsViewModel @AssistedInject internal constructor(
     }
 
     private suspend fun loadSubscriptions() {
-        val userId = yaniUserIdState.value
-        val videos = (currentState.videosState as? VideosUiState.Content)?.videos ?: return
-        if (!currentState.isSignedIn || userId <= 0) {
+        if (!currentState.isSignedIn) {
             setState { copy(isSubscriptionsLoading = false, subscriptions = persistentListOf()) }
             return
         }
         setState { copy(isSubscriptionsLoading = true) }
-        subscriptionHandler.loadSubscriptions(
-            animeId = animeId,
-            details = currentState.details,
-            videos = videos,
-            userId = userId,
-        ).fold(
+        subscriptionHandler.reloadSubscriptions(animeId).fold(
             onSuccess = { subscriptions ->
                 setState {
                     copy(
@@ -551,8 +541,6 @@ class DetailsViewModel @AssistedInject internal constructor(
 
     private fun toggleSubscription(key: String) {
         if (!currentState.isSignedIn) return
-        val userId = yaniUserIdState.value
-        if (userId <= 0) return
         val option = currentState.subscriptions.firstOrNull { it.key == key } ?: return
         val wasSubscribed = option.isSubscribed
         analytics.eventDetailsSubscriptionTvToggled(
@@ -563,15 +551,16 @@ class DetailsViewModel @AssistedInject internal constructor(
         setSubscriptionState(key, !wasSubscribed)
         viewModelScope.launch {
             val changed = subscriptionHandler.commitSubscriptionChange(
-                userId = userId,
                 animeId = animeId,
                 option = option,
                 subscribed = !wasSubscribed,
             )
             if (!changed) {
                 setSubscriptionState(key, wasSubscribed)
-            } else {
-                loadSubscriptions()
+                return@launch
+            }
+            subscriptionHandler.reloadSubscriptions(animeId).onSuccess { subscriptions ->
+                setState { copy(subscriptions = subscriptions.toImmutableList()) }
             }
         }
     }

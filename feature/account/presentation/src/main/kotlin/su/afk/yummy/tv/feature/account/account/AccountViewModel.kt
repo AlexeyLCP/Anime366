@@ -7,9 +7,9 @@ import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import su.afk.yummy.tv.core.mvi.BaseViewModel
 import su.afk.yummy.tv.core.error.api.ErrorHandler
 import su.afk.yummy.tv.core.error.api.RetryStorage
+import su.afk.yummy.tv.core.mvi.BaseViewModel
 import su.afk.yummy.tv.core.navigation.manager.INavigationManager
 import su.afk.yummy.tv.core.preferences.settings.YaniAccountSettingsStore
 import su.afk.yummy.tv.domain.account.model.NotificationCount
@@ -218,8 +218,17 @@ class AccountViewModel @Inject internal constructor(
                 if (currentState.isSignedIn) nav.navigate(messagesNavigator.dialogs())
             }
 
+            AccountState.Event.ScreenShown ->
+                // Уже загружали в этой сессии — значит это возврат на экран: даём репозиторию
+                // решить по TTL, ходить ли в сеть.
+                maybeLoadHub(force = sessionHandler.isHubLoadedFor(currentState.userId))
+
             AccountState.Event.UserSearchSelected ->
                 nav.navigate(accountNavigator.getUserSearchDest())
+
+            AccountState.Event.MySubscriptionsSelected -> {
+                if (currentState.isSignedIn) nav.navigate(accountNavigator.getMySubscriptionsDest())
+            }
 
             AccountState.Event.ProfileEditSelected -> {
                 if (currentState.isSignedIn) nav.navigate(accountNavigator.getProfileEditDest())

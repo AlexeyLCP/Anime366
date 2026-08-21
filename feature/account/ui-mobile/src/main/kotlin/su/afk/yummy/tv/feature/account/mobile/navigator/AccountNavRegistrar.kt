@@ -8,12 +8,15 @@ import su.afk.yummy.tv.core.navigation.manager.INavigationManager
 import su.afk.yummy.tv.core.navigation.registrar.NavRegistrar
 import su.afk.yummy.tv.feature.account.account.AccountViewModel
 import su.afk.yummy.tv.feature.account.mobile.account.AccountMobileScreen
+import su.afk.yummy.tv.feature.account.mobile.mysubscriptions.MySubscriptionsMobileScreen
 import su.afk.yummy.tv.feature.account.mobile.passwordreset.PasswordResetMobileScreen
 import su.afk.yummy.tv.feature.account.mobile.profileedit.ProfileEditMobileScreen
 import su.afk.yummy.tv.feature.account.mobile.userprofile.UserProfileMobileScreen
 import su.afk.yummy.tv.feature.account.mobile.userprofile.UserProfileResolverMobileScreen
 import su.afk.yummy.tv.feature.account.mobile.usersearch.UserSearchMobileScreen
+import su.afk.yummy.tv.feature.account.mysubscriptions.MySubscriptionsViewModel
 import su.afk.yummy.tv.feature.account.navigator.AccountDestination
+import su.afk.yummy.tv.feature.account.navigator.MySubscriptionsDestination
 import su.afk.yummy.tv.feature.account.navigator.PasswordResetDestination
 import su.afk.yummy.tv.feature.account.navigator.ProfileEditDestination
 import su.afk.yummy.tv.feature.account.navigator.UserProfileByNicknameDestination
@@ -54,6 +57,12 @@ class AccountNavRegistrar @Inject constructor() : NavRegistrar {
                 )
                 ScreenNavigator(viewModel) { state, effect, onEvent ->
                     UserProfileResolverMobileScreen(state, effect, onEvent)
+                }
+            }
+            entry<MySubscriptionsDestination> {
+                val viewModel = hiltViewModel<MySubscriptionsViewModel>()
+                ScreenNavigator(viewModel) { state, effect, onEvent ->
+                    MySubscriptionsMobileScreen(state, effect, onEvent)
                 }
             }
             entry<UserSearchDestination> {

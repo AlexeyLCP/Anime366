@@ -9,7 +9,10 @@ import su.afk.yummy.tv.core.navigation.manager.INavigationManager
 import su.afk.yummy.tv.core.navigation.registrar.NavRegistrar
 import su.afk.yummy.tv.feature.account.account.AccountTvScreen
 import su.afk.yummy.tv.feature.account.account.AccountViewModel
+import su.afk.yummy.tv.feature.account.mysubscriptions.MySubscriptionsTvScreen
+import su.afk.yummy.tv.feature.account.mysubscriptions.MySubscriptionsViewModel
 import su.afk.yummy.tv.feature.account.navigator.AccountDestination
+import su.afk.yummy.tv.feature.account.navigator.MySubscriptionsDestination
 import su.afk.yummy.tv.feature.account.utils.LocalAccountTvActiveDestination
 import javax.inject.Inject
 
@@ -24,6 +27,12 @@ class AccountNavRegistrar @Inject constructor() : NavRegistrar {
                     CompositionLocalProvider(LocalAccountTvActiveDestination provides isActiveDestination) {
                         AccountTvScreen(state = state, effect = effect, onEvent = onEvent)
                     }
+                }
+            }
+            entry<MySubscriptionsDestination> {
+                val viewModel = hiltViewModel<MySubscriptionsViewModel>()
+                ScreenNavigator(viewModel) { state, effect, onEvent ->
+                    MySubscriptionsTvScreen(state = state, effect = effect, onEvent = onEvent)
                 }
             }
         }

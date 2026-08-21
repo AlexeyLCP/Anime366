@@ -13,8 +13,8 @@ import su.afk.yummy.tv.core.storage.account.ACCOUNT_PROFILE_KEY_CURRENT
 import su.afk.yummy.tv.core.storage.account.AccountStorage
 import su.afk.yummy.tv.core.storage.account.accountProfileUserKey
 import su.afk.yummy.tv.core.storage.account.isFresh
+import su.afk.yummy.tv.core.storage.anime.AnimeStorage
 import su.afk.yummy.tv.core.storage.document.DocumentCacheStorage
-import su.afk.yummy.tv.core.storage.subscriptionselection.VideoSubscriptionSelectionStorage
 import su.afk.yummy.tv.data.account.dto.YaniProfileDto
 import su.afk.yummy.tv.data.account.dto.YaniRegistrationBodyDto
 import su.afk.yummy.tv.data.account.mapper.toAccount
@@ -37,7 +37,7 @@ class YaniAccountRepository(
     private val yaniAuthPreferences: YaniAuthPreferences,
     private val accountStorage: AccountStorage,
     private val documentCache: DocumentCacheStorage,
-    private val subscriptionSelectionStorage: VideoSubscriptionSelectionStorage,
+    private val animeStorage: AnimeStorage,
 ) : AccountRepository {
 
     override suspend fun login(
@@ -174,10 +174,11 @@ class YaniAccountRepository(
         documentCache.deleteByPrefix(userDocumentCachePrefix(userId.coerceAtLeast(0)))
         if (userId > 0) {
             accountStorage.clearUserScoped(userId)
-            subscriptionSelectionStorage.deleteForUser(userId)
         } else {
             accountStorage.deleteProfile(ACCOUNT_PROFILE_KEY_CURRENT)
         }
+        // В кэше видео лежат привязанные к пользователю watched и subscribed — они больше не наши.
+        animeStorage.expireAllVideos()
         yaniAuthPreferences.clearRefreshToken()
         settingsStore.clearYaniAccount()
     }

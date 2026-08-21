@@ -74,8 +74,6 @@ import su.afk.yummy.tv.core.storage.search.SearchItemEntry
 import su.afk.yummy.tv.core.storage.search.SearchPageEntry
 import su.afk.yummy.tv.core.storage.search.SearchStorageDao
 import su.afk.yummy.tv.core.storage.search.SearchTypeEntry
-import su.afk.yummy.tv.core.storage.subscriptionselection.VideoSubscriptionSelectionDao
-import su.afk.yummy.tv.core.storage.subscriptionselection.VideoSubscriptionSelectionEntry
 import su.afk.yummy.tv.core.storage.top.AnimeTopDao
 import su.afk.yummy.tv.core.storage.top.AnimeTopItemEntry
 import su.afk.yummy.tv.core.storage.top.AnimeTopPageEntry
@@ -153,9 +151,8 @@ import su.afk.yummy.tv.core.storage.watchprogress.WatchProgressEntry
         DocumentCacheEntry::class,
         VideoDownloadEntry::class,
         AllohaTrackPreferenceEntry::class,
-        VideoSubscriptionSelectionEntry::class,
     ],
-    version = 46,
+    version = 47,
     exportSchema = false,
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -173,5 +170,4 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun videoDownloadDao(): VideoDownloadDao
     abstract fun storageCleanupDao(): StorageCleanupDao
     abstract fun allohaTrackPreferenceDao(): AllohaTrackPreferenceDao
-    abstract fun videoSubscriptionSelectionDao(): VideoSubscriptionSelectionDao
 }

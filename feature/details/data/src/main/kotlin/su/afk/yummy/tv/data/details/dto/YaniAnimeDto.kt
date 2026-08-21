@@ -169,6 +169,8 @@ data class YaniAnimeVideoDto(
     val duration: Int? = null,
     val views: Int? = null,
     val watched: YaniVideoWatchedDto? = null,
+    /** Приходит только авторизованному пользователю: подписан ли он на эту озвучку и балансер. */
+    val subscribed: Boolean = false,
     val skips: YaniVideoSkipsDto? = null,
 )
 

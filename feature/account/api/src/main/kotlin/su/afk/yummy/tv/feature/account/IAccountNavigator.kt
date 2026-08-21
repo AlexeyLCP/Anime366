@@ -7,6 +7,7 @@ interface IAccountNavigator {
     fun getUserProfileDest(userId: Int): NavKey
     fun getUserProfileByNicknameDest(nickname: String): NavKey
     fun getUserSearchDest(): NavKey
+    fun getMySubscriptionsDest(): NavKey
     fun getProfileEditDest(): NavKey
     fun getPasswordResetDest(): NavKey
 }

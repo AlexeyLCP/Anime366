@@ -11,6 +11,9 @@ interface AnimeStorage {
 
     suspend fun expireAllDetails()
 
+    /** Помечает кэш видео устаревшим: `watched` и `subscribed` в нём привязаны к пользователю. */
+    suspend fun expireAllVideos()
+
     suspend fun getVideos(animeId: Int, language: String): AnimeVideosCache?
 
     suspend fun saveVideos(cache: AnimeVideosCache)

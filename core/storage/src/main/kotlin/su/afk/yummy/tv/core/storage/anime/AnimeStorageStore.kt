@@ -13,6 +13,10 @@ internal class AnimeStorageStore(private val dao: AnimeStorageDao) : AnimeStorag
         dao.deleteDetails(animeId, language)
     }
 
+    override suspend fun expireAllVideos() {
+        dao.expireAllVideos()
+    }
+
     override suspend fun expireAllDetails() {
         dao.expireAllDetails()
     }

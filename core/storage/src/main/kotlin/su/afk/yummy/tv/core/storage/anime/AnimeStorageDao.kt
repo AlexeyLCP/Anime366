@@ -147,6 +147,9 @@ abstract class AnimeStorageDao {
     @Query("UPDATE anime_details SET cachedAt = 0")
     abstract suspend fun expireAllDetails()
 
+    @Query("UPDATE anime_video_caches SET cachedAt = 0")
+    abstract suspend fun expireAllVideos()
+
     @Query("DELETE FROM anime_detail_titles WHERE animeId = :animeId AND language = :language")
     abstract suspend fun deleteOtherTitles(animeId: Int, language: String)
 
