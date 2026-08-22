@@ -184,4 +184,5 @@
     <string name="account_mobile_my_subscriptions_empty">You have no subscriptions yet</string>
     <string name="account_mobile_my_subscriptions_player">Balancer: %1$s</string>
     <string name="account_mobile_my_subscriptions_player_unknown">Balancer unknown</string>
+    <string name="account_error_load_subscriptions_failed">Could not load subscriptions</string>
 </resources>

@@ -32,6 +32,7 @@ import su.afk.yummy.tv.core.designsystem.tv.TvStateContent
 import su.afk.yummy.tv.core.designsystem.tv.TvTitleCard
 import su.afk.yummy.tv.domain.account.model.SubscriptionKeys
 import su.afk.yummy.tv.feature.account.R
+import su.afk.yummy.tv.feature.account.utils.accountErrorMessage
 
 @Composable
 fun MySubscriptionsTvScreen(
@@ -43,7 +44,7 @@ fun MySubscriptionsTvScreen(
 
     TvStateContent(
         isLoading = state.isLoading && state.subscriptions.isEmpty(),
-        error = state.error,
+        error = state.error.accountErrorMessage(),
         empty = state.subscriptions.isEmpty(),
         emptyText = stringResource(
             if (state.isSignedIn) {

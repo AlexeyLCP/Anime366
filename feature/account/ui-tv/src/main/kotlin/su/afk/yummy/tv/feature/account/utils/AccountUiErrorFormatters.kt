@@ -24,6 +24,7 @@ private val AccountUiError.messageRes: Int
         AccountUiError.SIGN_IN_FAILED -> R.string.account_error_sign_in_failed
         AccountUiError.LOAD_PROFILE_STATISTICS_FAILED -> R.string.account_error_load_profile_statistics_failed
         AccountUiError.LOAD_NOTIFICATIONS_FAILED -> R.string.account_error_load_notifications_failed
+        AccountUiError.LOAD_SUBSCRIPTIONS_FAILED -> R.string.account_error_load_subscriptions_failed
         AccountUiError.UPDATE_NOTIFICATION_FAILED -> R.string.account_error_update_notification_failed
         AccountUiError.UPDATE_NOTIFICATIONS_FAILED -> R.string.account_error_update_notifications_failed
     }

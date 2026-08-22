@@ -14,8 +14,15 @@
 {
   "video_id": 1027521,
   "number": "1",
-  "data": { "player": "Плеер Kodik", "dubbing": "Озвучка РуАниме / DEEP", "player_id": 4 },
-  "watched": { "end_time": 1336, "date": 1784061705 },
+  "data": {
+    "player": "Плеер Kodik",
+    "dubbing": "Озвучка РуАниме / DEEP",
+    "player_id": 4
+  },
+  "watched": {
+    "end_time": 1336,
+    "date": 1784061705
+  },
   "subscribed": true,
   "iframe_url": "…"
 }
@@ -45,18 +52,29 @@
 
 ```json
 {
-  "sub": { "dubbing": "", "player": "Kodik", "player_id": 4 },
-  "anime_id": 26429, "anime_url": "tabakoshka", "title": "…", "poster": { … }
+  "sub": {
+    "dubbing": "",
+    "player": "Kodik",
+    "player_id": 4
+  },
+  "anime_id": 26429,
+  "anime_url": "tabakoshka",
+  "title": "…",
+  "poster": {
+    …
+  }
 }
 ```
 
 Список всех подписок пользователя — по строке на подписку. Используется **только** экраном
 «Мои подписки» (первый пункт вкладки уведомлений). Для состояния конкретной озвучки не годится:
 
-* **`sub.dubbing` не сообщает озвучку подписки.** Приходит либо пустым, либо перечислением всех
-  озвучек
-  этого балансера — `"AniLibria() AniDUB() SHIZA Project() … "` — одинаковым у всех подписок одного
-  балансера.
+* **`sub.dubbing` не сообщает озвучку подписки.** Приходит либо пустым, либо `null`, либо
+  перечислением
+  всех озвучек этого балансера — `"AniLibria() AniDUB() SHIZA Project() … "` — одинаковым у всех
+  подписок
+  одного балансера. Из-за `null` в non-null поле с дефолтом разбор ответа падал целиком, пока в
+  `YaniApiJson` не включили `coerceInputValues` (регресс закрыт `YaniSubscriptionsParsingTest`).
 * `sub.player` — короткое имя (`"Kodik"`), тогда как в списке видео оно приходит как
   `"Плеер Kodik"`.
 * `video_id` и номера серии в ответе нет вовсе.

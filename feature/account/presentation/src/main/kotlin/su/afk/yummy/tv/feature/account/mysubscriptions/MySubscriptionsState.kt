@@ -6,11 +6,12 @@ import su.afk.yummy.tv.core.mvi.UiEffect
 import su.afk.yummy.tv.core.mvi.UiEvent
 import su.afk.yummy.tv.core.mvi.UiState
 import su.afk.yummy.tv.domain.account.model.VideoSubscription
+import su.afk.yummy.tv.feature.account.account.model.AccountUiError
 
 class MySubscriptionsState {
     data class State(
         val isLoading: Boolean = true,
-        val error: String? = null,
+        val error: AccountUiError? = null,
         val isSignedIn: Boolean = true,
         val subscriptions: ImmutableList<VideoSubscription> = persistentListOf(),
     ) : UiState

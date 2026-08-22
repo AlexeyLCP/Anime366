@@ -17,4 +17,7 @@ dependencies {
     implementation(project(":feature:account:domain"))
 
     implementation(libs.kotlinx.serialization.json)
+
+    testImplementation(libs.junit)
+    testImplementation(libs.bundles.unit.test)
 }

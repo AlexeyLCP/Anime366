@@ -92,4 +92,5 @@
     <string name="account_my_subscriptions">Мои подписки</string>
     <string name="account_my_subscriptions_empty">Подписок пока нет</string>
     <string name="account_my_subscriptions_signed_out">Войдите, чтобы увидеть подписки</string>
+    <string name="account_error_load_subscriptions_failed">Не удалось загрузить подписки</string>
 </resources>

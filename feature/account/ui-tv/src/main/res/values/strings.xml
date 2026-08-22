@@ -92,4 +92,5 @@
     <string name="account_my_subscriptions">My subscriptions</string>
     <string name="account_my_subscriptions_empty">You have no subscriptions yet</string>
     <string name="account_my_subscriptions_signed_out">Sign in to see your subscriptions</string>
+    <string name="account_error_load_subscriptions_failed">Could not load subscriptions</string>
 </resources>

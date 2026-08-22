@@ -10,6 +10,7 @@ import su.afk.yummy.tv.core.mvi.BaseViewModel
 import su.afk.yummy.tv.core.navigation.manager.INavigationManager
 import su.afk.yummy.tv.domain.account.usecase.GetAccountSessionUseCase
 import su.afk.yummy.tv.domain.account.usecase.GetVideoSubscriptionsUseCase
+import su.afk.yummy.tv.feature.account.account.model.AccountUiError
 import su.afk.yummy.tv.feature.details.IDetailsNavigator
 import javax.inject.Inject
 
@@ -70,12 +71,12 @@ class MySubscriptionsViewModel @Inject constructor(
                     )
                 }
             },
-            onFailure = { error ->
+            onFailure = {
                 setState {
                     copy(
                         isLoading = false,
                         isSignedIn = true,
-                        error = error.message,
+                        error = AccountUiError.LOAD_SUBSCRIPTIONS_FAILED,
                         subscriptions = persistentListOf(),
                     )
                 }

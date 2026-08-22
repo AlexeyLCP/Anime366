@@ -23,6 +23,7 @@ import su.afk.yummy.tv.core.designsystem.mobile.bar.MobileTopBar
 import su.afk.yummy.tv.core.designsystem.mobile.state.MobileMessage
 import su.afk.yummy.tv.domain.account.model.SubscriptionKeys
 import su.afk.yummy.tv.feature.account.mobile.R
+import su.afk.yummy.tv.feature.account.mobile.account.utils.accountErrorMessage
 import su.afk.yummy.tv.feature.account.mobile.mysubscriptions.view.MySubscriptionMobileRow
 import su.afk.yummy.tv.feature.account.mysubscriptions.MySubscriptionsState
 import su.afk.yummy.tv.core.designsystem.R as CoreR
@@ -54,7 +55,7 @@ fun MySubscriptionsMobileScreen(
             }
 
             state.error != null -> MobileMessage(
-                title = state.error.orEmpty(),
+                title = state.error.accountErrorMessage().orEmpty(),
                 icon = Icons.Filled.Warning,
                 actionLabel = stringResource(CoreR.string.retry),
                 onAction = { onEvent(MySubscriptionsState.Event.RetrySelected) },
