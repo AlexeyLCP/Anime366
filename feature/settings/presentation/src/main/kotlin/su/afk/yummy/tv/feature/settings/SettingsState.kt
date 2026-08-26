@@ -45,6 +45,7 @@ class SettingsState {
         val autoSkipOpeningsEndings: Boolean = false,
         val showOpeningOnTimeline: Boolean = false,
         val autoPlayNextEpisode: Boolean = false,
+        val nextEpisodeSwitchDelaySeconds: Int = 10,
         val askDubbingOnWatch: Boolean = false,
         val pictureInPictureEnabled: Boolean = true,
         val playerOrientationMode: PlayerOrientationMode = PlayerOrientationMode.SYSTEM,
@@ -124,6 +125,9 @@ class SettingsState {
 
         /** Пользователь переключил автовоспроизведение следующей серии. */
         data object AutoPlayNextEpisodeToggled : Event
+
+        /** Пользователь изменил задержку перед авто-переключением на следующую серию. */
+        data class NextEpisodeSwitchDelayChanged(val seconds: Int) : Event
 
         /** Пользователь переключил запрос выбора озвучки при нажатии "Смотреть". */
         data object AskDubbingOnWatchToggled : Event

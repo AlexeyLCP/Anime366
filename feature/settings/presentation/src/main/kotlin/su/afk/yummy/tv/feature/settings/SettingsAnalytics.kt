@@ -183,6 +183,14 @@ internal class SettingsAnalytics @Inject constructor(
         )
     }
 
+    /** Пользователь изменил задержку перед авто-переключением на следующую серию. */
+    fun eventNextEpisodeSwitchDelayChanged(seconds: Int) {
+        tracker.track(
+            EVENT_NEXT_EPISODE_SWITCH_DELAY_CHANGED,
+            analyticsParamsOf(PARAM_VALUE to seconds),
+        )
+    }
+
     /** Пользователь включил или выключил запрос выбора озвучки при нажатии "Смотреть". */
     fun eventAskDubbingOnWatchToggled(enabled: Boolean) {
         tracker.track(
@@ -353,6 +361,8 @@ internal class SettingsAnalytics @Inject constructor(
             "settings_suggest_next_episode_on_watched_toggled"
         const val EVENT_AUTO_PLAY_NEXT_EPISODE_TOGGLED =
             "settings_auto_play_next_episode_toggled"
+        const val EVENT_NEXT_EPISODE_SWITCH_DELAY_CHANGED =
+            "settings_next_episode_switch_delay_changed"
         const val EVENT_ASK_DUBBING_ON_WATCH_TOGGLED =
             "settings_ask_dubbing_on_watch_toggled"
         const val EVENT_PICTURE_IN_PICTURE_TOGGLED =

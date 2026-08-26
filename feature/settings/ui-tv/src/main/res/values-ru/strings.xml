@@ -131,6 +131,9 @@
     <string name="settings_suggest_next_episode_on_watched_enabled">Показывать на главной после завершения текущей</string>
     <string name="settings_auto_play_next_episode_label">Автовоспроизведение следующей серии</string>
     <string name="settings_auto_play_next_episode_enabled">Запускать следующую серию после 10-секундного отсчёта</string>
+    <string name="settings_next_episode_switch_delay_label">Задержка перед переключением серии</string>
+    <string name="settings_next_episode_switch_delay_instant">Мгновенно</string>
+    <string name="settings_next_episode_switch_delay_seconds">%d сек</string>
     <string name="settings_ask_dubbing_on_watch_label">Выбор озвучки при нажатии "Смотреть"</string>
     <string name="settings_ask_dubbing_on_watch_enabled">Показывать список озвучек вместо автовыбора популярной</string>
     <string name="settings_refresh_continue_watching_progress_label">Свежий прогресс с других устройств</string>

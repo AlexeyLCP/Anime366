@@ -14,6 +14,7 @@ data class SettingsSnapshot(
     val autoSkipOpeningsEndings: Boolean,
     val showOpeningOnTimeline: Boolean,
     val autoPlayNextEpisode: Boolean,
+    val nextEpisodeSwitchDelaySeconds: Int,
     val askDubbingOnWatch: Boolean,
     val pictureInPictureEnabled: Boolean,
     val playerOrientationMode: PlayerOrientationMode,

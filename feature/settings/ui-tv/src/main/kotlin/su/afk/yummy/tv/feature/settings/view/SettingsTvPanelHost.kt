@@ -57,6 +57,7 @@ import su.afk.yummy.tv.feature.settings.model.SettingsTab
 import su.afk.yummy.tv.feature.settings.utils.hint
 import su.afk.yummy.tv.feature.settings.utils.label
 import su.afk.yummy.tv.feature.settings.utils.restoreCategoryFocusOnLeft
+import su.afk.yummy.tv.feature.settings.utils.toNextEpisodeSwitchDelayText
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -465,6 +466,17 @@ internal fun SettingsTvPanelHost(
                             enabled = state.autoPlayNextEpisode,
                             onClick = {
                                 onEvent(SettingsState.Event.AutoPlayNextEpisodeToggled)
+                            },
+                        )
+                        SettingsDivider()
+                        SettingsSliderRow(
+                            label = stringResource(R.string.settings_next_episode_switch_delay_label),
+                            valueText = state.nextEpisodeSwitchDelaySeconds.toNextEpisodeSwitchDelayText(),
+                            value = state.nextEpisodeSwitchDelaySeconds,
+                            valueRange = 0..30,
+                            enabled = state.autoPlayNextEpisode,
+                            onValueChange = {
+                                onEvent(SettingsState.Event.NextEpisodeSwitchDelayChanged(it))
                             },
                         )
                         SettingsDivider()

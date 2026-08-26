@@ -326,7 +326,8 @@ internal fun TvExoPlayerView(
             // При переходе в другую озвучку авто-отсчёт не запускаем:
             // озвучку не меняем без явного подтверждения пользователя
             prompts.nextEpisodePrompt = playerEndPromptFor(
-                state.autoPlayNextEpisode && playback.hasNextEpisode
+                state.autoPlayNextEpisode && playback.hasNextEpisode,
+                state.nextEpisodeSwitchDelaySeconds,
             )
         } else {
             val action = playback.finalEpisodeAction

@@ -22,6 +22,9 @@ interface PlayerSettingsStore {
     val showOpeningOnTimeline: Flow<Boolean>
     val autoPlayNextEpisode: Flow<Boolean>
 
+    /** Задержка перед авто-переключением на следующую серию, сек. 0 = мгновенно. */
+    val nextEpisodeSwitchDelaySeconds: Flow<Int>
+
     /** Спрашивать озвучку при нажатии "Смотреть", вместо автовыбора самой популярной. */
     val askDubbingOnWatch: Flow<Boolean>
     val pictureInPictureEnabled: Flow<Boolean>
@@ -64,6 +67,7 @@ interface PlayerSettingsStore {
     suspend fun setAutoSkipOpeningsEndings(enabled: Boolean)
     suspend fun setShowOpeningOnTimeline(enabled: Boolean)
     suspend fun setAutoPlayNextEpisode(enabled: Boolean)
+    suspend fun setNextEpisodeSwitchDelaySeconds(seconds: Int)
     suspend fun setAskDubbingOnWatch(enabled: Boolean)
     suspend fun setPictureInPictureEnabled(enabled: Boolean)
     suspend fun setPlayerOrientationMode(mode: PlayerOrientationMode)

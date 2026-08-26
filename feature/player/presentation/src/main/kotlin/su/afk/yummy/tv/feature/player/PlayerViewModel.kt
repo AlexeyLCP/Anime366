@@ -102,6 +102,7 @@ class PlayerViewModel @AssistedInject internal constructor(
                 newDest,
                 autoSkipOpeningsEndings = autoSkipOpeningsEndings,
                 autoPlayNextEpisode = autoPlayNextEpisode,
+                nextEpisodeSwitchDelaySeconds = nextEpisodeSwitchDelaySeconds,
                 pictureInPictureEnabled = pictureInPictureEnabled,
             ).copy(
                 playerOrientationMode = playerOrientationMode,
@@ -141,6 +142,9 @@ class PlayerViewModel @AssistedInject internal constructor(
             .launchIn(viewModelScope)
         settingsHandler.autoPlayNextEpisode
             .onEach { enabled -> setState { copy(autoPlayNextEpisode = enabled) } }
+            .launchIn(viewModelScope)
+        settingsHandler.nextEpisodeSwitchDelaySeconds
+            .onEach { seconds -> setState { copy(nextEpisodeSwitchDelaySeconds = seconds) } }
             .launchIn(viewModelScope)
         settingsHandler.pictureInPictureEnabled
             .onEach { enabled -> setState { copy(pictureInPictureEnabled = enabled) } }

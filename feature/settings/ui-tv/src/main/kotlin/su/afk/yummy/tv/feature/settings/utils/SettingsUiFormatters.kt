@@ -356,3 +356,11 @@ internal fun PlayerBufferProfile.hint(): String = stringResource(
         PlayerBufferProfile.LARGE -> R.string.settings_player_buffer_large_hint
     },
 )
+
+@Composable
+internal fun Int.toNextEpisodeSwitchDelayText(): String =
+    if (this <= 0) {
+        stringResource(R.string.settings_next_episode_switch_delay_instant)
+    } else {
+        stringResource(R.string.settings_next_episode_switch_delay_seconds, this)
+    }

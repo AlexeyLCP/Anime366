@@ -345,8 +345,10 @@ internal fun MobileNativePlayer(
         ) {
             // Авто-отсчёт только внутри текущей озвучки: смену озвучки
             // пользователь должен подтвердить явно
-            nextEpisodePromptState =
-                playerEndPromptFor(state.autoPlayNextEpisode && ui.hasNextEpisode)
+            nextEpisodePromptState = playerEndPromptFor(
+                state.autoPlayNextEpisode && ui.hasNextEpisode,
+                state.nextEpisodeSwitchDelaySeconds,
+            )
             overlay.visible = false
             settingsMode = null
             overlay.cancelHide()

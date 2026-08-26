@@ -143,6 +143,9 @@
     <string name="settings_suggest_next_episode_on_watched_enabled">Show on Home after finishing the current episode</string>
     <string name="settings_auto_play_next_episode_label">Autoplay next episode</string>
     <string name="settings_auto_play_next_episode_enabled">Start the next episode after a 10-second countdown</string>
+    <string name="settings_next_episode_switch_delay_label">Next episode switch delay</string>
+    <string name="settings_next_episode_switch_delay_instant">Instant</string>
+    <string name="settings_next_episode_switch_delay_seconds">%d sec</string>
     <string name="settings_ask_dubbing_on_watch_label">Choose voice-over on Watch</string>
     <string name="settings_ask_dubbing_on_watch_enabled">Show the voice-over list instead of auto-picking the most popular one</string>
     <string name="settings_refresh_continue_watching_progress_label">Latest progress from other devices</string>

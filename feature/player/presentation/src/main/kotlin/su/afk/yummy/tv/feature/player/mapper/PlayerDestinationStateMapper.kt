@@ -14,6 +14,7 @@ internal class PlayerDestinationStateMapper @Inject constructor() {
         dest: PlayerDestination,
         autoSkipOpeningsEndings: Boolean = false,
         autoPlayNextEpisode: Boolean = false,
+        nextEpisodeSwitchDelaySeconds: Int = 10,
         pictureInPictureEnabled: Boolean = true,
     ): PlayerState.State {
         val sourceGraph = dest.toSingleEpisodeSourceGraph()
@@ -27,6 +28,7 @@ internal class PlayerDestinationStateMapper @Inject constructor() {
             resumeFromMs = dest.resumeFromMs.coerceAtLeast(0L),
             autoSkipOpeningsEndings = autoSkipOpeningsEndings,
             autoPlayNextEpisode = autoPlayNextEpisode,
+            nextEpisodeSwitchDelaySeconds = nextEpisodeSwitchDelaySeconds,
             pictureInPictureEnabled = pictureInPictureEnabled,
         )
     }

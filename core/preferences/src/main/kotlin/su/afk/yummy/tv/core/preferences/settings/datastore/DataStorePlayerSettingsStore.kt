@@ -24,6 +24,7 @@ import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.askDubbi
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.autoPlayNextEpisodeKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.autoSkipOpeningsEndingsKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.mobilePlayerGestureTutorialDismissedKey
+import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.nextEpisodeSwitchDelaySecondsKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.pictureInPictureEnabledKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.playerBufferProfileKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.playerOrientationModeKey
@@ -63,6 +64,12 @@ internal class DataStorePlayerSettingsStore @Inject constructor(
 
     override val autoPlayNextEpisode: Flow<Boolean> =
         store.boolean(autoPlayNextEpisodeKey, false)
+
+    // coerceIn и на чтении тоже: значение могло быть записано более старой версией без клампа.
+    override val nextEpisodeSwitchDelaySeconds: Flow<Int> = store.data.map { prefs ->
+        (prefs[nextEpisodeSwitchDelaySecondsKey] ?: DEFAULT_NEXT_EPISODE_SWITCH_DELAY_SECONDS)
+            .coerceIn(0, MAX_NEXT_EPISODE_SWITCH_DELAY_SECONDS)
+    }
 
     override val askDubbingOnWatch: Flow<Boolean> = store.boolean(askDubbingOnWatchKey, false)
 
@@ -157,6 +164,13 @@ internal class DataStorePlayerSettingsStore @Inject constructor(
     override suspend fun setAutoPlayNextEpisode(enabled: Boolean) =
         store.setBoolean(autoPlayNextEpisodeKey, enabled)
 
+    override suspend fun setNextEpisodeSwitchDelaySeconds(seconds: Int) {
+        store.edit { prefs ->
+            prefs[nextEpisodeSwitchDelaySecondsKey] =
+                seconds.coerceIn(0, MAX_NEXT_EPISODE_SWITCH_DELAY_SECONDS)
+        }
+    }
+
     override suspend fun setAskDubbingOnWatch(enabled: Boolean) =
         store.setBoolean(askDubbingOnWatchKey, enabled)
 
@@ -240,6 +254,8 @@ internal class DataStorePlayerSettingsStore @Inject constructor(
     private companion object {
         const val DEFAULT_VOLUME_PERCENT = 100
         const val MAX_VOLUME_PERCENT = 100
+        const val DEFAULT_NEXT_EPISODE_SWITCH_DELAY_SECONDS = 10
+        const val MAX_NEXT_EPISODE_SWITCH_DELAY_SECONDS = 30
 
         /** Настройки кадра привязаны к паре «тайтл + плеер», отсюда составной ключ. */
         fun playerScopedResizeSettingsKey(

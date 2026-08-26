@@ -1,12 +1,12 @@
 package su.afk.yummy.tv.feature.player
 
-import su.afk.yummy.tv.core.mvi.UiEffect
-import su.afk.yummy.tv.core.mvi.UiEvent
-import su.afk.yummy.tv.core.mvi.UiState
 import su.afk.yummy.tv.core.model.settings.PlayerOrientationMode
 import su.afk.yummy.tv.core.model.settings.PlayerResizeMode
 import su.afk.yummy.tv.core.model.settings.PlayerSubtitleStyleSettings
 import su.afk.yummy.tv.core.model.settings.PlayerZoomLevel
+import su.afk.yummy.tv.core.mvi.UiEffect
+import su.afk.yummy.tv.core.mvi.UiEvent
+import su.afk.yummy.tv.core.mvi.UiState
 import su.afk.yummy.tv.domain.player.model.AllohaAudioTrack
 import su.afk.yummy.tv.domain.player.model.AllohaSubtitleTrack
 import su.afk.yummy.tv.feature.player.model.PlayerFinalEpisodeAction
@@ -45,6 +45,7 @@ class PlayerState {
         val autoSkipOpeningsEndings: Boolean = false,
         val showOpeningOnTimeline: Boolean = false,
         val autoPlayNextEpisode: Boolean = false,
+        val nextEpisodeSwitchDelaySeconds: Int = 10,
         val pictureInPictureEnabled: Boolean = true,
         val playerOrientationMode: PlayerOrientationMode = PlayerOrientationMode.SYSTEM,
         val mobileGestureTutorialReady: Boolean = false,

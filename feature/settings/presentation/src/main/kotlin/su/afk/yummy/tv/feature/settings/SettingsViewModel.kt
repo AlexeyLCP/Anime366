@@ -57,6 +57,7 @@ class SettingsViewModel @Inject internal constructor(
                         autoSkipOpeningsEndings = snapshot.autoSkipOpeningsEndings,
                         showOpeningOnTimeline = snapshot.showOpeningOnTimeline,
                         autoPlayNextEpisode = snapshot.autoPlayNextEpisode,
+                        nextEpisodeSwitchDelaySeconds = snapshot.nextEpisodeSwitchDelaySeconds,
                         askDubbingOnWatch = snapshot.askDubbingOnWatch,
                         pictureInPictureEnabled = snapshot.pictureInPictureEnabled,
                         playerOrientationMode = snapshot.playerOrientationMode,
@@ -205,6 +206,11 @@ class SettingsViewModel @Inject internal constructor(
                 val enabled = !currentState.autoPlayNextEpisode
                 analytics.eventAutoPlayNextEpisodeToggled(enabled)
                 settingsStore.setAutoPlayNextEpisode(enabled)
+            }
+
+            is SettingsState.Event.NextEpisodeSwitchDelayChanged -> viewModelScope.launch {
+                analytics.eventNextEpisodeSwitchDelayChanged(event.seconds)
+                settingsStore.setNextEpisodeSwitchDelaySeconds(event.seconds)
             }
 
             SettingsState.Event.AskDubbingOnWatchToggled -> viewModelScope.launch {

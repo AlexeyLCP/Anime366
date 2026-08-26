@@ -5,9 +5,12 @@ import su.afk.yummy.tv.feature.player.common.model.PlayerEndPromptState
 val PlayerEndPromptState.isVisible: Boolean
     get() = this !is PlayerEndPromptState.Hidden
 
-fun playerEndPromptFor(autoPlayNextEpisode: Boolean): PlayerEndPromptState =
+fun playerEndPromptFor(
+    autoPlayNextEpisode: Boolean,
+    delaySeconds: Int = PLAYER_END_PROMPT_COUNTDOWN_SECONDS,
+): PlayerEndPromptState =
     if (autoPlayNextEpisode) {
-        PlayerEndPromptState.WithCountdown(PLAYER_END_PROMPT_COUNTDOWN_SECONDS)
+        PlayerEndPromptState.WithCountdown(delaySeconds)
     } else {
         PlayerEndPromptState.WithoutCountdown
     }

@@ -25,6 +25,7 @@ import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.autoSkip
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.backgroundStyleKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.detailsButtonOrderKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.libraryContinueWatchingCardSizeKey
+import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.nextEpisodeSwitchDelaySecondsKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.pictureInPictureEnabledKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.playerBufferProfileKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.playerOrientationModeKey
@@ -94,6 +95,8 @@ internal class DataStoreSettingsStore @Inject constructor(
             autoSkipOpeningsEndings = prefs[autoSkipOpeningsEndingsKey] ?: false,
             showOpeningOnTimeline = prefs[showOpeningOnTimelineKey] ?: false,
             autoPlayNextEpisode = prefs[autoPlayNextEpisodeKey] ?: false,
+            nextEpisodeSwitchDelaySeconds =
+                (prefs[nextEpisodeSwitchDelaySecondsKey] ?: 10).coerceIn(0, 30),
             askDubbingOnWatch = prefs[askDubbingOnWatchKey] ?: false,
             pictureInPictureEnabled = prefs[pictureInPictureEnabledKey] ?: true,
             playerOrientationMode = prefs.enum(

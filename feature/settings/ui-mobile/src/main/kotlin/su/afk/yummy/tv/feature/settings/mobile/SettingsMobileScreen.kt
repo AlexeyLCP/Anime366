@@ -55,6 +55,7 @@ import su.afk.yummy.tv.feature.settings.mobile.model.SettingsMobilePicker
 import su.afk.yummy.tv.feature.settings.mobile.model.SettingsMobilePickerOption
 import su.afk.yummy.tv.feature.settings.mobile.utils.hint
 import su.afk.yummy.tv.feature.settings.mobile.utils.label
+import su.afk.yummy.tv.feature.settings.mobile.utils.toNextEpisodeSwitchDelayText
 import su.afk.yummy.tv.feature.settings.mobile.view.CacheStorageMobileDialog
 import su.afk.yummy.tv.feature.settings.mobile.view.MobileInterfaceModeConfirmationDialog
 import su.afk.yummy.tv.feature.settings.mobile.view.SettingsMobileAboutRow
@@ -63,6 +64,7 @@ import su.afk.yummy.tv.feature.settings.mobile.view.SettingsMobileNavigationRow
 import su.afk.yummy.tv.feature.settings.mobile.view.SettingsMobileOptionRow
 import su.afk.yummy.tv.feature.settings.mobile.view.SettingsMobilePickerSheet
 import su.afk.yummy.tv.feature.settings.mobile.view.SettingsMobileSection
+import su.afk.yummy.tv.feature.settings.mobile.view.SettingsMobileSliderRow
 import su.afk.yummy.tv.feature.settings.mobile.view.SettingsMobileToggleRow
 
 @Preview(name = "Default", device = "spec:width=412dp,height=915dp,dpi=420", showBackground = true)
@@ -255,6 +257,16 @@ fun SettingsMobileScreen(
                         },
                         enabled = state.autoPlayNextEpisode,
                         onClick = { onEvent(SettingsState.Event.AutoPlayNextEpisodeToggled) },
+                    )
+                    SettingsMobileSliderRow(
+                        label = stringResource(R.string.settings_next_episode_switch_delay_label),
+                        valueText = state.nextEpisodeSwitchDelaySeconds.toNextEpisodeSwitchDelayText(),
+                        value = state.nextEpisodeSwitchDelaySeconds,
+                        valueRange = 0..30,
+                        enabled = state.autoPlayNextEpisode,
+                        onValueChange = {
+                            onEvent(SettingsState.Event.NextEpisodeSwitchDelayChanged(it))
+                        },
                     )
                     SettingsMobileToggleRow(
                         label = stringResource(R.string.settings_ask_dubbing_on_watch_label),
