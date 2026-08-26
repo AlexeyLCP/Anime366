@@ -15,6 +15,7 @@ interface PlayerPlaybackConfig {
         headers: Map<String, String>,
         offlineCacheKey: String?,
         offlineManifestUri: String?,
+        offlineCacheKeyScheme: Int,
         useRotatingHlsCacheKeys: Boolean,
         audioTrackPolicy: PlayerAudioTrackPolicy,
         isOfflinePlayback: Boolean,
@@ -41,6 +42,7 @@ data class PlayerTrackSelectionConfig(
 private data class OfflineCacheConfig(
     val cacheKey: String,
     val manifestUri: String?,
+    val cacheKeyScheme: Int,
     val useRotatingHlsCacheKeys: Boolean,
 )
 
@@ -69,6 +71,7 @@ class DefaultPlayerPlaybackConfig @Inject constructor(
         headers: Map<String, String>,
         offlineCacheKey: String?,
         offlineManifestUri: String?,
+        offlineCacheKeyScheme: Int,
         useRotatingHlsCacheKeys: Boolean,
         audioTrackPolicy: PlayerAudioTrackPolicy,
         isOfflinePlayback: Boolean,
@@ -82,6 +85,7 @@ class DefaultPlayerPlaybackConfig @Inject constructor(
             OfflineCacheConfig(
                 cacheKey = cacheKey,
                 manifestUri = offlineManifestUri?.takeIf(String::isNotBlank),
+                cacheKeyScheme = offlineCacheKeyScheme,
                 useRotatingHlsCacheKeys = useRotatingHlsCacheKeys,
             )
         }
@@ -102,14 +106,12 @@ class DefaultPlayerPlaybackConfig @Inject constructor(
             CacheDataSource.Factory()
                 .setCache(downloadPlaybackCache.cache)
                 .apply {
-                    if (offline.useRotatingHlsCacheKeys) {
-                        setCacheKeyFactory(
-                            downloadPlaybackCache.rotatingHlsCacheKeyFactory(
-                                downloadCacheKey = offline.cacheKey,
-                                manifestUri = offline.manifestUri,
-                            )
-                        )
-                    }
+                    downloadPlaybackCache.downloadCacheKeyFactory(
+                        downloadCacheKey = offline.cacheKey,
+                        manifestUri = offline.manifestUri,
+                        cacheKeyScheme = offline.cacheKeyScheme,
+                        legacyRotating = offline.useRotatingHlsCacheKeys,
+                    )?.let(::setCacheKeyFactory)
                 }
                 .setFlags(CacheDataSource.FLAG_BLOCK_ON_CACHE)
                 .createDataSource()

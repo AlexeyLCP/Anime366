@@ -16,8 +16,16 @@ interface VideoDownloadPlaybackCache {
     val cache: Cache
 
     /**
-     * Key factory for HLS downloads whose signed URLs rotate: keeps already downloaded
-     * segments reusable when the manifest URL changes.
+     * Фабрика ключей, которой загрузка была записана в кэш. Возвращает `null`, когда ключей у неё
+     * нет вовсе (старые загрузки не-Alloha лежат под сырыми URL) — тогда фабрику ставить нельзя.
+     *
+     * [cacheKeyScheme] — `VideoDownloadCacheKeyScheme.storageValue` из записи загрузки;
+     * [legacyRotating] учитывается только для схемы `0`, где признак «Alloha HLS» в базе не хранится.
      */
-    fun rotatingHlsCacheKeyFactory(downloadCacheKey: String, manifestUri: String?): CacheKeyFactory
+    fun downloadCacheKeyFactory(
+        downloadCacheKey: String,
+        manifestUri: String?,
+        cacheKeyScheme: Int,
+        legacyRotating: Boolean,
+    ): CacheKeyFactory?
 }

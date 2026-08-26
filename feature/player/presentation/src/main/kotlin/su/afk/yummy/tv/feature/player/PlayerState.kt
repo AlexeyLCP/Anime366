@@ -59,6 +59,8 @@ class PlayerState {
         val isOfflinePlayback: Boolean = false,
         val isLocalFile: Boolean = false,
         val offlineCacheKey: String? = null,
+        /** `VideoDownloadCacheKeyScheme.storageValue` скачанной серии; 0 — старая схема ключей. */
+        val offlineCacheKeyScheme: Int = 0,
         val isPlaybackRecovering: Boolean = false,
         val showChangePlayerHint: Boolean = false,
         val finalEpisodeAction: PlayerFinalEpisodeAction = PlayerFinalEpisodeAction.Loading,

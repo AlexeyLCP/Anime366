@@ -51,6 +51,7 @@ internal fun buildTvPlayerMediaItemConfig(
     durationMs = durationMs,
     headers = state.streamHeaders,
     offlineCacheKey = state.offlineCacheKey,
+    offlineCacheKeyScheme = state.offlineCacheKeyScheme,
     isOfflinePlayback = state.isOfflinePlayback,
     isLocalFile = state.isLocalFile,
     useRotatingHlsCacheKeys = playerUseRotatingHlsCacheKeys(

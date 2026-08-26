@@ -603,6 +603,7 @@ class PlayerViewModel @AssistedInject internal constructor(
                     selectedAllohaSubtitleIndex = null,
                     isOfflinePlayback = true,
                     offlineCacheKey = item.cacheKey,
+                    offlineCacheKeyScheme = item.cacheKeyScheme.storageValue,
                     playerError = null,
                 )
             }

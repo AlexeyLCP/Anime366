@@ -20,6 +20,8 @@ data class PlayerMediaItemConfig(
     val durationMs: Long,
     val headers: Map<String, String>,
     val offlineCacheKey: String?,
+    /** `VideoDownloadCacheKeyScheme.storageValue` записи загрузки; 0 для онлайн-воспроизведения. */
+    val offlineCacheKeyScheme: Int,
     val isOfflinePlayback: Boolean,
     val isLocalFile: Boolean,
     val useRotatingHlsCacheKeys: Boolean,
@@ -62,6 +64,7 @@ class PlayerMediaItemUpdater {
             headers = config.headers,
             offlineCacheKey = config.offlineCacheKey.takeIf { config.isOfflinePlayback },
             offlineManifestUri = config.url.takeIf { config.isOfflinePlayback },
+            offlineCacheKeyScheme = config.offlineCacheKeyScheme,
             useRotatingHlsCacheKeys = config.useRotatingHlsCacheKeys,
             audioTrackPolicy = config.audioTrackPolicy,
             isOfflinePlayback = config.isOfflinePlayback,
