@@ -4,7 +4,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import su.afk.yummy.tv.core.model.settings.PreviewCacheSize
 import su.afk.yummy.tv.core.preferences.settings.CacheSettingsStore
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.previewCacheSizeKey
 import su.afk.yummy.tv.core.utils.coroutines.di.IoApplicationScope
@@ -18,14 +17,16 @@ internal class DataStoreCacheSettingsStore @Inject constructor(
 ) : CacheSettingsStore {
 
     @Volatile
-    private var previewCacheSizeSnapshot = PreviewCacheSize.MB_100
+    private var previewCacheSizeSnapshot = DEFAULT_PREVIEW_CACHE_SIZE_MB
 
     /** Синхронное значение для Coil-кэша, который настраивается вне корутины. */
-    override val currentPreviewCacheSize: PreviewCacheSize
+    override val currentPreviewCacheSize: Int
         get() = previewCacheSizeSnapshot
 
-    override val previewCacheSize: Flow<PreviewCacheSize> =
-        store.data.map { prefs -> prefs.previewCacheSize() }
+    override val previewCacheSize: Flow<Int> = store.data.map { prefs ->
+        (prefs[previewCacheSizeKey] ?: DEFAULT_PREVIEW_CACHE_SIZE_MB)
+            .coerceIn(MIN_PREVIEW_CACHE_SIZE_MB, MAX_PREVIEW_CACHE_SIZE_MB)
+    }
 
     init {
         scope.launch {
@@ -33,8 +34,15 @@ internal class DataStoreCacheSettingsStore @Inject constructor(
         }
     }
 
-    override suspend fun setPreviewCacheSize(size: PreviewCacheSize) {
-        previewCacheSizeSnapshot = size
-        store.edit { prefs -> prefs[previewCacheSizeKey] = size.megabytes }
+    override suspend fun setPreviewCacheSize(size: Int) {
+        val clamped = size.coerceIn(MIN_PREVIEW_CACHE_SIZE_MB, MAX_PREVIEW_CACHE_SIZE_MB)
+        previewCacheSizeSnapshot = clamped
+        store.edit { prefs -> prefs[previewCacheSizeKey] = clamped }
+    }
+
+    private companion object {
+        const val DEFAULT_PREVIEW_CACHE_SIZE_MB = 100
+        const val MIN_PREVIEW_CACHE_SIZE_MB = 50
+        const val MAX_PREVIEW_CACHE_SIZE_MB = 500
     }
 }

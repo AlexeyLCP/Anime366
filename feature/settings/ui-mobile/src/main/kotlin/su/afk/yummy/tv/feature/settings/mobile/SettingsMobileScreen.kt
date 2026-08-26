@@ -38,14 +38,10 @@ import su.afk.yummy.tv.core.model.settings.LibraryContinueWatchingCardSize
 import su.afk.yummy.tv.core.model.settings.PlayerBufferProfile
 import su.afk.yummy.tv.core.model.settings.PlayerOrientationMode
 import su.afk.yummy.tv.core.model.settings.PlayerSubtitleBackground
-import su.afk.yummy.tv.core.model.settings.PlayerSubtitleOffset
 import su.afk.yummy.tv.core.model.settings.PlayerSubtitleTextColor
-import su.afk.yummy.tv.core.model.settings.PlayerSubtitleTextSize
 import su.afk.yummy.tv.core.model.settings.PosterCardSize
 import su.afk.yummy.tv.core.model.settings.PosterQuality
 import su.afk.yummy.tv.core.model.settings.PreferredPlayer
-import su.afk.yummy.tv.core.model.settings.PreferredVideoQuality
-import su.afk.yummy.tv.core.model.settings.PreviewCacheSize
 import su.afk.yummy.tv.core.model.settings.YaniContentLanguage
 import su.afk.yummy.tv.core.preferences.interface_mode.AppInterfaceMode
 import su.afk.yummy.tv.core.utils.system.openExternalUri
@@ -53,9 +49,14 @@ import su.afk.yummy.tv.core.utils.system.restartApplication
 import su.afk.yummy.tv.feature.settings.SettingsState
 import su.afk.yummy.tv.feature.settings.mobile.model.SettingsMobilePicker
 import su.afk.yummy.tv.feature.settings.mobile.model.SettingsMobilePickerOption
+import su.afk.yummy.tv.feature.settings.mobile.utils.color
+import su.afk.yummy.tv.feature.settings.mobile.utils.detailsText
 import su.afk.yummy.tv.feature.settings.mobile.utils.hint
 import su.afk.yummy.tv.feature.settings.mobile.utils.label
 import su.afk.yummy.tv.feature.settings.mobile.utils.toNextEpisodeSwitchDelayText
+import su.afk.yummy.tv.feature.settings.mobile.utils.toPreviewCacheSizeText
+import su.afk.yummy.tv.feature.settings.mobile.utils.toSubtitlePercentText
+import su.afk.yummy.tv.feature.settings.mobile.utils.videoQualitySliderEntries
 import su.afk.yummy.tv.feature.settings.mobile.view.CacheStorageMobileDialog
 import su.afk.yummy.tv.feature.settings.mobile.view.MobileInterfaceModeConfirmationDialog
 import su.afk.yummy.tv.feature.settings.mobile.view.SettingsMobileAboutRow
@@ -210,17 +211,36 @@ fun SettingsMobileScreen(
                         hint = state.preferredPlayer.hint(),
                         onClick = { activePicker = SettingsMobilePicker.PLAYER },
                     )
-                    SettingsMobileOptionRow(
+                    val videoQualityIndex = videoQualitySliderEntries
+                        .indexOf(state.preferredVideoQuality).coerceAtLeast(0)
+                    SettingsMobileSliderRow(
                         label = stringResource(R.string.settings_preferred_video_quality_title),
-                        value = state.preferredVideoQuality.label(),
-                        hint = state.preferredVideoQuality.hint(),
-                        onClick = { activePicker = SettingsMobilePicker.VIDEO_QUALITY },
+                        valueText = videoQualitySliderEntries[videoQualityIndex].label(),
+                        value = videoQualityIndex,
+                        valueRange = 0..videoQualitySliderEntries.lastIndex,
+                        enabled = true,
+                        onValueChange = {
+                            onEvent(
+                                SettingsState.Event.PreferredVideoQualitySelected(
+                                    videoQualitySliderEntries[it],
+                                ),
+                            )
+                        },
                     )
-                    SettingsMobileOptionRow(
+                    SettingsMobileSliderRow(
                         label = stringResource(R.string.settings_player_buffer_title),
-                        value = state.playerBufferProfile.label(),
-                        hint = state.playerBufferProfile.hint(),
-                        onClick = { activePicker = SettingsMobilePicker.PLAYER_BUFFER },
+                        valueText = state.playerBufferProfile.detailsText(),
+                        value = PlayerBufferProfile.entries.indexOf(state.playerBufferProfile)
+                            .coerceAtLeast(0),
+                        valueRange = 0..PlayerBufferProfile.entries.lastIndex,
+                        enabled = true,
+                        onValueChange = {
+                            onEvent(
+                                SettingsState.Event.PlayerBufferProfileSelected(
+                                    PlayerBufferProfile.entries[it],
+                                ),
+                            )
+                        },
                     )
                     SettingsMobileOptionRow(
                         label = stringResource(R.string.settings_player_orientation_title),
@@ -361,11 +381,33 @@ fun SettingsMobileScreen(
                     title = stringResource(R.string.settings_tab_player_subtitles),
                     subtitle = stringResource(R.string.settings_subtitle_style_alloha_hint),
                 ) {
-                    SettingsMobileOptionRow(
+                    SettingsMobileSliderRow(
                         label = stringResource(R.string.settings_subtitle_size_title),
-                        value = state.subtitleStyle.textSize.label(),
-                        hint = state.subtitleStyle.textSize.hint(),
-                        onClick = { activePicker = SettingsMobilePicker.SUBTITLE_SIZE },
+                        valueText = state.subtitleStyle.textSize.toSubtitlePercentText(),
+                        value = state.subtitleStyle.textSize,
+                        valueRange = 50..200,
+                        enabled = true,
+                        onValueChange = {
+                            onEvent(
+                                SettingsState.Event.SubtitleStyleSelected(
+                                    state.subtitleStyle.copy(textSize = it),
+                                ),
+                            )
+                        },
+                    )
+                    SettingsMobileSliderRow(
+                        label = stringResource(R.string.settings_subtitle_offset_title),
+                        valueText = state.subtitleStyle.offset.toSubtitlePercentText(),
+                        value = state.subtitleStyle.offset,
+                        valueRange = 0..20,
+                        enabled = true,
+                        onValueChange = {
+                            onEvent(
+                                SettingsState.Event.SubtitleStyleSelected(
+                                    state.subtitleStyle.copy(offset = it),
+                                ),
+                            )
+                        },
                     )
                     SettingsMobileOptionRow(
                         label = stringResource(R.string.settings_subtitle_color_title),
@@ -376,12 +418,6 @@ fun SettingsMobileScreen(
                         label = stringResource(R.string.settings_subtitle_background_title),
                         value = state.subtitleStyle.background.label(),
                         onClick = { activePicker = SettingsMobilePicker.SUBTITLE_BACKGROUND },
-                    )
-                    SettingsMobileOptionRow(
-                        label = stringResource(R.string.settings_subtitle_offset_title),
-                        value = state.subtitleStyle.offset.label(),
-                        hint = state.subtitleStyle.offset.hint(),
-                        onClick = { activePicker = SettingsMobilePicker.SUBTITLE_OFFSET },
                     )
                 }
             }
@@ -398,11 +434,16 @@ fun SettingsMobileScreen(
 
             item {
                 SettingsMobileSection(title = stringResource(R.string.settings_mobile_section_cache)) {
-                    SettingsMobileOptionRow(
+                    SettingsMobileSliderRow(
                         label = stringResource(R.string.settings_mobile_preview_cache),
-                        value = state.previewCacheSize.label(),
-                        hint = state.previewCacheSize.hint(),
-                        onClick = { activePicker = SettingsMobilePicker.CACHE },
+                        valueText = state.previewCacheSize.toPreviewCacheSizeText(),
+                        value = state.previewCacheSize,
+                        valueRange = 50..500,
+                        stepSize = 50,
+                        enabled = true,
+                        onValueChange = {
+                            onEvent(SettingsState.Event.PreviewCacheSizeSelected(it))
+                        },
                     )
                     SettingsMobileOptionRow(
                         label = stringResource(R.string.settings_video_export_directory),
@@ -618,62 +659,11 @@ fun SettingsMobileScreen(
             },
         )
 
-        SettingsMobilePicker.PLAYER_BUFFER -> SettingsMobilePickerSheet(
-            title = stringResource(R.string.settings_player_buffer_title),
-            selectedValue = state.playerBufferProfile,
-            options = PlayerBufferProfile.entries.map {
-                SettingsMobilePickerOption(
-                    it,
-                    it.label(),
-                    it.hint()
-                )
-            },
-            onDismiss = { activePicker = null },
-            onSelected = {
-                onEvent(SettingsState.Event.PlayerBufferProfileSelected(it))
-                activePicker = null
-            },
-        )
-
-        SettingsMobilePicker.VIDEO_QUALITY -> SettingsMobilePickerSheet(
-            title = stringResource(R.string.settings_preferred_video_quality_title),
-            selectedValue = state.preferredVideoQuality,
-            options = PreferredVideoQuality.entries.map {
-                SettingsMobilePickerOption(
-                    it,
-                    it.label(),
-                    it.hint()
-                )
-            },
-            onDismiss = { activePicker = null },
-            onSelected = {
-                onEvent(SettingsState.Event.PreferredVideoQualitySelected(it))
-                activePicker = null
-            },
-        )
-
-        SettingsMobilePicker.SUBTITLE_SIZE -> SettingsMobilePickerSheet(
-            title = stringResource(R.string.settings_subtitle_size_title),
-            selectedValue = state.subtitleStyle.textSize,
-            options = PlayerSubtitleTextSize.entries.map {
-                SettingsMobilePickerOption(it, it.label(), it.hint())
-            },
-            onDismiss = { activePicker = null },
-            onSelected = {
-                onEvent(
-                    SettingsState.Event.SubtitleStyleSelected(
-                        state.subtitleStyle.copy(textSize = it),
-                    ),
-                )
-                activePicker = null
-            },
-        )
-
         SettingsMobilePicker.SUBTITLE_COLOR -> SettingsMobilePickerSheet(
             title = stringResource(R.string.settings_subtitle_color_title),
             selectedValue = state.subtitleStyle.textColor,
             options = PlayerSubtitleTextColor.entries.map {
-                SettingsMobilePickerOption(it, it.label())
+                SettingsMobilePickerOption(it, it.label(), labelColor = it.color)
             },
             onDismiss = { activePicker = null },
             onSelected = {
@@ -699,40 +689,6 @@ fun SettingsMobileScreen(
                         state.subtitleStyle.copy(background = it),
                     ),
                 )
-                activePicker = null
-            },
-        )
-
-        SettingsMobilePicker.SUBTITLE_OFFSET -> SettingsMobilePickerSheet(
-            title = stringResource(R.string.settings_subtitle_offset_title),
-            selectedValue = state.subtitleStyle.offset,
-            options = PlayerSubtitleOffset.entries.map {
-                SettingsMobilePickerOption(it, it.label(), it.hint())
-            },
-            onDismiss = { activePicker = null },
-            onSelected = {
-                onEvent(
-                    SettingsState.Event.SubtitleStyleSelected(
-                        state.subtitleStyle.copy(offset = it),
-                    ),
-                )
-                activePicker = null
-            },
-        )
-
-        SettingsMobilePicker.CACHE -> SettingsMobilePickerSheet(
-            title = stringResource(R.string.settings_mobile_preview_cache),
-            selectedValue = state.previewCacheSize,
-            options = PreviewCacheSize.entries.map {
-                SettingsMobilePickerOption(
-                    it,
-                    it.label(),
-                    it.hint()
-                )
-            },
-            onDismiss = { activePicker = null },
-            onSelected = {
-                onEvent(SettingsState.Event.PreviewCacheSizeSelected(it))
                 activePicker = null
             },
         )

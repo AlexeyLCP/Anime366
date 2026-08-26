@@ -16,7 +16,6 @@ import su.afk.yummy.tv.core.model.settings.PosterCardSize
 import su.afk.yummy.tv.core.model.settings.PosterQuality
 import su.afk.yummy.tv.core.model.settings.PreferredPlayer
 import su.afk.yummy.tv.core.model.settings.PreferredVideoQuality
-import su.afk.yummy.tv.core.model.settings.PreviewCacheSize
 import su.afk.yummy.tv.core.model.settings.YaniContentLanguage
 import su.afk.yummy.tv.core.mvi.UiEffect
 import su.afk.yummy.tv.core.mvi.UiEvent
@@ -41,7 +40,7 @@ class SettingsState {
         val preferredVideoQuality: PreferredVideoQuality = PreferredVideoQuality.BEST,
         val isPreviewChannelBrowsable: Boolean = false,
         val watchNextEnabled: Boolean = true,
-        val previewCacheSize: PreviewCacheSize = PreviewCacheSize.MB_100,
+        val previewCacheSize: Int = 100,
         val autoSkipOpeningsEndings: Boolean = false,
         val showOpeningOnTimeline: Boolean = false,
         val autoPlayNextEpisode: Boolean = false,
@@ -115,7 +114,7 @@ class SettingsState {
         data object WatchNextToggled : Event
 
         /** Пользователь выбрал размер кеша превью. */
-        data class PreviewCacheSizeSelected(val size: PreviewCacheSize) : Event
+        data class PreviewCacheSizeSelected(val size: Int) : Event
 
         /** Пользователь переключил автопропуск опенингов и эндингов. */
         data object AutoSkipOpeningsEndingsToggled : Event

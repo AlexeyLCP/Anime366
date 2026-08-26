@@ -41,7 +41,7 @@ room = "2.8.4"
 work = "2.11.2"
 
 # Media / Images
-coil = "3.5.0"
+coil = "3.6.0"
 jsoup = "1.23.2"
 media3 = "1.11.0"
 

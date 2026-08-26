@@ -44,7 +44,7 @@ class CoilImageLoaderInstaller @Inject constructor(
 
     @OptIn(ExperimentalCoilApi::class)
     fun install() {
-        val cacheBytes = settingsStore.currentPreviewCacheSize.megabytes.toLong() * 1024L * 1024L
+        val cacheBytes = settingsStore.currentPreviewCacheSize.toLong() * 1024L * 1024L
         val memoryCachePercent =
             if (isLowRamDevice()) LOW_RAM_MEMORY_CACHE_PERCENT else MEMORY_CACHE_PERCENT
 

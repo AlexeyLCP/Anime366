@@ -29,6 +29,7 @@ import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import kotlin.math.roundToInt
 
 /** Строка настройки с непрерывным числовым значением: фокус + стрелки влево/вправо меняют value. */
 @Composable
@@ -40,6 +41,7 @@ internal fun SettingsSliderRow(
     enabled: Boolean,
     onValueChange: (Int) -> Unit,
     modifier: Modifier = Modifier,
+    stepSize: Int = 1,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val focused by interactionSource.collectIsFocusedAsState()
@@ -60,12 +62,12 @@ internal fun SettingsSliderRow(
                 if (!enabled || event.type != KeyEventType.KeyDown) return@onKeyEvent false
                 when (event.key) {
                     Key.DirectionLeft -> {
-                        onValueChange((value - 1).coerceIn(valueRange))
+                        onValueChange((value - stepSize).coerceIn(valueRange))
                         true
                     }
 
                     Key.DirectionRight -> {
-                        onValueChange((value + 1).coerceIn(valueRange))
+                        onValueChange((value + stepSize).coerceIn(valueRange))
                         true
                     }
 
@@ -97,9 +99,9 @@ internal fun SettingsSliderRow(
         }
         Slider(
             value = value.toFloat(),
-            onValueChange = { onValueChange(it.toInt()) },
+            onValueChange = { onValueChange(it.roundToInt()) },
             valueRange = valueRange.first.toFloat()..valueRange.last.toFloat(),
-            steps = (valueRange.last - valueRange.first - 1).coerceAtLeast(0),
+            steps = ((valueRange.last - valueRange.first) / stepSize - 1).coerceAtLeast(0),
             enabled = enabled,
             colors = SliderDefaults.colors(
                 thumbColor = MaterialTheme.colorScheme.primary,

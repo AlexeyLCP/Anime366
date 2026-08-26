@@ -59,9 +59,9 @@ fun PlayerSubtitleOverlay(
         update = { view ->
             view.setCues(cueGroup?.cues.orEmpty().map { it.withDefaultPosition() })
             view.setFractionalTextSize(
-                SubtitleView.DEFAULT_TEXT_SIZE_FRACTION * style.textSize.scale
+                SubtitleView.DEFAULT_TEXT_SIZE_FRACTION * (style.textSize / 100f)
             )
-            view.setBottomPaddingFraction(style.offset.bottomFraction)
+            view.setBottomPaddingFraction(style.offset / 100f)
             view.setStyle(
                 CaptionStyleCompat(
                     style.textColor.argb,

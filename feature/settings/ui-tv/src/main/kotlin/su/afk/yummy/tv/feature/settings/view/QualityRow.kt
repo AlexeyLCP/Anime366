@@ -33,6 +33,8 @@ internal fun QualityRow(
     selected: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    /** Переопределяет цвет текста подписи — например, чтобы показать реальный цвет субтитров. */
+    labelColor: Color? = null,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val focused by interactionSource.collectIsFocusedAsState()
@@ -45,8 +47,8 @@ internal fun QualityRow(
         else -> Color.Transparent
     }
     val borderColor = if (focused) MaterialTheme.colorScheme.primary else Color.Transparent
-    val labelColor =
-        if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onBackground
+    val effectiveLabelColor = labelColor
+        ?: if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onBackground
 
     Row(
         modifier = modifier
@@ -66,7 +68,7 @@ internal fun QualityRow(
                 text = label,
                 style = MaterialTheme.typography.bodyLarge,
                 fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal,
-                color = labelColor,
+                color = effectiveLabelColor,
             )
             if (hint.isNotBlank()) {
                 Text(

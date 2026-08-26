@@ -29,6 +29,7 @@ import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -38,14 +39,10 @@ import su.afk.yummy.tv.core.model.settings.BackgroundStyle
 import su.afk.yummy.tv.core.model.settings.LibraryContinueWatchingCardSize
 import su.afk.yummy.tv.core.model.settings.PlayerBufferProfile
 import su.afk.yummy.tv.core.model.settings.PlayerSubtitleBackground
-import su.afk.yummy.tv.core.model.settings.PlayerSubtitleOffset
 import su.afk.yummy.tv.core.model.settings.PlayerSubtitleTextColor
-import su.afk.yummy.tv.core.model.settings.PlayerSubtitleTextSize
 import su.afk.yummy.tv.core.model.settings.PosterCardSize
 import su.afk.yummy.tv.core.model.settings.PosterQuality
 import su.afk.yummy.tv.core.model.settings.PreferredPlayer
-import su.afk.yummy.tv.core.model.settings.PreferredVideoQuality
-import su.afk.yummy.tv.core.model.settings.PreviewCacheSize
 import su.afk.yummy.tv.core.model.settings.YaniContentLanguage
 import su.afk.yummy.tv.core.preferences.interface_mode.AppInterfaceMode
 import su.afk.yummy.tv.core.utils.system.openExternalUri
@@ -54,10 +51,15 @@ import su.afk.yummy.tv.feature.settings.R
 import su.afk.yummy.tv.feature.settings.SettingsState
 import su.afk.yummy.tv.feature.settings.model.DetailsButtonMoveDirection
 import su.afk.yummy.tv.feature.settings.model.SettingsTab
+import su.afk.yummy.tv.feature.settings.utils.color
+import su.afk.yummy.tv.feature.settings.utils.detailsText
 import su.afk.yummy.tv.feature.settings.utils.hint
 import su.afk.yummy.tv.feature.settings.utils.label
 import su.afk.yummy.tv.feature.settings.utils.restoreCategoryFocusOnLeft
 import su.afk.yummy.tv.feature.settings.utils.toNextEpisodeSwitchDelayText
+import su.afk.yummy.tv.feature.settings.utils.toPreviewCacheSizeText
+import su.afk.yummy.tv.feature.settings.utils.toSubtitlePercentText
+import su.afk.yummy.tv.feature.settings.utils.videoQualitySliderEntries
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -301,62 +303,44 @@ internal fun SettingsTvPanelHost(
 
                     SettingsTab.PLAYER_QUALITY -> {
                         SettingsSectionTitle(text = stringResource(R.string.settings_preferred_video_quality_title))
-                        PreferredVideoQuality.entries.forEachIndexed { index, quality ->
-                            QualityRow(
-                                label = quality.label(),
-                                hint = quality.hint(),
-                                selected = quality == state.preferredVideoQuality,
-                                onClick = {
-                                    onEvent(
-                                        SettingsState.Event.PreferredVideoQualitySelected(
-                                            quality,
-                                        ),
-                                    )
-                                },
-                                modifier = Modifier
-                                    .then(
-                                        if (index == 0) {
-                                            Modifier.focusRequester(tabContentFocusRequester)
-                                        } else {
-                                            Modifier
-                                        },
-                                    )
-                                    .restoreCategoryFocusOnLeft(tabFocusRequester, index == 0),
-                            )
-                            if (index < PreferredVideoQuality.entries.lastIndex) {
-                                SettingsDivider()
-                            }
-                        }
+                        val qualities = videoQualitySliderEntries
+                        val qualityIndex =
+                            qualities.indexOf(state.preferredVideoQuality).coerceAtLeast(0)
+                        SettingsSliderRow(
+                            label = stringResource(R.string.settings_preferred_video_quality_title),
+                            valueText = qualities[qualityIndex].label(),
+                            value = qualityIndex,
+                            valueRange = 0..qualities.lastIndex,
+                            enabled = true,
+                            onValueChange = {
+                                onEvent(
+                                    SettingsState.Event.PreferredVideoQualitySelected(qualities[it]),
+                                )
+                            },
+                            modifier = Modifier
+                                .focusRequester(tabContentFocusRequester)
+                                .restoreCategoryFocusOnLeft(tabFocusRequester),
+                        )
                     }
 
                     SettingsTab.PLAYER_BUFFER -> {
                         SettingsSectionTitle(text = stringResource(R.string.settings_player_buffer_title))
-                        PlayerBufferProfile.entries.forEachIndexed { index, profile ->
-                            QualityRow(
-                                label = profile.label(),
-                                hint = profile.hint(),
-                                selected = profile == state.playerBufferProfile,
-                                onClick = {
-                                    onEvent(
-                                        SettingsState.Event.PlayerBufferProfileSelected(
-                                            profile,
-                                        ),
-                                    )
-                                },
-                                modifier = Modifier
-                                    .then(
-                                        if (index == 0) {
-                                            Modifier.focusRequester(tabContentFocusRequester)
-                                        } else {
-                                            Modifier
-                                        },
-                                    )
-                                    .restoreCategoryFocusOnLeft(tabFocusRequester, index == 0),
-                            )
-                            if (index < PlayerBufferProfile.entries.lastIndex) {
-                                SettingsDivider()
-                            }
-                        }
+                        val profiles = PlayerBufferProfile.entries
+                        SettingsSliderRow(
+                            label = stringResource(R.string.settings_player_buffer_title),
+                            valueText = state.playerBufferProfile.detailsText(),
+                            value = profiles.indexOf(state.playerBufferProfile).coerceAtLeast(0),
+                            valueRange = 0..profiles.lastIndex,
+                            enabled = true,
+                            onValueChange = {
+                                onEvent(
+                                    SettingsState.Event.PlayerBufferProfileSelected(profiles[it]),
+                                )
+                            },
+                            modifier = Modifier
+                                .focusRequester(tabContentFocusRequester)
+                                .restoreCategoryFocusOnLeft(tabFocusRequester),
+                        )
                     }
 
                     SettingsTab.PLAYER_SUBTITLES -> {
@@ -368,18 +352,35 @@ internal fun SettingsTvPanelHost(
                             modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
                         )
                         // Первая группа держит фокус входа в категорию, остальные — обычные ряды.
-                        SubtitleStyleGroup(
-                            title = stringResource(R.string.settings_subtitle_size_title),
-                            values = PlayerSubtitleTextSize.entries,
-                            selected = state.subtitleStyle.textSize,
-                            labelOf = { it.label() },
-                            hintOf = { it.hint() },
-                            tabFocusRequester = tabFocusRequester,
-                            firstRowFocusRequester = tabContentFocusRequester,
-                            onSelected = {
+                        SettingsSectionTitle(text = stringResource(R.string.settings_subtitle_size_title))
+                        SettingsSliderRow(
+                            label = stringResource(R.string.settings_subtitle_size_title),
+                            valueText = state.subtitleStyle.textSize.toSubtitlePercentText(),
+                            value = state.subtitleStyle.textSize,
+                            valueRange = 50..200,
+                            enabled = true,
+                            onValueChange = {
                                 onEvent(
                                     SettingsState.Event.SubtitleStyleSelected(
                                         state.subtitleStyle.copy(textSize = it),
+                                    ),
+                                )
+                            },
+                            modifier = Modifier
+                                .focusRequester(tabContentFocusRequester)
+                                .restoreCategoryFocusOnLeft(tabFocusRequester),
+                        )
+                        SettingsSectionTitle(text = stringResource(R.string.settings_subtitle_offset_title))
+                        SettingsSliderRow(
+                            label = stringResource(R.string.settings_subtitle_offset_title),
+                            valueText = state.subtitleStyle.offset.toSubtitlePercentText(),
+                            value = state.subtitleStyle.offset,
+                            valueRange = 0..20,
+                            enabled = true,
+                            onValueChange = {
+                                onEvent(
+                                    SettingsState.Event.SubtitleStyleSelected(
+                                        state.subtitleStyle.copy(offset = it),
                                     ),
                                 )
                             },
@@ -389,6 +390,7 @@ internal fun SettingsTvPanelHost(
                             values = PlayerSubtitleTextColor.entries,
                             selected = state.subtitleStyle.textColor,
                             labelOf = { it.label() },
+                            colorOf = { it.color },
                             tabFocusRequester = tabFocusRequester,
                             onSelected = {
                                 onEvent(
@@ -408,21 +410,6 @@ internal fun SettingsTvPanelHost(
                                 onEvent(
                                     SettingsState.Event.SubtitleStyleSelected(
                                         state.subtitleStyle.copy(background = it),
-                                    ),
-                                )
-                            },
-                        )
-                        SubtitleStyleGroup(
-                            title = stringResource(R.string.settings_subtitle_offset_title),
-                            values = PlayerSubtitleOffset.entries,
-                            selected = state.subtitleStyle.offset,
-                            labelOf = { it.label() },
-                            hintOf = { it.hint() },
-                            tabFocusRequester = tabFocusRequester,
-                            onSelected = {
-                                onEvent(
-                                    SettingsState.Event.SubtitleStyleSelected(
-                                        state.subtitleStyle.copy(offset = it),
                                     ),
                                 )
                             },
@@ -591,32 +578,20 @@ internal fun SettingsTvPanelHost(
 
                     SettingsTab.CACHE -> {
                         SettingsSectionTitle(text = stringResource(R.string.settings_poster_cache_size_title))
-                        PreviewCacheSize.entries.forEachIndexed { index, size ->
-                            QualityRow(
-                                label = size.label(),
-                                hint = size.hint(),
-                                selected = size == state.previewCacheSize,
-                                onClick = {
-                                    onEvent(
-                                        SettingsState.Event.PreviewCacheSizeSelected(
-                                            size
-                                        )
-                                    )
-                                },
-                                modifier = Modifier
-                                    .then(
-                                        if (index == 0) {
-                                            Modifier.focusRequester(tabContentFocusRequester)
-                                        } else {
-                                            Modifier
-                                        },
-                                    )
-                                    .restoreCategoryFocusOnLeft(tabFocusRequester, index == 0),
-                            )
-                            if (index < PreviewCacheSize.entries.lastIndex) {
-                                SettingsDivider()
-                            }
-                        }
+                        SettingsSliderRow(
+                            label = stringResource(R.string.settings_poster_cache_size_title),
+                            valueText = state.previewCacheSize.toPreviewCacheSizeText(),
+                            value = state.previewCacheSize,
+                            valueRange = 50..500,
+                            stepSize = 50,
+                            enabled = true,
+                            onValueChange = {
+                                onEvent(SettingsState.Event.PreviewCacheSizeSelected(it))
+                            },
+                            modifier = Modifier
+                                .focusRequester(tabContentFocusRequester)
+                                .restoreCategoryFocusOnLeft(tabFocusRequester),
+                        )
                     }
 
                     SettingsTab.LANGUAGE -> {
@@ -763,6 +738,7 @@ private fun <T> SubtitleStyleGroup(
     onSelected: (T) -> Unit,
     hintOf: (@Composable (T) -> String)? = null,
     firstRowFocusRequester: FocusRequester? = null,
+    colorOf: (@Composable (T) -> Color)? = null,
 ) {
     SettingsSectionTitle(text = title)
     values.forEachIndexed { index, value ->
@@ -771,6 +747,7 @@ private fun <T> SubtitleStyleGroup(
             hint = hintOf?.invoke(value).orEmpty(),
             selected = value == selected,
             onClick = { onSelected(value) },
+            labelColor = colorOf?.invoke(value),
             modifier = Modifier
                 .then(
                     if (index == 0 && firstRowFocusRequester != null) {

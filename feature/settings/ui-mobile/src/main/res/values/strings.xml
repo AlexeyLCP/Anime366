@@ -63,7 +63,7 @@
     <string name="settings_preferred_video_quality_480">480p</string>
     <string name="settings_preferred_video_quality_360">360p</string>
     <string name="settings_preferred_video_quality_fallback_hint">Falls back to the closest lower quality when unavailable</string>
-    <string name="settings_mobile_preview_cache">Preview cache</string>
+    <string name="settings_mobile_preview_cache">Image cache</string>
     <string name="settings_details_buttons_reset">Reset button order</string>
     <string name="settings_details_buttons_order">Details button order</string>
     <string name="settings_details_buttons_order_hint">Choose which title actions are shown first</string>
@@ -167,6 +167,7 @@
     <string name="settings_cache_size_large">Large</string>
     <string name="settings_cache_size_200">200 MB</string>
     <string name="settings_cache_size_max">Maximum</string>
+    <string name="settings_cache_size_mb">%1$d MB</string>
     <string name="settings_cache_size_300">300 MB</string>
     <string name="settings_content_language_title">Language</string>
     <string name="settings_content_language_russian">Russian</string>
@@ -210,4 +211,5 @@
     <string name="settings_player_buffer_medium_hint">15–60 s ahead, up to 64 MB of RAM. More headroom on an average connection.</string>
     <string name="settings_player_buffer_large">Large</string>
     <string name="settings_player_buffer_large_hint">30–120 s ahead, up to 96 MB of RAM. For unstable connections.</string>
+    <string name="settings_player_buffer_details">%1$s: %2$d–%3$d s, %4$d MB</string>
 </resources>

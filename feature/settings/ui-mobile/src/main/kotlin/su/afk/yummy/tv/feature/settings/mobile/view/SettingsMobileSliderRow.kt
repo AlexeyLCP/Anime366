@@ -13,6 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import kotlin.math.roundToInt
 
 @Composable
 internal fun SettingsMobileSliderRow(
@@ -23,6 +24,7 @@ internal fun SettingsMobileSliderRow(
     enabled: Boolean,
     onValueChange: (Int) -> Unit,
     modifier: Modifier = Modifier,
+    stepSize: Int = 1,
 ) {
     Column(
         modifier = modifier
@@ -52,9 +54,9 @@ internal fun SettingsMobileSliderRow(
         }
         Slider(
             value = value.toFloat(),
-            onValueChange = { onValueChange(it.toInt()) },
+            onValueChange = { onValueChange(it.roundToInt()) },
             valueRange = valueRange.first.toFloat()..valueRange.last.toFloat(),
-            steps = (valueRange.last - valueRange.first - 1).coerceAtLeast(0),
+            steps = ((valueRange.last - valueRange.first) / stepSize - 1).coerceAtLeast(0),
             enabled = enabled,
             colors = SliderDefaults.colors(
                 thumbColor = MaterialTheme.colorScheme.primary,

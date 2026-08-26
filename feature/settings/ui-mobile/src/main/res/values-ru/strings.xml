@@ -51,7 +51,7 @@
     <string name="settings_preferred_video_quality_480">480p</string>
     <string name="settings_preferred_video_quality_360">360p</string>
     <string name="settings_preferred_video_quality_fallback_hint">Если качества нет, будет выбрано ближайшее ниже</string>
-    <string name="settings_mobile_preview_cache">Кэш превью</string>
+    <string name="settings_mobile_preview_cache">Кэш картинок</string>
     <string name="settings_details_buttons_reset">Сбросить порядок кнопок</string>
     <string name="settings_details_buttons_order">Порядок кнопок деталки</string>
     <string name="settings_details_buttons_order_hint">Настроить, какие действия тайтла показывать первыми</string>
@@ -155,6 +155,7 @@
     <string name="settings_cache_size_large">Большой</string>
     <string name="settings_cache_size_200">200 МБ</string>
     <string name="settings_cache_size_max">Максимальный</string>
+    <string name="settings_cache_size_mb">%1$d МБ</string>
     <string name="settings_cache_size_300">300 МБ</string>
     <string name="settings_content_language_title">Язык</string>
     <string name="settings_content_language_russian">Русский</string>
@@ -198,4 +199,5 @@
     <string name="settings_player_buffer_medium_hint">15–60 с запаса, до 64 МБ ОЗУ. Больше запас на среднем соединении.</string>
     <string name="settings_player_buffer_large">Большой</string>
     <string name="settings_player_buffer_large_hint">30–120 с запаса, до 96 МБ ОЗУ. Для нестабильного соединения.</string>
+    <string name="settings_player_buffer_details">%1$s: %2$d–%3$d сек, %4$d МБ</string>
 </resources>

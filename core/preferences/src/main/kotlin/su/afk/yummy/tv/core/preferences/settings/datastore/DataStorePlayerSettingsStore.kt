@@ -10,10 +10,8 @@ import su.afk.yummy.tv.core.model.settings.PlayerOrientationMode
 import su.afk.yummy.tv.core.model.settings.PlayerResizeMode
 import su.afk.yummy.tv.core.model.settings.PlayerResizeSettings
 import su.afk.yummy.tv.core.model.settings.PlayerSubtitleBackground
-import su.afk.yummy.tv.core.model.settings.PlayerSubtitleOffset
 import su.afk.yummy.tv.core.model.settings.PlayerSubtitleStyleSettings
 import su.afk.yummy.tv.core.model.settings.PlayerSubtitleTextColor
-import su.afk.yummy.tv.core.model.settings.PlayerSubtitleTextSize
 import su.afk.yummy.tv.core.model.settings.PlayerZoomLevel
 import su.afk.yummy.tv.core.model.settings.PreferredPlayer
 import su.afk.yummy.tv.core.model.settings.PreferredVideoQuality
@@ -119,10 +117,12 @@ internal class DataStorePlayerSettingsStore @Inject constructor(
     // (store.data), так что лишние комбинаторы только добавили бы промежуточных эмитов.
     override val playerSubtitleStyle: Flow<PlayerSubtitleStyleSettings> = store.data.map { prefs ->
         PlayerSubtitleStyleSettings(
-            textSize = prefs.enum(subtitleTextSizeKey, PlayerSubtitleTextSize.PERCENT_100),
+            textSize = (prefs[subtitleTextSizeKey] ?: DEFAULT_SUBTITLE_TEXT_SIZE_PERCENT)
+                .coerceIn(MIN_SUBTITLE_TEXT_SIZE_PERCENT, MAX_SUBTITLE_TEXT_SIZE_PERCENT),
             textColor = prefs.enum(subtitleTextColorKey, PlayerSubtitleTextColor.WHITE),
             background = prefs.enum(subtitleBackgroundKey, PlayerSubtitleBackground.TRANSLUCENT),
-            offset = prefs.enum(subtitleOffsetKey, PlayerSubtitleOffset.PERCENT_6),
+            offset = (prefs[subtitleOffsetKey] ?: DEFAULT_SUBTITLE_OFFSET_PERCENT)
+                .coerceIn(MIN_SUBTITLE_OFFSET_PERCENT, MAX_SUBTITLE_OFFSET_PERCENT),
         )
     }
 
@@ -224,10 +224,12 @@ internal class DataStorePlayerSettingsStore @Inject constructor(
 
     override suspend fun setPlayerSubtitleStyle(settings: PlayerSubtitleStyleSettings) {
         store.edit { prefs ->
-            prefs[subtitleTextSizeKey] = settings.textSize.name
+            prefs[subtitleTextSizeKey] = settings.textSize
+                .coerceIn(MIN_SUBTITLE_TEXT_SIZE_PERCENT, MAX_SUBTITLE_TEXT_SIZE_PERCENT)
             prefs[subtitleTextColorKey] = settings.textColor.name
             prefs[subtitleBackgroundKey] = settings.background.name
-            prefs[subtitleOffsetKey] = settings.offset.name
+            prefs[subtitleOffsetKey] = settings.offset
+                .coerceIn(MIN_SUBTITLE_OFFSET_PERCENT, MAX_SUBTITLE_OFFSET_PERCENT)
         }
     }
 
@@ -256,6 +258,12 @@ internal class DataStorePlayerSettingsStore @Inject constructor(
         const val MAX_VOLUME_PERCENT = 100
         const val DEFAULT_NEXT_EPISODE_SWITCH_DELAY_SECONDS = 10
         const val MAX_NEXT_EPISODE_SWITCH_DELAY_SECONDS = 30
+        const val DEFAULT_SUBTITLE_TEXT_SIZE_PERCENT = 100
+        const val MIN_SUBTITLE_TEXT_SIZE_PERCENT = 50
+        const val MAX_SUBTITLE_TEXT_SIZE_PERCENT = 200
+        const val DEFAULT_SUBTITLE_OFFSET_PERCENT = 6
+        const val MIN_SUBTITLE_OFFSET_PERCENT = 0
+        const val MAX_SUBTITLE_OFFSET_PERCENT = 20
 
         /** Настройки кадра привязаны к паре «тайтл + плеер», отсюда составной ключ. */
         fun playerScopedResizeSettingsKey(

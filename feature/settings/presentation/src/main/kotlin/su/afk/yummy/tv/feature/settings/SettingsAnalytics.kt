@@ -12,7 +12,6 @@ import su.afk.yummy.tv.core.model.settings.PosterCardSize
 import su.afk.yummy.tv.core.model.settings.PosterQuality
 import su.afk.yummy.tv.core.model.settings.PreferredPlayer
 import su.afk.yummy.tv.core.model.settings.PreferredVideoQuality
-import su.afk.yummy.tv.core.model.settings.PreviewCacheSize
 import su.afk.yummy.tv.core.model.settings.YaniContentLanguage
 import su.afk.yummy.tv.core.preferences.interface_mode.AppInterfaceMode
 import su.afk.yummy.tv.feature.settings.model.DetailsButtonMoveDirection
@@ -156,10 +155,10 @@ internal class SettingsAnalytics @Inject constructor(
      *
      * Параметры: value.
      */
-    fun eventPreviewCacheSizeSelected(size: PreviewCacheSize) {
+    fun eventPreviewCacheSizeSelected(size: Int) {
         tracker.track(
             EVENT_PREVIEW_CACHE_SIZE_SELECTED,
-            analyticsParamsOf(PARAM_VALUE to size.name.lowercase()),
+            analyticsParamsOf(PARAM_VALUE to size),
         )
     }
 

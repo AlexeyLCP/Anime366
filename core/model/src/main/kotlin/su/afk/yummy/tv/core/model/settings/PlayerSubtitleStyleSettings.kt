@@ -1,16 +1,5 @@
 package su.afk.yummy.tv.core.model.settings
 
-/** Размер субтитров в процентах от дефолтного размера Media3. */
-enum class PlayerSubtitleTextSize(val percent: Int) {
-    PERCENT_75(75),
-    PERCENT_100(100),
-    PERCENT_125(125),
-    PERCENT_150(150),
-    PERCENT_200(200);
-
-    val scale: Float get() = percent / 100f
-}
-
 /**
  * Цвета заданы как ARGB-int, а не через `android.graphics.Color`: модуль настроек общий
  * и не должен тянуть Android-типы в модель.
@@ -28,21 +17,12 @@ enum class PlayerSubtitleBackground(val argb: Int) {
     SOLID(0xFF000000.toInt()),
 }
 
-/** Отступ субтитров от низа кадра в процентах от его высоты. */
-enum class PlayerSubtitleOffset(val percent: Int) {
-    PERCENT_3(3),
-    PERCENT_6(6),
-    PERCENT_9(9),
-    PERCENT_12(12),
-    PERCENT_15(15);
-
-    val bottomFraction: Float get() = percent / 100f
-}
-
 /** Оформление субтитров: применяется глобально ко всем источникам, реально сабы отдаёт Alloha. */
 data class PlayerSubtitleStyleSettings(
-    val textSize: PlayerSubtitleTextSize = PlayerSubtitleTextSize.PERCENT_100,
+    /** Размер субтитров в процентах от дефолтного размера Media3, 50..200. */
+    val textSize: Int = 100,
     val textColor: PlayerSubtitleTextColor = PlayerSubtitleTextColor.WHITE,
     val background: PlayerSubtitleBackground = PlayerSubtitleBackground.TRANSLUCENT,
-    val offset: PlayerSubtitleOffset = PlayerSubtitleOffset.PERCENT_6,
+    /** Отступ субтитров от низа кадра в процентах от его высоты, 0..20. */
+    val offset: Int = 6,
 )

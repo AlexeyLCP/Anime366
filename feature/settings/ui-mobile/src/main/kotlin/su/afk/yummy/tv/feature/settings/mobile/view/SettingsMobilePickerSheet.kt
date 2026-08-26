@@ -62,6 +62,7 @@ internal fun <T> SettingsMobilePickerSheet(
                     hint = option.hint,
                     selected = option.value == selectedValue,
                     onClick = { onSelected(option.value) },
+                    labelColor = option.labelColor,
                     modifier = if (option.value == selectedValue) {
                         Modifier.focusRequester(selectedOptionFocusRequester)
                     } else {
@@ -80,6 +81,7 @@ private fun PickerOptionRow(
     selected: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    labelColor: Color? = null,
 ) {
     val shape = RoundedCornerShape(8.dp)
     Row(
@@ -100,7 +102,12 @@ private fun PickerOptionRow(
                 text = label,
                 style = MaterialTheme.typography.bodyLarge,
                 fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal,
-                color = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onBackground,
+                color = labelColor
+                    ?: if (selected) {
+                        MaterialTheme.colorScheme.primary
+                    } else {
+                        MaterialTheme.colorScheme.onBackground
+                    },
             )
             if (hint.isNotBlank()) {
                 Text(

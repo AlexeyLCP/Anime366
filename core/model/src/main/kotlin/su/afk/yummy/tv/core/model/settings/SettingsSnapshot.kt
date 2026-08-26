@@ -10,7 +10,7 @@ data class SettingsSnapshot(
     val preferredPlayer: PreferredPlayer,
     val preferredVideoQuality: PreferredVideoQuality,
     val watchNextEnabled: Boolean,
-    val previewCacheSize: PreviewCacheSize,
+    val previewCacheSize: Int,
     val autoSkipOpeningsEndings: Boolean,
     val showOpeningOnTimeline: Boolean,
     val autoPlayNextEpisode: Boolean,

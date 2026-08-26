@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import su.afk.yummy.tv.core.model.settings.AppTheme
 import su.afk.yummy.tv.core.model.settings.BackgroundStyle
@@ -11,14 +12,11 @@ import su.afk.yummy.tv.core.model.settings.DetailsButtonAction
 import su.afk.yummy.tv.core.model.settings.LibraryContinueWatchingCardSize
 import su.afk.yummy.tv.core.model.settings.PlayerBufferProfile
 import su.afk.yummy.tv.core.model.settings.PlayerSubtitleBackground
-import su.afk.yummy.tv.core.model.settings.PlayerSubtitleOffset
 import su.afk.yummy.tv.core.model.settings.PlayerSubtitleTextColor
-import su.afk.yummy.tv.core.model.settings.PlayerSubtitleTextSize
 import su.afk.yummy.tv.core.model.settings.PosterCardSize
 import su.afk.yummy.tv.core.model.settings.PosterQuality
 import su.afk.yummy.tv.core.model.settings.PreferredPlayer
 import su.afk.yummy.tv.core.model.settings.PreferredVideoQuality
-import su.afk.yummy.tv.core.model.settings.PreviewCacheSize
 import su.afk.yummy.tv.core.model.settings.YaniContentLanguage
 import su.afk.yummy.tv.core.preferences.interface_mode.AppInterfaceMode
 import su.afk.yummy.tv.feature.settings.R
@@ -247,23 +245,18 @@ internal fun PreferredVideoQuality.hint(): String = stringResource(
 )
 
 @Composable
-internal fun PreviewCacheSize.label(): String = stringResource(
-    when (this) {
-        PreviewCacheSize.MB_50 -> R.string.settings_cache_size_min
-        PreviewCacheSize.MB_100 -> R.string.settings_cache_size_standard
-        PreviewCacheSize.MB_200 -> R.string.settings_cache_size_large
-        PreviewCacheSize.MB_300 -> R.string.settings_cache_size_max
-    },
-)
+internal fun Int.toPreviewCacheSizeText(): String =
+    stringResource(R.string.settings_cache_size_mb, this)
 
-@Composable
-internal fun PreviewCacheSize.hint(): String = stringResource(
-    when (this) {
-        PreviewCacheSize.MB_50 -> R.string.settings_cache_size_50
-        PreviewCacheSize.MB_100 -> R.string.settings_cache_size_100
-        PreviewCacheSize.MB_200 -> R.string.settings_cache_size_200
-        PreviewCacheSize.MB_300 -> R.string.settings_cache_size_300
-    },
+/** Порядок значений слайдера качества видео: от худшего к «Авто» (лучшее). */
+internal val videoQualitySliderEntries: List<PreferredVideoQuality> = listOf(
+    PreferredVideoQuality.P360,
+    PreferredVideoQuality.P480,
+    PreferredVideoQuality.P720,
+    PreferredVideoQuality.P1080,
+    PreferredVideoQuality.P1440,
+    PreferredVideoQuality.P2160,
+    PreferredVideoQuality.BEST,
 )
 
 @Composable
@@ -303,20 +296,8 @@ internal fun Modifier.restoreCategoryFocusOnLeft(
 }
 
 @Composable
-internal fun PlayerSubtitleTextSize.label(): String =
-    stringResource(R.string.settings_subtitle_percent, percent)
-
-@Composable
-internal fun PlayerSubtitleTextSize.hint(): String =
-    stringResource(R.string.settings_subtitle_size_hint, percent)
-
-@Composable
-internal fun PlayerSubtitleOffset.label(): String =
-    stringResource(R.string.settings_subtitle_percent, percent)
-
-@Composable
-internal fun PlayerSubtitleOffset.hint(): String =
-    stringResource(R.string.settings_subtitle_offset_hint, percent)
+internal fun Int.toSubtitlePercentText(): String =
+    stringResource(R.string.settings_subtitle_percent, this)
 
 @Composable
 internal fun PlayerSubtitleTextColor.label(): String = stringResource(
@@ -327,6 +308,9 @@ internal fun PlayerSubtitleTextColor.label(): String = stringResource(
         PlayerSubtitleTextColor.GREEN -> R.string.settings_subtitle_color_green
     },
 )
+
+/** Реальный цвет субтитров в плеере — используется, чтобы показать превью прямо в списке выбора. */
+internal val PlayerSubtitleTextColor.color: Color get() = Color(argb)
 
 @Composable
 internal fun PlayerSubtitleBackground.label(): String = stringResource(
@@ -355,6 +339,16 @@ internal fun PlayerBufferProfile.hint(): String = stringResource(
         PlayerBufferProfile.MEDIUM -> R.string.settings_player_buffer_medium_hint
         PlayerBufferProfile.LARGE -> R.string.settings_player_buffer_large_hint
     },
+)
+
+/** Мин/макс длительность буфера в секундах и целевой размер буфера в МБ. */
+@Composable
+internal fun PlayerBufferProfile.detailsText(): String = stringResource(
+    R.string.settings_player_buffer_details,
+    label(),
+    minBufferMs / 1000,
+    maxBufferMs / 1000,
+    targetBufferBytes / (1024 * 1024),
 )
 
 @Composable
