@@ -10,4 +10,5 @@ data class UpdateDestination(
     val apkUrl: String,
     val changelog: String,
     val required: Boolean = false,
+    val updatesCount: Int = 0,
 ) : NavKey

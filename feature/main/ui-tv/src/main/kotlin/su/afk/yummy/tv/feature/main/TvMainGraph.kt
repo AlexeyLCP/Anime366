@@ -38,11 +38,11 @@ import su.afk.yummy.tv.core.navigation.manager.INavigationManager
 import su.afk.yummy.tv.core.navigation.registrar.NavRegistrar
 import su.afk.yummy.tv.core.navigation.registrar.TvUi
 import su.afk.yummy.tv.core.navigation.root.RootTab
-import su.afk.yummy.tv.feature.update.navigator.UpdateDestination
 import su.afk.yummy.tv.feature.main.api.MainGraph
 import su.afk.yummy.tv.feature.main.model.TvMenuItem
 import su.afk.yummy.tv.feature.main.view.TvMainScaffold
 import su.afk.yummy.tv.feature.player.navigator.PlayerDestination
+import su.afk.yummy.tv.feature.update.navigator.UpdateDestination
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.time.Duration.Companion.seconds
@@ -96,6 +96,7 @@ class TvMainGraph @Inject constructor(
                                 eff.apkUrl,
                                 eff.changelog,
                                 required = eff.required,
+                                updatesCount = eff.updatesCount,
                             )
                             if (eff.required) {
                                 navManager.replace(destination)

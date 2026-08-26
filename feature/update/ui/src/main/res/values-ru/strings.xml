@@ -16,4 +16,10 @@
     <string name="update_retry">Повторить</string>
     <string name="update_close">Закрыть</string>
     <string name="update_error_title">Ошибка обновления</string>
+    <plurals name="update_updates_count">
+        <item quantity="one">Вышло %1$d обновление с вашей версии</item>
+        <item quantity="few">Вышло %1$d обновления с вашей версии</item>
+        <item quantity="many">Вышло %1$d обновлений с вашей версии</item>
+        <item quantity="other">Вышло %1$d обновления с вашей версии</item>
+    </plurals>
 </resources>

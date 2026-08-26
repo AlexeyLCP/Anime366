@@ -191,6 +191,9 @@ fun LibraryTvScreen(
                     localProgress = state.historyLocalProgress,
                     isSignedIn = state.isSignedIn,
                     gridFocusRequester = gridFocusRequester,
+                    focusStateKey = LibraryTab.HISTORY.focusStateKey(LibraryFocusSourceLocal),
+                    // Восстановление фокуса по ON_RESUME живёт внутри страницы:
+                    // restoreGridFocusOnResume гонялся бы с ним за фокус.
                     onEntrySelected = { onEvent(LibraryState.Event.HistorySelected(it)) },
                     onDetailsSelected = { onEvent(LibraryState.Event.HistoryDetailsSelected(it.animeId)) },
                 )

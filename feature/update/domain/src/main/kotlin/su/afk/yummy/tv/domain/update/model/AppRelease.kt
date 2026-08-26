@@ -8,4 +8,5 @@ data class AppRelease(
     val version: String,
     val changelog: String,
     val apkUrl: String,
+    val updatesCount: Int = 1,
 )

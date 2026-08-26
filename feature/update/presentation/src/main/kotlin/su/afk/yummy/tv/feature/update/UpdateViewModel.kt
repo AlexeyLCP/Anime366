@@ -2,15 +2,15 @@ package su.afk.yummy.tv.feature.update
 
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import su.afk.yummy.tv.core.mvi.BaseViewModel
 import su.afk.yummy.tv.core.error.api.ErrorHandler
 import su.afk.yummy.tv.core.error.api.RetryStorage
 import su.afk.yummy.tv.core.error.api.StringProvider
+import su.afk.yummy.tv.core.mvi.BaseViewModel
 import su.afk.yummy.tv.core.navigation.manager.INavigationManager
-import su.afk.yummy.tv.feature.update.presentation.R
 import su.afk.yummy.tv.feature.update.handler.UpdateDownloadResult
 import su.afk.yummy.tv.feature.update.handler.UpdateInstallHandler
 import su.afk.yummy.tv.feature.update.handler.UpdateInstallResult
+import su.afk.yummy.tv.feature.update.presentation.R
 import java.io.File
 import javax.inject.Inject
 
@@ -36,6 +36,7 @@ class UpdateViewModel @Inject internal constructor(
                 apkUrl = event.apkUrl,
                 changelog = event.changelog,
                 required = event.required,
+                updatesCount = event.updatesCount,
             )
 
             UpdateState.Event.Dismiss -> {
@@ -62,6 +63,7 @@ class UpdateViewModel @Inject internal constructor(
         apkUrl: String,
         changelog: String,
         required: Boolean,
+        updatesCount: Int,
     ) {
         if (currentState.status is UpdateState.State.Status.Idle) {
             updateVersion = version
@@ -72,6 +74,7 @@ class UpdateViewModel @Inject internal constructor(
                         changelog = changelog,
                         apkUrl = apkUrl,
                         required = required,
+                        updatesCount = updatesCount,
                     )
                 )
             }
@@ -127,7 +130,8 @@ class UpdateViewModel @Inject internal constructor(
         setState {
             copy(
                 status = UpdateState.State.Status.Error(
-                    message = error.message ?: stringProvider.get(R.string.update_error_fallback_message),
+                    message = error.message
+                        ?: stringProvider.get(R.string.update_error_fallback_message),
                     apkUrl = apkUrl,
                 )
             )

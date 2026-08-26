@@ -45,7 +45,6 @@ import su.afk.yummy.tv.core.navigation.registrar.MobileUi
 import su.afk.yummy.tv.core.navigation.registrar.NavRegistrar
 import su.afk.yummy.tv.core.navigation.root.RootTab
 import su.afk.yummy.tv.core.preferences.settings.AppLifecycleSettingsStore
-import su.afk.yummy.tv.feature.update.navigator.UpdateDestination
 import su.afk.yummy.tv.core.utils.kodik.ResolveKodikThumbnailUrlUseCase
 import su.afk.yummy.tv.feature.faq.IFaqNavigator
 import su.afk.yummy.tv.feature.main.MainState
@@ -56,6 +55,7 @@ import su.afk.yummy.tv.feature.main.mobile.view.MobileMainScaffold
 import su.afk.yummy.tv.feature.pages.ISitePagesNavigator
 import su.afk.yummy.tv.feature.search.ISearchNavigator
 import su.afk.yummy.tv.feature.settings.ISettingsNavigator
+import su.afk.yummy.tv.feature.update.navigator.UpdateDestination
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.time.Duration.Companion.seconds
@@ -100,6 +100,7 @@ class MobileMainGraph @Inject internal constructor(
                                 eff.apkUrl,
                                 eff.changelog,
                                 required = eff.required,
+                                updatesCount = eff.updatesCount,
                             )
                             if (eff.required) {
                                 navManager.replace(destination)

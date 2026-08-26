@@ -12,6 +12,7 @@ import su.afk.yummy.tv.data.update.dto.GitHubReleaseDto
 import su.afk.yummy.tv.data.update.mapper.toDomain
 import su.afk.yummy.tv.domain.update.model.AppRelease
 import su.afk.yummy.tv.domain.update.repository.UpdateRepository
+import su.afk.yummy.tv.domain.update.util.isVersionNewer
 import javax.inject.Inject
 
 /**
@@ -22,23 +23,27 @@ internal class GitHubUpdateRepository @Inject constructor(
     @param:UnauthenticatedJsonClient private val httpClient: HttpClient,
 ) : UpdateRepository {
 
-    override suspend fun latestRelease(): AppRelease? {
-        val url = LATEST_RELEASE_URL ?: return null
+    override suspend fun latestRelease(currentVersion: String): AppRelease? {
+        val url = RELEASES_URL ?: return null
         val response: HttpResponse = httpClient.get(url) {
             header("Accept", GITHUB_ACCEPT)
         }
         if (!response.status.isSuccess()) return null
-        return response.body<GitHubReleaseDto>().toDomain()
+
+        val releases = response.body<List<GitHubReleaseDto>>().mapNotNull { it.toDomain() }
+        val latest = releases.firstOrNull() ?: return null
+        val updatesCount = releases.count { isVersionNewer(currentVersion, it.version) }
+        return latest.copy(updatesCount = updatesCount)
     }
 
     private companion object {
         const val GITHUB_ACCEPT = "application/vnd.github+json"
 
         /** null, когда репозиторий обновлений не сконфигурирован — проверка просто выключена. */
-        val LATEST_RELEASE_URL: String? =
+        val RELEASES_URL: String? =
             if (UpdateConfig.GITHUB_OWNER.isNotBlank() && UpdateConfig.GITHUB_REPO.isNotBlank()) {
                 "https://api.github.com/repos/" +
-                        "${UpdateConfig.GITHUB_OWNER}/${UpdateConfig.GITHUB_REPO}/releases/latest"
+                        "${UpdateConfig.GITHUB_OWNER}/${UpdateConfig.GITHUB_REPO}/releases"
             } else {
                 null
             }

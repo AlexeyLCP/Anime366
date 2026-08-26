@@ -8,5 +8,6 @@ import javax.inject.Inject
 class GetLatestAppReleaseUseCase @Inject constructor(
     private val updateRepository: UpdateRepository,
 ) {
-    suspend operator fun invoke(): AppRelease? = updateRepository.latestRelease()
+    suspend operator fun invoke(currentVersion: String): AppRelease? =
+        updateRepository.latestRelease(currentVersion)
 }

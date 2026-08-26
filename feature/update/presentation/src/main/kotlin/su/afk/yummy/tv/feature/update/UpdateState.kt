@@ -17,6 +17,7 @@ class UpdateState {
                 val changelog: String,
                 val apkUrl: String,
                 val required: Boolean = false,
+                val updatesCount: Int = 0,
             ) : Status()
             data class Downloading(val progress: Float) : Status()
             data object Installing : Status()
@@ -33,6 +34,7 @@ class UpdateState {
             val apkUrl: String,
             val changelog: String,
             val required: Boolean = false,
+            val updatesCount: Int = 0,
         ) : Event()
         data object Dismiss : Event()
         data class ConfirmUpdate(val apkUrl: String) : Event()

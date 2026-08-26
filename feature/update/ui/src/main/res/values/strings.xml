@@ -16,4 +16,8 @@
     <string name="update_retry">Retry</string>
     <string name="update_close">Close</string>
     <string name="update_error_title">Update error</string>
+    <plurals name="update_updates_count">
+        <item quantity="one">%1$d update since your version</item>
+        <item quantity="other">%1$d updates since your version</item>
+    </plurals>
 </resources>

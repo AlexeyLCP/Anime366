@@ -1,12 +1,12 @@
 package su.afk.yummy.tv.feature.main
 
-import su.afk.yummy.tv.core.mvi.UiEffect
-import su.afk.yummy.tv.core.mvi.UiEvent
-import su.afk.yummy.tv.core.mvi.UiState
 import su.afk.yummy.tv.core.model.settings.AppTheme
 import su.afk.yummy.tv.core.model.settings.BackgroundStyle
 import su.afk.yummy.tv.core.model.settings.PosterCardSize
 import su.afk.yummy.tv.core.model.settings.PosterQuality
+import su.afk.yummy.tv.core.mvi.UiEffect
+import su.afk.yummy.tv.core.mvi.UiEvent
+import su.afk.yummy.tv.core.mvi.UiState
 import su.afk.yummy.tv.core.navigation.root.RootTab
 
 class MainState {
@@ -35,6 +35,7 @@ class MainState {
             val apkUrl: String,
             val changelog: String,
             val required: Boolean = false,
+            val updatesCount: Int = 0,
         ) : Effect()
 
         data class ShowToast(val message: String) : Effect()

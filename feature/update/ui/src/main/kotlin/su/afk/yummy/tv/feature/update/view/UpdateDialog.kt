@@ -46,6 +46,7 @@ import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -69,6 +70,7 @@ fun UpdateDialog(
                 apkUrl = dest.apkUrl,
                 changelog = dest.changelog,
                 required = dest.required,
+                updatesCount = dest.updatesCount,
             )
         )
     }
@@ -158,6 +160,18 @@ private fun AvailableContent(
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.primary,
         )
+
+        if (status.updatesCount > 1) {
+            Text(
+                text = pluralStringResource(
+                    R.plurals.update_updates_count,
+                    status.updatesCount,
+                    status.updatesCount,
+                ),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
 
         if (status.required) {
             Spacer(Modifier.height(16.dp))
