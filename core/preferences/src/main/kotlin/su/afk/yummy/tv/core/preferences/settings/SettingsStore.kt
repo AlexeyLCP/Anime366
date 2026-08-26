@@ -8,7 +8,7 @@ import su.afk.yummy.tv.core.model.settings.SettingsSnapshot
 /**
  * Фасад над доменными хранилищами настроек ([YaniAccountSettingsStore], [PlayerSettingsStore],
  * [AppearanceSettingsStore], [CacheSettingsStore], [VideoExportSettingsStore],
- * [AppLifecycleSettingsStore]) для кода, которому нужны поля сразу нескольких доменов
+ * [AppLifecycleSettingsStore], [SearchSettingsStore]) для кода, которому нужны поля сразу нескольких доменов
  * (например, [settingsSnapshot]/[mainSettingsSnapshot] агрегируют их). Однодоменным
  * потребителям следует зависеть от узкого интерфейса напрямую.
  */
@@ -18,7 +18,8 @@ interface SettingsStore :
     AppearanceSettingsStore,
     CacheSettingsStore,
     VideoExportSettingsStore,
-    AppLifecycleSettingsStore {
+    AppLifecycleSettingsStore,
+    SearchSettingsStore {
 
     val settingsSnapshot: Flow<SettingsSnapshot>
     val mainSettingsSnapshot: Flow<MainSettingsSnapshot>

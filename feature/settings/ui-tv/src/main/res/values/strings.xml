@@ -2,6 +2,7 @@
 <resources>
     <string name="settings_tab_posters">Posters</string>
     <string name="settings_tab_interface">Interface</string>
+    <string name="settings_tab_search">Search</string>
     <string name="settings_tab_poster_size">Poster size</string>
     <string name="settings_tab_poster_quality">Poster quality</string>
     <string name="settings_tab_continue_watching">Continue</string>
@@ -78,6 +79,8 @@
     <string name="settings_watch_next_label">Continue watching</string>
     <string name="settings_watch_next_enabled">Synced with TV Home</string>
     <string name="settings_disabled">Disabled</string>
+    <string name="settings_save_last_search_label">Save last search</string>
+    <string name="settings_save_last_search_enabled">Query and filters are restored when search opens</string>
     <string name="settings_theme_warm_amber">Warm amber</string>
     <string name="settings_theme_warm_amber_hint">Neutral dark surfaces with a soft amber focus</string>
     <string name="settings_theme_sakura">Sakura</string>

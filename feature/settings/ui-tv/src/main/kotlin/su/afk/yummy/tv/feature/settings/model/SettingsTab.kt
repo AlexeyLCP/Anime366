@@ -17,6 +17,7 @@ internal enum class SettingsTab(@param:StringRes val labelRes: Int) {
     TOP_TITLE_YEAR(R.string.settings_tab_top_title_year),
     CONTINUE_WATCHING(R.string.settings_tab_continue_watching),
     DETAILS(R.string.settings_tab_details),
+    SEARCH(R.string.settings_tab_search),
     CACHE(R.string.settings_tab_cache),
     LANGUAGE(R.string.settings_tab_language),
     API(R.string.settings_tab_api),

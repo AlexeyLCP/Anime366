@@ -68,6 +68,7 @@ class SettingsState {
         val cacheStorageEntries: ImmutableList<CacheStorageEntry> = persistentListOf(),
         val cacheStorageTotalBytes: Long = 0L,
         val isCacheStorageLoading: Boolean = false,
+        val saveLastSearchEnabled: Boolean = false,
     ) : UiState
 
     /** Пользовательские действия на экране настроек. */
@@ -189,6 +190,9 @@ class SettingsState {
 
         /** Пользователь запросил пересчёт размеров папок кэша. */
         data object CacheStorageRefreshRequested : Event
+
+        /** Пользователь переключил сохранение последнего поиска. */
+        data object SaveLastSearchToggled : Event
     }
 
     sealed interface Effect : UiEffect {

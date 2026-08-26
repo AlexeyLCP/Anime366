@@ -324,6 +324,14 @@ internal class SettingsAnalytics @Inject constructor(
         tracker.track(EVENT_REQUEST_PREVIEW_CHANNEL_BROWSABLE)
     }
 
+    /** Пользователь включил или выключил сохранение последнего поиска. */
+    fun eventSaveLastSearchToggled(enabled: Boolean) {
+        tracker.track(
+            EVENT_SAVE_LAST_SEARCH_TOGGLED,
+            analyticsParamsOf(PARAM_TARGET_STATE to enabled),
+        )
+    }
+
     internal companion object {
         private const val PARAM_ACTION = "action"
         private const val PARAM_DIRECTION = "direction"
@@ -378,5 +386,6 @@ internal class SettingsAnalytics @Inject constructor(
         const val EVENT_TV_PLAYER_CONTROLS_TUTORIAL_RESET =
             "settings_tv_player_controls_tutorial_reset"
         const val EVENT_WATCH_NEXT_TOGGLED = "settings_watch_next_toggled"
+        const val EVENT_SAVE_LAST_SEARCH_TOGGLED = "settings_save_last_search_toggled"
     }
 }

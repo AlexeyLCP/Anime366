@@ -17,6 +17,7 @@ import su.afk.yummy.tv.core.preferences.settings.AppLifecycleSettingsStore
 import su.afk.yummy.tv.core.preferences.settings.AppearanceSettingsStore
 import su.afk.yummy.tv.core.preferences.settings.CacheSettingsStore
 import su.afk.yummy.tv.core.preferences.settings.PlayerSettingsStore
+import su.afk.yummy.tv.core.preferences.settings.SearchSettingsStore
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.advancedPlayerVolumeEnabledKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.appThemeKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.askDubbingOnWatchKey
@@ -67,13 +68,15 @@ internal class DataStoreSettingsStore @Inject constructor(
     cache: CacheSettingsStore,
     videoExport: VideoExportSettingsStore,
     appLifecycle: AppLifecycleSettingsStore,
+    search: SearchSettingsStore,
 ) : SettingsStore,
     AppearanceSettingsStore by appearance,
     PlayerSettingsStore by player,
     YaniAccountSettingsStore by yaniAccount,
     CacheSettingsStore by cache,
     VideoExportSettingsStore by videoExport,
-    AppLifecycleSettingsStore by appLifecycle {
+    AppLifecycleSettingsStore by appLifecycle,
+    SearchSettingsStore by search {
 
     override val settingsSnapshot: Flow<SettingsSnapshot> = store.data.map { prefs ->
         SettingsSnapshot(

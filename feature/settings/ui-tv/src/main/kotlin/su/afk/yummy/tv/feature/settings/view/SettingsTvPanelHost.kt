@@ -124,6 +124,22 @@ internal fun SettingsTvPanelHost(
                         }
                     }
 
+                    SettingsTab.SEARCH -> {
+                        ToggleRow(
+                            label = stringResource(R.string.settings_save_last_search_label),
+                            hint = if (state.saveLastSearchEnabled) {
+                                stringResource(R.string.settings_save_last_search_enabled)
+                            } else {
+                                stringResource(R.string.settings_disabled)
+                            },
+                            enabled = state.saveLastSearchEnabled,
+                            onClick = { onEvent(SettingsState.Event.SaveLastSearchToggled) },
+                            modifier = Modifier
+                                .focusRequester(tabContentFocusRequester)
+                                .restoreCategoryFocusOnLeft(tabFocusRequester),
+                        )
+                    }
+
                     SettingsTab.THEME -> AppTheme.entries.forEachIndexed { index, theme ->
                         QualityRow(
                             label = theme.label(),

@@ -8,16 +8,20 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import su.afk.yummy.tv.core.error.api.ErrorHandler
 import su.afk.yummy.tv.core.error.api.RetryStorage
+import su.afk.yummy.tv.core.model.settings.LastSearchSnapshot
 import su.afk.yummy.tv.core.mvi.BaseViewModel
 import su.afk.yummy.tv.core.navigation.manager.INavigationManager
+import su.afk.yummy.tv.core.preferences.settings.SearchSettingsStore
 import su.afk.yummy.tv.core.utils.paging.OffsetPage
 import su.afk.yummy.tv.core.utils.paging.OffsetPagingSource
 import su.afk.yummy.tv.domain.search.model.SearchFilters
 import su.afk.yummy.tv.domain.search.model.SearchItem
+import su.afk.yummy.tv.domain.search.model.SearchSort
 import su.afk.yummy.tv.domain.search.usecase.GetRandomAnimeUseCase
 import su.afk.yummy.tv.domain.search.usecase.GetSearchFilterOptionsUseCase
 import su.afk.yummy.tv.domain.search.usecase.SearchUseCase
@@ -35,6 +39,7 @@ class SearchViewModel @Inject internal constructor(
     private val getRandomAnime: GetRandomAnimeUseCase,
     private val search: SearchUseCase,
     private val analytics: SearchAnalytics,
+    private val searchSettings: SearchSettingsStore,
 ) : BaseViewModel<SearchState.State, SearchState.Event, SearchState.Effect>() {
 
     override fun createInitialState() = SearchState.State()
@@ -55,6 +60,18 @@ class SearchViewModel @Inject internal constructor(
             }.onFailure {
                 setState { copy(isLoadingFilterOptions = false) }
             }
+        }
+        restoreLastSearchIfEnabled()
+    }
+
+    private fun restoreLastSearchIfEnabled() {
+        viewModelScope.launch {
+            if (!searchSettings.saveLastSearchEnabled.first()) return@launch
+            val snapshot = searchSettings.lastSearchSnapshot.first()
+            if (snapshot.isEmpty) return@launch
+            val (query, filters) = snapshot.toDomain()
+            setState { copy(query = query, filters = filters, draftFilters = filters) }
+            setSearchResults(query, filters)
         }
     }
 
@@ -272,6 +289,7 @@ class SearchViewModel @Inject internal constructor(
             setEmptyResults()
             return
         }
+        persistLastSearchIfEnabled(query, filters)
         val pagingFlow = Pager(
             config = PagingConfig(
                 pageSize = PAGE_SIZE,
@@ -321,4 +339,39 @@ class SearchViewModel @Inject internal constructor(
 
     private fun <T> Set<T>.toggle(value: T): Set<T> =
         if (value in this) this - value else this + value
+
+    private fun persistLastSearchIfEnabled(query: String, filters: SearchFilters) {
+        viewModelScope.launch {
+            if (searchSettings.saveLastSearchEnabled.first()) {
+                searchSettings.setLastSearchSnapshot(toSnapshot(query, filters))
+            }
+        }
+    }
+
+    private fun toSnapshot(query: String, filters: SearchFilters) = LastSearchSnapshot(
+        query = query,
+        genres = filters.genres,
+        excludedGenres = filters.excludedGenres,
+        types = filters.types,
+        statuses = filters.statuses,
+        fromYear = filters.fromYear,
+        toYear = filters.toYear,
+        seasons = filters.seasons,
+        ageRatings = filters.ageRatings,
+        sortName = filters.sort.name,
+        sortForward = filters.sortForward,
+    )
+
+    private fun LastSearchSnapshot.toDomain(): Pair<String, SearchFilters> = query to SearchFilters(
+        genres = genres,
+        excludedGenres = excludedGenres,
+        types = types,
+        statuses = statuses,
+        fromYear = fromYear,
+        toYear = toYear,
+        seasons = seasons,
+        ageRatings = ageRatings,
+        sort = SearchSort.entries.firstOrNull { it.name == sortName } ?: SearchSort.RELEVANCE,
+        sortForward = sortForward,
+    )
 }

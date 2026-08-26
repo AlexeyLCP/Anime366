@@ -2,6 +2,7 @@
 <resources>
     <string name="settings_tab_posters">Постеры</string>
     <string name="settings_tab_interface">Интерфейс</string>
+    <string name="settings_tab_search">Поиск</string>
     <string name="settings_tab_poster_size">Размер постеров</string>
     <string name="settings_tab_poster_quality">Качество постеров</string>
     <string name="settings_tab_continue_watching">Продолжить</string>
@@ -66,6 +67,8 @@
     <string name="settings_watch_next_label">Продолжить просмотр</string>
     <string name="settings_watch_next_enabled">Синхронизируется с TV Home</string>
     <string name="settings_disabled">Отключено</string>
+    <string name="settings_save_last_search_label">Сохранять последний поиск</string>
+    <string name="settings_save_last_search_enabled">Запрос и фильтры восстанавливаются при открытии поиска</string>
     <string name="settings_theme_warm_amber">Тёплый янтарь</string>
     <string name="settings_theme_warm_amber_hint">Нейтральная тёмная основа и мягкий янтарный фокус</string>
     <string name="settings_theme_sakura">Сакура</string>

@@ -157,6 +157,21 @@ fun SettingsMobileScreen(
             }
 
             item {
+                SettingsMobileSection(title = stringResource(R.string.settings_mobile_section_search)) {
+                    SettingsMobileToggleRow(
+                        label = stringResource(R.string.settings_save_last_search_label),
+                        hint = if (state.saveLastSearchEnabled) {
+                            stringResource(R.string.settings_save_last_search_enabled)
+                        } else {
+                            stringResource(R.string.settings_disabled)
+                        },
+                        enabled = state.saveLastSearchEnabled,
+                        onClick = { onEvent(SettingsState.Event.SaveLastSearchToggled) },
+                    )
+                }
+            }
+
+            item {
                 SettingsMobileSection(title = stringResource(R.string.settings_mobile_section_appearance)) {
                     SettingsMobileOptionRow(
                         label = stringResource(R.string.settings_mobile_theme),
