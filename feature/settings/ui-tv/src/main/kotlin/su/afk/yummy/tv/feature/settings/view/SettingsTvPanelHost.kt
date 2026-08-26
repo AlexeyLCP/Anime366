@@ -319,7 +319,10 @@ internal fun SettingsTvPanelHost(
                             },
                             modifier = Modifier
                                 .focusRequester(tabContentFocusRequester)
-                                .restoreCategoryFocusOnLeft(tabFocusRequester),
+                                .restoreCategoryFocusOnLeft(
+                                    tabFocusRequester,
+                                    alsoOnVertical = true
+                                ),
                         )
                     }
 
@@ -339,7 +342,10 @@ internal fun SettingsTvPanelHost(
                             },
                             modifier = Modifier
                                 .focusRequester(tabContentFocusRequester)
-                                .restoreCategoryFocusOnLeft(tabFocusRequester),
+                                .restoreCategoryFocusOnLeft(
+                                    tabFocusRequester,
+                                    alsoOnVertical = true
+                                ),
                         )
                     }
 
@@ -590,7 +596,10 @@ internal fun SettingsTvPanelHost(
                             },
                             modifier = Modifier
                                 .focusRequester(tabContentFocusRequester)
-                                .restoreCategoryFocusOnLeft(tabFocusRequester),
+                                .restoreCategoryFocusOnLeft(
+                                    tabFocusRequester,
+                                    alsoOnVertical = true
+                                ),
                         )
                     }
 

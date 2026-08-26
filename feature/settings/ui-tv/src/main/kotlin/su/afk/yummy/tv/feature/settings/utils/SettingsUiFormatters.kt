@@ -289,8 +289,16 @@ internal fun cacheStorageFolderLabel(id: String): String = when (id) {
 internal fun Modifier.restoreCategoryFocusOnLeft(
     focusRequester: FocusRequester,
     enabled: Boolean = true,
+    /** Единственная строка в категории: вверх/вниз тоже некуда — возвращаем в список категорий. */
+    alsoOnVertical: Boolean = false,
 ): Modifier = if (enabled) {
-    focusProperties { left = focusRequester }
+    focusProperties {
+        left = focusRequester
+        if (alsoOnVertical) {
+            up = focusRequester
+            down = focusRequester
+        }
+    }
 } else {
     this
 }
