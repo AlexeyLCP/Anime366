@@ -2,14 +2,14 @@
 # Android / Build
 android-compileSdk = "37"
 android-minSdk = "24"
-agp = "9.3.1"
+agp = "9.3.2"
 desugar-jdk-libs = "2.1.5"
 
 # Kotlin
 kotlin = "2.4.10"
 kotlin-metadata-jvm = "2.4.0"
 kotlinx-collections-immutable = "0.5.1"
-stability-analyzer = "0.12.0"
+stability-analyzer = "0.13.0"
 
 # AndroidX
 androidx-activity = "1.13.0"
@@ -20,7 +20,7 @@ androidx-paging = "3.5.1"
 jetbrains-navigation3 = "1.1.1"
 
 # Compose
-composeMultiplatform = "1.11.1"
+composeMultiplatform = "1.12.0"
 material3 = "1.10.0-alpha05"
 materialIconsCore = "1.7.8"
 
@@ -42,7 +42,7 @@ work = "2.11.2"
 
 # Media / Images
 coil = "3.5.0"
-jsoup = "1.23.1"
+jsoup = "1.23.2"
 media3 = "1.11.0"
 
 # TV
