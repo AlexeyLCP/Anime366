@@ -34,6 +34,9 @@ data class VideoDownloadEntry(
     val streamUrl: String,
     val headersJson: String,
     val cacheKey: String,
+    /** VideoDownloadCacheKeyScheme.storageValue из domain-слоя; 0 = legacy (сырые URL). */
+    @ColumnInfo(defaultValue = "0")
+    val cacheKeyScheme: Int,
     val status: String,
     val progress: Float,
     val bytesDownloaded: Long,

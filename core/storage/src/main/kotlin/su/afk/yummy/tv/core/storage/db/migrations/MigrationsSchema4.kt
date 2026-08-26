@@ -165,3 +165,14 @@ internal val MIGRATION_46_47 = object : Migration(46, 47) {
         db.execSQL("UPDATE anime_video_caches SET cachedAt = 0")
     }
 }
+
+/**
+ * Схема ключей кэша для загрузок. Существующие строки остаются в схеме 0 (legacy): их HLS/DASH
+ * сегменты лежат под сырыми URL и по ним неотличимы от чужих, поэтому такие загрузки продолжают
+ * читаться и удаляться по-старому, а новые пишутся уже в неймспейс своего cacheKey.
+ */
+internal val MIGRATION_47_48 = object : Migration(47, 48) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("ALTER TABLE video_downloads ADD COLUMN cacheKeyScheme INTEGER NOT NULL DEFAULT 0")
+    }
+}

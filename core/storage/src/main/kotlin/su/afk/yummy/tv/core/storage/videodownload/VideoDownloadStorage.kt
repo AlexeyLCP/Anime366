@@ -30,6 +30,8 @@ interface VideoDownloadStorage {
 
     suspend fun getActiveCacheKeys(): List<String>
 
+    suspend fun hasActiveLegacyCacheKeyDownloads(): Boolean
+
     suspend fun insert(entry: VideoDownloadEntry): Long
 
     suspend fun update(entry: VideoDownloadEntry)

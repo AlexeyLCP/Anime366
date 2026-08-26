@@ -16,6 +16,7 @@ data class VideoDownloadItem(
     val streamUrl: String,
     val headers: Map<String, String>,
     val cacheKey: String,
+    val cacheKeyScheme: VideoDownloadCacheKeyScheme,
     val status: VideoDownloadStatus,
     val progress: Float,
     val bytesDownloaded: Long,

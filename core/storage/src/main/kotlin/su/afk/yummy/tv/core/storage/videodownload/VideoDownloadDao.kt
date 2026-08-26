@@ -98,6 +98,21 @@ interface VideoDownloadDao {
     )
     suspend fun getActiveCacheKeys(): List<String>
 
+    /**
+     * Есть ли ещё активные загрузки со старой схемой ключей. Пока такие есть, ресурсы в кэше,
+     * лежащие под сырыми URL, невозможно приписать конкретной загрузке — чистить их нельзя.
+     */
+    @Query(
+        """
+        SELECT EXISTS(
+            SELECT 1 FROM video_downloads
+            WHERE status != 'Deleted'
+              AND cacheKeyScheme = 0
+        )
+        """
+    )
+    suspend fun hasActiveLegacyCacheKeyDownloads(): Boolean
+
     @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insert(entry: VideoDownloadEntry): Long
 

@@ -38,6 +38,9 @@ internal class VideoDownloadStore(private val dao: VideoDownloadDao) : VideoDown
 
     override suspend fun getActiveCacheKeys(): List<String> = dao.getActiveCacheKeys()
 
+    override suspend fun hasActiveLegacyCacheKeyDownloads(): Boolean =
+        dao.hasActiveLegacyCacheKeyDownloads()
+
     override suspend fun insert(entry: VideoDownloadEntry): Long = dao.insert(entry)
 
     override suspend fun update(entry: VideoDownloadEntry) = dao.update(entry)
