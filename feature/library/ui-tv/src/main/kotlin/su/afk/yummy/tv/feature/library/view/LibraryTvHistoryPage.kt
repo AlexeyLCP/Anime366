@@ -1,6 +1,5 @@
 package su.afk.yummy.tv.feature.library.view
 
-import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -65,8 +64,6 @@ import su.afk.yummy.tv.feature.library.utils.historyFocusKeys
 import su.afk.yummy.tv.feature.library.utils.timingLabel
 import su.afk.yummy.tv.feature.library.utils.watchedAtLabel
 
-private const val HISTORY_FOCUS_LOG_TAG = "HistoryFocus"
-
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 internal fun LibraryTvHistoryPage(
@@ -101,11 +98,6 @@ internal fun LibraryTvHistoryPage(
 
     fun launchHistoryFocusRestore(): Job {
         pendingRestoreFocusKey = focusRestoreState.savedKey
-        Log.d(
-            HISTORY_FOCUS_LOG_TAG,
-            "restore: savedKey=${focusRestoreState.savedKey} savedIndex=${focusRestoreState.savedIndex} " +
-                    "keyIndex=${keys.indexOf(focusRestoreState.savedKey)} keys=${keys.size}",
-        )
         return launchTvLazyListKeyFocusRestore(
             previousJob = restoreFocusJob,
             scope = scope,
@@ -192,7 +184,6 @@ internal fun LibraryTvHistoryPage(
                             .fillMaxWidth()
                             .onFocusChanged { focusState ->
                                 if (!focusState.isFocused) return@onFocusChanged
-                                Log.d(HISTORY_FOCUS_LOG_TAG, "focused: index=$index key=$entryKey")
                                 rememberFocusedCard()
                             }
                             .focusRequester(cardFocusRequester)
