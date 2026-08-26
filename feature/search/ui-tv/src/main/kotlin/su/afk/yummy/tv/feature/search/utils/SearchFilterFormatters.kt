@@ -40,6 +40,5 @@ internal fun SearchSort.label(): String = when (this) {
     SearchSort.RATING_COUNTERS -> stringResource(R.string.search_filter_sort_rating_counters)
     SearchSort.VIEWS -> stringResource(R.string.search_filter_sort_views)
     SearchSort.TOP -> stringResource(R.string.search_filter_sort_top)
-    SearchSort.RANDOM -> stringResource(R.string.search_filter_sort_random)
     SearchSort.ID -> stringResource(R.string.search_filter_sort_id)
 }

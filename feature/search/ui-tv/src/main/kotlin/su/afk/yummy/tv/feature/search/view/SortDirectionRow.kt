@@ -1,4 +1,4 @@
-package su.afk.yummy.tv.feature.search.mobile.view
+package su.afk.yummy.tv.feature.search.view
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -13,14 +13,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.unit.dp
 
+private const val SORT_DIRECTION_ANIMATION_MILLIS = 180
+
 /**
- * Chip that toggles sort direction and shows it with a rotating arrow.
+ * Row that toggles sort direction and shows it with a rotating arrow.
  *
- * The direction is always set, so the chip is permanently accented — but without the
+ * The direction is always set, so the row is permanently accented — but without the
  * selection checkmark, since the arrow already carries the state.
  */
 @Composable
-internal fun FilterDirectionChip(
+internal fun SortDirectionRow(
     label: String,
     forward: Boolean,
     onClick: () -> Unit,
@@ -28,22 +30,22 @@ internal fun FilterDirectionChip(
 ) {
     val rotation by animateFloatAsState(
         targetValue = if (forward) 0f else 180f,
-        animationSpec = tween(durationMillis = CHIP_ANIMATION_MILLIS),
+        animationSpec = tween(durationMillis = SORT_DIRECTION_ANIMATION_MILLIS),
         label = "sortDirectionRotation",
     )
-    FilterChip(
+    SelectableRow(
         label = label,
         selected = true,
         onClick = onClick,
         modifier = modifier,
-        showSelectedIcon = false,
+        showSelectedMark = false,
         trailingIcon = {
             Icon(
                 imageVector = Icons.Filled.ArrowUpward,
                 contentDescription = null,
                 modifier = Modifier
-                    .padding(start = 5.dp)
-                    .size(15.dp)
+                    .padding(start = 6.dp)
+                    .size(18.dp)
                     .rotate(rotation),
             )
         },

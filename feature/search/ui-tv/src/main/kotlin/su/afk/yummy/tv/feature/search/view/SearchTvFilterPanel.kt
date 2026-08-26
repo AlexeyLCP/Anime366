@@ -248,13 +248,13 @@ internal fun FilterPanel(
                             },
                     )
                 }
-                SelectableRow(
+                SortDirectionRow(
                     label = if (draftFilters.sortForward) {
                         stringResource(R.string.search_filter_sort_forward)
                     } else {
                         stringResource(R.string.search_filter_sort_backward)
                     },
-                    selected = !draftFilters.sortForward,
+                    forward = draftFilters.sortForward,
                     onClick = onSortDirectionToggled,
                     modifier = Modifier
                         .focusRequester(sortDirectionFocusRequester)

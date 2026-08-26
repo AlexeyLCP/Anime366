@@ -8,9 +8,11 @@ import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -27,6 +29,8 @@ internal fun SelectableRow(
     selected: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    showSelectedMark: Boolean = true,
+    trailingIcon: (@Composable () -> Unit)? = null,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val focused by interactionSource.collectIsFocusedAsState()
@@ -57,10 +61,19 @@ internal fun SelectableRow(
         verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
     ) {
         Text(
-            text = if (selected) stringResource(R.string.search_filter_selected, label) else label,
+            text = if (selected && showSelectedMark) {
+                stringResource(R.string.search_filter_selected, label)
+            } else {
+                label
+            },
             style = MaterialTheme.typography.bodyMedium,
             fontWeight = if (selected || focused) FontWeight.SemiBold else FontWeight.Normal,
             color = contentColor,
         )
+        if (trailingIcon != null) {
+            CompositionLocalProvider(LocalContentColor provides contentColor) {
+                trailingIcon()
+            }
+        }
     }
 }

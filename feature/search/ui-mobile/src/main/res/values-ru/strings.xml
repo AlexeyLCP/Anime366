@@ -52,6 +52,5 @@
     <string name="search_mobile_filter_sort_rating_counters">Оценки</string>
     <string name="search_mobile_filter_sort_views">Просмотры</string>
     <string name="search_mobile_filter_sort_top">Топ</string>
-    <string name="search_mobile_filter_sort_random">Случайно</string>
     <string name="search_mobile_filter_sort_id">Новинки</string>
 </resources>

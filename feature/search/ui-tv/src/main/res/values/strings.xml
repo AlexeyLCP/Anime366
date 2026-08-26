@@ -48,6 +48,5 @@
     <string name="search_filter_sort_rating_counters">Rating votes</string>
     <string name="search_filter_sort_views">Views</string>
     <string name="search_filter_sort_top">Top</string>
-    <string name="search_filter_sort_random">Random</string>
     <string name="search_filter_sort_id">Newest</string>
 </resources>

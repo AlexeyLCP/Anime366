@@ -10,9 +10,9 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
-import su.afk.yummy.tv.core.mvi.BaseViewModel
 import su.afk.yummy.tv.core.error.api.ErrorHandler
 import su.afk.yummy.tv.core.error.api.RetryStorage
+import su.afk.yummy.tv.core.mvi.BaseViewModel
 import su.afk.yummy.tv.core.navigation.manager.INavigationManager
 import su.afk.yummy.tv.core.utils.paging.OffsetPage
 import su.afk.yummy.tv.core.utils.paging.OffsetPagingSource
@@ -118,7 +118,13 @@ class SearchViewModel @Inject internal constructor(
 
             is SearchState.Event.FromYearChanged -> updateDraft { copy(fromYear = event.year) }
             is SearchState.Event.ToYearChanged -> updateDraft { copy(toYear = event.year) }
-            is SearchState.Event.SortSelected -> updateDraft { copy(sort = event.sort) }
+            is SearchState.Event.SortSelected -> updateDraft {
+                copy(
+                    sort = event.sort,
+                    sortForward = event.sort.defaultForward
+                )
+            }
+
             SearchState.Event.SortDirectionToggled -> updateDraft { copy(sortForward = !sortForward) }
         }
     }

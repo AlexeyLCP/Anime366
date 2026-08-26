@@ -17,9 +17,11 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -33,6 +35,7 @@ internal fun FilterChip(
     selected: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    showSelectedIcon: Boolean = true,
     trailingIcon: (@Composable () -> Unit)? = null,
 ) {
     val shape = CircleShape
@@ -74,7 +77,7 @@ internal fun FilterChip(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         AnimatedVisibility(
-            visible = selected,
+            visible = selected && showSelectedIcon,
             enter = expandHorizontally(tween(CHIP_ANIMATION_MILLIS)) +
                     fadeIn(tween(CHIP_ANIMATION_MILLIS)),
             exit = shrinkHorizontally(tween(CHIP_ANIMATION_MILLIS)) +
@@ -95,6 +98,10 @@ internal fun FilterChip(
             fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal,
             color = contentColor,
         )
-        trailingIcon?.invoke()
+        if (trailingIcon != null) {
+            CompositionLocalProvider(LocalContentColor provides contentColor) {
+                trailingIcon()
+            }
+        }
     }
 }
