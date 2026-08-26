@@ -1,7 +1,5 @@
 package su.afk.yummy.tv.data.videodownload.strategy
 
-import androidx.media3.datasource.cache.CacheKeyFactory
-import su.afk.yummy.tv.data.videodownload.cache.RotatingHlsCacheKeyFactory
 import su.afk.yummy.tv.data.videodownload.worker.utils.StreamKind
 import su.afk.yummy.tv.data.videodownload.worker.utils.streamKind
 import su.afk.yummy.tv.data.videodownload.worker.utils.withDownloadRequestHeaders
@@ -32,16 +30,8 @@ internal class AllohaDownloadStrategy @Inject constructor(
             )
         )
 
-    override fun cacheKeyFactory(
-        cacheKey: String,
-        manifestUri: String,
-        streamKind: StreamKind,
-    ): CacheKeyFactory? =
-        if (streamKind == StreamKind.Hls) {
-            RotatingHlsCacheKeyFactory(downloadCacheKey = cacheKey, manifestUri = manifestUri)
-        } else {
-            null
-        }
+    override fun usesRotatingSegmentUrls(streamKind: StreamKind): Boolean =
+        streamKind == StreamKind.Hls
 
     override fun preferOkHttpUpstream(streamKind: StreamKind): Boolean = streamKind.isAdaptive
 

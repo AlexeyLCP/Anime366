@@ -29,6 +29,7 @@ import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import su.afk.yummy.tv.core.analytics.api.AnalyticsTracker
 import su.afk.yummy.tv.data.videodownload.cache.VideoDownloadCacheProvider
+import su.afk.yummy.tv.data.videodownload.cache.downloadCacheKeyFactoryFor
 import su.afk.yummy.tv.data.videodownload.notification.VideoDownloadNotificationService
 import su.afk.yummy.tv.data.videodownload.strategy.DownloadPlayerStrategy
 import su.afk.yummy.tv.data.videodownload.strategy.DownloadPlayerStrategyResolver
@@ -456,8 +457,12 @@ class VideoDownloadWorker @AssistedInject internal constructor(
                     .setCache(cacheProvider.cache)
                     .setUpstreamDataSourceFactory(throttledUpstream)
                     .apply {
-                        strategy.cacheKeyFactory(item.cacheKey, downloadUrl, streamKind)
-                            ?.let(::setCacheKeyFactory)
+                        downloadCacheKeyFactoryFor(
+                            scheme = item.cacheKeyScheme,
+                            downloadCacheKey = item.cacheKey,
+                            manifestUri = downloadUrl,
+                            legacyRotating = strategy.usesRotatingSegmentUrls(streamKind),
+                        )?.let(::setCacheKeyFactory)
                     }
                 val mediaItem = MediaItem.Builder()
                     .setUri(downloadUrl)

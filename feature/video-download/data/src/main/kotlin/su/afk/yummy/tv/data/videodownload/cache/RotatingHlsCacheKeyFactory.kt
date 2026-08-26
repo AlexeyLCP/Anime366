@@ -38,20 +38,10 @@ class RotatingHlsCacheKeyFactory(
         return resourcePrefix(downloadCacheKey) + fileName
     }
 
-    private fun String.hasStableHlsMediaExtension(): Boolean =
-        STABLE_HLS_MEDIA_EXTENSIONS.any { extension -> endsWith(extension, ignoreCase = true) }
-
     companion object {
         fun resourcePrefix(downloadCacheKey: String): String =
             "$downloadCacheKey$ALLOHA_SEGMENT_SEPARATOR"
 
         private const val ALLOHA_SEGMENT_SEPARATOR = "|alloha-segment|"
-        private val STABLE_HLS_MEDIA_EXTENSIONS = listOf(
-            ".m4s",
-            ".ts",
-            ".aac",
-            ".mp4",
-            ".key",
-        )
     }
 }

@@ -1,6 +1,5 @@
 package su.afk.yummy.tv.data.videodownload.strategy
 
-import androidx.media3.datasource.cache.CacheKeyFactory
 import su.afk.yummy.tv.data.videodownload.worker.utils.StreamKind
 import su.afk.yummy.tv.data.videodownload.worker.utils.streamKind
 import su.afk.yummy.tv.data.videodownload.worker.utils.withDownloadRequestHeaders
@@ -15,11 +14,7 @@ internal object DefaultDownloadStrategy : DownloadPlayerStrategy {
 
     override suspend fun openLiveSession(item: VideoDownloadItem): AllohaStreamSession? = null
 
-    override fun cacheKeyFactory(
-        cacheKey: String,
-        manifestUri: String,
-        streamKind: StreamKind,
-    ): CacheKeyFactory? = null
+    override fun usesRotatingSegmentUrls(streamKind: StreamKind): Boolean = false
 
     override fun preferOkHttpUpstream(streamKind: StreamKind): Boolean = false
 

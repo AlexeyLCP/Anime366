@@ -2,6 +2,7 @@ package su.afk.yummy.tv.data.videodownload.mapper
 
 import kotlinx.serialization.json.Json
 import su.afk.yummy.tv.core.storage.videodownload.VideoDownloadEntry
+import su.afk.yummy.tv.domain.videodownload.model.VideoDownloadCacheKeyScheme
 import su.afk.yummy.tv.domain.videodownload.model.VideoDownloadItem
 import su.afk.yummy.tv.domain.videodownload.model.VideoDownloadRequest
 import su.afk.yummy.tv.domain.videodownload.model.VideoDownloadStatus
@@ -27,6 +28,7 @@ internal fun VideoDownloadEntry.toDomain(): VideoDownloadItem =
         headers = runCatching { videoDownloadJson.decodeFromString<Map<String, String>>(headersJson) }
             .getOrDefault(emptyMap()),
         cacheKey = cacheKey,
+        cacheKeyScheme = VideoDownloadCacheKeyScheme.fromStorageValue(cacheKeyScheme),
         status = status.toStatus(),
         progress = progress,
         bytesDownloaded = bytesDownloaded,
@@ -41,7 +43,10 @@ internal fun VideoDownloadEntry.toDomain(): VideoDownloadItem =
         updatedAt = updatedAt,
     )
 
-internal fun VideoDownloadRequest.toEntry(now: Long): VideoDownloadEntry =
+internal fun VideoDownloadRequest.toEntry(
+    now: Long,
+    cacheKeyScheme: VideoDownloadCacheKeyScheme,
+): VideoDownloadEntry =
     VideoDownloadEntry(
         animeId = animeId,
         animeTitle = animeTitle,
@@ -57,6 +62,7 @@ internal fun VideoDownloadRequest.toEntry(now: Long): VideoDownloadEntry =
         streamUrl = quality.url,
         headersJson = videoDownloadJson.encodeToString(headers),
         cacheKey = buildCacheKey(this),
+        cacheKeyScheme = cacheKeyScheme.storageValue,
         status = VideoDownloadStatus.Queued.name,
         progress = 0f,
         bytesDownloaded = 0L,

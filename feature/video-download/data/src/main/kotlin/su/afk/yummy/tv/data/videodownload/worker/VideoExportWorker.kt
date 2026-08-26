@@ -32,6 +32,7 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import su.afk.yummy.tv.data.videodownload.R
 import su.afk.yummy.tv.data.videodownload.cache.VideoDownloadCacheProvider
+import su.afk.yummy.tv.data.videodownload.cache.downloadCacheKeyFactoryFor
 import su.afk.yummy.tv.data.videodownload.notification.VideoExportNotificationService
 import su.afk.yummy.tv.data.videodownload.strategy.DownloadPlayerStrategyResolver
 import su.afk.yummy.tv.data.videodownload.utils.treeDocumentUri
@@ -161,8 +162,12 @@ class VideoExportWorker @AssistedInject internal constructor(
             .setCache(cacheProvider.cache)
             .setFlags(CacheDataSource.FLAG_BLOCK_ON_CACHE)
             .apply {
-                strategy.cacheKeyFactory(item.cacheKey, item.streamUrl, streamKind)
-                    ?.let(::setCacheKeyFactory)
+                downloadCacheKeyFactoryFor(
+                    scheme = item.cacheKeyScheme,
+                    downloadCacheKey = item.cacheKey,
+                    manifestUri = item.streamUrl,
+                    legacyRotating = strategy.usesRotatingSegmentUrls(streamKind),
+                )?.let(::setCacheKeyFactory)
             }
         val mediaSourceFactory = DefaultMediaSourceFactory(applicationContext)
             .setDataSourceFactory(cacheDataSourceFactory)
