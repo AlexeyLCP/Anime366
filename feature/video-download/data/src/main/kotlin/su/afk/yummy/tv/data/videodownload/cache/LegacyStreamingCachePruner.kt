@@ -6,10 +6,14 @@ import su.afk.yummy.tv.core.storage.videodownload.VideoDownloadStorage
 import javax.inject.Inject
 
 /**
- * One-time cleanup for installs made before regular (non-offline) playback got its own bounded
- * cache. Until then, every streamed video was written into the unbounded download cache
- * ([VideoDownloadCacheProvider]) and never evicted. This removes everything from that cache that
- * isn't backed by an active download entry, leaving user-initiated downloads untouched.
+ * Убирает из безлимитного кэша загрузок ([VideoDownloadCacheProvider]) всё, за чем не стоит активная
+ * запись: наследие тех версий, где обычное (не офлайн) воспроизведение писало туда же и никогда не
+ * вытеснялось, плюс данные уже удалённых серий старой схемы.
+ *
+ * Проход возможен только когда все активные загрузки перешли на неймспейсинг ключей. Пока жива хоть
+ * одна запись схемы [su.afk.yummy.tv.domain.videodownload.model.VideoDownloadCacheKeyScheme.Legacy],
+ * её HLS/DASH-сегменты лежат под сырыми URL и неотличимы от чужих — попытка «прибраться» сносила
+ * данные всех остальных серий, из-за чего они переставали воспроизводиться.
  */
 @OptIn(UnstableApi::class)
 class LegacyStreamingCachePruner @Inject constructor(
@@ -17,10 +21,11 @@ class LegacyStreamingCachePruner @Inject constructor(
     private val store: VideoDownloadStorage,
 ) {
     suspend fun pruneOrphanedEntries() {
+        if (store.hasActiveLegacyCacheKeyDownloads()) return
         val activeCacheKeys = store.getActiveCacheKeys().toSet()
-        val activeSegmentPrefixes = activeCacheKeys.map(RotatingHlsCacheKeyFactory::resourcePrefix)
+        val activePrefixes = activeCacheKeys.flatMap(::downloadResourcePrefixes)
         cacheProvider.cache.keys
-            .filterNot { key -> key in activeCacheKeys || activeSegmentPrefixes.any(key::startsWith) }
+            .filterNot { key -> key in activeCacheKeys || activePrefixes.any(key::startsWith) }
             .forEach { key -> runCatching { cacheProvider.cache.removeResource(key) } }
     }
 }

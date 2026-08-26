@@ -20,14 +20,14 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import su.afk.yummy.tv.core.storage.videodownload.VideoDownloadStorage
 import su.afk.yummy.tv.data.videodownload.R
-import su.afk.yummy.tv.data.videodownload.cache.LegacyStreamingCachePruner
-import su.afk.yummy.tv.data.videodownload.cache.RotatingHlsCacheKeyFactory
 import su.afk.yummy.tv.data.videodownload.cache.VideoDownloadCacheProvider
+import su.afk.yummy.tv.data.videodownload.cache.downloadResourcePrefixes
 import su.afk.yummy.tv.data.videodownload.mapper.storageName
 import su.afk.yummy.tv.data.videodownload.mapper.toDomain
 import su.afk.yummy.tv.data.videodownload.mapper.toEntry
 import su.afk.yummy.tv.data.videodownload.mapper.toVideoDownloadHeadersJson
 import su.afk.yummy.tv.data.videodownload.notification.VideoDownloadNotificationService
+import su.afk.yummy.tv.data.videodownload.strategy.DownloadPlayerStrategyResolver
 import su.afk.yummy.tv.data.videodownload.worker.VideoDownloadAnalytics
 import su.afk.yummy.tv.data.videodownload.worker.VideoDownloadWorker
 import su.afk.yummy.tv.domain.videodownload.model.VideoDownloadItem
@@ -39,13 +39,13 @@ import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 @OptIn(UnstableApi::class)
-class DefaultVideoDownloadRepository @Inject constructor(
+class DefaultVideoDownloadRepository @Inject internal constructor(
     @ApplicationContext private val context: Context,
     private val store: VideoDownloadStorage,
     private val cacheProvider: VideoDownloadCacheProvider,
     private val notificationService: VideoDownloadNotificationService,
     private val analytics: VideoDownloadAnalytics,
-    private val cachePruner: LegacyStreamingCachePruner,
+    private val strategyResolver: DownloadPlayerStrategyResolver,
 ) : VideoDownloadRepository {
     private val orphanReconciliationMutex = Mutex()
     private val enqueueMutex = Mutex()
@@ -88,7 +88,7 @@ class DefaultVideoDownloadRepository @Inject constructor(
                 duplicateStatus == VideoDownloadStatus.Deleted
             ) {
                 store.update(
-                    request.toEntry(now).copy(
+                    request.toEntry(now, request.cacheKeyScheme()).copy(
                         id = duplicate.id,
                         cacheKey = duplicate.cacheKey,
                         progress = duplicate.progress,
@@ -110,7 +110,7 @@ class DefaultVideoDownloadRepository @Inject constructor(
             return duplicate.toDomain()
         }
 
-        val id = store.insert(request.toEntry(now))
+        val id = store.insert(request.toEntry(now, request.cacheKeyScheme()))
         scheduleWorker(id)
         return (
                 store.getById(id)?.toDomain()
@@ -152,9 +152,9 @@ class DefaultVideoDownloadRepository @Inject constructor(
         }
         episodeDownloads.map { it.cacheKey }.distinct().forEach { cacheKey ->
             runCatching { cacheProvider.cache.removeResource(cacheKey) }
-            val rotatingSegmentPrefix = RotatingHlsCacheKeyFactory.resourcePrefix(cacheKey)
+            val resourcePrefixes = downloadResourcePrefixes(cacheKey)
             cacheProvider.cache.keys
-                .filter { key -> key.startsWith(rotatingSegmentPrefix) }
+                .filter { key -> resourcePrefixes.any(key::startsWith) }
                 .forEach { key -> runCatching { cacheProvider.cache.removeResource(key) } }
         }
         store.markEpisodeDeleted(
@@ -163,7 +163,9 @@ class DefaultVideoDownloadRepository @Inject constructor(
             updatedAt = System.currentTimeMillis(),
         )
         episodeDownloads.forEach { download -> notificationService.cancel(download.id) }
-        runCatching { cachePruner.pruneOrphanedEntries() }
+        // Никакой глобальной чистки кэша: ключи загрузок схемы Legacy лежат под сырыми URL и
+        // неотличимы от чужих, поэтому такой проход сносил данные всех остальных серий.
+        // Осиротевшее подберёт LegacyStreamingCachePruner на старте, когда Legacy не останется.
     }
 
     override suspend fun restart(id: Long, stream: VideoDownloadRestartStream?) {
@@ -171,6 +173,8 @@ class DefaultVideoDownloadRepository @Inject constructor(
         workManager.cancelUniqueWork(uniqueWorkName(id))
         val entry = store.getById(id) ?: return
         val qualityLabel = stream?.qualityLabel ?: entry.qualityLabel
+        // cacheKeyScheme сознательно не пересчитывается: сюда же приходит возобновление с паузы,
+        // а смена схемы обесценила бы уже скачанные сегменты. Схема фиксируется только в enqueue.
         store.update(
             entry.copy(
                 videoId = stream?.videoId ?: entry.videoId,
@@ -244,6 +248,12 @@ class DefaultVideoDownloadRepository @Inject constructor(
             )
         }
     }
+
+    private fun VideoDownloadRequest.cacheKeyScheme() = strategyResolver.cacheKeyScheme(
+        iframeUrl = iframeUrl,
+        playerName = playerName,
+        streamUrl = quality.url,
+    )
 
     private fun scheduleWorker(
         id: Long,

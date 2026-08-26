@@ -6,7 +6,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import su.afk.yummy.tv.core.model.settings.PreviewCacheSize
 import su.afk.yummy.tv.core.preferences.settings.CacheSettingsStore
-import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.legacyStreamingCachePrunedKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.previewCacheSizeKey
 import su.afk.yummy.tv.core.utils.coroutines.di.IoApplicationScope
 import javax.inject.Inject
@@ -37,14 +36,5 @@ internal class DataStoreCacheSettingsStore @Inject constructor(
     override suspend fun setPreviewCacheSize(size: PreviewCacheSize) {
         previewCacheSizeSnapshot = size
         store.edit { prefs -> prefs[previewCacheSizeKey] = size.megabytes }
-    }
-
-    override suspend fun consumeLegacyStreamingCachePruneFlag(): Boolean {
-        var shouldPrune = false
-        store.edit { prefs ->
-            shouldPrune = prefs[legacyStreamingCachePrunedKey] != true
-            prefs[legacyStreamingCachePrunedKey] = true
-        }
-        return shouldPrune
     }
 }

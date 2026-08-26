@@ -32,9 +32,9 @@ class AppStartupMaintenanceRunner @Inject constructor(
             if (settingsStore.markStartedVersion(BuildConfig.VERSION_CODE)) {
                 deleteDownloadedUpdateApk()
             }
-            if (settingsStore.consumeLegacyStreamingCachePruneFlag()) {
-                runCatching { legacyStreamingCachePruner.pruneOrphanedEntries() }
-            }
+            // Без одноразового флага: pruner сам отказывается работать, пока жива хоть одна
+            // загрузка со старой схемой ключей, — зато подберёт их данные, как только не останется.
+            runCatching { legacyStreamingCachePruner.pruneOrphanedEntries() }
             runCatching { storageCleanupStore.purgeStaleCaches() }
         }
     }

@@ -65,8 +65,6 @@ internal object SettingsPreferenceKeys {
     val lastSeenAnnouncementIdKey = stringPreferencesKey("last_seen_announcement_id")
     val notificationPermissionRequestedKey =
         booleanPreferencesKey("notification_permission_requested")
-    val legacyStreamingCachePrunedKey =
-        booleanPreferencesKey("legacy_streaming_cache_pruned")
     val videoExportDirectoryUriKey = stringPreferencesKey("video_export_directory_uri")
     val videoExportDirectoryNameKey = stringPreferencesKey("video_export_directory_name")
     val videoExportAutoEnabledKey = booleanPreferencesKey("video_export_auto_enabled")
