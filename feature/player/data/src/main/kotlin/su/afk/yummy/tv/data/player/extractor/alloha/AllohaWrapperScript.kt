@@ -124,7 +124,10 @@ internal fun wrapperHtml(iframeUrl: String): String = """
         // very same URL through its own proxy, and streams fine. Withholding it instead left the
         // page's player with no media at all (readyState 0), so it tore down its WebSocket after
         // ~2.5s, no config_update ever arrived, and every session rotation stalled on a signal
-        // that could not come. Master capture now rides the load/loadend listeners above.
+        // that could not come. Master capture now rides the load/loadend listeners above. Since
+        // withholding was removed, the page's own <video> actually decodes and plays the real
+        // stream now (readyState 4) - that's why it has to be forcibly muted below, and why any
+        // ad-inserted companion media element needs the same treatment.
         var fetch = w.fetch;
         w.fetch = function(input,init) {
           try {
@@ -212,6 +215,60 @@ internal fun wrapperHtml(iframeUrl: String): String = """
         w.WebSocket.OPEN = OrigWS.OPEN;
         w.WebSocket.CLOSING = OrigWS.CLOSING;
         w.WebSocket.CLOSED = OrigWS.CLOSED;
+        // Ad-injected companion <video>/<audio> elements are muted too, not just the main player's -
+        // a midroll ad has been observed playing audibly at the same time as the real episode audio
+        // (which comes from Media3 via the loopback proxy, entirely separate from this WebView).
+        // The single querySelector('video') below only ever touches the first match, so anything
+        // the ad adds alongside it went unmuted. volume=0 is a second line of defense in case the
+        // ad script itself resets .muted after we set it.
+        function muteMediaElement(el) {
+          if(el.muted !== true) {
+            try { AndroidBridge.onLog('muted ad-candidate media src=' + String(el.currentSrc || el.src || '').slice(0,120)); } catch(e2) {}
+          }
+          el.muted = true;
+          el.volume = 0;
+        }
+        // depth caps the iframe recursion at one level - same-origin ad iframes only, cross-origin
+        // ones throw on contentDocument access and are silently skipped.
+        function muteAllMedia(doc, depth) {
+          try {
+            var media = doc.querySelectorAll('video, audio');
+            for(var i=0;i<media.length;i++) muteMediaElement(media[i]);
+            if(depth < 1) {
+              var frames = doc.querySelectorAll('iframe');
+              for(var j=0;j<frames.length;j++) {
+                try {
+                  var innerDoc = frames[j].contentDocument;
+                  if(!innerDoc) continue;
+                  if(!innerDoc.__allohaObserved) { innerDoc.__allohaObserved = true; observeMedia(innerDoc); }
+                  muteAllMedia(innerDoc, depth + 1);
+                } catch(e) {}
+              }
+            }
+          } catch(e) {}
+        }
+        // Catches media elements the moment they're inserted, so an ad doesn't get a ~1.5s window
+        // of audible sound before the poll below reaches it.
+        function observeMedia(doc) {
+          try {
+            var observer = new MutationObserver(function(mutations) {
+              for(var m=0;m<mutations.length;m++) {
+                var added = mutations[m].addedNodes;
+                for(var n=0;n<added.length;n++) {
+                  var node = added[n];
+                  if(node.nodeType !== 1) continue;
+                  if(node.tagName === 'VIDEO' || node.tagName === 'AUDIO') muteMediaElement(node);
+                  if(node.querySelectorAll) {
+                    var inner = node.querySelectorAll('video, audio');
+                    for(var k=0;k<inner.length;k++) muteMediaElement(inner[k]);
+                  }
+                }
+              }
+            });
+            observer.observe(doc.documentElement || doc, {childList:true, subtree:true});
+          } catch(e) {}
+        }
+        observeMedia(w.document);
         var errorReported = false;
         var unavailablePattern = /озвучка\s*недоступна/i;
         setInterval(function() {
@@ -229,12 +286,12 @@ internal fun wrapperHtml(iframeUrl: String): String = """
           // (re)fetching its own correctly-signed master.m3u8 (onM3u8Refreshed) instead of settling
           // on the raw bnsi URL that the CDN rejects with 403 token_decrypt.
           //
-          // Note it never actually plays: the send()/fetch hooks above withhold its master request
-          // to keep that single-use token fresh for our proxy, so its media element stays at
-          // readyState 0 with currentTime pinned at 0 (measured on device). The player therefore
-          // tears its own WebSocket down ~2.5s after opening it and no config_update ever arrives -
-          // that is inherent to withholding the master, not a bug to chase. LiveAllohaStreamSession
-          // detects it via sawConfigUpdate and stops waiting on signals that cannot come.
+          // The master request is no longer withheld (see the comment above the fetch hook), so the
+          // player's own media element actually decodes and plays the real stream in the background
+          // (readyState 4) - muted below so this hidden copy is never audible. Its WebSocket still
+          // tears down ~2.5s after opening and no config_update ever arrives regardless of playback
+          // state (measured on device with media actually playing) - LiveAllohaStreamSession detects
+          // that via sawConfigUpdate and stops waiting on signals that cannot come.
           // The play control is only pressed while the player is NOT already playing. Verified
           // against the live markup: the root carries `allplay--playing` while it runs, and the
           // toggle button reports aria-label "Пауза" in that state - clicking it then would stop
@@ -248,6 +305,7 @@ internal fun wrapperHtml(iframeUrl: String): String = """
           }
           var video = w.document.querySelector('video');
           if(video) { video.muted = true; if(video.paused) video.play().catch(function(){}); }
+          muteAllMedia(w.document, 0);
         }, 1500);
         return true;
       } catch(e) { AndroidBridge.onLog('wrapper install failed: ' + e); return false; }
