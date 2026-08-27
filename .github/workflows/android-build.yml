@@ -41,8 +41,65 @@ jobs:
           (yes || true) | sdkmanager --licenses >/dev/null
           sdkmanager --install "platforms;android-36"
 
+      - name: Lint
+        id: lint
+        continue-on-error: true
+        run: ./gradlew :app:lintDebug --stacktrace
+
+      - name: Run unit tests
+        id: tests
+        continue-on-error: true
+        run: ./gradlew testDebugUnitTest --stacktrace
+
       - name: Build debug APK
+        id: build_debug
         run: ./gradlew :app:assembleDebug --stacktrace
 
       - name: Build release APK
+        id: build_release
         run: ./gradlew :app:assembleRelease --stacktrace
+
+      - name: Write job summary
+        if: always()
+        run: |
+          {
+            echo "## Build Summary"
+            echo ""
+            echo "| Step | Result |"
+            echo "|---|---|"
+            echo "| Lint | ${{ steps.lint.outcome == 'success' && '✅ passed' || steps.lint.outcome == 'failure' && '❌ failed' || '⏭️ skipped' }} |"
+            echo "| Unit tests | ${{ steps.tests.outcome == 'success' && '✅ passed' || steps.tests.outcome == 'failure' && '❌ failed' || '⏭️ skipped' }} |"
+            echo "| Debug build | ${{ steps.build_debug.outcome == 'success' && '✅ passed' || steps.build_debug.outcome == 'failure' && '❌ failed' || '⏭️ skipped' }} |"
+            echo "| Release build | ${{ steps.build_release.outcome == 'success' && '✅ passed' || steps.build_release.outcome == 'failure' && '❌ failed' || '⏭️ skipped' }} |"
+            echo ""
+
+            total=0
+            failed=0
+            while IFS= read -r f; do
+              t=$(grep -o 'tests="[0-9]*"' "$f" | head -1 | grep -o '[0-9]*')
+              fl=$(grep -o 'failures="[0-9]*"' "$f" | head -1 | grep -o '[0-9]*')
+              er=$(grep -o 'errors="[0-9]*"' "$f" | head -1 | grep -o '[0-9]*')
+              total=$((total + ${t:-0}))
+              failed=$((failed + ${fl:-0} + ${er:-0}))
+            done < <(find . -path "*/build/test-results/testDebugUnitTest/TEST-*.xml" 2>/dev/null)
+            echo "**Unit tests:** ${total} run, ${failed} failed"
+            echo ""
+
+            lintxml="app/build/reports/lint-results-debug.xml"
+            if [ -f "$lintxml" ]; then
+              errs=$(grep -c 'severity="Error"' "$lintxml")
+              warns=$(grep -c 'severity="Warning"' "$lintxml")
+              echo "**Lint:** ${errs} errors, ${warns} warnings"
+              echo ""
+            fi
+
+            apk=$(find app/build/outputs/apk/debug -name "*.apk" 2>/dev/null | head -1)
+            if [ -n "$apk" ]; then
+              size=$(du -h "$apk" | cut -f1)
+              echo "**Debug APK size:** ${size} ($(basename "$apk"))"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Fail if checks failed
+        if: always() && (steps.lint.outcome == 'failure' || steps.tests.outcome == 'failure')
+        run: exit 1
