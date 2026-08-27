@@ -17,6 +17,9 @@
     <string name="player_mobile_next_episode">Next</string>
     <string name="player_mobile_back">Back</string>
     <string name="player_mobile_details">Details</string>
+    <string name="player_mobile_actions">More</string>
+    <string name="player_mobile_cast">Cast</string>
+    <string name="player_mobile_pip">Picture-in-Picture</string>
     <string name="player_mobile_forward">Forward</string>
     <string name="player_mobile_pip_rewind_10">Rewind 10 seconds</string>
     <string name="player_mobile_pip_pause">Pause</string>

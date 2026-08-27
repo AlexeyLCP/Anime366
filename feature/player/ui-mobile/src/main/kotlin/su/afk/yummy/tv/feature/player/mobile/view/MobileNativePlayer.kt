@@ -574,6 +574,7 @@ internal fun MobileNativePlayer(
             showPictureInPicture = state.pictureInPictureEnabled &&
                     supportsPictureInPicture &&
                     !isInPictureInPictureMode,
+            showCast = !isInPictureInPictureMode,
             visible = overlay.visible && !isInPictureInPictureMode && !tutorialBlocksPlayback,
         )
 

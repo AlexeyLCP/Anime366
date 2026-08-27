@@ -17,6 +17,7 @@ dependencies {
     implementation(project(":feature:player:presentation"))
     implementation(project(":feature:video-download:api"))
     implementation(libs.bundles.media3.player)
+    implementation(libs.media3.cast)
     implementation(libs.bundles.compose.screen)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.material.icons.core)

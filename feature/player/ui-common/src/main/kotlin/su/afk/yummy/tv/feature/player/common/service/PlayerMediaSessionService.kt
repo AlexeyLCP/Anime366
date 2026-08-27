@@ -3,9 +3,11 @@ package su.afk.yummy.tv.feature.player.common.service
 import android.app.ActivityManager
 import android.app.PendingIntent
 import android.content.Intent
+import android.content.res.Configuration
 import android.os.Bundle
 import android.util.Log
 import androidx.annotation.OptIn
+import androidx.media3.cast.CastPlayer
 import androidx.media3.common.C
 import androidx.media3.common.MimeTypes
 import androidx.media3.common.Player
@@ -58,6 +60,13 @@ class PlayerMediaSessionService : MediaSessionService() {
 
     private var mediaSession: MediaSession? = null
     private var player: ExoPlayer? = null
+    private var castPlayer: CastPlayer? = null
+
+    // На TV кастуем некуда - Cast нужен только на мобилке (см. DeviceAwareTvIntegration
+    // за тем же паттерном рантайм-детекта TV, поскольку :app - один манифест/APK на обе платформы).
+    private val isTelevision: Boolean
+        get() = resources.configuration.uiMode and Configuration.UI_MODE_TYPE_MASK ==
+                Configuration.UI_MODE_TYPE_TELEVISION
 
     private val loudnessNormalizer = PlayerLoudnessNormalizer()
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
@@ -159,11 +168,27 @@ class PlayerMediaSessionService : MediaSessionService() {
                 loudnessNormalizer.apply(currentAudioSessionId, enabled)
             }
             .launchIn(serviceScope)
-        mediaSession = MediaSession.Builder(this, exoPlayer)
+        if (!isTelevision) {
+            castPlayer = buildCastPlayer(exoPlayer)
+        }
+        mediaSession = MediaSession.Builder(this, castPlayer ?: exoPlayer)
             .setSessionActivity(createSessionActivityPendingIntent())
             .setCallback(PlayerSessionCallback())
             .build()
     }
+
+    /**
+     * CastContext доступен только при наличии Google Play Services на устройстве - без них
+     * CastContext.getSharedInstance() кидает исключение, поэтому локальный ExoPlayer остаётся
+     * фолбэком, а не жёстким требованием.
+     */
+    private fun buildCastPlayer(exoPlayer: ExoPlayer): CastPlayer? =
+        try {
+            CastPlayer.Builder(this).setLocalPlayer(exoPlayer).build()
+        } catch (e: Exception) {
+            Log.w(LOG_TAG, "CastPlayer unavailable", e)
+            null
+        }
 
     override fun onGetSession(controllerInfo: MediaSession.ControllerInfo): MediaSession? =
         mediaSession
@@ -212,9 +237,12 @@ class PlayerMediaSessionService : MediaSessionService() {
         allohaSessionManager.closeActive()
         serviceScope.cancel()
         loudnessNormalizer.release()
+        // mediaSession.player - это castPlayer, если он собрался, а CastPlayer.release()
+        // сам освобождает и обёрнутый localPlayer (exoPlayer) - отдельный exoPlayer.release() не нужен.
         mediaSession?.run { player.release(); release() }
         mediaSession = null
         player = null
+        castPlayer = null
         super.onDestroy()
     }
 

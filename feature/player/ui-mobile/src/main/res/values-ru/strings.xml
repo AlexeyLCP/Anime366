@@ -17,6 +17,9 @@
     <string name="player_mobile_next_episode">Следующая</string>
     <string name="player_mobile_back">Назад</string>
     <string name="player_mobile_details">Детали</string>
+    <string name="player_mobile_actions">Ещё</string>
+    <string name="player_mobile_cast">Трансляция</string>
+    <string name="player_mobile_pip">Картинка в картинке</string>
     <string name="player_mobile_forward">Дальше</string>
     <string name="player_mobile_pip_rewind_10">Назад на 10 секунд</string>
     <string name="player_mobile_pip_pause">Пауза</string>
