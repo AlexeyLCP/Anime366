@@ -2,7 +2,11 @@ package su.afk.yummy.tv.android.di
 
 import android.app.Application
 import android.os.StrictMode
+import androidx.annotation.OptIn
 import androidx.hilt.work.HiltWorkerFactory
+import androidx.media3.cast.Cast
+import androidx.media3.cast.CastParams
+import androidx.media3.common.util.UnstableApi
 import androidx.work.Configuration
 import dagger.hilt.android.HiltAndroidApp
 import su.afk.yummy.tv.BuildConfig
@@ -47,12 +51,14 @@ class YummyTvApplication : Application(), Configuration.Provider {
             .setWorkerFactory(workerFactory)
             .build()
 
+    @OptIn(UnstableApi::class)
     override fun onCreate() {
         super.onCreate()
 
         installStrictModeIfDebug()
         setupAnalytics()
         setupFeatureToggles()
+        setupCast()
         coilImageLoaderInstaller.install()
         onlineStatusCoordinator.start()
         featureToggleRefreshCoordinator.start()
@@ -78,5 +84,23 @@ class YummyTvApplication : Application(), Configuration.Provider {
 
     private fun setupFeatureToggles() {
         featureToggleInitializer.initialize(this, BuildConfig.VARIOQUB_CLIENT_ID)
+    }
+
+    /**
+     * Manifest-provided Cast options (см. YummyTvCastOptionsProvider) по умолчанию заставляют
+     * media3-cast использовать устаревший in-app MediaRouteChooserDialog вместо системного Output
+     * Switcher - на практике этот диалог не показывает часть реально найденных Cast-устройств,
+     * хотя они уже есть в системной таблице MediaRouter2 (проверено логами и системный Cast/VLC
+     * те же устройства находят). Явный showSystemOutputSwitcherOnCastButtonClick форсирует
+     * системный picker независимо от этого дефолта, receiverApplicationId по-прежнему берётся из
+     * манифеста.
+     */
+    @OptIn(UnstableApi::class)
+    private fun setupCast() {
+        Cast.getSingletonInstance(this).initialize(
+            CastParams.Builder()
+                .setShowSystemOutputSwitcherOnCastButtonClick(true)
+                .build()
+        )
     }
 }

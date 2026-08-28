@@ -186,13 +186,11 @@ internal fun TvExoPlayerView(
         playback.activeDubbing,
         playback.activeBalancerName,
         playback.activeScreenshotUrl,
-        progress.duration,
     ) {
         buildTvMediaItemKey(
             playbackKey = playbackKey,
             animeTitle = state.animeTitle,
             playback = playback,
-            durationMs = progress.duration,
         )
     }
 

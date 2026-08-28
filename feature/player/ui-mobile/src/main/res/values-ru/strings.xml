@@ -44,4 +44,8 @@
     <string name="player_mobile_gesture_tutorial_illustration">Анимированная подсказка жеста</string>
     <string name="player_mobile_skip_opening">Пропустить опенинг</string>
     <string name="player_mobile_skip_ending">Пропустить эндинг</string>
+    <string name="player_mobile_casting_title">Трансляция</string>
+    <string name="player_mobile_casting_to">Воспроизводится на %1$s</string>
+    <string name="player_mobile_casting_to_unknown">Воспроизводится на другом устройстве</string>
+    <string name="player_mobile_stop_casting">Отключить</string>
 </resources>

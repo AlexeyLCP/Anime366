@@ -5,14 +5,24 @@ import android.content.Context
 import android.content.ContextWrapper
 import android.content.pm.PackageManager
 import android.os.Build
+import android.os.SystemClock
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import su.afk.yummy.tv.feature.player.mobile.pip.MobilePlayerPipController.CAST_PICKER_SUPPRESSION_WINDOW_MS
 
 object MobilePlayerPipController {
     const val ACTION_SEEK_BACKWARD = "su.afk.yummy.tv.feature.player.pip.SEEK_BACKWARD"
     const val ACTION_PLAY_PAUSE = "su.afk.yummy.tv.feature.player.pip.PLAY_PAUSE"
     const val ACTION_SEEK_FORWARD = "su.afk.yummy.tv.feature.player.pip.SEEK_FORWARD"
+
+    // Открытие системного Output Switcher (MediaRouteButton) тоже уводит Activity из foreground -
+    // onUserLeaveHint() срабатывает так же, как при сворачивании приложением пользователем, и без
+    // этой подсказки enterIfPlaying() безусловно затягивает в PiP посреди выбора Cast-устройства.
+    private const val CAST_PICKER_SUPPRESSION_WINDOW_MS = 3_000L
+
+    @Volatile
+    private var castPickerOpenedAtMs: Long = 0L
 
     @Volatile
     private var currentSession: MobilePlayerPipSession? = null
@@ -51,8 +61,17 @@ object MobilePlayerPipController {
         Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
                 context.packageManager.hasSystemFeature(PackageManager.FEATURE_PICTURE_IN_PICTURE)
 
-    fun enterIfPlaying(activity: Activity): Boolean =
-        currentSession?.enterIfPlaying(activity) == true
+    /** Отмечает начало взаимодействия с системным Cast-пикером, см. [CAST_PICKER_SUPPRESSION_WINDOW_MS]. */
+    fun suppressAutoEnterForCastPicker() {
+        castPickerOpenedAtMs = SystemClock.elapsedRealtime()
+    }
+
+    fun enterIfPlaying(activity: Activity): Boolean {
+        if (SystemClock.elapsedRealtime() - castPickerOpenedAtMs < CAST_PICKER_SUPPRESSION_WINDOW_MS) {
+            return false
+        }
+        return currentSession?.enterIfPlaying(activity) == true
+    }
 
     fun enter(activity: Activity): Boolean =
         currentSession?.enter(activity) == true

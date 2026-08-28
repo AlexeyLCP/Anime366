@@ -27,11 +27,13 @@ internal fun MobilePlayerLifecycleEffect(
     resumeAfterPause: MutableState<Boolean>,
     fallbackDurationMs: () -> Long,
     wantsPlay: () -> Boolean,
+    isCasting: () -> Boolean,
     promptState: () -> PlayerEndPromptState,
     onPromptStateChange: (PlayerEndPromptState) -> Unit,
 ) {
     val currentFallbackDuration by rememberUpdatedState(fallbackDurationMs)
     val currentWantsPlay by rememberUpdatedState(wantsPlay)
+    val currentIsCasting by rememberUpdatedState(isCasting)
     val currentPromptState by rememberUpdatedState(promptState)
     val currentOnPromptStateChange by rememberUpdatedState(onPromptStateChange)
 
@@ -43,12 +45,13 @@ internal fun MobilePlayerLifecycleEffect(
                     val prompt = currentPromptState()
                     val downgraded = prompt.downgradedCountdown()
                     if (downgraded !== prompt) currentOnPromptStateChange(downgraded)
-                    val keepPlayingInPip = pipSession.shouldKeepPlayingOnPause()
-                    resumeAfterPause.value = currentWantsPlay() && !keepPlayingInPip
+                    // Каст продолжает играть на приёмнике независимо от PiP - фон телефона тут ни при чём.
+                    val keepPlaying = pipSession.shouldKeepPlayingOnPause() || currentIsCasting()
+                    resumeAfterPause.value = currentWantsPlay() && !keepPlaying
                     val snapshot = player.positionSnapshot(currentFallbackDuration())
                     reporter.notifyPositionChanged(snapshot.positionMs, snapshot.durationMs)
                     reporter.saveProgress(snapshot.positionMs, snapshot.durationMs)
-                    if (!keepPlayingInPip) {
+                    if (!keepPlaying) {
                         player.pause()
                     }
                 }

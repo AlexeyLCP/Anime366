@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.util.Log
 import androidx.annotation.OptIn
 import androidx.media3.cast.CastPlayer
+import androidx.media3.cast.RemoteCastPlayer
 import androidx.media3.common.C
 import androidx.media3.common.MimeTypes
 import androidx.media3.common.Player
@@ -184,7 +185,14 @@ class PlayerMediaSessionService : MediaSessionService() {
      */
     private fun buildCastPlayer(exoPlayer: ExoPlayer): CastPlayer? =
         try {
-            CastPlayer.Builder(this).setLocalPlayer(exoPlayer).build()
+            CastPlayer.Builder(this)
+                .setLocalPlayer(exoPlayer)
+                .setRemotePlayer(
+                    RemoteCastPlayer.Builder(this)
+                        .setMediaItemConverter(YummyTvCastMediaItemConverter())
+                        .build()
+                )
+                .build()
         } catch (e: Exception) {
             Log.w(LOG_TAG, "CastPlayer unavailable", e)
             null

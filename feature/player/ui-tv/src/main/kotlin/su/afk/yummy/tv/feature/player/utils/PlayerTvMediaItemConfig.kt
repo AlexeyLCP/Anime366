@@ -24,10 +24,9 @@ internal fun buildTvMediaItemKey(
     playbackKey: String,
     animeTitle: String,
     playback: PlayerPlaybackUiState,
-    durationMs: Long,
 ): String =
     "$playbackKey|$animeTitle|${playback.activeEpisode}|${playback.activeDubbing}|" +
-            "${playback.activeBalancerName}|${playback.activeScreenshotUrl}|$durationMs"
+            "${playback.activeBalancerName}|${playback.activeScreenshotUrl}"
 
 internal fun buildTvPlayerMediaItemConfig(
     playbackKey: String,

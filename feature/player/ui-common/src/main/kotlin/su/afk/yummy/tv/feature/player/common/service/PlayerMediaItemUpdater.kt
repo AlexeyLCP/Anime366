@@ -72,7 +72,8 @@ class PlayerMediaItemUpdater {
             silentReconnectEnabled = config.silentReconnectEnabled,
         )
         val resume = config.playbackPositionMs.takeIf { it > 0L } ?: config.resumeFromMs
-        if (player.currentMediaItem?.localConfiguration?.uri?.toString() != config.url || playbackKey != config.playbackKey) {
+        val currentUri = player.currentMediaItem?.localConfiguration?.uri?.toString()
+        if (currentUri != config.url || playbackKey != config.playbackKey) {
             player.setMediaItem(item, resume)
             player.prepare()
             playbackKey = config.playbackKey

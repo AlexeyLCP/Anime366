@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.dp
 import androidx.media3.cast.MediaRouteButton
 import su.afk.yummy.tv.core.designsystem.baseScreen.BaseBottomSheet
 import su.afk.yummy.tv.feature.player.mobile.R
+import su.afk.yummy.tv.feature.player.mobile.pip.MobilePlayerPipController
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -71,6 +72,10 @@ internal fun PlayerMobileActionsSheet(
                     .pointerInput(Unit) {
                         awaitEachGesture {
                             val down = awaitFirstDown(requireUnconsumed = false)
+                            // Открытие системного Output Switcher уводит Activity из foreground -
+                            // без этой подсказки onUserLeaveHint() затянул бы в PiP посреди выбора
+                            // устройства (см. MobilePlayerPipController.suppressAutoEnterForCastPicker).
+                            MobilePlayerPipController.suppressAutoEnterForCastPicker()
                             val press = PressInteraction.Press(down.position)
                             interactionSource.tryEmit(press)
                             val up = waitForUpOrCancellation()

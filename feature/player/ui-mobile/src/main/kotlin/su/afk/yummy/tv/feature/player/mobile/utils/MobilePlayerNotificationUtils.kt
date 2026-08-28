@@ -56,7 +56,6 @@ internal fun buildMobileMediaItemKey(
     animeTitle: String,
     meta: MobilePlayerNotificationMeta,
     artworkUrl: String?,
-    durationMs: Long,
 ): String = buildString {
     append(playbackKey)
     append('|').append(animeTitle)
@@ -64,7 +63,6 @@ internal fun buildMobileMediaItemKey(
     append('|').append(meta.description.orEmpty())
     append('|').append(meta.contentText)
     append('|').append(artworkUrl.orEmpty())
-    append('|').append(durationMs.coerceAtLeast(0L))
 }
 
 internal fun buildMobilePlayerMediaItemConfig(

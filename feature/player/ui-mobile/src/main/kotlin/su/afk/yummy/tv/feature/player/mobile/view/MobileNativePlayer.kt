@@ -65,6 +65,9 @@ import su.afk.yummy.tv.feature.player.common.utils.playerContentScale
 import su.afk.yummy.tv.feature.player.common.utils.playerEndPromptFor
 import su.afk.yummy.tv.feature.player.common.utils.skippedMessageRes
 import su.afk.yummy.tv.feature.player.common.view.PlayerEndPromptCountdownEffect
+import su.afk.yummy.tv.feature.player.mobile.cast.MobileCastingIndicator
+import su.afk.yummy.tv.feature.player.mobile.cast.rememberMobileCastConnectionState
+import su.afk.yummy.tv.feature.player.mobile.cast.stopCasting
 import su.afk.yummy.tv.feature.player.mobile.model.MobilePlayerSettingsMode
 import su.afk.yummy.tv.feature.player.mobile.model.MobilePlayerTrackSettingsTab
 import su.afk.yummy.tv.feature.player.mobile.model.MobileVerticalGestureZone
@@ -107,9 +110,6 @@ internal fun MobileNativePlayer(
                 state.showMobileGestureTutorial &&
                 !isInPictureInPictureMode
     val pipSession = remember { MobilePlayerPipController.createSession() }
-    SideEffect {
-        pipSession.setEnabled(state.pictureInPictureEnabled && !tutorialBlocksPlayback)
-    }
     val playerNamePrefix = stringResource(R.string.player_name_prefix)
     val ui = rememberPlayerPlaybackUiState(state, playerNamePrefix)
     val qualities = remember(streamUrl, state.streamQualityMap) {
@@ -143,6 +143,14 @@ internal fun MobileNativePlayer(
         buildMobilePlayerPlaybackKey(state = state, url = currentUrl)
     }
     val mediaController = rememberPlayerMediaController()
+    val castConnection = rememberMobileCastConnectionState()
+    // Пока идёт Cast-сессия, локальный экран остаётся как есть (таймлайн/контролы видны) - сворачивать
+    // в PiP незачем: видео и так уходит на приёмник, а не рендерится в локальном окне.
+    SideEffect {
+        pipSession.setEnabled(
+            state.pictureInPictureEnabled && !tutorialBlocksPlayback && !castConnection.isCasting
+        )
+    }
     val systemVolume = rememberPlayerSystemVolumeController()
     val volumeController = rememberPlayerVolumeController()
     val advancedVolumeEnabled = state.advancedPlayerVolumeEnabled
@@ -171,7 +179,8 @@ internal fun MobileNativePlayer(
                     settingsMode == null &&
                     !isSeeking &&
                     !recoveryHintVisible &&
-                    !tutorialBlocksPlayback
+                    !tutorialBlocksPlayback &&
+                    !castConnection.isCasting
         },
         wantsPlay = { wantsPlay },
         isPromptVisible = { nextEpisodePromptState.isVisible },
@@ -179,6 +188,15 @@ internal fun MobileNativePlayer(
 
     LaunchedEffect(recoveryHintVisible) {
         if (recoveryHintVisible) {
+            overlay.cancelHide()
+            overlay.visible = true
+        }
+    }
+
+    // Видео-области при касте всё равно нет (кадры уходят на приёмник) - таймлайн и контролы
+    // не должны прятаться сами по себе, иначе экран останется пустым без единой подсказки.
+    LaunchedEffect(castConnection.isCasting) {
+        if (castConnection.isCasting) {
             overlay.cancelHide()
             overlay.visible = true
         }
@@ -217,14 +235,12 @@ internal fun MobileNativePlayer(
         state.animeTitle,
         notificationMeta,
         notificationArtworkUrl,
-        state.playbackDurationMs,
     ) {
         buildMobileMediaItemKey(
             playbackKey = playbackConfigKey,
             animeTitle = state.animeTitle,
             meta = notificationMeta,
             artworkUrl = notificationArtworkUrl,
-            durationMs = state.playbackDurationMs,
         )
     }
 
@@ -389,6 +405,7 @@ internal fun MobileNativePlayer(
         resumeAfterPause = resumeAfterLifecyclePause,
         fallbackDurationMs = { duration },
         wantsPlay = { playbackShouldPlay },
+        isCasting = { castConnection.isCasting },
         promptState = { nextEpisodePromptState },
         onPromptStateChange = { nextEpisodePromptState = it },
     )
@@ -550,7 +567,7 @@ internal fun MobileNativePlayer(
 
         MobilePlayerGestureLayer(
             enabled = !isInPictureInPictureMode && !tutorialBlocksPlayback,
-            onTap = { overlay.toggle() },
+            onTap = { if (!castConnection.isCasting) overlay.toggle() },
             onDoubleTap = seekController::stepSeek,
             onTransformStart = gestures::startTransformGesture,
             onTransform = gestures::applyVideoTransform,
@@ -573,7 +590,8 @@ internal fun MobileNativePlayer(
             showDetails = state.animeId > 0,
             showPictureInPicture = state.pictureInPictureEnabled &&
                     supportsPictureInPicture &&
-                    !isInPictureInPictureMode,
+                    !isInPictureInPictureMode &&
+                    !castConnection.isCasting,
             showCast = !isInPictureInPictureMode,
             visible = overlay.visible && !isInPictureInPictureMode && !tutorialBlocksPlayback,
         )
@@ -899,6 +917,17 @@ internal fun MobileNativePlayer(
                 onDismiss = {
                     onEvent(PlayerState.Event.MobileGestureTutorialDismissed)
                 },
+            )
+        }
+
+        // Последний ребёнок Box - только так кнопка отключения гарантированно получает тапы
+        // (иначе их перехватывает MobilePlayerGestureLayer выше по дереву). Сам индикатор не
+        // перехватывает тапы вне кнопки, поэтому жесты и таймлайн/контролы под ним не глушатся.
+        if (castConnection.isCasting) {
+            MobileCastingIndicator(
+                deviceName = castConnection.deviceName,
+                onStopCasting = { stopCasting(context) },
+                modifier = Modifier.align(Alignment.Center),
             )
         }
     }
