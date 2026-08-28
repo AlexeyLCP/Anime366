@@ -3,7 +3,6 @@ package su.afk.yummy.tv.feature.player.mobile.view
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -29,6 +28,7 @@ import su.afk.yummy.tv.core.designsystem.baseScreen.BaseBottomSheetCustom
 import su.afk.yummy.tv.core.model.settings.PlayerResizeMode
 import su.afk.yummy.tv.feature.player.mobile.model.MobilePlayerSettingsMode
 import su.afk.yummy.tv.feature.player.mobile.model.MobilePlayerTrackSettingsTab
+import kotlin.math.roundToInt
 import su.afk.yummy.tv.feature.player.mobile.R as UiR
 import su.afk.yummy.tv.feature.player.presentation.R as PresentationR
 
@@ -46,7 +46,6 @@ internal fun MobilePlayerSettingsSheet(
     qualities: List<String>,
     selectedQuality: String?,
     onQualitySelected: (String) -> Unit,
-    speeds: List<Float>,
     selectedSpeed: Float,
     onSpeedSelected: (Float) -> Unit,
     resizeModes: List<PlayerResizeMode>,
@@ -110,38 +109,28 @@ internal fun MobilePlayerSettingsSheet(
                 )
             }
             if (mode == MobilePlayerSettingsMode.Playback) {
+                if (qualities.isNotEmpty()) {
+                    item {
+                        val qualityIndex = qualities.indexOf(selectedQuality).coerceAtLeast(0)
+                        MobilePlayerSettingsSection(title = stringResource(UiR.string.player_mobile_quality)) {
+                            MobilePlayerSliderRow(
+                                valueText = qualities[qualityIndex],
+                                value = qualityIndex,
+                                valueRange = 0..(qualities.size - 1).coerceAtLeast(0),
+                                onValueChange = { index -> onQualitySelected(qualities[index]) },
+                            )
+                        }
+                    }
+                }
                 item {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(10.dp),
-                    ) {
-                        if (qualities.isNotEmpty()) {
-                            MobilePlayerSettingsSection(
-                                title = stringResource(UiR.string.player_mobile_quality),
-                                modifier = Modifier.weight(1f),
-                            ) {
-                                qualities.forEach { quality ->
-                                    MobilePlayerSelectionRow(
-                                        label = quality,
-                                        selected = quality == selectedQuality,
-                                        onClick = { onQualitySelected(quality) },
-                                    )
-                                }
-                            }
-                        }
-                        MobilePlayerSettingsSection(
-                            title = stringResource(UiR.string.player_mobile_speed),
-                            modifier = Modifier.weight(1f),
-                        ) {
-                            speeds.forEach { speed ->
-                                val label = "${speed}x"
-                                MobilePlayerSelectionRow(
-                                    label = label,
-                                    selected = speed == selectedSpeed,
-                                    onClick = { onSpeedSelected(speed) },
-                                )
-                            }
-                        }
+                    val speedTenths = (selectedSpeed * 10).roundToInt().coerceIn(5, 30)
+                    MobilePlayerSettingsSection(title = stringResource(UiR.string.player_mobile_speed)) {
+                        MobilePlayerSliderRow(
+                            valueText = "%.1fx".format(speedTenths / 10f),
+                            value = speedTenths,
+                            valueRange = 5..30,
+                            onValueChange = { tenths -> onSpeedSelected(tenths / 10f) },
+                        )
                     }
                 }
                 item {

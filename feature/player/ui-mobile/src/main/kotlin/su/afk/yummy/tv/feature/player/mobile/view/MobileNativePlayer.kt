@@ -832,7 +832,6 @@ internal fun MobileNativePlayer(
                     reporter.saveProgress(position, duration)
                     onEvent(PlayerState.Event.QualitySelected(quality, position))
                 },
-                speeds = listOf(0.5f, 0.75f, 1f, 1.25f, 1.5f, 1.75f, 2f),
                 selectedSpeed = selectedSpeed,
                 onSpeedSelected = { onEvent(PlayerState.Event.SpeedSelected(it)) },
                 resizeModes = PlayerResizeMode.entries,
