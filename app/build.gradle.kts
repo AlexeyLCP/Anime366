@@ -159,6 +159,8 @@ dependencies {
 
     implementation(libs.bundles.coil.full)
     implementation(libs.ktor.client.okhttp)
+    // manifest ссылается на классы Cast/mediarouter напрямую, implementation в feature:player их не пробрасывает
+    implementation(libs.media3.cast)
 
     implementation(libs.androidx.tvprovider)
     implementation(libs.hilt.work)

@@ -8,7 +8,10 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.PersonSearch
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.VideoLibrary
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -35,15 +38,13 @@ import su.afk.yummy.tv.core.designsystem.preview.ScreenPreviewTheme
 import su.afk.yummy.tv.feature.account.account.AccountState
 import su.afk.yummy.tv.feature.account.mobile.R
 import su.afk.yummy.tv.feature.account.mobile.account.utils.accountErrorMessage
-import su.afk.yummy.tv.feature.account.mobile.view.AccountMobileFaqButton
 import su.afk.yummy.tv.feature.account.mobile.view.AccountMobileHeader
 import su.afk.yummy.tv.feature.account.mobile.view.AccountMobileLoadingIndicator
 import su.afk.yummy.tv.feature.account.mobile.view.AccountMobileLoginCard
 import su.afk.yummy.tv.feature.account.mobile.view.AccountMobileLogoutConfirmDialog
-import su.afk.yummy.tv.feature.account.mobile.view.AccountMobileNavigationButton
 import su.afk.yummy.tv.feature.account.mobile.view.AccountMobileNotificationsTab
-import su.afk.yummy.tv.feature.account.mobile.view.AccountMobileSettingsButton
-import su.afk.yummy.tv.feature.account.mobile.view.AccountMobileSitePagesButton
+import su.afk.yummy.tv.feature.account.mobile.view.AccountMobileQuickAction
+import su.afk.yummy.tv.feature.account.mobile.view.AccountMobileQuickActionsGrid
 import su.afk.yummy.tv.feature.account.mobile.view.AccountMobileStatsTab
 import su.afk.yummy.tv.feature.account.mobile.view.AccountMobileTabs
 import su.afk.yummy.tv.core.designsystem.R as CoreR
@@ -97,6 +98,51 @@ fun AccountMobileScreen(
         isScroll = false,
     ) {
         if (!state.isSignedIn) {
+            val quickActions = buildList {
+                if (mainActions != null) {
+                    add(
+                        AccountMobileQuickAction(
+                            key = "faq",
+                            title = stringResource(R.string.account_faq),
+                            icon = Icons.Filled.Info,
+                            onClick = mainActions.onFaqClick,
+                        ),
+                    )
+                    add(
+                        AccountMobileQuickAction(
+                            key = "site_pages",
+                            title = stringResource(R.string.account_site_pages),
+                            icon = Icons.Filled.Language,
+                            onClick = mainActions.onSitePagesClick,
+                        ),
+                    )
+                    add(
+                        AccountMobileQuickAction(
+                            key = "settings",
+                            title = stringResource(R.string.account_settings),
+                            icon = Icons.Filled.Settings,
+                            onClick = mainActions.onSettingsClick,
+                            focusRequester = bottomBarUpFocusRequester,
+                        ),
+                    )
+                }
+                add(
+                    AccountMobileQuickAction(
+                        key = "downloaded_episodes",
+                        title = stringResource(R.string.account_downloaded_episodes),
+                        icon = Icons.Filled.VideoLibrary,
+                        onClick = { onEvent(AccountState.Event.DownloadedEpisodesSelected) },
+                    ),
+                )
+                add(
+                    AccountMobileQuickAction(
+                        key = "user_search",
+                        title = stringResource(R.string.account_user_search),
+                        icon = Icons.Filled.PersonSearch,
+                        onClick = { onEvent(AccountState.Event.UserSearchSelected) },
+                    ),
+                )
+            }
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
@@ -110,41 +156,67 @@ fun AccountMobileScreen(
                 ),
                 verticalArrangement = Arrangement.spacedBy(16.dp),
             ) {
-                if (mainActions != null) {
-                    item(key = "faq") {
-                        AccountMobileFaqButton(onClick = mainActions.onFaqClick)
-                    }
-                    item(key = "site_pages") {
-                        AccountMobileSitePagesButton(onClick = mainActions.onSitePagesClick)
-                    }
-                    item(key = "settings") {
-                        AccountMobileSettingsButton(
-                            onClick = mainActions.onSettingsClick,
-                            focusRequester = bottomBarUpFocusRequester,
-                        )
-                    }
-                }
-                item(key = "downloaded_episodes") {
-                    AccountMobileNavigationButton(
-                        title = stringResource(R.string.account_downloaded_episodes),
-                        icon = Icons.Filled.VideoLibrary,
-                        onClick = {
-                            onEvent(AccountState.Event.DownloadedEpisodesSelected)
-                        },
-                    )
-                }
-                item(key = "user_search") {
-                    AccountMobileNavigationButton(
-                        title = stringResource(R.string.account_user_search),
-                        icon = Icons.Filled.PersonSearch,
-                        onClick = { onEvent(AccountState.Event.UserSearchSelected) },
-                    )
+                item(key = "quick_actions") {
+                    AccountMobileQuickActionsGrid(actions = quickActions)
                 }
                 item {
                     AccountMobileLoginCard(state = state, onEvent = onEvent)
                 }
             }
         } else {
+            val quickActions = buildList {
+                if (mainActions != null) {
+                    add(
+                        AccountMobileQuickAction(
+                            key = "faq",
+                            title = stringResource(R.string.account_faq),
+                            icon = Icons.Filled.Info,
+                            onClick = mainActions.onFaqClick,
+                        ),
+                    )
+                    add(
+                        AccountMobileQuickAction(
+                            key = "site_pages",
+                            title = stringResource(R.string.account_site_pages),
+                            icon = Icons.Filled.Language,
+                            onClick = mainActions.onSitePagesClick,
+                        ),
+                    )
+                    add(
+                        AccountMobileQuickAction(
+                            key = "settings",
+                            title = stringResource(R.string.account_settings),
+                            icon = Icons.Filled.Settings,
+                            onClick = mainActions.onSettingsClick,
+                            focusRequester = bottomBarUpFocusRequester,
+                        ),
+                    )
+                }
+                add(
+                    AccountMobileQuickAction(
+                        key = "downloaded_episodes",
+                        title = stringResource(R.string.account_downloaded_episodes),
+                        icon = Icons.Filled.VideoLibrary,
+                        onClick = { onEvent(AccountState.Event.DownloadedEpisodesSelected) },
+                    ),
+                )
+                add(
+                    AccountMobileQuickAction(
+                        key = "user_search",
+                        title = stringResource(R.string.account_user_search),
+                        icon = Icons.Filled.PersonSearch,
+                        onClick = { onEvent(AccountState.Event.UserSearchSelected) },
+                    ),
+                )
+                add(
+                    AccountMobileQuickAction(
+                        key = "messages",
+                        title = stringResource(R.string.account_messages),
+                        icon = Icons.Filled.Email,
+                        onClick = { onEvent(AccountState.Event.MessagesSelected) },
+                    ),
+                )
+            }
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(
@@ -156,43 +228,6 @@ fun AccountMobileScreen(
                 ),
                 verticalArrangement = Arrangement.spacedBy(14.dp),
             ) {
-                if (mainActions != null) {
-                    item(key = "faq") {
-                        AccountMobileFaqButton(onClick = mainActions.onFaqClick)
-                    }
-                    item(key = "site_pages") {
-                        AccountMobileSitePagesButton(onClick = mainActions.onSitePagesClick)
-                    }
-                    item(key = "settings") {
-                        AccountMobileSettingsButton(
-                            onClick = mainActions.onSettingsClick,
-                            focusRequester = bottomBarUpFocusRequester,
-                        )
-                    }
-                }
-                item(key = "downloaded_episodes") {
-                    AccountMobileNavigationButton(
-                        title = stringResource(R.string.account_downloaded_episodes),
-                        icon = Icons.Filled.VideoLibrary,
-                        onClick = {
-                            onEvent(AccountState.Event.DownloadedEpisodesSelected)
-                        },
-                    )
-                }
-                item(key = "user_search") {
-                    AccountMobileNavigationButton(
-                        title = stringResource(R.string.account_user_search),
-                        icon = Icons.Filled.PersonSearch,
-                        onClick = { onEvent(AccountState.Event.UserSearchSelected) },
-                    )
-                }
-                item(key = "messages") {
-                    AccountMobileNavigationButton(
-                        title = stringResource(R.string.account_messages),
-                        icon = Icons.Filled.Email,
-                        onClick = { onEvent(AccountState.Event.MessagesSelected) },
-                    )
-                }
                 item(key = "profile") {
                     AccountMobileHeader(
                         state = state,
@@ -200,6 +235,9 @@ fun AccountMobileScreen(
                         onEditClick = { onEvent(AccountState.Event.ProfileEditSelected) },
                         onLogoutClick = { showLogoutConfirm = true },
                     )
+                }
+                item(key = "quick_actions") {
+                    AccountMobileQuickActionsGrid(actions = quickActions)
                 }
                 item(key = "tabs") {
                     AccountMobileTabs(
