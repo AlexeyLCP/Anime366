@@ -51,6 +51,7 @@ internal fun AccountMobileProfileStatsPager(
                     title = stringResource(R.string.account_profile_list_duration_title),
                     slices = it.listDurationSlices(),
                     valueType = AccountMobileProfileStatsValueType.DURATION,
+                    legendColumns = 1,
                 )
             )
             add(
@@ -68,7 +69,7 @@ internal fun AccountMobileProfileStatsPager(
                     ),
                     slices = it.ratingCountSlices(),
                     valueType = AccountMobileProfileStatsValueType.COUNT,
-                    compactLegend = true,
+                    legendColumns = 3,
                 )
             )
         }

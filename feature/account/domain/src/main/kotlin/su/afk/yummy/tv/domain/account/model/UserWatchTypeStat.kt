@@ -1,5 +1,8 @@
 package su.afk.yummy.tv.domain.account.model
 
+import androidx.compose.runtime.Immutable
+
+@Immutable
 data class UserWatchTypeStat(
     val id: Int,
     val alias: String,

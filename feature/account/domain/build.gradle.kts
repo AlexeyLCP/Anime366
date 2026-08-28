@@ -11,4 +11,5 @@ java {
 dependencies {
     api(libs.kotlinx.coroutines.core)
     implementation(libs.javax.inject)
+    compileOnly(libs.compose.runtime)
 }

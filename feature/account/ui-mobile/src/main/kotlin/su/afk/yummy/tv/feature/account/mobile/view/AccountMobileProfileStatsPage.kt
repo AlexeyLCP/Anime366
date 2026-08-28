@@ -56,7 +56,7 @@ internal fun AccountMobileProfileStatsPage(
                 AccountMobileProfileStatsLegend(
                     slices = page.slices,
                     valueType = page.valueType,
-                    compact = page.compactLegend,
+                    columns = page.legendColumns,
                     modifier = Modifier.weight(1f),
                 )
             }

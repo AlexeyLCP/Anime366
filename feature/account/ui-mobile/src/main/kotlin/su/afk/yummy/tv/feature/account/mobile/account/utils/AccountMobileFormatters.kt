@@ -3,6 +3,8 @@ package su.afk.yummy.tv.feature.account.mobile.account.utils
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import kotlinx.collections.immutable.PersistentList
+import kotlinx.collections.immutable.toPersistentList
 import su.afk.yummy.tv.core.designsystem.theme.YummySemanticColors
 import su.afk.yummy.tv.domain.account.model.UserListWatchStat
 import su.afk.yummy.tv.domain.account.model.UserProfileCounts
@@ -85,16 +87,16 @@ internal fun UserProfileSummary.watchSlices(): List<ProfileWatchSlice> {
 }
 
 @Composable
-internal fun UserProfileSummary.watchStatSlices(): List<AccountMobileProfileStatSlice> =
+internal fun UserProfileSummary.watchStatSlices(): PersistentList<AccountMobileProfileStatSlice> =
     watchSlices().map { slice ->
         AccountMobileProfileStatSlice(
             title = slice.shortName,
             value = slice.seconds,
             color = slice.color,
         )
-    }
+    }.toPersistentList()
 
-internal fun UserStats.listDurationSlices(): List<AccountMobileProfileStatSlice> =
+internal fun UserStats.listDurationSlices(): PersistentList<AccountMobileProfileStatSlice> =
     lists
         .filter { it.seconds > 0L }
         .sortedByDescending { it.seconds }
@@ -104,9 +106,9 @@ internal fun UserStats.listDurationSlices(): List<AccountMobileProfileStatSlice>
                 value = item.seconds,
                 color = item.listProfileColor(index),
             )
-        }
+        }.toPersistentList()
 
-internal fun UserStats.genreCountSlices(): List<AccountMobileProfileStatSlice> =
+internal fun UserStats.genreCountSlices(): PersistentList<AccountMobileProfileStatSlice> =
     genres
         .filter { it.count > 0 }
         .sortedByDescending { it.count }
@@ -117,9 +119,9 @@ internal fun UserStats.genreCountSlices(): List<AccountMobileProfileStatSlice> =
                 value = item.count.toLong(),
                 color = fallbackProfileColors[index % fallbackProfileColors.size],
             )
-        }
+        }.toPersistentList()
 
-internal fun UserStats.ratingCountSlices(): List<AccountMobileProfileStatSlice> {
+internal fun UserStats.ratingCountSlices(): PersistentList<AccountMobileProfileStatSlice> {
     val byRating = ratingsByValue
     return (10 downTo 1).map { rating ->
         AccountMobileProfileStatSlice(
@@ -127,7 +129,7 @@ internal fun UserStats.ratingCountSlices(): List<AccountMobileProfileStatSlice> 
             value = (byRating[rating]?.count ?: 0).toLong(),
             color = rating.profileRatingColor(),
         )
-    }
+    }.toPersistentList()
 }
 
 internal fun UserStats.averageRatingLabel(): String {

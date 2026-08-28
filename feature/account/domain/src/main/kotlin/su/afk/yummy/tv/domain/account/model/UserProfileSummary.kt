@@ -1,5 +1,8 @@
 package su.afk.yummy.tv.domain.account.model
 
+import androidx.compose.runtime.Immutable
+
+@Immutable
 data class UserProfileSummary(
     val userId: Int,
     val nickname: String = "",

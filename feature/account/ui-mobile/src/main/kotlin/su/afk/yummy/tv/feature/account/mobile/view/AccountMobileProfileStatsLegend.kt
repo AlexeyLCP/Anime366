@@ -1,14 +1,12 @@
-@file:OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
-
 package su.afk.yummy.tv.feature.account.mobile.view
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -19,54 +17,71 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import kotlinx.collections.immutable.PersistentList
 import su.afk.yummy.tv.feature.account.mobile.account.model.AccountMobileProfileStatSlice
 import su.afk.yummy.tv.feature.account.mobile.account.model.AccountMobileProfileStatsValueType
 import su.afk.yummy.tv.feature.account.mobile.account.utils.valueLabel
 
 @Composable
 internal fun AccountMobileProfileStatsLegend(
-    slices: List<AccountMobileProfileStatSlice>,
+    slices: PersistentList<AccountMobileProfileStatSlice>,
     valueType: AccountMobileProfileStatsValueType,
-    compact: Boolean,
+    columns: Int,
     modifier: Modifier = Modifier,
 ) {
-    FlowRow(
-        modifier = modifier,
-        horizontalArrangement = Arrangement.spacedBy(10.dp),
+    Column(
+        modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        slices.forEach { slice ->
+        slices.chunked(columns).forEach { row ->
             Row(
-                modifier = Modifier.widthIn(
-                    min = if (compact) 72.dp else 92.dp,
-                    max = if (compact) 92.dp else 150.dp,
-                ),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(7.dp),
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
             ) {
-                Box(
-                    modifier = Modifier
-                        .size(11.dp)
-                        .clip(CircleShape)
-                        .background(slice.color),
-                )
-                Text(
-                    text = slice.title,
-                    style = MaterialTheme.typography.bodySmall,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onBackground,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.weight(1f),
-                )
-                Text(
-                    text = valueType.valueLabel(slice.value),
-                    style = MaterialTheme.typography.bodySmall,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 1,
-                )
+                row.forEach { slice ->
+                    AccountMobileProfileStatsLegendItem(
+                        slice = slice,
+                        valueType = valueType,
+                        modifier = Modifier.weight(1f),
+                    )
+                }
             }
         }
+    }
+}
+
+@Composable
+private fun AccountMobileProfileStatsLegendItem(
+    slice: AccountMobileProfileStatSlice,
+    valueType: AccountMobileProfileStatsValueType,
+    modifier: Modifier = Modifier,
+) {
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(7.dp),
+    ) {
+        Box(
+            modifier = Modifier
+                .size(11.dp)
+                .clip(CircleShape)
+                .background(slice.color),
+        )
+        Text(
+            text = slice.title,
+            style = MaterialTheme.typography.bodySmall,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onBackground,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.weight(1f),
+        )
+        Text(
+            text = valueType.valueLabel(slice.value),
+            style = MaterialTheme.typography.bodySmall,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            maxLines = 1,
+        )
     }
 }
