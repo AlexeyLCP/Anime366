@@ -32,6 +32,8 @@ import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.launch
 import su.afk.yummy.tv.core.designsystem.baseScreen.BaseScreen
 import su.afk.yummy.tv.core.designsystem.preview.ScreenPreviewTheme
+import su.afk.yummy.tv.core.model.settings.LibrarySort
+import su.afk.yummy.tv.core.model.settings.LibrarySortDirection
 import su.afk.yummy.tv.feature.library.LibraryState
 import su.afk.yummy.tv.feature.library.mobile.model.PendingLibraryMobileRemoval
 import su.afk.yummy.tv.feature.library.mobile.utils.libraryMobileTabs
@@ -76,7 +78,9 @@ fun LibraryMobileScreen(
         }
     }
     var pendingRemoval by remember { mutableStateOf<PendingLibraryMobileRemoval?>(null) }
-    var scrollToTopRequested by remember { mutableStateOf(false) }
+    var pendingSortScroll by remember {
+        mutableStateOf<Pair<LibrarySort, LibrarySortDirection>?>(null)
+    }
     val tabCounts = remember(
         state.continueWatching,
         state.items,
@@ -121,11 +125,16 @@ fun LibraryMobileScreen(
     }
 
     // Пересортировка меняет только порядок при тех же ключах, поэтому LazyColumn удерживает в
-    // видимой области прежний тайтл — список «прыгает» в середину. Возвращаем его в начало.
-    LaunchedEffect(scrollToTopRequested) {
-        if (!scrollToTopRequested) return@LaunchedEffect
+    // видимой области прежний тайтл — список «прыгает» в середину. Возвращаем его в начало, но
+    // только когда новая сортировка уже доехала из DataStore: скролл до перестроения списка
+    // затирается той же привязкой по ключу.
+    LaunchedEffect(pendingSortScroll, state.sort, state.sortDirection, state.tabItems) {
+        val target = pendingSortScroll ?: return@LaunchedEffect
+        if (state.sort != target.first || state.sortDirection != target.second) {
+            return@LaunchedEffect
+        }
         listStates[pagerState.currentPage.toLibraryMobileTab()]?.scrollToItem(0)
-        scrollToTopRequested = false
+        pendingSortScroll = null
     }
 
     LaunchedEffect(state.selectedTab) {
@@ -169,13 +178,13 @@ fun LibraryMobileScreen(
                 LibraryMobileSortRow(
                     sort = state.sort,
                     direction = state.sortDirection,
-                    onSortSelected = {
-                        onEvent(LibraryState.Event.SortSelected(it))
-                        scrollToTopRequested = true
+                    onSortSelected = { sort ->
+                        onEvent(LibraryState.Event.SortSelected(sort))
+                        pendingSortScroll = sort to state.sortDirection
                     },
                     onDirectionToggled = {
                         onEvent(LibraryState.Event.SortDirectionToggled)
-                        scrollToTopRequested = true
+                        pendingSortScroll = state.sort to state.sortDirection.toggled()
                     },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -206,3 +215,9 @@ fun LibraryMobileScreen(
 /** Сортировка доступна только на вкладках-списках: у «Продолжить» и «Истории» свой порядок. */
 private fun LibraryTab.hasLibrarySort(): Boolean =
     this != LibraryTab.CONTINUE_WATCHING && this != LibraryTab.HISTORY
+
+private fun LibrarySortDirection.toggled(): LibrarySortDirection =
+    when (this) {
+        LibrarySortDirection.ASC -> LibrarySortDirection.DESC
+        LibrarySortDirection.DESC -> LibrarySortDirection.ASC
+    }

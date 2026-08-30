@@ -5,15 +5,21 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.QueryStats
 import androidx.compose.material3.Badge
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -39,12 +45,14 @@ internal fun AccountMobileTabs(
         ) {
             AccountMobileTab(
                 label = stringResource(R.string.account_tab_stats),
+                icon = Icons.Filled.QueryStats,
                 selected = selected == AccountState.AccountTab.STATS,
                 onClick = { onSelected(AccountState.AccountTab.STATS) },
                 modifier = Modifier.weight(1f),
             )
             AccountMobileTab(
                 label = stringResource(R.string.account_tab_notifications),
+                icon = Icons.Filled.Notifications,
                 selected = selected == AccountState.AccountTab.NOTIFICATIONS,
                 badgeCount = unreadCount,
                 onClick = { onSelected(AccountState.AccountTab.NOTIFICATIONS) },
@@ -57,6 +65,7 @@ internal fun AccountMobileTabs(
 @Composable
 private fun AccountMobileTab(
     label: String,
+    icon: ImageVector,
     selected: Boolean,
     badgeCount: Int = 0,
     onClick: () -> Unit,
@@ -75,6 +84,11 @@ private fun AccountMobileTab(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(6.dp, Alignment.CenterHorizontally),
         ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                modifier = Modifier.size(18.dp),
+            )
             Text(
                 text = label,
                 style = MaterialTheme.typography.bodyMedium,

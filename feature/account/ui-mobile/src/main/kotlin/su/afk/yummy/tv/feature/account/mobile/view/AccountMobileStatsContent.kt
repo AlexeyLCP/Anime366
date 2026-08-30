@@ -5,6 +5,9 @@ package su.afk.yummy.tv.feature.account.mobile.view
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Category
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -38,7 +41,10 @@ internal fun AccountMobileStatsContent(
     }
     val showSecondaryStats = profileSummary == null
     if (showSecondaryStats && stats?.genres?.isNotEmpty() == true) {
-        AccountMobileStatSection(title = stringResource(R.string.account_stats_genres)) {
+        AccountMobileStatSection(
+            title = stringResource(R.string.account_stats_genres),
+            icon = Icons.Filled.Category,
+        ) {
             val topGenres = stats.topGenres
             val max = topGenres.maxOfOrNull { it.count }?.coerceAtLeast(1) ?: 1
             topGenres.forEach { genre ->
@@ -51,7 +57,10 @@ internal fun AccountMobileStatsContent(
         }
     }
     if (showSecondaryStats && stats?.ratings?.isNotEmpty() == true) {
-        AccountMobileStatSection(title = stringResource(R.string.account_stats_ratings)) {
+        AccountMobileStatSection(
+            title = stringResource(R.string.account_stats_ratings),
+            icon = Icons.Filled.Star,
+        ) {
             val ratingsByValue = stats.ratingsByValue
             val max = stats.ratings.maxOfOrNull { it.count }?.coerceAtLeast(1) ?: 1
             (1..10).forEach { rating ->

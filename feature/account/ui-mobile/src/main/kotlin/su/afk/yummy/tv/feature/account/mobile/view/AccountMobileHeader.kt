@@ -4,9 +4,13 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
+import androidx.compose.material.icons.filled.Cake
+import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -14,6 +18,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -57,15 +62,15 @@ internal fun AccountMobileHeader(
                     )
                     profileSummary?.let { summary ->
                         AccountMobileProfileMetaLine(
-                            label = stringResource(R.string.account_profile_registered),
+                            icon = Icons.Filled.CalendarMonth,
                             value = summary.registerDateSeconds.formatProfileDate(),
                         )
                         AccountMobileProfileMetaLine(
-                            label = stringResource(R.string.account_profile_birth_date),
+                            icon = Icons.Filled.Cake,
                             value = summary.birthDateSeconds.formatProfileDate(),
                         )
                         AccountMobileProfileMetaLine(
-                            label = stringResource(R.string.account_profile_sex),
+                            icon = Icons.Filled.Person,
                             value = summary.sex.label(),
                         )
                     }
@@ -90,13 +95,24 @@ internal fun AccountMobileHeader(
 }
 
 @Composable
-private fun AccountMobileProfileMetaLine(label: String, value: String) {
+private fun AccountMobileProfileMetaLine(icon: ImageVector, value: String) {
     if (value.isBlank()) return
-    Text(
-        text = stringResource(R.string.account_profile_meta_line, label, value),
-        style = MaterialTheme.typography.bodySmall,
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
-        maxLines = 1,
-        overflow = TextOverflow.Ellipsis,
-    )
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.size(14.dp),
+        )
+        Text(
+            text = value,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+        )
+    }
 }

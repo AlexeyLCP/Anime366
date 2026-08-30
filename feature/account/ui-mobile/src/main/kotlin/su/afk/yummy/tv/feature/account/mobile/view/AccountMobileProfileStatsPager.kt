@@ -13,6 +13,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.BarChart
+import androidx.compose.material.icons.filled.Category
+import androidx.compose.material.icons.filled.Schedule
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -41,6 +46,7 @@ internal fun AccountMobileProfileStatsPager(
         add(
             AccountMobileProfileStatsPageModel(
                 title = stringResource(R.string.account_profile_watch_time_title),
+                icon = Icons.Filled.Schedule,
                 slices = summary.watchStatSlices(),
                 valueType = AccountMobileProfileStatsValueType.DURATION,
             )
@@ -49,6 +55,7 @@ internal fun AccountMobileProfileStatsPager(
             add(
                 AccountMobileProfileStatsPageModel(
                     title = stringResource(R.string.account_profile_list_duration_title),
+                    icon = Icons.Filled.BarChart,
                     slices = it.listDurationSlices(),
                     valueType = AccountMobileProfileStatsValueType.DURATION,
                     legendColumns = 1,
@@ -57,6 +64,7 @@ internal fun AccountMobileProfileStatsPager(
             add(
                 AccountMobileProfileStatsPageModel(
                     title = stringResource(R.string.account_profile_genres_title),
+                    icon = Icons.Filled.Category,
                     slices = it.genreCountSlices(),
                     valueType = AccountMobileProfileStatsValueType.COUNT,
                 )
@@ -67,6 +75,7 @@ internal fun AccountMobileProfileStatsPager(
                         R.string.account_profile_ratings_title,
                         it.averageRatingLabel()
                     ),
+                    icon = Icons.Filled.Star,
                     slices = it.ratingCountSlices(),
                     valueType = AccountMobileProfileStatsValueType.COUNT,
                     legendColumns = 3,

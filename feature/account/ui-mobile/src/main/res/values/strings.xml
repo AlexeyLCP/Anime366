@@ -186,5 +186,13 @@
     <string name="account_mobile_my_subscriptions_player_unknown">Balancer unknown</string>
     <string name="account_error_load_subscriptions_failed">Could not load subscriptions</string>
     <string name="account_episode_push_enabled">Push for new episodes</string>
-    <string name="account_episode_push_enabled_hint">Notify me when a subscribed episode airs, even if the app is closed</string>
+    <string name="account_episode_push_enabled_hint">Notify me when a subscribed episode airs</string>
+    <string name="account_profile_social_friends">Friends</string>
+    <string name="account_profile_social_reviews">Reviews</string>
+    <string name="account_profile_social_comments">Comments</string>
+    <string name="account_profile_social_posts">Posts</string>
+    <string name="account_profile_social_collections">Collections</string>
+    <string name="account_mobile_section_lists">My lists</string>
+    <string name="account_mobile_section_social">Community</string>
+    <string name="account_mobile_section_about">About me</string>
 </resources>

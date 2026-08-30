@@ -3,8 +3,16 @@ package su.afk.yummy.tv.feature.account.mobile.view
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.DeleteSweep
+import androidx.compose.material.icons.filled.DoneAll
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -55,6 +63,12 @@ internal fun AccountMobileNotificationsTab(
                         modifier = Modifier.weight(1f),
                         enabled = !state.isNotificationsLoading,
                     ) {
+                        Icon(
+                            imageVector = Icons.Filled.DoneAll,
+                            contentDescription = null,
+                            modifier = Modifier.size(ButtonDefaults.IconSize),
+                        )
+                        Spacer(modifier = Modifier.width(ButtonDefaults.IconSpacing))
                         Text(stringResource(R.string.account_mark_all_read))
                     }
                 }
@@ -64,6 +78,12 @@ internal fun AccountMobileNotificationsTab(
                         modifier = Modifier.weight(1f),
                         enabled = !state.isNotificationsLoading,
                     ) {
+                        Icon(
+                            imageVector = Icons.Filled.DeleteSweep,
+                            contentDescription = null,
+                            modifier = Modifier.size(ButtonDefaults.IconSize),
+                        )
+                        Spacer(modifier = Modifier.width(ButtonDefaults.IconSpacing))
                         Text(stringResource(R.string.account_delete_all_notifications))
                     }
                 }

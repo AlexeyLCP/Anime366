@@ -9,9 +9,17 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Pause
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Schedule
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -34,34 +42,40 @@ internal fun AccountMobileProfileListCounters(
 ) {
     val items = listOf(
         AccountMobileProfileCounterItem(
-            stringResource(R.string.account_profile_list_watching),
-            counts.watching,
-            YummySemanticColors.StatusWatching
+            label = stringResource(R.string.account_profile_list_watching),
+            count = counts.watching,
+            color = YummySemanticColors.StatusWatching,
+            icon = Icons.Filled.PlayArrow,
         ),
         AccountMobileProfileCounterItem(
-            stringResource(R.string.account_profile_list_planned),
-            counts.planned,
-            YummySemanticColors.StatusPlanned
+            label = stringResource(R.string.account_profile_list_planned),
+            count = counts.planned,
+            color = YummySemanticColors.StatusPlanned,
+            icon = Icons.Filled.Schedule,
         ),
         AccountMobileProfileCounterItem(
-            stringResource(R.string.account_profile_list_completed),
-            counts.completed,
-            YummySemanticColors.StatusCompleted
+            label = stringResource(R.string.account_profile_list_completed),
+            count = counts.completed,
+            color = YummySemanticColors.StatusCompleted,
+            icon = Icons.Filled.Check,
         ),
         AccountMobileProfileCounterItem(
-            stringResource(R.string.account_profile_list_dropped),
-            counts.dropped,
-            YummySemanticColors.StatusDropped
+            label = stringResource(R.string.account_profile_list_dropped),
+            count = counts.dropped,
+            color = YummySemanticColors.StatusDropped,
+            icon = Icons.Filled.Close,
         ),
         AccountMobileProfileCounterItem(
-            stringResource(R.string.account_profile_list_postponed),
-            counts.postponed,
-            YummySemanticColors.StatusPostponed
+            label = stringResource(R.string.account_profile_list_postponed),
+            count = counts.postponed,
+            color = YummySemanticColors.StatusPostponed,
+            icon = Icons.Filled.Pause,
         ),
         AccountMobileProfileCounterItem(
-            stringResource(R.string.account_profile_list_favorite),
-            counts.favorite,
-            YummySemanticColors.StatusFavorite
+            label = stringResource(R.string.account_profile_list_favorite),
+            count = counts.favorite,
+            color = YummySemanticColors.StatusFavorite,
+            icon = Icons.Filled.Favorite,
         ),
     )
     FlowRow(
@@ -83,7 +97,8 @@ private fun AccountMobileProfileCounterChip(
     Row(
         modifier = modifier
             .clip(RoundedCornerShape(10.dp))
-            .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.06f)),
+            .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.06f))
+            .padding(horizontal = 8.dp, vertical = 6.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
@@ -94,11 +109,11 @@ private fun AccountMobileProfileCounterChip(
                 .background(item.color.copy(alpha = 0.22f)),
             contentAlignment = Alignment.Center,
         ) {
-            Box(
-                modifier = Modifier
-                    .size(11.dp)
-                    .clip(CircleShape)
-                    .background(item.color),
+            Icon(
+                imageVector = item.icon,
+                contentDescription = null,
+                tint = item.color,
+                modifier = Modifier.size(18.dp),
             )
         }
         Column {
