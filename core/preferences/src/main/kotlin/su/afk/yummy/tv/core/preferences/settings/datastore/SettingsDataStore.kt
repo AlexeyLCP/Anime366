@@ -52,6 +52,9 @@ internal class SettingsDataStore @Inject constructor(
     fun int(key: Preferences.Key<Int>, default: Int = 0): Flow<Int> =
         data.map { prefs -> prefs[key] ?: default }
 
+    fun stringSet(key: Preferences.Key<Set<String>>): Flow<Set<String>> =
+        data.map { prefs -> prefs[key].orEmpty() }
+
     /**
      * Flow-обёртка над [enum]. `inline`/`reified`, т.к. внутри вызывает reified-[enum]
      * (reified-тип «прокидывается» только через inline-функции).

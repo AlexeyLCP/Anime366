@@ -33,6 +33,7 @@ class AccountState {
         val isNotificationOpening: Boolean = false,
         val isStatsLoading: Boolean = false,
         val isNotificationsLoading: Boolean = false,
+        val episodePushEnabled: Boolean = false,
         val isCaptchaRequired: Boolean = false,
         val captchaSiteKey: String = YANI_HCAPTCHA_SITE_KEY,
         val captchaChallengeId: Int = 0,
@@ -99,6 +100,9 @@ class AccountState {
 
         /** Переход к списку подписок пользователя. */
         data object MySubscriptionsSelected : Event
+
+        /** Пользователь переключил локальный пуш о новых сериях по подпискам. */
+        data object EpisodePushToggled : Event
         data object ProfileEditSelected : Event
         data object PasswordResetSelected : Event
 

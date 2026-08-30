@@ -185,4 +185,6 @@
     <string name="account_mobile_my_subscriptions_player">Балансер: %1$s</string>
     <string name="account_mobile_my_subscriptions_player_unknown">Балансер неизвестен</string>
     <string name="account_error_load_subscriptions_failed">Не удалось загрузить подписки</string>
+    <string name="account_episode_push_enabled">Пуш о новых сериях</string>
+    <string name="account_episode_push_enabled_hint">Присылать уведомление о новой серии по подписке, даже если приложение закрыто</string>
 </resources>

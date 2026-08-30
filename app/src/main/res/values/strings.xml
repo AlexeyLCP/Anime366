@@ -8,4 +8,5 @@
     <string name="interface_mode_tv_hint">Large controls and comfortable remote navigation</string>
     <string name="interface_mode_mobile">Mobile interface</string>
     <string name="interface_mode_mobile_hint">Compact layout optimized for touchscreen controls</string>
+    <string name="episode_push_notification_channel">New episodes</string>
 </resources>

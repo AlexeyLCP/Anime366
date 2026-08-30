@@ -16,6 +16,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import su.afk.yummy.tv.core.designsystem.mobile.NotificationPermissionGateHost
+import su.afk.yummy.tv.core.designsystem.mobile.rememberNotificationPermissionGate
 import su.afk.yummy.tv.feature.account.account.AccountState
 import su.afk.yummy.tv.feature.account.mobile.R
 
@@ -26,7 +28,18 @@ internal fun AccountMobileNotificationsTab(
 ) {
     var showDeleteAllConfirm by remember { mutableStateOf(false) }
     val unreadCount = state.unreadNotificationCount
+    val notificationPermissionGate = rememberNotificationPermissionGate()
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        AccountMobileEpisodePushRow(
+            enabled = state.episodePushEnabled,
+            onClick = {
+                if (state.episodePushEnabled) {
+                    onEvent(AccountState.Event.EpisodePushToggled)
+                } else {
+                    notificationPermissionGate { onEvent(AccountState.Event.EpisodePushToggled) }
+                }
+            },
+        )
         AccountMobileMySubscriptionsRow(
             onClick = { onEvent(AccountState.Event.MySubscriptionsSelected) },
         )
@@ -101,4 +114,5 @@ internal fun AccountMobileNotificationsTab(
             },
         )
     }
+    NotificationPermissionGateHost(state = notificationPermissionGate)
 }

@@ -76,9 +76,9 @@ jobs:
             total=0
             failed=0
             while IFS= read -r f; do
-              t=$(grep -o 'tests="[0-9]*"' "$f" | head -1 | grep -o '[0-9]*')
-              fl=$(grep -o 'failures="[0-9]*"' "$f" | head -1 | grep -o '[0-9]*')
-              er=$(grep -o 'errors="[0-9]*"' "$f" | head -1 | grep -o '[0-9]*')
+              t=$(grep -o 'tests="[0-9]*"' "$f" | head -1 | grep -o '[0-9]*' || true)
+              fl=$(grep -o 'failures="[0-9]*"' "$f" | head -1 | grep -o '[0-9]*' || true)
+              er=$(grep -o 'errors="[0-9]*"' "$f" | head -1 | grep -o '[0-9]*' || true)
               total=$((total + ${t:-0}))
               failed=$((failed + ${fl:-0} + ${er:-0}))
             done < <(find . -path "*/build/test-results/testDebugUnitTest/TEST-*.xml" 2>/dev/null)
@@ -87,8 +87,8 @@ jobs:
 
             lintxml="app/build/reports/lint-results-debug.xml"
             if [ -f "$lintxml" ]; then
-              errs=$(grep -c 'severity="Error"' "$lintxml")
-              warns=$(grep -c 'severity="Warning"' "$lintxml")
+              errs=$(grep -c 'severity="Error"' "$lintxml" || true)
+              warns=$(grep -c 'severity="Warning"' "$lintxml" || true)
               echo "**Lint:** ${errs} errors, ${warns} warnings"
               echo ""
             fi

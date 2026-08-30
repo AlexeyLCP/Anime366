@@ -10,6 +10,7 @@ import androidx.media3.common.util.UnstableApi
 import androidx.work.Configuration
 import dagger.hilt.android.HiltAndroidApp
 import su.afk.yummy.tv.BuildConfig
+import su.afk.yummy.tv.android.episodepush.NewEpisodePushScheduler
 import su.afk.yummy.tv.android.lifecycle.OnlineStatusCoordinator
 import su.afk.yummy.tv.android.startup.AppStartupMaintenanceRunner
 import su.afk.yummy.tv.android.startup.CoilImageLoaderInstaller
@@ -27,6 +28,9 @@ class YummyTvApplication : Application(), Configuration.Provider {
 
     @Inject
     lateinit var homeFeedRefreshScheduler: HomeFeedRefreshScheduler
+
+    @Inject
+    lateinit var newEpisodePushScheduler: NewEpisodePushScheduler
 
     @Inject
     lateinit var analyticsInitializer: AnalyticsInitializer
@@ -63,6 +67,7 @@ class YummyTvApplication : Application(), Configuration.Provider {
         onlineStatusCoordinator.start()
         featureToggleRefreshCoordinator.start()
         homeFeedRefreshScheduler.schedule()
+        newEpisodePushScheduler.schedule()
         startupMaintenanceRunner.run()
     }
 

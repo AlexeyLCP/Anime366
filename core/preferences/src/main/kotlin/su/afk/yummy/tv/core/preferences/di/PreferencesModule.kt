@@ -11,6 +11,7 @@ import su.afk.yummy.tv.core.preferences.interface_mode.SharedPreferencesAppInter
 import su.afk.yummy.tv.core.preferences.settings.AppLifecycleSettingsStore
 import su.afk.yummy.tv.core.preferences.settings.AppearanceSettingsStore
 import su.afk.yummy.tv.core.preferences.settings.CacheSettingsStore
+import su.afk.yummy.tv.core.preferences.settings.EpisodePushSettingsStore
 import su.afk.yummy.tv.core.preferences.settings.PlayerSettingsStore
 import su.afk.yummy.tv.core.preferences.settings.SearchSettingsStore
 import su.afk.yummy.tv.core.preferences.settings.SettingsStore
@@ -19,6 +20,7 @@ import su.afk.yummy.tv.core.preferences.settings.YaniAccountSettingsStore
 import su.afk.yummy.tv.core.preferences.settings.datastore.DataStoreAppLifecycleSettingsStore
 import su.afk.yummy.tv.core.preferences.settings.datastore.DataStoreAppearanceSettingsStore
 import su.afk.yummy.tv.core.preferences.settings.datastore.DataStoreCacheSettingsStore
+import su.afk.yummy.tv.core.preferences.settings.datastore.DataStoreEpisodePushSettingsStore
 import su.afk.yummy.tv.core.preferences.settings.datastore.DataStorePlayerSettingsStore
 import su.afk.yummy.tv.core.preferences.settings.datastore.DataStoreSearchSettingsStore
 import su.afk.yummy.tv.core.preferences.settings.datastore.DataStoreSettingsStore
@@ -73,4 +75,8 @@ internal interface PreferencesModule {
     @Binds
     @Singleton
     fun bindSearchSettingsStore(impl: DataStoreSearchSettingsStore): SearchSettingsStore
+
+    @Binds
+    @Singleton
+    fun bindEpisodePushSettingsStore(impl: DataStoreEpisodePushSettingsStore): EpisodePushSettingsStore
 }

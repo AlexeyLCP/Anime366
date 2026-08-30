@@ -185,4 +185,6 @@
     <string name="account_mobile_my_subscriptions_player">Balancer: %1$s</string>
     <string name="account_mobile_my_subscriptions_player_unknown">Balancer unknown</string>
     <string name="account_error_load_subscriptions_failed">Could not load subscriptions</string>
+    <string name="account_episode_push_enabled">Push for new episodes</string>
+    <string name="account_episode_push_enabled_hint">Notify me when a subscribed episode airs, even if the app is closed</string>
 </resources>
