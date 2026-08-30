@@ -1,10 +1,28 @@
 package su.afk.yummy.tv.core.designsystem.mobile.bar
 
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 object MobileBottomBarDefaults {
-    val ContentBottomPadding: Dp = 96.dp
-    val PosterGridContentBottomPadding: Dp = 80.dp
+
+    /** Высота самого бара без системного инсета: иконки без подписей, 80.dp из M3 избыточны. */
+    val BarHeight: Dp = 64.dp
+
     val ExtraContentBottomPadding: Dp = 16.dp
+
+    /** Реальная высота бара на экране — вместе с инсетом системной навигации. */
+    val barHeightWithInsets: Dp
+        @Composable get() = BarHeight + navigationBarsInset()
+
+    /** Отступ снизу для скроллящегося контента, который рисуется под баром. */
+    val contentBottomPadding: Dp
+        @Composable get() = barHeightWithInsets + ExtraContentBottomPadding
+
+    @Composable
+    private fun navigationBarsInset(): Dp =
+        WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
 }

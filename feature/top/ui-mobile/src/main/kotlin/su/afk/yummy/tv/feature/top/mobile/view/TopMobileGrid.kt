@@ -62,8 +62,7 @@ internal fun TopMobileGrid(
 
     MobilePosterGrid(
         contentPadding = PaddingValues(
-            bottom = MobileBottomBarDefaults.PosterGridContentBottomPadding +
-                    MobileBottomBarDefaults.ExtraContentBottomPadding,
+            bottom = MobileBottomBarDefaults.contentBottomPadding,
         ),
         modifier = modifier.fillMaxSize(),
         state = gridState,

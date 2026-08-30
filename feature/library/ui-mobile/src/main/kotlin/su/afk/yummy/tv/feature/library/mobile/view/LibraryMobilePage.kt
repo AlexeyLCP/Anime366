@@ -93,8 +93,7 @@ internal fun LibraryMobilePage(
             start = 16.dp,
             top = 12.dp,
             end = 16.dp,
-            bottom = MobileBottomBarDefaults.PosterGridContentBottomPadding +
-                    MobileBottomBarDefaults.ExtraContentBottomPadding + 16.dp,
+            bottom = MobileBottomBarDefaults.contentBottomPadding,
         ),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {

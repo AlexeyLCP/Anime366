@@ -38,8 +38,7 @@ internal fun LibraryMobileContinueWatchingGrid(
             start = 16.dp,
             top = 12.dp,
             end = 16.dp,
-            bottom = MobileBottomBarDefaults.ContentBottomPadding +
-                    MobileBottomBarDefaults.ExtraContentBottomPadding,
+            bottom = MobileBottomBarDefaults.contentBottomPadding,
         ),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),

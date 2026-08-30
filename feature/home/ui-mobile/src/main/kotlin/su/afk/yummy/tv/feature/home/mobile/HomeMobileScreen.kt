@@ -180,8 +180,7 @@ fun HomeMobileScreen(
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(
                     top = 12.dp,
-                    bottom = MobileBottomBarDefaults.ContentBottomPadding +
-                            MobileBottomBarDefaults.ExtraContentBottomPadding,
+                    bottom = MobileBottomBarDefaults.contentBottomPadding,
                 ),
                 verticalArrangement = Arrangement.spacedBy(24.dp),
             ) {
@@ -295,7 +294,7 @@ fun HomeMobileScreen(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .navigationBarsPadding()
-                .padding(bottom = MobileBottomBarDefaults.ContentBottomPadding),
+                .padding(bottom = MobileBottomBarDefaults.BarHeight),
         )
     }
 

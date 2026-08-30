@@ -137,8 +137,7 @@ private fun ScheduleDayReleases(
             start = 16.dp,
             top = 10.dp,
             end = 16.dp,
-            bottom = MobileBottomBarDefaults.ContentBottomPadding +
-                    MobileBottomBarDefaults.ExtraContentBottomPadding,
+            bottom = MobileBottomBarDefaults.contentBottomPadding,
         ),
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {

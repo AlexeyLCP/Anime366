@@ -151,8 +151,7 @@ fun AccountMobileScreen(
                     start = 16.dp,
                     top = 12.dp,
                     end = 16.dp,
-                    bottom = MobileBottomBarDefaults.ContentBottomPadding +
-                            MobileBottomBarDefaults.ExtraContentBottomPadding,
+                    bottom = MobileBottomBarDefaults.contentBottomPadding,
                 ),
                 verticalArrangement = Arrangement.spacedBy(16.dp),
             ) {
@@ -223,8 +222,7 @@ fun AccountMobileScreen(
                     start = 16.dp,
                     top = 12.dp,
                     end = 16.dp,
-                    bottom = MobileBottomBarDefaults.ContentBottomPadding +
-                            MobileBottomBarDefaults.ExtraContentBottomPadding,
+                    bottom = MobileBottomBarDefaults.contentBottomPadding,
                 ),
                 verticalArrangement = Arrangement.spacedBy(14.dp),
             ) {

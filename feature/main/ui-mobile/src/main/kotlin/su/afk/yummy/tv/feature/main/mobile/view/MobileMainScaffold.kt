@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Badge
@@ -29,6 +30,7 @@ import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.unit.dp
 import su.afk.yummy.tv.core.designsystem.components.GlobalToastOverlay
 import su.afk.yummy.tv.core.designsystem.mobile.bar.LocalMobileBottomBarUpFocusRequester
+import su.afk.yummy.tv.core.designsystem.mobile.bar.MobileBottomBarDefaults
 import su.afk.yummy.tv.feature.main.mobile.model.MobileMenuItem
 
 @Composable
@@ -59,6 +61,7 @@ internal fun <T> MobileMainScaffold(
                         .navigationBarsPadding(),
                 ) {
                     NavigationBar(
+                        modifier = Modifier.height(MobileBottomBarDefaults.BarHeight),
                         containerColor = surface,
                         windowInsets = WindowInsets(0.dp),
                     ) {
