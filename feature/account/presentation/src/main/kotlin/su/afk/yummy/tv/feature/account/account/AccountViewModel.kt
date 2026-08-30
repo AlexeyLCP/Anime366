@@ -33,6 +33,7 @@ import su.afk.yummy.tv.feature.account.utils.totalUnreadCount
 import su.afk.yummy.tv.feature.details.IDetailsNavigator
 import su.afk.yummy.tv.feature.messages.IMessagesNavigator
 import su.afk.yummy.tv.feature.videodownload.IVideoDownloadNavigator
+import su.afk.yummy.tv.feature.watchlater.IWatchLaterNavigator
 import javax.inject.Inject
 
 @HiltViewModel
@@ -45,6 +46,7 @@ class AccountViewModel @Inject internal constructor(
     private val observeAccountSession: ObserveAccountSessionUseCase,
     private val detailsNavigator: IDetailsNavigator,
     private val videoDownloadNavigator: IVideoDownloadNavigator,
+    private val watchLaterNavigator: IWatchLaterNavigator,
     private val accountNavigator: IAccountNavigator,
     private val messagesNavigator: IMessagesNavigator,
     private val sessionHandler: AccountSessionHandler,
@@ -217,6 +219,10 @@ class AccountViewModel @Inject internal constructor(
 
             AccountState.Event.DownloadedEpisodesSelected -> {
                 nav.navigate(videoDownloadNavigator.getVideoDownloadDest())
+            }
+
+            AccountState.Event.WatchLaterSelected -> {
+                nav.navigate(watchLaterNavigator.getWatchLaterDest())
             }
 
             AccountState.Event.MessagesSelected -> {

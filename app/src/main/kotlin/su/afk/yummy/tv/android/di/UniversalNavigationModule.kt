@@ -61,6 +61,8 @@ import su.afk.yummy.tv.feature.update.ui.navigator.UpdateNavRegistrar
 import su.afk.yummy.tv.feature.videodownload.IVideoDownloadNavigator
 import su.afk.yummy.tv.feature.videodownload.deeplink.VideoDownloadDeepLinkResolver
 import su.afk.yummy.tv.feature.videodownload.navigator.VideoDownloadNavigator
+import su.afk.yummy.tv.feature.watchlater.IWatchLaterNavigator
+import su.afk.yummy.tv.feature.watchlater.navigator.WatchLaterNavigator
 import javax.inject.Singleton
 
 /**
@@ -151,6 +153,10 @@ interface UniversalNavigationModule {
     @Binds
     @Singleton
     fun bindVideoDownloadNavigator(impl: VideoDownloadNavigator): IVideoDownloadNavigator
+
+    @Binds
+    @Singleton
+    fun bindWatchLaterNavigator(impl: WatchLaterNavigator): IWatchLaterNavigator
 
     // Диалог обновления один на обе платформы, поэтому регистратор попадает в оба набора.
     @Binds
@@ -295,6 +301,13 @@ interface UniversalNavigationModule {
     @MobileUi
     fun bindMobileVideoDownloadNavRegistrar(
         impl: su.afk.yummy.tv.feature.videodownload.mobile.navigator.VideoDownloadNavRegistrar,
+    ): NavRegistrar
+
+    @Binds
+    @IntoSet
+    @MobileUi
+    fun bindMobileWatchLaterNavRegistrar(
+        impl: su.afk.yummy.tv.feature.watchlater.mobile.navigator.WatchLaterNavRegistrar,
     ): NavRegistrar
 
     @Binds

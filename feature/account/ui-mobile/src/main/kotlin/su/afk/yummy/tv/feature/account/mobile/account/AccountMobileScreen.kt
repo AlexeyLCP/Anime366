@@ -13,6 +13,7 @@ import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.PersonSearch
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.VideoLibrary
+import androidx.compose.material.icons.filled.WatchLater
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
@@ -136,6 +137,14 @@ fun AccountMobileScreen(
                 )
                 add(
                     AccountMobileQuickAction(
+                        key = "watch_later",
+                        title = stringResource(R.string.account_watch_later),
+                        icon = Icons.Filled.WatchLater,
+                        onClick = { onEvent(AccountState.Event.WatchLaterSelected) },
+                    ),
+                )
+                add(
+                    AccountMobileQuickAction(
                         key = "downloaded_episodes",
                         title = stringResource(R.string.account_downloaded_episodes),
                         icon = Icons.Filled.VideoLibrary,
@@ -205,6 +214,14 @@ fun AccountMobileScreen(
                         title = stringResource(R.string.account_messages),
                         icon = Icons.Filled.Email,
                         onClick = { onEvent(AccountState.Event.MessagesSelected) },
+                    ),
+                )
+                add(
+                    AccountMobileQuickAction(
+                        key = "watch_later",
+                        title = stringResource(R.string.account_watch_later),
+                        icon = Icons.Filled.WatchLater,
+                        onClick = { onEvent(AccountState.Event.WatchLaterSelected) },
                     ),
                 )
                 add(

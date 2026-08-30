@@ -132,5 +132,7 @@
     <string name="details_mobile_relation_titles_found">Titles found: %1$d</string>
     <string name="details_mobile_episode_actions_title">Episode %1$s</string>
     <string name="details_mobile_mark_episode_watched">Mark as watched</string>
+    <string name="details_mobile_add_watch_later">Watch later</string>
+    <string name="details_mobile_remove_watch_later">Remove from watch later</string>
     <string name="details_mobile_unmark_episode_watched">Remove watched mark</string>
 </resources>

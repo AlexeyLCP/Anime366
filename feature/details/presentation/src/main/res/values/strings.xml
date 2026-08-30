@@ -11,4 +11,6 @@
     <string name="details_download_enqueue_error">Could not queue download</string>
     <string name="details_download_replace_delete_error">The new download was added, but the previous one could not be removed</string>
     <string name="details_episode_watched_sync_failed">Could not sync the watched mark with the server</string>
+    <string name="details_episode_watch_later_added">Episode added to watch later</string>
+    <string name="details_episode_watch_later_removed">Episode removed from watch later</string>
 </resources>

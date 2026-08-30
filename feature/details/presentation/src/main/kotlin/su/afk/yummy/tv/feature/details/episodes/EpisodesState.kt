@@ -32,6 +32,8 @@ class EpisodesState {
         val pendingDownloadedEpisodeAction: DownloadedEpisodeAction? = null,
         /** Открытое меню действий над серией (долгое нажатие по карточке). */
         val pendingEpisodeAction: EpisodeAction? = null,
+        /** Отложенные серии этого тайтла — нормализованные номера (episodeGroupKey). */
+        val watchLaterEpisodes: PersistentSet<String> = persistentSetOf(),
         /** Названия и описания серий из YummyTV API по номеру серии. */
         val episodeInfo: ImmutableMap<String, AnimeEpisodeInfo> = persistentMapOf(),
         /** Серии с раскрытым описанием (мобильная карточка). */
@@ -56,6 +58,8 @@ class EpisodesState {
         val videos: ImmutableList<AnimeVideo>,
         /** Текущий статус серии — от него зависит направление действия. */
         val isWatched: Boolean,
+        /** Серия уже отложена — от этого зависит направление действия. */
+        val isInWatchLater: Boolean,
     )
 
     @Immutable
@@ -214,6 +218,9 @@ class EpisodesState {
 
         /** Пользователь переключил отметку "просмотрено" у серии. */
         data object EpisodeWatchedToggled : Event
+
+        /** Пользователь отложил серию или снял пометку. */
+        data object EpisodeWatchLaterToggled : Event
 
         /** Пользователь закрыл меню действий над серией. */
         data object EpisodeActionsDismissed : Event

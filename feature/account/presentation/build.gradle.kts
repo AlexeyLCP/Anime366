@@ -26,6 +26,7 @@ dependencies {
     implementation(project(":feature:collection:domain"))
     implementation(project(":feature:player:domain"))
     implementation(project(":feature:video-download:api"))
+    implementation(project(":feature:watch-later:api"))
 
     implementation(libs.androidx.paging.runtime)
     implementation(libs.androidx.lifecycle.viewmodelCompose)

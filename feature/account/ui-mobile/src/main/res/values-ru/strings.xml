@@ -9,6 +9,7 @@
     <string name="account_refresh">Обновить профиль</string>
     <string name="account_settings">Настройки</string>
     <string name="account_downloaded_episodes">Скачанные серии</string>
+    <string name="account_watch_later">Отложенный просмотр</string>
     <string name="account_messages">Сообщения</string>
     <string name="account_logout">Выйти</string>
     <string name="account_profile_edit_mobile">Редактировать профиль</string>

@@ -220,3 +220,26 @@ internal val MIGRATION_51_52 = object : Migration(51, 52) {
         db.execSQL("ALTER TABLE library ADD COLUMN season TEXT")
     }
 }
+
+/**
+ * Локальный список отложенных серий. Серверного аналога нет, список начинается пустым —
+ * бэкфилл не нужен.
+ */
+internal val MIGRATION_52_53 = object : Migration(52, 53) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL(
+            """
+            CREATE TABLE IF NOT EXISTS watch_later (
+                animeId INTEGER NOT NULL,
+                episode TEXT NOT NULL,
+                animeTitle TEXT NOT NULL,
+                posterUrl TEXT NOT NULL,
+                screenshotUrl TEXT NOT NULL,
+                addedAt INTEGER NOT NULL,
+                PRIMARY KEY(animeId, episode)
+            )
+            """.trimIndent()
+        )
+        db.execSQL("CREATE INDEX IF NOT EXISTS index_watch_later_addedAt ON watch_later (addedAt)")
+    }
+}

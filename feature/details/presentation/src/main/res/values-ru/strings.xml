@@ -11,4 +11,6 @@
     <string name="details_download_enqueue_error">Не удалось поставить скачивание в очередь</string>
     <string name="details_download_replace_delete_error">Новая загрузка добавлена, но предыдущую не удалось удалить</string>
     <string name="details_episode_watched_sync_failed">Не удалось синхронизировать отметку о просмотре с сервером</string>
+    <string name="details_episode_watch_later_added">Серия добавлена в отложенный просмотр</string>
+    <string name="details_episode_watch_later_removed">Серия убрана из отложенного просмотра</string>
 </resources>

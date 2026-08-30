@@ -29,6 +29,7 @@ dependencies {
     implementation(project(":feature:player:domain"))
     implementation(project(":feature:video-download:api"))
     implementation(project(":feature:video-download:domain"))
+    implementation(project(":feature:watch-later:domain"))
 
     implementation(libs.bundles.compose.presentation)
 

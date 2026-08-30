@@ -154,6 +154,12 @@ include(":feature:video-download:data")
 include(":feature:video-download:presentation")
 include(":feature:video-download:ui-mobile")
 
+include(":feature:watch-later:api")
+include(":feature:watch-later:domain")
+include(":feature:watch-later:data")
+include(":feature:watch-later:presentation")
+include(":feature:watch-later:ui-mobile")
+
 include(":feature:library:presentation")
 include(":feature:library:domain")
 include(":feature:library:data")

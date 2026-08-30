@@ -8,6 +8,7 @@ import kotlinx.collections.immutable.minus
 import kotlinx.collections.immutable.plus
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.collections.immutable.toImmutableMap
+import kotlinx.collections.immutable.toPersistentSet
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.flowOn
@@ -33,6 +34,7 @@ import su.afk.yummy.tv.domain.anime.usecase.GetAnimeVideosUseCase
 import su.afk.yummy.tv.domain.anime.usecase.ObserveAnimeWatchProgressUseCase
 import su.afk.yummy.tv.domain.anime.usecase.RefreshAnimeVideosUseCase
 import su.afk.yummy.tv.domain.videodownload.usecase.ObserveVideoDownloadStatusesUseCase
+import su.afk.yummy.tv.domain.watchlater.usecase.ObserveWatchLaterEpisodesUseCase
 import su.afk.yummy.tv.feature.details.DetailsAnalytics
 import su.afk.yummy.tv.feature.details.details.DetailsPlayerSelection
 import su.afk.yummy.tv.feature.details.details.handler.DetailsPlayerNavigationHandler
@@ -42,6 +44,7 @@ import su.afk.yummy.tv.feature.details.episodes.dubbings.selectEpisodeDubbingLau
 import su.afk.yummy.tv.feature.details.episodes.handler.EpisodeDownloadEnqueueResult
 import su.afk.yummy.tv.feature.details.episodes.handler.EpisodeDownloadHandler
 import su.afk.yummy.tv.feature.details.episodes.handler.EpisodeDownloadPrepareResult
+import su.afk.yummy.tv.feature.details.episodes.handler.EpisodeWatchLaterHandler
 import su.afk.yummy.tv.feature.details.episodes.handler.EpisodeWatchedHandler
 import su.afk.yummy.tv.feature.details.episodes.utils.buildEpisodeGroups
 import su.afk.yummy.tv.feature.details.episodes.utils.isActive
@@ -72,7 +75,9 @@ class EpisodesViewModel @AssistedInject internal constructor(
     private val playerNavigationHandler: DetailsPlayerNavigationHandler,
     private val downloadHandler: EpisodeDownloadHandler,
     private val watchedHandler: EpisodeWatchedHandler,
+    private val watchLaterHandler: EpisodeWatchLaterHandler,
     private val observeVideoDownloadStatuses: ObserveVideoDownloadStatusesUseCase,
+    private val observeWatchLaterEpisodes: ObserveWatchLaterEpisodesUseCase,
     private val stringProvider: StringProvider,
     private val analytics: DetailsAnalytics,
 ) : BaseViewModel<EpisodesState.State, EpisodesState.Event, EpisodesState.Effect>() {
@@ -102,6 +107,11 @@ class EpisodesViewModel @AssistedInject internal constructor(
         viewModelScope.launch { loadMeta() }
         viewModelScope.launch { loadVideos() }
         viewModelScope.launch { loadEpisodeInfo() }
+        observeWatchLaterEpisodes(animeId)
+            .onEach { episodes ->
+                setState { copy(watchLaterEpisodes = episodes.toPersistentSet()) }
+            }
+            .launchIn(viewModelScope)
         observeVideoDownloadStatuses(animeId)
             .onEach { statuses ->
                 setState {
@@ -175,6 +185,7 @@ class EpisodesViewModel @AssistedInject internal constructor(
                             episode = episode,
                             videos = videos,
                             isWatched = watchProgress.bestFor(videos)?.isWatchedProgress() == true,
+                            isInWatchLater = episode.episodeGroupKey() in watchLaterEpisodes,
                         )
                     )
                 }
@@ -184,6 +195,35 @@ class EpisodesViewModel @AssistedInject internal constructor(
                 val action = currentState.pendingEpisodeAction ?: return
                 setState { copy(pendingEpisodeAction = null) }
                 viewModelScope.launch { toggleEpisodeWatched(action) }
+            }
+
+            EpisodesState.Event.EpisodeWatchLaterToggled -> {
+                val action = currentState.pendingEpisodeAction ?: return
+                setState { copy(pendingEpisodeAction = null) }
+                viewModelScope.launch {
+                    watchLaterHandler.toggle(
+                        animeId = animeId,
+                        episode = action.episode,
+                        isInWatchLater = action.isInWatchLater,
+                        meta = EpisodeWatchedHandler.EpisodeMeta(
+                            animeTitle = animeTitle,
+                            posterUrl = posterUrl,
+                            screenshotUrl = screenshotsByEpisode[action.episode].orEmpty(),
+                        ),
+                    )
+                    // Список отложенных на этом экране не виден, поэтому подтверждаем действие тостом.
+                    setEffect(
+                        EpisodesState.Effect.ShowToast(
+                            stringProvider.get(
+                                if (action.isInWatchLater) {
+                                    R.string.details_episode_watch_later_removed
+                                } else {
+                                    R.string.details_episode_watch_later_added
+                                }
+                            )
+                        )
+                    )
+                }
             }
 
             EpisodesState.Event.EpisodeActionsDismissed ->
