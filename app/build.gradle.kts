@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     id("yummytv.android.application")
     alias(libs.plugins.kotlinSerialization)
@@ -11,7 +13,7 @@ val appVersionName = providers.gradleProperty("yummytv.versionName").get()
 val appVersionCode = providers.gradleProperty("yummytv.versionCode").get().toInt()
 val appmetricaApiKey = providers.gradleProperty("yummytv.appmetricaApiKey").get()
 val varioqubClientId = providers.gradleProperty("yummytv.varioqubClientId").get()
-val localProperties = java.util.Properties().apply {
+val localProperties = Properties().apply {
     val file = rootProject.file("local.properties")
     if (file.exists()) file.inputStream().use { load(it) }
 }
