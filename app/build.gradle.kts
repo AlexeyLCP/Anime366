@@ -11,6 +11,24 @@ val appVersionName = providers.gradleProperty("yummytv.versionName").get()
 val appVersionCode = providers.gradleProperty("yummytv.versionCode").get().toInt()
 val appmetricaApiKey = providers.gradleProperty("yummytv.appmetricaApiKey").get()
 val varioqubClientId = providers.gradleProperty("yummytv.varioqubClientId").get()
+val localProperties = java.util.Properties().apply {
+    val file = rootProject.file("local.properties")
+    if (file.exists()) file.inputStream().use { load(it) }
+}
+val anime365AccessToken = localProperties.getProperty("anime365.accessToken", "")
+val releaseStoreFile = (
+    System.getenv("ANIME366_STORE_FILE")
+        ?: localProperties.getProperty("anime366.storeFile")
+)?.let { rootProject.file(it) }?.takeIf { it.isFile }
+val releaseStorePassword =
+    System.getenv("ANIME366_STORE_PASSWORD")
+        ?: localProperties.getProperty("anime366.storePassword")
+val releaseKeyAlias =
+    System.getenv("ANIME366_KEY_ALIAS")
+        ?: localProperties.getProperty("anime366.keyAlias")
+val releaseKeyPassword =
+    System.getenv("ANIME366_KEY_PASSWORD")
+        ?: localProperties.getProperty("anime366.keyPassword")
 
 android {
     namespace = "su.afk.yummy.tv"
@@ -24,6 +42,22 @@ android {
 
         buildConfigField("String", "APPMETRICA_API_KEY", appmetricaApiKey.toBuildConfigString())
         buildConfigField("String", "VARIOQUB_CLIENT_ID", varioqubClientId.toBuildConfigString())
+        buildConfigField("String", "ANIME365_ACCESS_TOKEN", "".toBuildConfigString())
+    }
+
+    signingConfigs {
+        if (releaseStoreFile != null &&
+            !releaseStorePassword.isNullOrBlank() &&
+            !releaseKeyAlias.isNullOrBlank() &&
+            !releaseKeyPassword.isNullOrBlank()
+        ) {
+            create("release") {
+                storeFile = releaseStoreFile
+                storePassword = releaseStorePassword
+                keyAlias = releaseKeyAlias
+                keyPassword = releaseKeyPassword
+            }
+        }
     }
 
     buildTypes {
@@ -31,6 +65,11 @@ android {
             applicationIdSuffix = ".debug"
             resValue("string", "search_suggest_authority", "$baseApplicationId.debug.search")
             isMinifyEnabled = false
+            buildConfigField(
+                "String",
+                "ANIME365_ACCESS_TOKEN",
+                anime365AccessToken.toBuildConfigString(),
+            )
         }
 
         release {
@@ -43,6 +82,7 @@ android {
             )
 
             isDebuggable = false
+            signingConfigs.findByName("release")?.let { signingConfig = it }
         }
     }
     buildFeatures {
@@ -55,7 +95,7 @@ android {
 androidComponents {
     onVariants { variant ->
         variant.outputs.forEach { output ->
-            val fileName = "YummyTV-${output.versionName.orNull ?: "1.0"}-${variant.buildType}.apk"
+            val fileName = "Anime366-${output.versionName.orNull ?: "1.0"}-${variant.buildType}.apk"
             (output as? com.android.build.api.variant.impl.VariantOutputImpl)?.outputFileName?.set(fileName)
         }
     }

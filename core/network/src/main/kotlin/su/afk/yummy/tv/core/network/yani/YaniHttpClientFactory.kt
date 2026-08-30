@@ -19,11 +19,6 @@ import su.afk.yummy.tv.core.network.BuildConfig
 import su.afk.yummy.tv.core.preferences.auth.YaniAuthPreferences
 import su.afk.yummy.tv.core.preferences.settings.YaniAccountSettingsStore
 
-private const val YANI_API_HOST = "api.yani.tv"
-private const val YANI_APPLICATION_HEADER = "X-Application"
-private const val YANI_LANGUAGE_HEADER = "Lang"
-private const val YANI_AUTHORIZATION_PREFIX = "Bearer "
-
 fun buildYaniHttpClient(
     settingsStore: YaniAccountSettingsStore,
     yaniAuthPreferences: YaniAuthPreferences,
@@ -41,7 +36,6 @@ fun buildYaniHttpClient(
             requestTimeoutMillis = 40_000
             socketTimeoutMillis = 40_000
         }
-        // Ретраим только GET: мутации могут быть неидемпотентны.
         install(HttpRequestRetry) {
             maxRetries = 2
             retryIf { request, response ->
@@ -55,40 +49,29 @@ fun buildYaniHttpClient(
         install(ContentNegotiation) {
             json(YaniApiJson)
         }
-        install(createClientPlugin("YaniApplicationHeader") {
+        install(createClientPlugin("Anime365AccessToken") {
             onRequest { request, _ ->
-                if (request.url.host == YANI_API_HOST) {
-                    val headers = headerCache.current()
-                    if (headers.applicationToken.isNotBlank()) {
-                        request.headers.remove(YANI_APPLICATION_HEADER)
-                        request.headers.append(YANI_APPLICATION_HEADER, headers.applicationToken)
-                    }
-                    if (headers.contentLanguageCode.isNotBlank()) {
-                        request.headers.remove(YANI_LANGUAGE_HEADER)
-                        request.headers.append(YANI_LANGUAGE_HEADER, headers.contentLanguageCode)
-                    }
-                    if (
-                        headers.refreshToken.isNotBlank() &&
-                        request.headers[HttpHeaders.Authorization].isNullOrBlank()
-                    ) {
-                        request.headers.remove(HttpHeaders.Authorization)
-                        request.headers.append(
-                            HttpHeaders.Authorization,
-                            YANI_AUTHORIZATION_PREFIX + headers.refreshToken,
-                        )
-                    }
+                if (request.url.host !in ANIME365_HOSTS) return@onRequest
+                val headers = headerCache.current()
+                val mirror = normalizeAnime365Host(headers.applicationToken)
+                if (request.url.host != mirror) request.url.host = mirror
+                request.headers.remove(HttpHeaders.UserAgent)
+                request.headers.append(HttpHeaders.UserAgent, ANIME365_USER_AGENT)
+                if (headers.refreshToken.isNotBlank() &&
+                    request.url.parameters["access_token"].isNullOrBlank()
+                ) {
+                    request.url.parameters.append("access_token", headers.refreshToken)
                 }
             }
         })
         if (BuildConfig.DEBUG) {
             install(Logging) {
                 logger = Logger.ANDROID
-                level = LogLevel.BODY
+                level = LogLevel.HEADERS
                 sanitizeHeader { header ->
                     header.equals(HttpHeaders.Authorization, ignoreCase = true) ||
-                            header.equals(HttpHeaders.Cookie, ignoreCase = true) ||
-                            header.equals(HttpHeaders.SetCookie, ignoreCase = true) ||
-                            header.equals(YANI_APPLICATION_HEADER, ignoreCase = true)
+                        header.equals(HttpHeaders.Cookie, ignoreCase = true) ||
+                        header.equals(HttpHeaders.SetCookie, ignoreCase = true)
                 }
             }
         }

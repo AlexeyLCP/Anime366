@@ -13,6 +13,7 @@ import su.afk.yummy.tv.data.player.extractor.kodik.KodikExtractor
 import su.afk.yummy.tv.data.player.extractor.rutube.RutubeExtractor
 import su.afk.yummy.tv.data.player.extractor.sibnet.SibnetExtractor
 import su.afk.yummy.tv.data.player.extractor.vk.VkExtractor
+import su.afk.yummy.tv.data.player.extractor.anime365.Anime365Extractor
 import su.afk.yummy.tv.data.player.extractor.zedfilm.ZedfilmExtractor
 import su.afk.yummy.tv.data.player.network.KtorPlayerHttpClient
 import su.afk.yummy.tv.data.player.network.PlayerHttpClient
@@ -67,6 +68,11 @@ object PlayerDataModule {
     internal fun provideAllohaTrackPreferenceRepository(
         repository: DefaultAllohaTrackPreferenceRepository,
     ): AllohaTrackPreferenceRepository = repository
+
+    @Provides
+    @IntoSet
+    internal fun provideAnime365Extractor(extractor: Anime365Extractor): PlayerStreamExtractor =
+        extractor
 
     @Provides
     @IntoSet

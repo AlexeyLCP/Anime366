@@ -182,20 +182,19 @@ private fun List<YaniVideoDto>.toNewVideoEntries(
     language: String,
     watchSignature: String,
 ): List<HomeFeedItemEntry> =
-    groupBy { it.animeId }.mapNotNull { (animeId, videos) ->
-        val id = animeId ?: return@mapNotNull null
-        val item = videos.first()
+    mapNotNull { item ->
+        val seriesId = item.animeId ?: return@mapNotNull null
         val title = item.title.takeIf { it.isNotBlank() } ?: return@mapNotNull null
-        Triple(id, title, item)
-    }.mapIndexed { index, (id, title, item) ->
+        seriesId to item.copy(title = title)
+    }.mapIndexed { index, (seriesId, item) ->
         HomeFeedItemEntry(
             language = language,
             watchSignature = watchSignature,
             container = HOME_FEED_CONTAINER_NEW_RELEASES,
             position = index,
-            itemId = id,
-            title = title,
-            description = item.description,
+            itemId = item.videoId ?: seriesId,
+            title = titleWithEpisode(item.title, item.episodeTitle),
+            description = item.dubTitle.orEmpty(),
             posterSmallUrl = item.poster?.small?.toHttpsUrl(),
             posterMediumUrl = item.poster?.medium?.toHttpsUrl(),
             posterBigUrl = item.poster?.big?.toHttpsUrl(),
@@ -204,9 +203,14 @@ private fun List<YaniVideoDto>.toNewVideoEntries(
             rating = null,
             year = null,
             actionType = HOME_FEED_ACTION_SERIES,
-            actionId = id,
+            actionId = seriesId,
         )
     }
+
+private fun titleWithEpisode(title: String, episode: String?): String {
+    val ep = episode?.takeIf { it.isNotBlank() } ?: return title
+    return "$title · $ep"
+}
 
 private fun List<YaniCollectionDto>.toCollectionEntries(
     language: String,

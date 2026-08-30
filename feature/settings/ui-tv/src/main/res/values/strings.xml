@@ -180,9 +180,9 @@
     <string name="settings_content_language_russian">Russian</string>
     <string name="settings_content_language_english">English</string>
     <string name="settings_content_language_ukrainian">Ukrainian</string>
-    <string name="settings_yani_application_token_label">X-Application</string>
-    <string name="settings_yani_application_token_placeholder">Application token</string>
-    <string name="settings_yani_application_token_hint">A public token is used by default. Add your own public token from https://yummyani.me/dev/applications/ to override it.\nRequired for authorizing the app: the token is sent in the X-Application header. All API requests use JSON, including request bodies.</string>
+    <string name="settings_yani_application_token_label">Anime365 mirror</string>
+    <string name="settings_yani_application_token_placeholder">anime-365.ru</string>
+    <string name="settings_yani_application_token_hint">API host if the default is blocked: anime-365.ru, smotret-anime.org, smotret-anime.app, smotret-anime.net</string>
     <string name="settings_account_signed_in">Yani account</string>
     <string name="settings_account_signed_out">Sign in to Yani</string>
     <string name="settings_account_unknown_user">Signed in</string>
@@ -198,7 +198,7 @@
     <string name="settings_account_captcha_hint">If Yummy requires captcha, the account screen will show it in the app.</string>
     <string name="settings_version_label">Version</string>
     <string name="settings_feedback_label">Questions/Ideas/Suggestions</string>
-    <string name="settings_repository_url">https://github.com/Helandy/YummyTV</string>
+    <string name="settings_repository_url">https://github.com/AlexeyLCP/Anime366</string>
     <string name="settings_tab_player_subtitles">Subtitles</string>
     <string name="settings_subtitle_style_title">Subtitle look</string>
     <string name="settings_subtitle_style_alloha_hint">Subtitles are provided by the Alloha player only</string>

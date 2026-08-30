@@ -59,6 +59,14 @@ jobs:
         id: build_release
         run: ./gradlew :app:assembleRelease --stacktrace
 
+      - name: Upload APKs
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Anime366-apk
+          path: app/build/outputs/apk/**/*.apk
+          if-no-files-found: error
+
       - name: Write job summary
         if: always()
         run: |

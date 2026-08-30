@@ -17,7 +17,7 @@ class PlayerAllohaTracks(
     private val selectedSubtitleIndex: Int?,
     private val subtitlesOffLabel: String,
 ) {
-    val isAvailable: Boolean get() = audioTracks.isNotEmpty()
+    val isAvailable: Boolean get() = audioTracks.isNotEmpty() || subtitles.isNotEmpty()
     val hasAudioChoice: Boolean get() = audioTracks.isNotEmpty()
     val hasSubtitleChoice: Boolean get() = subtitles.isNotEmpty()
 

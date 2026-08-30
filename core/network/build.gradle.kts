@@ -9,6 +9,12 @@ android {
     buildFeatures {
         buildConfig = true
     }
+    defaultConfig {
+        val appId = providers.gradleProperty("anime365.appId").orElse("").get()
+            .replace("\\", "\\\\")
+            .replace("\"", "\\\"")
+        buildConfigField("String", "ANIME365_APP_ID", "\"$appId\"")
+    }
 }
 
 dependencies {

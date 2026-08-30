@@ -1,0 +1,74 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  release:
+    name: Build and publish
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android SDK platform
+        run: |
+          (yes || true) | sdkmanager --licenses >/dev/null
+          sdkmanager --install "platforms;android-36"
+
+      - name: Decode keystore
+        env:
+          KEYSTORE_BASE64: ${{ secrets.ANIME366_KEYSTORE_BASE64 }}
+        run: |
+          if [ -z "$KEYSTORE_BASE64" ]; then
+            echo "ANIME366_KEYSTORE_BASE64 empty — release APK will be unsigned/debug-signed"
+            exit 0
+          fi
+          echo "$KEYSTORE_BASE64" | base64 -d > "$GITHUB_WORKSPACE/release.jks"
+
+      - name: Build release APK
+        env:
+          ANIME366_STORE_PASSWORD: ${{ secrets.ANIME366_STORE_PASSWORD }}
+          ANIME366_KEY_ALIAS: ${{ secrets.ANIME366_KEY_ALIAS }}
+          ANIME366_KEY_PASSWORD: ${{ secrets.ANIME366_KEY_PASSWORD }}
+        run: |
+          if [ -f "$GITHUB_WORKSPACE/release.jks" ]; then
+            export ANIME366_STORE_FILE="$GITHUB_WORKSPACE/release.jks"
+          fi
+          ./gradlew :app:assembleRelease --stacktrace
+
+      - name: Publish GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          apk=$(find app/build/outputs/apk/release -name "*.apk" | head -1)
+          test -n "$apk"
+          tag="${GITHUB_REF_NAME}"
+          if [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ] && [ -z "$(echo "$tag" | grep -E '^v')" ]; then
+            tag="v$(grep '^yummytv.versionName=' gradle.properties | cut -d= -f2)"
+          fi
+          gh release create "$tag" "$apk" --title "$tag" --generate-notes --latest

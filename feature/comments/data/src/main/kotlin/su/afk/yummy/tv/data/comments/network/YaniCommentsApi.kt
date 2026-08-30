@@ -1,29 +1,16 @@
 package su.afk.yummy.tv.data.comments.network
 
-import io.ktor.client.call.body
-import io.ktor.client.request.delete
-import io.ktor.client.request.get
-import io.ktor.client.request.parameter
-import io.ktor.client.request.patch
-import io.ktor.client.request.post
-import io.ktor.client.request.put
-import io.ktor.client.request.setBody
-import io.ktor.http.ContentType
-import io.ktor.http.contentType
-import su.afk.yummy.tv.core.network.yani.YANI_BASE_URL
-import su.afk.yummy.tv.core.network.yani.YaniHttpClientProvider
 import su.afk.yummy.tv.data.comments.dto.YaniBooleanResponseDto
 import su.afk.yummy.tv.data.comments.dto.YaniClaimCommentBodyDto
 import su.afk.yummy.tv.data.comments.dto.YaniCommentResponseDto
 import su.afk.yummy.tv.data.comments.dto.YaniCommentsResponseDto
-import su.afk.yummy.tv.data.comments.dto.YaniDeleteCommentBodyDto
 import su.afk.yummy.tv.data.comments.dto.YaniPatchCommentBodyDto
 import su.afk.yummy.tv.data.comments.dto.YaniPostCommentBodyDto
 import su.afk.yummy.tv.data.comments.dto.YaniVoteCommentBodyDto
 import su.afk.yummy.tv.data.comments.dto.YaniVoteCommentResponseDto
 
 class YaniCommentsApi(
-    private val clientProvider: YaniHttpClientProvider,
+    @Suppress("unused") private val clientProvider: su.afk.yummy.tv.core.network.yani.YaniHttpClientProvider,
 ) {
     suspend fun getComments(
         targetType: String,
@@ -31,64 +18,27 @@ class YaniCommentsApi(
         limit: Int,
         skip: Int,
         sort: String,
-    ): YaniCommentsResponseDto =
-        clientProvider.get().get("$YANI_BASE_URL/comments/$targetType/$targetId") {
-            parameter("limit", limit)
-            parameter("skip", skip)
-            parameter("sort", sort)
-        }.body()
+    ): YaniCommentsResponseDto = YaniCommentsResponseDto()
 
-    suspend fun getCommentChildren(
-        commentId: Int,
-        skip: Int,
-    ): YaniCommentsResponseDto =
-        clientProvider.get().get("$YANI_BASE_URL/comments/$commentId/children") {
-            parameter("skip", skip)
-        }.body()
+    suspend fun getCommentChildren(commentId: Int, skip: Int): YaniCommentsResponseDto =
+        YaniCommentsResponseDto()
 
     suspend fun addComment(
         targetType: String,
         targetId: Int,
         body: YaniPostCommentBodyDto,
-    ): YaniCommentResponseDto =
-        clientProvider.get().post("$YANI_BASE_URL/comments/$targetType/$targetId") {
-            contentType(ContentType.Application.Json)
-            setBody(body)
-        }.body()
+    ): YaniCommentResponseDto = YaniCommentResponseDto()
 
-    suspend fun updateComment(
-        commentId: Int,
-        body: YaniPatchCommentBodyDto,
-    ): YaniCommentResponseDto =
-        clientProvider.get().patch("$YANI_BASE_URL/comments/$commentId") {
-            contentType(ContentType.Application.Json)
-            setBody(body)
-        }.body()
+    suspend fun updateComment(commentId: Int, body: YaniPatchCommentBodyDto): YaniCommentResponseDto =
+        YaniCommentResponseDto()
 
-    suspend fun deleteComment(commentId: Int): YaniBooleanResponseDto =
-        clientProvider.get().delete("$YANI_BASE_URL/comments/$commentId") {
-            contentType(ContentType.Application.Json)
-            setBody(YaniDeleteCommentBodyDto())
-        }.body()
+    suspend fun deleteComment(commentId: Int): YaniBooleanResponseDto = YaniBooleanResponseDto()
 
-    suspend fun voteComment(
-        commentId: Int,
-        body: YaniVoteCommentBodyDto,
-    ): YaniVoteCommentResponseDto =
-        clientProvider.get().put("$YANI_BASE_URL/comments/$commentId/vote") {
-            contentType(ContentType.Application.Json)
-            setBody(body)
-        }.body()
+    suspend fun voteComment(commentId: Int, body: YaniVoteCommentBodyDto): YaniVoteCommentResponseDto =
+        YaniVoteCommentResponseDto()
 
-    suspend fun removeCommentVote(commentId: Int): YaniVoteCommentResponseDto =
-        clientProvider.get().delete("$YANI_BASE_URL/comments/$commentId/vote").body()
+    suspend fun removeCommentVote(commentId: Int): YaniVoteCommentResponseDto = YaniVoteCommentResponseDto()
 
-    suspend fun reportComment(
-        commentId: Int,
-        body: YaniClaimCommentBodyDto,
-    ): YaniBooleanResponseDto =
-        clientProvider.get().put("$YANI_BASE_URL/comments/$commentId/claim") {
-            contentType(ContentType.Application.Json)
-            setBody(body)
-        }.body()
+    suspend fun reportComment(commentId: Int, body: YaniClaimCommentBodyDto): YaniBooleanResponseDto =
+        YaniBooleanResponseDto()
 }

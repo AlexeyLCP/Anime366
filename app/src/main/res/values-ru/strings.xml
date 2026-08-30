@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">YummyTV</string>
+    <string name="app_name">Anime366</string>
     <string name="search_hint">Поиск аниме</string>
-    <string name="search_settings_description">Поиск по каталогу YummyTV</string>
+    <string name="search_settings_description">Поиск по каталогу Anime365</string>
     <string name="interface_mode_title">Выберите интерфейс</string>
     <string name="interface_mode_message">Выберите интерфейс, которым будет удобно управлять на этом устройстве.</string>
     <string name="interface_mode_tv">ТВ-интерфейс</string>

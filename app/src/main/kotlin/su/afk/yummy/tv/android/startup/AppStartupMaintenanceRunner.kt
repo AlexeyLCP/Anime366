@@ -3,8 +3,10 @@ package su.afk.yummy.tv.android.startup
 import android.content.Context
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import su.afk.yummy.tv.BuildConfig
+import su.afk.yummy.tv.core.preferences.auth.YaniAuthPreferences
 import su.afk.yummy.tv.core.preferences.settings.SettingsStore
 import su.afk.yummy.tv.core.storage.maintenance.StorageCleanup
 import su.afk.yummy.tv.core.utils.coroutines.di.DefaultApplicationScope
@@ -21,6 +23,7 @@ import javax.inject.Singleton
 class AppStartupMaintenanceRunner @Inject constructor(
     @param:ApplicationContext private val context: Context,
     private val settingsStore: SettingsStore,
+    private val yaniAuthPreferences: YaniAuthPreferences,
     private val legacyStreamingCachePruner: LegacyStreamingCachePruner,
     private val storageCleanupStore: StorageCleanup,
     @DefaultApplicationScope private val scope: CoroutineScope,
@@ -28,6 +31,7 @@ class AppStartupMaintenanceRunner @Inject constructor(
 
     fun run() {
         scope.launch {
+            seedAnime365Token()
             settingsStore.ensureYaniContentLanguageInitialized()
             if (settingsStore.markStartedVersion(BuildConfig.VERSION_CODE)) {
                 deleteDownloadedUpdateApk()
@@ -37,6 +41,13 @@ class AppStartupMaintenanceRunner @Inject constructor(
             runCatching { legacyStreamingCachePruner.pruneOrphanedEntries() }
             runCatching { storageCleanupStore.purgeStaleCaches() }
         }
+    }
+
+    private suspend fun seedAnime365Token() {
+        val token = BuildConfig.ANIME365_ACCESS_TOKEN
+        if (token.isBlank()) return
+        if (yaniAuthPreferences.refreshToken.first().isNotBlank()) return
+        yaniAuthPreferences.setRefreshToken(token)
     }
 
     private fun deleteDownloadedUpdateApk() {

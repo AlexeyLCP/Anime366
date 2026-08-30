@@ -1,4 +1,4 @@
-rootProject.name = "YummyTv"
+rootProject.name = "Anime366"
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 pluginManagement {

@@ -47,8 +47,9 @@ object AccountDataModule {
     fun provideYaniAccountApi(
         clientProvider: YaniHttpClientProvider,
         analyticsTracker: AnalyticsTracker,
+        yaniAuthPreferences: YaniAuthPreferences,
     ): YaniAccountApi =
-        YaniAccountApi(clientProvider, analyticsTracker)
+        YaniAccountApi(clientProvider, analyticsTracker, yaniAuthPreferences)
 
     @Provides
     @Singleton

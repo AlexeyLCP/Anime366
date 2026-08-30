@@ -23,5 +23,5 @@
     <string name="faq_expand">Expand answer</string>
     <string name="faq_collapse">Collapse answer</string>
     <string name="faq_open_repository">Open GitHub</string>
-    <string name="faq_repository_url" translatable="false">https://github.com/Helandy/YummyTV</string>
+    <string name="faq_repository_url" translatable="false">https://github.com/AlexeyLCP/Anime366</string>
 </resources>

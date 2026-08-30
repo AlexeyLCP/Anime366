@@ -10,7 +10,7 @@
     <string name="update_auto_update_unsupported">Ваше устройство не поддерживает автообновление. Установите новую версию вручную.</string>
     <string name="update_manual_hint">Или вы можете скачать APK-файл вручную с %1$s</string>
     <string name="update_manual_open_releases">Открыть GitHub Releases</string>
-    <string name="update_manual_release_url">https://github.com/Helandy/YummyTV/releases/latest</string>
+    <string name="update_manual_release_url">https://github.com/AlexeyLCP/Anime366/releases/latest</string>
     <string name="update_downloading">Загрузка обновления...</string>
     <string name="update_installing">Установка...</string>
     <string name="update_retry">Повторить</string>

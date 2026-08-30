@@ -23,5 +23,5 @@
     <string name="faq_expand">Развернуть ответ</string>
     <string name="faq_collapse">Свернуть ответ</string>
     <string name="faq_open_repository">Открыть GitHub</string>
-    <string name="faq_repository_url" translatable="false">https://github.com/Helandy/YummyTV</string>
+    <string name="faq_repository_url" translatable="false">https://github.com/AlexeyLCP/Anime366</string>
 </resources>
