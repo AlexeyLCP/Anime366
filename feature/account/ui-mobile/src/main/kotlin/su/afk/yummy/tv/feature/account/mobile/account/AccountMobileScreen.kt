@@ -128,18 +128,18 @@ fun AccountMobileScreen(
                 }
                 add(
                     AccountMobileQuickAction(
-                        key = "downloaded_episodes",
-                        title = stringResource(R.string.account_downloaded_episodes),
-                        icon = Icons.Filled.VideoLibrary,
-                        onClick = { onEvent(AccountState.Event.DownloadedEpisodesSelected) },
-                    ),
-                )
-                add(
-                    AccountMobileQuickAction(
                         key = "user_search",
                         title = stringResource(R.string.account_user_search),
                         icon = Icons.Filled.PersonSearch,
                         onClick = { onEvent(AccountState.Event.UserSearchSelected) },
+                    ),
+                )
+                add(
+                    AccountMobileQuickAction(
+                        key = "downloaded_episodes",
+                        title = stringResource(R.string.account_downloaded_episodes),
+                        icon = Icons.Filled.VideoLibrary,
+                        onClick = { onEvent(AccountState.Event.DownloadedEpisodesSelected) },
                     ),
                 )
             }
@@ -194,14 +194,6 @@ fun AccountMobileScreen(
                 }
                 add(
                     AccountMobileQuickAction(
-                        key = "downloaded_episodes",
-                        title = stringResource(R.string.account_downloaded_episodes),
-                        icon = Icons.Filled.VideoLibrary,
-                        onClick = { onEvent(AccountState.Event.DownloadedEpisodesSelected) },
-                    ),
-                )
-                add(
-                    AccountMobileQuickAction(
                         key = "user_search",
                         title = stringResource(R.string.account_user_search),
                         icon = Icons.Filled.PersonSearch,
@@ -214,6 +206,14 @@ fun AccountMobileScreen(
                         title = stringResource(R.string.account_messages),
                         icon = Icons.Filled.Email,
                         onClick = { onEvent(AccountState.Event.MessagesSelected) },
+                    ),
+                )
+                add(
+                    AccountMobileQuickAction(
+                        key = "downloaded_episodes",
+                        title = stringResource(R.string.account_downloaded_episodes),
+                        icon = Icons.Filled.VideoLibrary,
+                        onClick = { onEvent(AccountState.Event.DownloadedEpisodesSelected) },
                     ),
                 )
             }
