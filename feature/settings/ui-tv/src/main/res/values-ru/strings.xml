@@ -19,6 +19,7 @@
     <string name="settings_tab_player_quality">Качество видео</string>
     <string name="settings_tab_player_source">Предпочитаемый плеер</string>
     <string name="settings_tab_top_title_year">Год у тайтлов</string>
+    <string name="settings_tab_library_title_year">Год в библиотеке</string>
     <string name="settings_tab_account">Аккаунт</string>
     <string name="settings_account_sign_in_short">Войти</string>
     <string name="settings_tab_cache">Кэш картинок</string>
@@ -39,6 +40,8 @@
     <string name="settings_poster_quality_title">Качество изображений постеров</string>
     <string name="settings_show_top_title_year">Отображать год у тайтлов в топе</string>
     <string name="settings_show_top_title_year_enabled">Год отображается на карточках тайтлов в топе</string>
+    <string name="settings_show_library_title_year">Отображать год у тайтлов в библиотеке</string>
+    <string name="settings_show_library_title_year_enabled">Год отображается на карточках тайтлов в библиотеке</string>
     <string name="settings_poster_cache_size_title">Кэш картинок</string>
     <string name="settings_details_buttons_reset">Сбросить порядок кнопок</string>
     <string name="settings_details_buttons_reset_hint">Вернуть стандартный порядок на экране деталки</string>

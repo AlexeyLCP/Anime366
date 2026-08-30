@@ -260,6 +260,22 @@ internal fun SettingsTvPanelHost(
                         )
                     }
 
+                    SettingsTab.LIBRARY_TITLE_YEAR -> {
+                        ToggleRow(
+                            label = stringResource(R.string.settings_show_library_title_year),
+                            hint = if (state.showLibraryTitleYear) {
+                                stringResource(R.string.settings_show_library_title_year_enabled)
+                            } else {
+                                stringResource(R.string.settings_disabled)
+                            },
+                            enabled = state.showLibraryTitleYear,
+                            onClick = { onEvent(SettingsState.Event.ShowLibraryTitleYearToggled) },
+                            modifier = Modifier
+                                .focusRequester(tabContentFocusRequester)
+                                .restoreCategoryFocusOnLeft(tabFocusRequester),
+                        )
+                    }
+
                     SettingsTab.CONTINUE_WATCHING -> {
                         SettingsSectionTitle(
                             text = stringResource(

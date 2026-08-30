@@ -46,6 +46,8 @@
     <string name="settings_mobile_poster_quality">Poster quality</string>
     <string name="settings_show_top_title_year">Show title year in Top</string>
     <string name="settings_show_top_title_year_enabled">Year is shown on Top title cards</string>
+    <string name="settings_show_library_title_year">Show title year in Library</string>
+    <string name="settings_show_library_title_year_enabled">Year is shown on Library title cards</string>
     <string name="settings_mobile_default_player">Default player</string>
     <string name="settings_player_orientation_title">Player orientation</string>
     <string name="settings_player_orientation_system">System</string>

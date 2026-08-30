@@ -3,9 +3,9 @@ package su.afk.yummy.tv.feature.details.details.handler
 import kotlinx.coroutines.flow.Flow
 import su.afk.yummy.tv.core.model.anime.AnimeDetails
 import su.afk.yummy.tv.core.model.anime.AnimeWatchProgress
-import su.afk.yummy.tv.core.preferences.settings.SettingsStore
 import su.afk.yummy.tv.core.model.settings.DetailsButtonAction
 import su.afk.yummy.tv.core.model.settings.PreferredPlayer
+import su.afk.yummy.tv.core.preferences.settings.SettingsStore
 import su.afk.yummy.tv.core.utils.coroutines.runSuspendCatching
 import su.afk.yummy.tv.domain.account.model.AccountSession
 import su.afk.yummy.tv.domain.account.usecase.ObserveAccountSessionUseCase
@@ -48,7 +48,8 @@ class DetailsScreenDataHandler @Inject constructor(
         animeId: Int,
         title: String,
         poster: LibraryPoster?,
+        year: Int?,
     ) {
-        refreshLibraryMetadata.invoke(animeId, title, poster)
+        refreshLibraryMetadata.invoke(animeId, title, poster, year)
     }
 }

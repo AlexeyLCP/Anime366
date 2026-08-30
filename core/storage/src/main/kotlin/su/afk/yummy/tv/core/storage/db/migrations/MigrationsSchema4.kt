@@ -176,3 +176,13 @@ internal val MIGRATION_47_48 = object : Migration(47, 48) {
         db.execSQL("ALTER TABLE video_downloads ADD COLUMN cacheKeyScheme INTEGER NOT NULL DEFAULT 0")
     }
 }
+
+/**
+ * Год выхода тайтла в библиотеке. Приходит вместе со списками пользователя и из деталей, поэтому
+ * старые записи заполняются сами при ближайшей синхронизации — разовый бэкфилл не нужен.
+ */
+internal val MIGRATION_48_49 = object : Migration(48, 49) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("ALTER TABLE library ADD COLUMN year INTEGER")
+    }
+}

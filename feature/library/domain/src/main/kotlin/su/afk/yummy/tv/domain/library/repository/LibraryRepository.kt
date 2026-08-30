@@ -16,6 +16,7 @@ interface LibraryRepository {
         animeId: Int,
         title: String,
         poster: LibraryPoster?,
+        year: Int?,
         favorite: Boolean,
     )
 
@@ -23,6 +24,7 @@ interface LibraryRepository {
         animeId: Int,
         title: String,
         poster: LibraryPoster?,
+        year: Int?,
     )
 
     suspend fun hasSyncState(userId: Int): Boolean

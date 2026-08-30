@@ -6,6 +6,7 @@ data class SettingsSnapshot(
     val posterQuality: PosterQuality,
     val posterCardSize: PosterCardSize,
     val showTopTitleYear: Boolean,
+    val showLibraryTitleYear: Boolean,
     val libraryContinueWatchingCardSize: LibraryContinueWatchingCardSize,
     val preferredPlayer: PreferredPlayer,
     val preferredVideoQuality: PreferredVideoQuality,

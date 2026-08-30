@@ -12,5 +12,6 @@ class RefreshLibraryMetadataUseCase @Inject constructor(
         animeId: Int,
         title: String,
         poster: LibraryPoster?,
-    ) = repository.refreshMetadata(animeId, title, poster)
+        year: Int?,
+    ) = repository.refreshMetadata(animeId, title, poster, year)
 }

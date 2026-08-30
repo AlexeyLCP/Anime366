@@ -33,6 +33,7 @@ fun MobileTitleListCard(
     dateText: String?,
     rating: Double?,
     modifier: Modifier = Modifier,
+    posterOverlay: @Composable BoxScope.() -> Unit = {},
     contentOverlay: @Composable BoxScope.() -> Unit = {},
     onClick: () -> Unit,
 ) {
@@ -45,15 +46,21 @@ fun MobileTitleListCard(
             .clickable(onClick = onClick),
         verticalAlignment = Alignment.Top,
     ) {
-        AsyncImage(
-            model = posterUrl,
-            contentDescription = null,
-            contentScale = ContentScale.Crop,
+        Box(
             modifier = Modifier
                 .width(82.dp)
-                .fillMaxHeight()
-                .background(MaterialTheme.colorScheme.surfaceVariant),
-        )
+                .fillMaxHeight(),
+        ) {
+            AsyncImage(
+                model = posterUrl,
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.surfaceVariant),
+            )
+            posterOverlay()
+        }
         Box(
             modifier = Modifier
                 .weight(1f)

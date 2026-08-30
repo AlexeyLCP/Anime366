@@ -374,6 +374,7 @@ class DetailsViewModel @AssistedInject internal constructor(
                     animeId = details.id,
                     title = details.title,
                     poster = details.poster?.toLibraryPoster(),
+                    year = details.year,
                 )
             },
             onFailure = { e ->

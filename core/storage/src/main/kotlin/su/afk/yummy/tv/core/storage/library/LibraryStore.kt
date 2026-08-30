@@ -16,6 +16,7 @@ internal class LibraryStore(private val dao: LibraryDao) : LibraryStorage {
         animeId: Int,
         title: String,
         poster: LibraryPoster?,
+        year: Int?,
     ) {
         val entry = dao.getByAnimeId(animeId) ?: return
         dao.add(
@@ -26,6 +27,7 @@ internal class LibraryStore(private val dao: LibraryDao) : LibraryStorage {
                 posterBigUrl = poster?.big ?: entry.posterBigUrl,
                 posterFullsizeUrl = poster?.fullsize ?: entry.posterFullsizeUrl,
                 posterMegaUrl = poster?.mega ?: entry.posterMegaUrl,
+                year = year ?: entry.year,
             )
         )
     }
@@ -50,6 +52,7 @@ internal class LibraryStore(private val dao: LibraryDao) : LibraryStorage {
         animeId: Int,
         title: String,
         poster: LibraryPoster?,
+        year: Int?,
         favorite: Boolean,
     ) {
         val entry = dao.getByAnimeId(animeId)
@@ -62,6 +65,7 @@ internal class LibraryStore(private val dao: LibraryDao) : LibraryStorage {
                     posterBigUrl = poster?.big ?: entry.posterBigUrl,
                     posterFullsizeUrl = poster?.fullsize ?: entry.posterFullsizeUrl,
                     posterMegaUrl = poster?.mega ?: entry.posterMegaUrl,
+                    year = year ?: entry.year,
                     isFavorite = true,
                     favoriteUpdatedAt = System.currentTimeMillis(),
                 ) ?: LibraryEntry(
@@ -72,6 +76,7 @@ internal class LibraryStore(private val dao: LibraryDao) : LibraryStorage {
                     posterBigUrl = poster?.big,
                     posterFullsizeUrl = poster?.fullsize,
                     posterMegaUrl = poster?.mega,
+                    year = year,
                     listId = FAVORITE_ONLY_LIST_ID,
                     isFavorite = true,
                 )

@@ -49,6 +49,7 @@ class SettingsViewModel @Inject internal constructor(
                         posterQuality = snapshot.posterQuality,
                         posterCardSize = snapshot.posterCardSize,
                         showTopTitleYear = snapshot.showTopTitleYear,
+                        showLibraryTitleYear = snapshot.showLibraryTitleYear,
                         libraryContinueWatchingCardSize = snapshot.libraryContinueWatchingCardSize,
                         preferredPlayer = snapshot.preferredPlayer,
                         preferredVideoQuality = snapshot.preferredVideoQuality,
@@ -152,6 +153,12 @@ class SettingsViewModel @Inject internal constructor(
                 val enabled = !currentState.showTopTitleYear
                 analytics.eventShowTopTitleYearToggled(enabled)
                 settingsStore.setShowTopTitleYear(enabled)
+            }
+
+            SettingsState.Event.ShowLibraryTitleYearToggled -> viewModelScope.launch {
+                val enabled = !currentState.showLibraryTitleYear
+                analytics.eventShowLibraryTitleYearToggled(enabled)
+                settingsStore.setShowLibraryTitleYear(enabled)
             }
 
             is SettingsState.Event.LibraryContinueWatchingCardSizeSelected ->

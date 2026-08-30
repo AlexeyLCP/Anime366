@@ -12,6 +12,7 @@ class SetLibraryFavoriteUseCase @Inject constructor(
         animeId: Int,
         title: String,
         poster: LibraryPoster?,
+        year: Int?,
         favorite: Boolean,
-    ) = repository.setFavorite(animeId, title, poster, favorite)
+    ) = repository.setFavorite(animeId, title, poster, year, favorite)
 }

@@ -92,6 +92,7 @@ internal class DetailsLibraryHandler @Inject constructor(
             animeId = details.id,
             title = details.title,
             poster = details.poster?.toLibraryPoster(),
+            year = details.year,
             favorite = favorite,
         )
         if (!isSignedIn) return DetailsLibraryMutationResult.Success
@@ -103,6 +104,7 @@ internal class DetailsLibraryHandler @Inject constructor(
             animeId = details.id,
             title = details.title,
             poster = details.poster?.toLibraryPoster(),
+            year = details.year,
             favorite = previousFavorite,
         )
         return DetailsLibraryMutationResult.RollbackFavorite(previousFavorite)

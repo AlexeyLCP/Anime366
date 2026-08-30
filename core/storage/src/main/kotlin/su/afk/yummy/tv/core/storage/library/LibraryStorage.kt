@@ -23,6 +23,7 @@ interface LibraryStorage {
         animeId: Int,
         title: String,
         poster: LibraryPoster?,
+        year: Int?,
     )
 
     suspend fun remove(animeId: Int)
@@ -33,6 +34,7 @@ interface LibraryStorage {
         animeId: Int,
         title: String,
         poster: LibraryPoster?,
+        year: Int?,
         favorite: Boolean,
     )
 }

@@ -44,12 +44,14 @@ class DefaultLibraryRepository(
         animeId: Int,
         title: String,
         poster: LibraryPoster?,
+        year: Int?,
         favorite: Boolean,
     ) {
         store.setFavorite(
             animeId = animeId,
             title = title,
             poster = poster.toStoragePoster(),
+            year = year,
             favorite = favorite,
         )
     }
@@ -58,11 +60,13 @@ class DefaultLibraryRepository(
         animeId: Int,
         title: String,
         poster: LibraryPoster?,
+        year: Int?,
     ) {
         store.refreshMetadata(
             animeId = animeId,
             title = title,
             poster = poster.toStoragePoster(),
+            year = year,
         )
     }
 

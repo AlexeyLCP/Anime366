@@ -45,4 +45,5 @@ internal fun AnimeDetails.toLibraryItem(
     poster = poster?.toLibraryPoster(),
     listId = list.id,
     isFavorite = isFavorite,
+    year = year,
 )

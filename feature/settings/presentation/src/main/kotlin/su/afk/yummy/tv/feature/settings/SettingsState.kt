@@ -34,6 +34,7 @@ class SettingsState {
         val posterQuality: PosterQuality = PosterQuality.STANDARD,
         val posterCardSize: PosterCardSize = PosterCardSize.STANDARD,
         val showTopTitleYear: Boolean = false,
+        val showLibraryTitleYear: Boolean = false,
         val libraryContinueWatchingCardSize: LibraryContinueWatchingCardSize =
             LibraryContinueWatchingCardSize.LARGE,
         val preferredPlayer: PreferredPlayer = PreferredPlayer.NONE,
@@ -93,6 +94,9 @@ class SettingsState {
 
         /** Пользователь переключил отображение года у тайтлов в топе. */
         data object ShowTopTitleYearToggled : Event
+
+        /** Пользователь переключил отображение года у тайтлов в библиотеке. */
+        data object ShowLibraryTitleYearToggled : Event
 
         /** Пользователь выбрал размер карточек продолжения просмотра в библиотеке. */
         data class LibraryContinueWatchingCardSizeSelected(

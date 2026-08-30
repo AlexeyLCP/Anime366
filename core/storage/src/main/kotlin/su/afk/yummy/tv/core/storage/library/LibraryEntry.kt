@@ -26,6 +26,7 @@ data class LibraryEntry(
     val listUpdatedAt: Long = addedAt,
     val favoriteUpdatedAt: Long = if (isFavorite) addedAt else 0L,
     val userRating: Int? = null,
+    val year: Int? = null,
 )
 
 data class LibraryPoster(

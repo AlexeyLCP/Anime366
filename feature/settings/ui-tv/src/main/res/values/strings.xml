@@ -19,6 +19,7 @@
     <string name="settings_tab_player_quality">Video quality</string>
     <string name="settings_tab_player_source">Preferred player</string>
     <string name="settings_tab_top_title_year">Title year</string>
+    <string name="settings_tab_library_title_year">Library year</string>
     <string name="settings_tab_account">Account</string>
     <string name="settings_account_sign_in_short">Sign in</string>
     <string name="settings_tab_cache">Cache</string>
@@ -51,6 +52,8 @@
     <string name="settings_poster_quality_title">Poster image quality</string>
     <string name="settings_show_top_title_year">Show title year in Top</string>
     <string name="settings_show_top_title_year_enabled">Year is shown on Top title cards</string>
+    <string name="settings_show_library_title_year">Show title year in Library</string>
+    <string name="settings_show_library_title_year_enabled">Year is shown on Library title cards</string>
     <string name="settings_poster_cache_size_title">Image cache size on device</string>
     <string name="settings_details_buttons_reset">Reset button order</string>
     <string name="settings_details_buttons_reset_hint">Restore the default details screen layout</string>

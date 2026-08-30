@@ -36,6 +36,7 @@ import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.preferre
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.preferredVideoQualityKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.previewCacheSizeKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.refreshContinueWatchingProgressOnLaunchKey
+import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.showLibraryTitleYearKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.showOpeningOnTimelineKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.showTopTitleYearKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.suggestNextEpisodeOnWatchedKey
@@ -85,6 +86,7 @@ internal class DataStoreSettingsStore @Inject constructor(
             posterQuality = prefs.enum(posterQualityKey, defaultPosterQuality),
             posterCardSize = prefs.enum(posterCardSizeKey, PosterCardSize.STANDARD),
             showTopTitleYear = prefs[showTopTitleYearKey] ?: false,
+            showLibraryTitleYear = prefs[showLibraryTitleYearKey] ?: false,
             libraryContinueWatchingCardSize = prefs.enum(
                 libraryContinueWatchingCardSizeKey,
                 LibraryContinueWatchingCardSize.LARGE,

@@ -256,6 +256,14 @@ internal class SettingsAnalytics @Inject constructor(
         )
     }
 
+    /** Пользователь включил или выключил отображение года у тайтлов в библиотеке. */
+    fun eventShowLibraryTitleYearToggled(enabled: Boolean) {
+        tracker.track(
+            EVENT_SHOW_LIBRARY_TITLE_YEAR_TOGGLED,
+            analyticsParamsOf(PARAM_TARGET_STATE to enabled),
+        )
+    }
+
     /**
      * Пользователь включил или выключил предложение следующей серии после завершения текущей.
      *
@@ -349,6 +357,8 @@ internal class SettingsAnalytics @Inject constructor(
         const val EVENT_SCREEN_OPENED = "settings_screen"
         const val EVENT_SHOW_TOP_TITLE_YEAR_TOGGLED =
             "settings_show_top_title_year_toggled"
+        const val EVENT_SHOW_LIBRARY_TITLE_YEAR_TOGGLED =
+            "settings_show_library_title_year_toggled"
         const val EVENT_DETAILS_BUTTON_ORDER_SCREEN_OPENED =
             "settings_details_button_order_screen"
         const val EVENT_LIBRARY_CONTINUE_WATCHING_CARD_SIZE_SELECTED =

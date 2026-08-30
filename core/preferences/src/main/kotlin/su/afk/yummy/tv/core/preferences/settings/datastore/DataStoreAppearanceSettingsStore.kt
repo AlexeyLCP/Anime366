@@ -16,6 +16,7 @@ import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.detailsB
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.libraryContinueWatchingCardSizeKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.posterCardSizeKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.posterQualityKey
+import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.showLibraryTitleYearKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.showTopTitleYearKey
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -32,6 +33,9 @@ internal class DataStoreAppearanceSettingsStore @Inject constructor(
         store.enumFlow(posterCardSizeKey, PosterCardSize.STANDARD)
 
     override val showTopTitleYear: Flow<Boolean> = store.boolean(showTopTitleYearKey, false)
+
+    override val showLibraryTitleYear: Flow<Boolean> =
+        store.boolean(showLibraryTitleYearKey, false)
 
     override val libraryContinueWatchingCardSize: Flow<LibraryContinueWatchingCardSize> =
         store.enumFlow(libraryContinueWatchingCardSizeKey, LibraryContinueWatchingCardSize.LARGE)
@@ -52,6 +56,9 @@ internal class DataStoreAppearanceSettingsStore @Inject constructor(
 
     override suspend fun setShowTopTitleYear(enabled: Boolean) =
         store.setBoolean(showTopTitleYearKey, enabled)
+
+    override suspend fun setShowLibraryTitleYear(enabled: Boolean) =
+        store.setBoolean(showLibraryTitleYearKey, enabled)
 
     override suspend fun setLibraryContinueWatchingCardSize(size: LibraryContinueWatchingCardSize) =
         store.setEnum(libraryContinueWatchingCardSizeKey, size)

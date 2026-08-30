@@ -208,6 +208,7 @@ fun LibraryTvScreen(
                         focusStateKey = LibraryTab.FAVORITES.focusStateKey(
                             LibraryFocusSourceLocal
                         ),
+                        showTitleYear = state.showTitleYear,
                         onAnimeSelected = {
                             restoreGridFocusOnResume = true
                             onEvent(LibraryState.Event.AnimeSelected(it))
@@ -235,6 +236,7 @@ fun LibraryTvScreen(
                         gridFocusRequester = gridFocusRequester,
                         selectedTabFocusRequester = selectedTabFocusRequester,
                         focusStateKey = state.selectedTab.focusStateKey(LibraryFocusSourceLocal),
+                        showTitleYear = state.showTitleYear,
                         onAnimeSelected = {
                             restoreGridFocusOnResume = true
                             onEvent(LibraryState.Event.AnimeSelected(it))

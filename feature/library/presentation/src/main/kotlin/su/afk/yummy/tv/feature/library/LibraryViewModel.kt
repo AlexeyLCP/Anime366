@@ -9,10 +9,10 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import su.afk.yummy.tv.core.mvi.BaseViewModel
 import su.afk.yummy.tv.core.error.api.ErrorHandler
 import su.afk.yummy.tv.core.error.api.RetryStorage
 import su.afk.yummy.tv.core.error.api.StringProvider
+import su.afk.yummy.tv.core.mvi.BaseViewModel
 import su.afk.yummy.tv.core.navigation.manager.INavigationManager
 import su.afk.yummy.tv.core.preferences.settings.SettingsStore
 import su.afk.yummy.tv.core.utils.episode.episodeGroupKey
@@ -120,6 +120,11 @@ class LibraryViewModel @Inject internal constructor(
         settingsStore.libraryContinueWatchingCardSize
             .onEach { size ->
                 setState { copy(continueWatchingCardSize = size) }
+            }
+            .launchIn(viewModelScope)
+        settingsStore.showLibraryTitleYear
+            .onEach { enabled ->
+                setState { copy(showTitleYear = enabled) }
             }
             .launchIn(viewModelScope)
     }
@@ -277,6 +282,7 @@ class LibraryViewModel @Inject internal constructor(
                 event.animeId,
                 title = "",
                 poster = null,
+                year = null,
                 favorite = false,
             )
         }
