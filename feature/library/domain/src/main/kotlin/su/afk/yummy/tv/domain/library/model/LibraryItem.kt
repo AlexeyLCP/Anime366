@@ -13,6 +13,8 @@ data class LibraryItem(
     val favoriteUpdatedAt: Long = if (isFavorite) addedAt else 0L,
     val userRating: Int? = null,
     val year: Int? = null,
+    /** Общий рейтинг тайтла, приходит вместе со списками пользователя. */
+    val rating: Double? = null,
     /** Дата выхода следующей серии, epoch-секунды. */
     val nextEpisodeAtSeconds: Long? = null,
 )

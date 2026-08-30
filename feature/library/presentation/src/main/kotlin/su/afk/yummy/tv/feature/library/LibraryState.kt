@@ -10,6 +10,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import su.afk.yummy.tv.core.model.anime.AnimeWatchProgress
 import su.afk.yummy.tv.core.model.settings.LibraryContinueWatchingCardSize
+import su.afk.yummy.tv.core.model.settings.LibrarySort
+import su.afk.yummy.tv.core.model.settings.LibrarySortDirection
 import su.afk.yummy.tv.core.mvi.UiEffect
 import su.afk.yummy.tv.core.mvi.UiEvent
 import su.afk.yummy.tv.core.mvi.UiState
@@ -34,6 +36,8 @@ class LibraryState {
         val continueWatchingCardSize: LibraryContinueWatchingCardSize =
             LibraryContinueWatchingCardSize.LARGE,
         val showTitleYear: Boolean = false,
+        val sort: LibrarySort = LibrarySort.ADDED_DATE,
+        val sortDirection: LibrarySortDirection = LibrarySortDirection.DESC,
     ) : UiState
 
     /** Пользовательские действия на экране библиотеки. */
@@ -53,6 +57,12 @@ class LibraryState {
 
         /** Пользователь выбрал вкладку библиотеки. */
         data class TabSelected(val tab: LibraryTab) : Event
+
+        /** Пользователь выбрал поле сортировки списков библиотеки. */
+        data class SortSelected(val sort: LibrarySort) : Event
+
+        /** Пользователь развернул порядок сортировки. */
+        data object SortDirectionToggled : Event
 
         /** Экран снова стал активным для пользователя. */
         data object ScreenResumed : Event

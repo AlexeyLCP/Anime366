@@ -24,6 +24,13 @@
     <string name="library_mobile_remove_success">Removed</string>
     <string name="library_mobile_details_content_description">Open details</string>
     <string name="library_mobile_remove_content_description">Remove</string>
+    <string name="library_mobile_sort_label">Sort: %1$s</string>
+    <string name="library_mobile_sort_added_date">by date added</string>
+    <string name="library_mobile_sort_year">by year</string>
+    <string name="library_mobile_sort_rating">by rating</string>
+    <string name="library_mobile_sort_user_rating">by my score</string>
+    <string name="library_mobile_sort_title">by title</string>
+    <string name="library_mobile_sort_direction_content_description">Reverse sort order</string>
     <plurals name="library_mobile_release_in_days">
         <item quantity="one">Next episode in %1$d day</item>
         <item quantity="other">Next episode in %1$d days</item>

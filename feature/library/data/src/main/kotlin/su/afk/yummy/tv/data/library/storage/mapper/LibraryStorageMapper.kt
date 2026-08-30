@@ -23,6 +23,7 @@ internal fun LibraryEntry.toLibraryItem(): LibraryItem =
         favoriteUpdatedAt = favoriteUpdatedAt,
         userRating = userRating,
         year = year,
+        rating = rating,
         nextEpisodeAtSeconds = nextEpisodeAtSeconds,
     )
 
@@ -42,6 +43,7 @@ internal fun LibraryItem.toLibraryEntry(): LibraryEntry =
         favoriteUpdatedAt = favoriteUpdatedAt,
         userRating = userRating,
         year = year,
+        rating = rating,
         nextEpisodeAtSeconds = nextEpisodeAtSeconds,
     )
 

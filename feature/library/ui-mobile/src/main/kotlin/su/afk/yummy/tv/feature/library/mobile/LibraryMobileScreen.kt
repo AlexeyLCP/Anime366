@@ -38,7 +38,9 @@ import su.afk.yummy.tv.feature.library.mobile.utils.toLibraryMobilePage
 import su.afk.yummy.tv.feature.library.mobile.utils.toLibraryMobileTab
 import su.afk.yummy.tv.feature.library.mobile.view.LibraryMobilePage
 import su.afk.yummy.tv.feature.library.mobile.view.LibraryMobileRemoveConfirmDialog
+import su.afk.yummy.tv.feature.library.mobile.view.LibraryMobileSortRow
 import su.afk.yummy.tv.feature.library.mobile.view.LibraryMobileTabs
+import su.afk.yummy.tv.feature.library.model.LibraryTab
 
 @Preview(name = "Default", device = "spec:width=412dp,height=915dp,dpi=420", showBackground = true)
 @Composable
@@ -145,6 +147,20 @@ fun LibraryMobileScreen(
                     .padding(start = 16.dp, top = 12.dp, end = 16.dp),
             )
 
+            if (pagerState.currentPage.toLibraryMobileTab().hasLibrarySort()) {
+                LibraryMobileSortRow(
+                    sort = state.sort,
+                    direction = state.sortDirection,
+                    onSortSelected = { onEvent(LibraryState.Event.SortSelected(it)) },
+                    onDirectionToggled = {
+                        onEvent(LibraryState.Event.SortDirectionToggled)
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 16.dp, top = 8.dp, end = 16.dp),
+                )
+            }
+
             HorizontalPager(
                 state = pagerState,
                 key = { page -> page.toLibraryMobileTab() },
@@ -162,3 +178,7 @@ fun LibraryMobileScreen(
         }
     }
 }
+
+/** Сортировка доступна только на вкладках-списках: у «Продолжить» и «Истории» свой порядок. */
+private fun LibraryTab.hasLibrarySort(): Boolean =
+    this != LibraryTab.CONTINUE_WATCHING && this != LibraryTab.HISTORY

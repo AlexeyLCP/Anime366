@@ -3,6 +3,7 @@ package su.afk.yummy.tv.feature.library.mobile.utils
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import su.afk.yummy.tv.core.model.settings.LibrarySort
 import su.afk.yummy.tv.core.utils.episode.EpisodeReleaseCountdown
 import su.afk.yummy.tv.core.utils.episode.releaseCountdown
 import su.afk.yummy.tv.core.utils.formatting.formatRelativeDateTime
@@ -25,6 +26,15 @@ internal fun LibraryTab.mobileTitle(): String = when (this) {
     LibraryTab.COMPLETED -> stringResource(R.string.library_mobile_tab_completed)
     LibraryTab.POSTPONED -> stringResource(R.string.library_mobile_tab_postponed)
     LibraryTab.DROPPED -> stringResource(R.string.library_mobile_tab_dropped)
+}
+
+@Composable
+internal fun LibrarySort.mobileLabel(): String = when (this) {
+    LibrarySort.ADDED_DATE -> stringResource(R.string.library_mobile_sort_added_date)
+    LibrarySort.YEAR -> stringResource(R.string.library_mobile_sort_year)
+    LibrarySort.RATING -> stringResource(R.string.library_mobile_sort_rating)
+    LibrarySort.USER_RATING -> stringResource(R.string.library_mobile_sort_user_rating)
+    LibrarySort.TITLE -> stringResource(R.string.library_mobile_sort_title)
 }
 
 @Composable

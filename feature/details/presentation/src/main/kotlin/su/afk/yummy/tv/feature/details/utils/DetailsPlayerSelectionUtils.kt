@@ -46,4 +46,5 @@ internal fun AnimeDetails.toLibraryItem(
     listId = list.id,
     isFavorite = isFavorite,
     year = year,
+    rating = rating.average,
 )

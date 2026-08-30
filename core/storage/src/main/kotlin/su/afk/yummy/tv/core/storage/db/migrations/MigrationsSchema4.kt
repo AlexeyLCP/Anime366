@@ -199,3 +199,13 @@ internal val MIGRATION_49_50 = object : Migration(49, 50) {
         db.execSQL("ALTER TABLE library ADD COLUMN nextEpisodeAtSeconds INTEGER")
     }
 }
+
+/**
+ * Общий рейтинг тайтла в библиотеке — нужен для сортировки списков. Приходит вместе со списками
+ * пользователя, поэтому старые записи заполняются сами при ближайшей синхронизации.
+ */
+internal val MIGRATION_50_51 = object : Migration(50, 51) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("ALTER TABLE library ADD COLUMN rating REAL")
+    }
+}

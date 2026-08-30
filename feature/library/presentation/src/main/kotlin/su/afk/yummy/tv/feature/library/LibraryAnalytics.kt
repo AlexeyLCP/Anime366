@@ -3,6 +3,8 @@ package su.afk.yummy.tv.feature.library
 import su.afk.yummy.tv.core.analytics.api.AnalyticsTracker
 import su.afk.yummy.tv.core.analytics.utils.analyticsParamsOf
 import su.afk.yummy.tv.core.analytics.utils.analyticsType
+import su.afk.yummy.tv.core.model.settings.LibrarySort
+import su.afk.yummy.tv.core.model.settings.LibrarySortDirection
 import su.afk.yummy.tv.domain.account.model.UserAnimeList
 import su.afk.yummy.tv.domain.home.model.HomeContinueWatchingItem
 import su.afk.yummy.tv.feature.library.model.LibraryRemoveTarget
@@ -74,6 +76,21 @@ internal class LibraryAnalytics @Inject constructor(
     }
 
     /**
+     * Пользователь сменил сортировку списков библиотеки.
+     *
+     * Параметры: sort, direction.
+     */
+    fun eventSortSelected(sort: LibrarySort, direction: LibrarySortDirection) {
+        tracker.track(
+            EVENT_SORT_SELECTED,
+            analyticsParamsOf(
+                PARAM_SORT to sort.analyticsValue(),
+                PARAM_SORT_DIRECTION to direction.analyticsValue(),
+            ),
+        )
+    }
+
+    /**
      * Пользователь повторил загрузку удаленных списков библиотеки.
      */
     fun eventRetry() {
@@ -140,11 +157,17 @@ internal class LibraryAnalytics @Inject constructor(
 
     private fun LibraryRemoveTarget.analyticsValue(): String = name.lowercase()
 
+    private fun LibrarySort.analyticsValue(): String = name.lowercase()
+
+    private fun LibrarySortDirection.analyticsValue(): String = name.lowercase()
+
 
     internal companion object {
         private const val PARAM_ANIME_ID = "anime_id"
         private const val PARAM_LIST = "list"
         private const val PARAM_REMOTE = "remote"
+        private const val PARAM_SORT = "sort"
+        private const val PARAM_SORT_DIRECTION = "direction"
         private const val PARAM_TAB = "tab"
         private const val PARAM_TARGET = "target"
         private const val PARAM_VIDEO_ID = "video_id"
@@ -157,6 +180,7 @@ internal class LibraryAnalytics @Inject constructor(
         const val EVENT_CONTINUE_WATCHING_DETAILS_SELECTED =
             "library_continue_watching_details_selected"
         const val EVENT_TAB_SELECTED = "library_tab_selected"
+        const val EVENT_SORT_SELECTED = "library_sort_selected"
         const val EVENT_RETRY = "library_retry"
         const val EVENT_REMOVE_ENTRY = "library_remove_entry"
         const val EVENT_REMOVE_WATCH_PROGRESS = "library_remove_watch_progress"

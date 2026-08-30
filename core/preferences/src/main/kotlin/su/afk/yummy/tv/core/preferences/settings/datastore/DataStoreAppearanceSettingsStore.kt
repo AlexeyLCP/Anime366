@@ -7,6 +7,8 @@ import su.afk.yummy.tv.core.model.settings.AppTheme
 import su.afk.yummy.tv.core.model.settings.BackgroundStyle
 import su.afk.yummy.tv.core.model.settings.DetailsButtonAction
 import su.afk.yummy.tv.core.model.settings.LibraryContinueWatchingCardSize
+import su.afk.yummy.tv.core.model.settings.LibrarySort
+import su.afk.yummy.tv.core.model.settings.LibrarySortDirection
 import su.afk.yummy.tv.core.model.settings.PosterCardSize
 import su.afk.yummy.tv.core.model.settings.PosterQuality
 import su.afk.yummy.tv.core.preferences.settings.AppearanceSettingsStore
@@ -14,6 +16,8 @@ import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.appTheme
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.backgroundStyleKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.detailsButtonOrderKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.libraryContinueWatchingCardSizeKey
+import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.librarySortDirectionKey
+import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.librarySortKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.posterCardSizeKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.posterQualityKey
 import su.afk.yummy.tv.core.preferences.settings.SettingsPreferenceKeys.showLibraryTitleYearKey
@@ -40,6 +44,12 @@ internal class DataStoreAppearanceSettingsStore @Inject constructor(
     override val libraryContinueWatchingCardSize: Flow<LibraryContinueWatchingCardSize> =
         store.enumFlow(libraryContinueWatchingCardSizeKey, LibraryContinueWatchingCardSize.LARGE)
 
+    override val librarySort: Flow<LibrarySort> =
+        store.enumFlow(librarySortKey, LibrarySort.ADDED_DATE)
+
+    override val librarySortDirection: Flow<LibrarySortDirection> =
+        store.enumFlow(librarySortDirectionKey, LibrarySortDirection.DESC)
+
     override val appTheme: Flow<AppTheme> = store.enumFlow(appThemeKey, AppTheme.WARM_AMBER)
 
     override val backgroundStyle: Flow<BackgroundStyle> =
@@ -62,6 +72,12 @@ internal class DataStoreAppearanceSettingsStore @Inject constructor(
 
     override suspend fun setLibraryContinueWatchingCardSize(size: LibraryContinueWatchingCardSize) =
         store.setEnum(libraryContinueWatchingCardSizeKey, size)
+
+    override suspend fun setLibrarySort(sort: LibrarySort) =
+        store.setEnum(librarySortKey, sort)
+
+    override suspend fun setLibrarySortDirection(direction: LibrarySortDirection) =
+        store.setEnum(librarySortDirectionKey, direction)
 
     override suspend fun setAppTheme(theme: AppTheme) = store.setEnum(appThemeKey, theme)
 

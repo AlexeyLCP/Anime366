@@ -24,6 +24,13 @@
     <string name="library_mobile_remove_success">Удалено</string>
     <string name="library_mobile_details_content_description">Открыть детали</string>
     <string name="library_mobile_remove_content_description">Удалить</string>
+    <string name="library_mobile_sort_label">Сортировка: %1$s</string>
+    <string name="library_mobile_sort_added_date">по дате добавления</string>
+    <string name="library_mobile_sort_year">по году</string>
+    <string name="library_mobile_sort_rating">по рейтингу</string>
+    <string name="library_mobile_sort_user_rating">по моей оценке</string>
+    <string name="library_mobile_sort_title">по названию</string>
+    <string name="library_mobile_sort_direction_content_description">Развернуть порядок</string>
     <plurals name="library_mobile_release_in_days">
         <item quantity="one">До выхода серии %1$d день</item>
         <item quantity="few">До выхода серии %1$d дня</item>

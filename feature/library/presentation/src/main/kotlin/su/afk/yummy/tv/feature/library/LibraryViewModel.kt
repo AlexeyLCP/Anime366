@@ -12,6 +12,7 @@ import kotlinx.coroutines.launch
 import su.afk.yummy.tv.core.error.api.ErrorHandler
 import su.afk.yummy.tv.core.error.api.RetryStorage
 import su.afk.yummy.tv.core.error.api.StringProvider
+import su.afk.yummy.tv.core.model.settings.LibrarySortDirection
 import su.afk.yummy.tv.core.mvi.BaseViewModel
 import su.afk.yummy.tv.core.navigation.manager.INavigationManager
 import su.afk.yummy.tv.core.preferences.settings.SettingsStore
@@ -86,7 +87,7 @@ class LibraryViewModel @Inject internal constructor(
                 setState {
                     copy(
                         items = entries.toImmutableList(),
-                        tabItems = buildLibraryTabItems(entries),
+                        tabItems = buildLibraryTabItems(entries, sort, sortDirection),
                     )
                 }
             }
@@ -127,6 +128,26 @@ class LibraryViewModel @Inject internal constructor(
                 setState { copy(showTitleYear = enabled) }
             }
             .launchIn(viewModelScope)
+        settingsStore.librarySort
+            .onEach { sort ->
+                setState {
+                    copy(
+                        sort = sort,
+                        tabItems = buildLibraryTabItems(items, sort, sortDirection),
+                    )
+                }
+            }
+            .launchIn(viewModelScope)
+        settingsStore.librarySortDirection
+            .onEach { direction ->
+                setState {
+                    copy(
+                        sortDirection = direction,
+                        tabItems = buildLibraryTabItems(items, sort, direction),
+                    )
+                }
+            }
+            .launchIn(viewModelScope)
     }
 
     override fun onEvent(event: LibraryState.Event) {
@@ -159,6 +180,22 @@ class LibraryViewModel @Inject internal constructor(
                     setState { copy(selectedTab = event.tab) }
                     savedStateHandle[KEY_SELECTED_TAB] = event.tab.name
                 }
+            }
+
+            is LibraryState.Event.SortSelected -> {
+                if (event.sort != currentState.sort) {
+                    analytics.eventSortSelected(event.sort, currentState.sortDirection)
+                    viewModelScope.launch { settingsStore.setLibrarySort(event.sort) }
+                }
+            }
+
+            LibraryState.Event.SortDirectionToggled -> {
+                val direction = when (currentState.sortDirection) {
+                    LibrarySortDirection.DESC -> LibrarySortDirection.ASC
+                    LibrarySortDirection.ASC -> LibrarySortDirection.DESC
+                }
+                analytics.eventSortSelected(currentState.sort, direction)
+                viewModelScope.launch { settingsStore.setLibrarySortDirection(direction) }
             }
 
             LibraryState.Event.ScreenResumed -> {
