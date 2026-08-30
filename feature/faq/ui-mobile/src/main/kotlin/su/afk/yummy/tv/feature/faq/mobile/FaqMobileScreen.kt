@@ -50,11 +50,8 @@ fun FaqMobileScreen(
     val questions = listOf(
         R.string.faq_who_am_i_title to R.string.faq_who_am_i_answer,
         R.string.faq_why_this_app_title to R.string.faq_why_this_app_answer,
-        R.string.faq_why_not_all_cases_title to R.string.faq_why_not_all_cases_answer,
         R.string.faq_why_errors_title to R.string.faq_why_errors_answer,
         R.string.faq_missing_site_feature_title to R.string.faq_missing_site_feature_answer,
-        R.string.faq_unsupported_player_title to R.string.faq_unsupported_player_answer,
-        R.string.faq_external_player_title to R.string.faq_external_player_answer,
         R.string.faq_not_official_title to R.string.faq_not_official_answer,
         R.string.faq_why_feedback_title to R.string.faq_why_feedback_answer,
     )

@@ -182,7 +182,7 @@
     <string name="settings_content_language_ukrainian">Ukrainian</string>
     <string name="settings_yani_application_token_label">Anime365 mirror</string>
     <string name="settings_yani_application_token_placeholder">anime-365.ru</string>
-    <string name="settings_yani_application_token_hint">API host if the default is blocked: anime-365.ru, smotret-anime.org, smotret-anime.app, smotret-anime.net</string>
+    <string name="settings_yani_application_token_hint">Press to switch API and video mirror</string>
     <string name="settings_account_signed_in">Yani account</string>
     <string name="settings_account_signed_out">Sign in to Yani</string>
     <string name="settings_account_unknown_user">Signed in</string>

@@ -11,6 +11,7 @@ import su.afk.yummy.tv.core.mvi.BaseViewModel
 import su.afk.yummy.tv.core.navigation.manager.INavigationManager
 import su.afk.yummy.tv.core.preferences.interface_mode.AppInterfaceMode
 import su.afk.yummy.tv.core.preferences.interface_mode.AppInterfaceModePreferences
+import su.afk.yummy.tv.core.model.settings.DetailsButtonAction
 import su.afk.yummy.tv.core.preferences.settings.SettingsStore
 import su.afk.yummy.tv.core.tv.api.ITvIntegration
 import su.afk.yummy.tv.core.utils.system.CacheStorageInspector
@@ -72,7 +73,10 @@ class SettingsViewModel @Inject internal constructor(
                         videoExportAutoEnabled = snapshot.videoExportAutoEnabled,
                         yaniApplicationToken = snapshot.yaniApplicationToken,
                         contentLanguage = snapshot.contentLanguage,
-                        detailsButtonOrder = snapshot.detailsButtonOrder.toImmutableList(),
+                        detailsButtonOrder = snapshot.detailsButtonOrder
+                            .filter { it.isAvailableOnAnime365 }
+                            .ifEmpty { DetailsButtonAction.entries.filter { it.isAvailableOnAnime365 } }
+                            .toImmutableList(),
                     )
                 }
             }

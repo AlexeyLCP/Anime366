@@ -6,13 +6,11 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
+
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -230,12 +228,6 @@ fun SettingsMobileScreen(
 
             item {
                 SettingsMobileSection(title = stringResource(R.string.settings_mobile_section_player)) {
-                    SettingsMobileOptionRow(
-                        label = stringResource(R.string.settings_mobile_default_player),
-                        value = state.preferredPlayer.label(),
-                        hint = state.preferredPlayer.hint(),
-                        onClick = { activePicker = SettingsMobilePicker.PLAYER },
-                    )
                     val videoQualityIndex = videoQualitySliderEntries
                         .indexOf(state.preferredVideoQuality).coerceAtLeast(0)
                     SettingsMobileSliderRow(
@@ -504,15 +496,17 @@ fun SettingsMobileScreen(
 
             item {
                 SettingsMobileSection(title = stringResource(R.string.settings_mobile_section_api)) {
-                    OutlinedTextField(
-                        value = state.yaniApplicationToken,
-                        onValueChange = { onEvent(SettingsState.Event.YaniApplicationTokenChanged(it)) },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 14.dp),
-                        label = { Text(stringResource(R.string.settings_yani_application_token_label)) },
-                        placeholder = { Text(stringResource(R.string.settings_yani_application_token_placeholder)) },
-                        supportingText = { Text(stringResource(R.string.settings_yani_application_token_hint)) },
+                    SettingsMobileOptionRow(
+                        label = stringResource(R.string.settings_yani_application_token_label),
+                        value = state.yaniApplicationToken.ifBlank { "anime-365.ru" },
+                        hint = stringResource(R.string.settings_yani_application_token_hint),
+                        onClick = {
+                            onEvent(
+                                SettingsState.Event.YaniApplicationTokenChanged(
+                                    nextAnime365Mirror(state.yaniApplicationToken),
+                                ),
+                            )
+                        },
                     )
                     SettingsMobileOptionRow(
                         label = stringResource(R.string.settings_cache_storage_title),
@@ -757,4 +751,16 @@ fun SettingsMobileScreen(
             onDismiss = { pendingInterfaceMode = null },
         )
     }
+}
+
+private val ANIME365_MIRRORS = listOf(
+    "anime-365.ru",
+    "smotret-anime.org",
+    "smotret-anime.app",
+    "smotret-anime.net",
+)
+
+private fun nextAnime365Mirror(current: String): String {
+    val index = ANIME365_MIRRORS.indexOf(current.trim().lowercase()).let { if (it < 0) 0 else it }
+    return ANIME365_MIRRORS[(index + 1) % ANIME365_MIRRORS.size]
 }

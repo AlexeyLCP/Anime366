@@ -36,22 +36,7 @@ interface AppearanceSettingsStore {
     suspend fun setDetailsButtonOrder(order: List<DetailsButtonAction>)
 
     companion object {
-        val defaultDetailsButtonOrder: List<DetailsButtonAction> = listOf(
-            DetailsButtonAction.WATCH,
-            DetailsButtonAction.LIBRARY,
-            DetailsButtonAction.FAVORITE,
-            DetailsButtonAction.EPISODES,
-            DetailsButtonAction.FULL_DETAILS,
-            DetailsButtonAction.SUBSCRIPTIONS,
-            DetailsButtonAction.TRAILERS,
-            DetailsButtonAction.SIMILAR,
-            DetailsButtonAction.VIEWING_ORDER,
-            DetailsButtonAction.RATING,
-            DetailsButtonAction.COLLECTIONS,
-            DetailsButtonAction.COMMENTS,
-            DetailsButtonAction.REVIEWS,
-            DetailsButtonAction.BLOGGER_VIDEOS,
-            DetailsButtonAction.SCREENSHOTS,
-        )
+        val defaultDetailsButtonOrder: List<DetailsButtonAction> =
+            DetailsButtonAction.entries.filter { it.isAvailableOnAnime365 }
     }
 }

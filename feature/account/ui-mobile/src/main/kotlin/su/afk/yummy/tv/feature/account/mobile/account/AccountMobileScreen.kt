@@ -7,10 +7,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Language
-import androidx.compose.material.icons.filled.PersonSearch
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.VideoLibrary
 import androidx.compose.material.icons.filled.WatchLater
@@ -111,14 +108,6 @@ fun AccountMobileScreen(
                     )
                     add(
                         AccountMobileQuickAction(
-                            key = "site_pages",
-                            title = stringResource(R.string.account_site_pages),
-                            icon = Icons.Filled.Language,
-                            onClick = mainActions.onSitePagesClick,
-                        ),
-                    )
-                    add(
-                        AccountMobileQuickAction(
                             key = "settings",
                             title = stringResource(R.string.account_settings),
                             icon = Icons.Filled.Settings,
@@ -127,14 +116,6 @@ fun AccountMobileScreen(
                         ),
                     )
                 }
-                add(
-                    AccountMobileQuickAction(
-                        key = "user_search",
-                        title = stringResource(R.string.account_user_search),
-                        icon = Icons.Filled.PersonSearch,
-                        onClick = { onEvent(AccountState.Event.UserSearchSelected) },
-                    ),
-                )
                 add(
                     AccountMobileQuickAction(
                         key = "watch_later",
@@ -184,14 +165,6 @@ fun AccountMobileScreen(
                     )
                     add(
                         AccountMobileQuickAction(
-                            key = "site_pages",
-                            title = stringResource(R.string.account_site_pages),
-                            icon = Icons.Filled.Language,
-                            onClick = mainActions.onSitePagesClick,
-                        ),
-                    )
-                    add(
-                        AccountMobileQuickAction(
                             key = "settings",
                             title = stringResource(R.string.account_settings),
                             icon = Icons.Filled.Settings,
@@ -200,22 +173,6 @@ fun AccountMobileScreen(
                         ),
                     )
                 }
-                add(
-                    AccountMobileQuickAction(
-                        key = "user_search",
-                        title = stringResource(R.string.account_user_search),
-                        icon = Icons.Filled.PersonSearch,
-                        onClick = { onEvent(AccountState.Event.UserSearchSelected) },
-                    ),
-                )
-                add(
-                    AccountMobileQuickAction(
-                        key = "messages",
-                        title = stringResource(R.string.account_messages),
-                        icon = Icons.Filled.Email,
-                        onClick = { onEvent(AccountState.Event.MessagesSelected) },
-                    ),
-                )
                 add(
                     AccountMobileQuickAction(
                         key = "watch_later",

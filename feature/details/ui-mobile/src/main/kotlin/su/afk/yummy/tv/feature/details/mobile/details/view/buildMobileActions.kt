@@ -133,7 +133,9 @@ internal fun buildMobileActions(
             )
         }
     }
-    val byAction = availableActions.associateBy { it.action }
+    val byAction = availableActions
+        .filter { it.action.isAvailableOnAnime365 }
+        .associateBy { it.action }
     return state.detailsButtonOrder
         .filterNot { it == DetailsButtonAction.WATCH || it == DetailsButtonAction.LIBRARY || it == DetailsButtonAction.FAVORITE }
         .mapNotNull { byAction[it] } +

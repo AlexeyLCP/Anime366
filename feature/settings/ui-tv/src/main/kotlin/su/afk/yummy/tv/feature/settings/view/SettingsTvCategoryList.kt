@@ -24,7 +24,7 @@ internal fun SettingsTvCategoryList(
     onSelectedTabChanged: (SettingsTab) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val tabs = SettingsTab.entries
+    val tabs = SettingsTab.entries.filter { it != SettingsTab.PLAYER_SOURCE }
 
     Column(
         modifier = modifier

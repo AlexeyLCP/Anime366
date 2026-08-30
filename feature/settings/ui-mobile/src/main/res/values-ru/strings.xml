@@ -168,7 +168,7 @@
     <string name="settings_content_language_ukrainian">Украинский</string>
     <string name="settings_yani_application_token_label">Зеркало Anime365</string>
     <string name="settings_yani_application_token_placeholder">anime-365.ru</string>
-    <string name="settings_yani_application_token_hint">Домен API, если основной недоступен: anime-365.ru, smotret-anime.org, smotret-anime.app, smotret-anime.net</string>
+    <string name="settings_yani_application_token_hint">Нажмите, чтобы сменить зеркало API и видео</string>
     <string name="settings_version_label">Версия</string>
     <string name="settings_feedback_label">Вопросы/Идеи/Предложения</string>
     <string name="settings_repository_url">https://github.com/AlexeyLCP/Anime366</string>

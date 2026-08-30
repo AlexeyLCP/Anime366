@@ -260,6 +260,7 @@ internal fun DetailsButtonBar(
         emptyList()
     }
     val availableButtons = (listOf(watchButton, libraryButton, favoriteButton) + secondaryButtons)
+        .filter { it.action.isAvailableOnAnime365 }
         .associateBy { it.action }
     val buttons = buttonOrder.mapNotNull { availableButtons[it] } +
             availableButtons.values.filterNot { button -> button.action in buttonOrder }
