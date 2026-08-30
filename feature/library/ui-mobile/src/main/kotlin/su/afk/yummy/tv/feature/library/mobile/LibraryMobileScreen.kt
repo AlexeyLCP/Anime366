@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -16,6 +17,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -66,7 +68,15 @@ fun LibraryMobileScreen(
         pageCount = { libraryMobileTabs.size },
     )
     val coroutineScope = rememberCoroutineScope()
+    // Состояние скролла держим на экране, а не внутри страницы пейджера: иначе позиция теряется,
+    // когда страница выходит за пределы окна композиции, и её нельзя сбросить извне.
+    val listStates = libraryMobileTabs.associateWith { tab ->
+        rememberSaveable(key = "library_list_${tab.name}", saver = LazyListState.Saver) {
+            LazyListState()
+        }
+    }
     var pendingRemoval by remember { mutableStateOf<PendingLibraryMobileRemoval?>(null) }
+    var scrollToTopRequested by remember { mutableStateOf(false) }
     val tabCounts = remember(
         state.continueWatching,
         state.items,
@@ -110,6 +120,14 @@ fun LibraryMobileScreen(
         )
     }
 
+    // Пересортировка меняет только порядок при тех же ключах, поэтому LazyColumn удерживает в
+    // видимой области прежний тайтл — список «прыгает» в середину. Возвращаем его в начало.
+    LaunchedEffect(scrollToTopRequested) {
+        if (!scrollToTopRequested) return@LaunchedEffect
+        listStates[pagerState.currentPage.toLibraryMobileTab()]?.scrollToItem(0)
+        scrollToTopRequested = false
+    }
+
     LaunchedEffect(state.selectedTab) {
         val targetPage = state.selectedTab.toLibraryMobilePage()
         if (pagerState.currentPage != targetPage) {
@@ -151,9 +169,13 @@ fun LibraryMobileScreen(
                 LibraryMobileSortRow(
                     sort = state.sort,
                     direction = state.sortDirection,
-                    onSortSelected = { onEvent(LibraryState.Event.SortSelected(it)) },
+                    onSortSelected = {
+                        onEvent(LibraryState.Event.SortSelected(it))
+                        scrollToTopRequested = true
+                    },
                     onDirectionToggled = {
                         onEvent(LibraryState.Event.SortDirectionToggled)
+                        scrollToTopRequested = true
                     },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -168,9 +190,11 @@ fun LibraryMobileScreen(
                     .weight(1f)
                     .fillMaxSize(),
             ) { page ->
+                val tab = page.toLibraryMobileTab()
                 LibraryMobilePage(
-                    tab = page.toLibraryMobileTab(),
+                    tab = tab,
                     state = state,
+                    listState = listStates.getValue(tab),
                     onEvent = onEvent,
                     onRemovalRequested = { pendingRemoval = it },
                 )

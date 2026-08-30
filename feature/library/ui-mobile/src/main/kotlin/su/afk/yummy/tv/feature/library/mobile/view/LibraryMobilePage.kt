@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -39,6 +40,7 @@ import su.afk.yummy.tv.feature.library.model.LibraryTab
 internal fun LibraryMobilePage(
     tab: LibraryTab,
     state: LibraryState.State,
+    listState: LazyListState,
     onEvent: (LibraryState.Event) -> Unit,
     onRemovalRequested: (PendingLibraryMobileRemoval) -> Unit,
 ) {
@@ -88,6 +90,7 @@ internal fun LibraryMobilePage(
     val nowEpochSeconds = rememberNowEpochSeconds()
 
     LazyColumn(
+        state = listState,
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(
             start = 16.dp,
