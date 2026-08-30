@@ -112,6 +112,7 @@ internal class RemoteLibraryHydrator @Inject constructor(
             },
             userRating = userRating ?: current?.userRating,
             year = year ?: current?.year,
+            nextEpisodeAtSeconds = nextEpisodeAtSeconds ?: current?.nextEpisodeAtSeconds,
         )
     }
 }

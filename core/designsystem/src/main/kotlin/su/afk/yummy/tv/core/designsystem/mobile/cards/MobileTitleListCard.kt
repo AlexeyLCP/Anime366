@@ -33,6 +33,7 @@ fun MobileTitleListCard(
     dateText: String?,
     rating: Double?,
     modifier: Modifier = Modifier,
+    captionText: String? = null,
     posterOverlay: @Composable BoxScope.() -> Unit = {},
     contentOverlay: @Composable BoxScope.() -> Unit = {},
     onClick: () -> Unit,
@@ -81,14 +82,25 @@ fun MobileTitleListCard(
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
                 )
-                if (!dateText.isNullOrBlank()) {
-                    Text(
-                        text = dateText,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                    )
+                Column {
+                    if (!dateText.isNullOrBlank()) {
+                        Text(
+                            text = dateText,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                    }
+                    if (!captionText.isNullOrBlank()) {
+                        Text(
+                            text = captionText,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.primary,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                    }
                 }
             }
             rating?.let {

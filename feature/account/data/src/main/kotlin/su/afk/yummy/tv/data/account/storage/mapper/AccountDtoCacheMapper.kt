@@ -96,6 +96,7 @@ internal fun List<YaniUserAnimeDto>.toUserListCache(
                 userListId = item.user?.list?.list?.id,
                 isFavorite = item.user?.list?.isFav == true,
                 updatedAtSeconds = item.date?.takeIf { it > 0L },
+                nextEpisodeAtSeconds = item.nextEpisode?.takeIf { it > 0L },
             )
         },
     )

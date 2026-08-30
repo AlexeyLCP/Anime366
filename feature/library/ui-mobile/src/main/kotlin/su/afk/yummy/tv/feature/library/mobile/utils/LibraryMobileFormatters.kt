@@ -1,7 +1,10 @@
 package su.afk.yummy.tv.feature.library.mobile.utils
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import su.afk.yummy.tv.core.utils.episode.EpisodeReleaseCountdown
+import su.afk.yummy.tv.core.utils.episode.releaseCountdown
 import su.afk.yummy.tv.core.utils.formatting.formatRelativeDateTime
 import su.afk.yummy.tv.domain.home.model.HomeContinueWatchingItem
 import su.afk.yummy.tv.domain.library.model.LibraryItem
@@ -82,4 +85,16 @@ private fun Int.toSecondsTimeString(): String {
     val m = (totalSec % 3600) / 60
     val s = totalSec % 60
     return if (h > 0) "%d:%02d:%02d".format(h, m, s) else "%d:%02d".format(m, s)
+}
+
+/** Обратный отсчёт до следующей серии, `null` если даты нет или серия уже вышла. */
+@Composable
+internal fun LibraryItem.mobileReleaseCountdownText(nowEpochSeconds: Long): String? {
+    val countdown = releaseCountdown(nextEpisodeAtSeconds, nowEpochSeconds) ?: return null
+    val resource = when (countdown.unit) {
+        EpisodeReleaseCountdown.TimeUnit.DAYS -> R.plurals.library_mobile_release_in_days
+        EpisodeReleaseCountdown.TimeUnit.HOURS -> R.plurals.library_mobile_release_in_hours
+        EpisodeReleaseCountdown.TimeUnit.MINUTES -> R.plurals.library_mobile_release_in_minutes
+    }
+    return pluralStringResource(resource, countdown.value, countdown.value)
 }

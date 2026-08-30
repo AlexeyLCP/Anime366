@@ -22,10 +22,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import su.afk.yummy.tv.core.designsystem.mobile.bar.MobileBottomBarDefaults
 import su.afk.yummy.tv.core.designsystem.mobile.cards.MobileTitleListCard
+import su.afk.yummy.tv.core.designsystem.time.rememberNowEpochSeconds
 import su.afk.yummy.tv.feature.library.LibraryState
 import su.afk.yummy.tv.feature.library.mobile.R
 import su.afk.yummy.tv.feature.library.mobile.model.PendingLibraryMobileRemoval
 import su.afk.yummy.tv.feature.library.mobile.utils.mobileDateText
+import su.afk.yummy.tv.feature.library.mobile.utils.mobileReleaseCountdownText
 import su.afk.yummy.tv.feature.library.mobile.utils.mobileTabItemCount
 import su.afk.yummy.tv.feature.library.mobile.utils.mobileTitle
 import su.afk.yummy.tv.feature.library.mobile.utils.mobileUserRating
@@ -83,6 +85,7 @@ internal fun LibraryMobilePage(
     }
 
     val libraryItems = state.tabItems[tab].orEmpty()
+    val nowEpochSeconds = rememberNowEpochSeconds()
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -113,6 +116,7 @@ internal fun LibraryMobilePage(
                 posterUrl = item.posterUrl(),
                 dateText = item.mobileDateText(tab),
                 rating = item.mobileUserRating(),
+                captionText = item.mobileReleaseCountdownText(nowEpochSeconds),
                 posterOverlay = {
                     if (state.showTitleYear) {
                         item.year?.let { year ->

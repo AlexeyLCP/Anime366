@@ -9,6 +9,8 @@ import kotlinx.coroutines.delay
 import su.afk.yummy.tv.core.model.anime.AnimeEpisodes
 import su.afk.yummy.tv.core.model.anime.AnimePoster
 import su.afk.yummy.tv.core.model.anime.AnimeVideo
+import su.afk.yummy.tv.core.utils.episode.EpisodeReleaseCountdown
+import su.afk.yummy.tv.core.utils.episode.releaseCountdown
 import su.afk.yummy.tv.feature.details.R
 import su.afk.yummy.tv.feature.player.isAllohaPlayerUrl
 
@@ -56,7 +58,7 @@ private fun AnimeEpisodes.formatReleaseCountdown(): String? {
             delay(60_000L)
         }
     }
-    val countdown = releaseCountdown(nowEpochSeconds) ?: return null
+    val countdown = releaseCountdown(nextDateEpochSeconds, nowEpochSeconds) ?: return null
     val resource = when (countdown.unit) {
         EpisodeReleaseCountdown.TimeUnit.DAYS -> R.plurals.details_release_in_days
         EpisodeReleaseCountdown.TimeUnit.HOURS -> R.plurals.details_release_in_hours

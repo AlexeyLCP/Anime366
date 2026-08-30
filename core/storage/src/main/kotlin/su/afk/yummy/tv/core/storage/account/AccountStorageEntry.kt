@@ -62,6 +62,7 @@ data class AccountUserListItemEntry(
     val userListId: Int? = null,
     val isFavorite: Boolean,
     val updatedAtSeconds: Long? = null,
+    val nextEpisodeAtSeconds: Long? = null,
 )
 
 @Entity(

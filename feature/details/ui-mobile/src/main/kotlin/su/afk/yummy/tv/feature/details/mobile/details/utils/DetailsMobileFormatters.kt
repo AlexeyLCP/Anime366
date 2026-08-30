@@ -9,13 +9,13 @@ import kotlinx.coroutines.delay
 import su.afk.yummy.tv.core.model.anime.AnimeDetails
 import su.afk.yummy.tv.core.model.anime.AnimeEpisodes
 import su.afk.yummy.tv.core.model.anime.AnimePoster
+import su.afk.yummy.tv.core.utils.episode.EpisodeReleaseCountdown
+import su.afk.yummy.tv.core.utils.episode.releaseCountdown
 import su.afk.yummy.tv.domain.account.model.UserAnimeList
 import su.afk.yummy.tv.feature.details.details.DetailsState
 import su.afk.yummy.tv.feature.details.details.model.VideosUiState
 import su.afk.yummy.tv.feature.details.mobile.R
-import su.afk.yummy.tv.feature.details.utils.EpisodeReleaseCountdown
 import su.afk.yummy.tv.feature.details.utils.isReleasedAnimeStatus
-import su.afk.yummy.tv.feature.details.utils.releaseCountdown
 import su.afk.yummy.tv.feature.details.utils.resolveDetailsContinueTarget
 import java.util.Locale
 
@@ -58,7 +58,7 @@ private fun AnimeEpisodes.formatReleaseCountdown(): String? {
             delay(60_000L)
         }
     }
-    val countdown = releaseCountdown(nowEpochSeconds) ?: return null
+    val countdown = releaseCountdown(nextDateEpochSeconds, nowEpochSeconds) ?: return null
     val resource = when (countdown.unit) {
         EpisodeReleaseCountdown.TimeUnit.DAYS -> R.plurals.details_mobile_release_in_days
         EpisodeReleaseCountdown.TimeUnit.HOURS -> R.plurals.details_mobile_release_in_hours

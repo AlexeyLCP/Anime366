@@ -186,3 +186,16 @@ internal val MIGRATION_48_49 = object : Migration(48, 49) {
         db.execSQL("ALTER TABLE library ADD COLUMN year INTEGER")
     }
 }
+
+/**
+ * Дата выхода следующей серии. Приходит вместе со списками пользователя, поэтому старые записи
+ * заполняются сами при ближайшей синхронизации — разовый бэкфилл не нужен.
+ */
+internal val MIGRATION_49_50 = object : Migration(49, 50) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL(
+            "ALTER TABLE account_user_list_items ADD COLUMN nextEpisodeAtSeconds INTEGER"
+        )
+        db.execSQL("ALTER TABLE library ADD COLUMN nextEpisodeAtSeconds INTEGER")
+    }
+}

@@ -243,6 +243,12 @@ data class YaniUserAnimeDto(
     val year: Int? = null,
     val user: YaniAnimeUserDto? = null,
     val date: Long? = null,
+    /**
+     * Дата выхода следующей серии, epoch-секунды. В списках пользователя это плоское поле,
+     * а не блок `episodes` с `next_date`, как в `/anime/{id}` и расписании. У завершённых
+     * тайтлов здесь дата последней вышедшей серии либо поля нет вовсе.
+     */
+    @SerialName("next_episode") val nextEpisode: Long? = null,
 )
 
 @Serializable

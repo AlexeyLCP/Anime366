@@ -13,4 +13,6 @@ data class LibraryItem(
     val favoriteUpdatedAt: Long = if (isFavorite) addedAt else 0L,
     val userRating: Int? = null,
     val year: Int? = null,
+    /** Дата выхода следующей серии, epoch-секунды. */
+    val nextEpisodeAtSeconds: Long? = null,
 )

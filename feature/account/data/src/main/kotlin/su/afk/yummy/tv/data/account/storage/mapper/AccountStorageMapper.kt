@@ -319,6 +319,7 @@ private fun AccountUserListItemEntry.toUserListItem(): UserAnimeListItem {
         list = userListId.toUserAnimeList(),
         isFavorite = isFavorite,
         updatedAtSeconds = updatedAtSeconds,
+        nextEpisodeAtSeconds = nextEpisodeAtSeconds,
     )
 }
 

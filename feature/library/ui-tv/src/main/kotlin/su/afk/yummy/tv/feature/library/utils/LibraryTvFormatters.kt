@@ -1,9 +1,14 @@
 package su.afk.yummy.tv.feature.library.utils
 
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.pluralStringResource
+import su.afk.yummy.tv.core.utils.episode.EpisodeReleaseCountdown
+import su.afk.yummy.tv.core.utils.episode.releaseCountdown
 import su.afk.yummy.tv.core.utils.formatting.formatRelativeDateTime
 import su.afk.yummy.tv.domain.home.model.HomeContinueWatchingItem
 import su.afk.yummy.tv.domain.library.model.LibraryItem
 import su.afk.yummy.tv.domain.library.model.WatchHistoryEntry
+import su.afk.yummy.tv.feature.library.R
 import su.afk.yummy.tv.feature.library.model.LibraryTab
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -19,6 +24,17 @@ internal fun LibraryItem.tvDateText(tab: LibraryTab): String? =
 
 internal fun LibraryItem.tvUserRating(): Double? =
     userRating?.takeIf { it in 1..10 }?.toDouble()
+
+@Composable
+internal fun LibraryItem.tvReleaseCountdownText(nowEpochSeconds: Long): String? {
+    val countdown = releaseCountdown(nextEpisodeAtSeconds, nowEpochSeconds) ?: return null
+    val resource = when (countdown.unit) {
+        EpisodeReleaseCountdown.TimeUnit.DAYS -> R.plurals.library_release_in_days
+        EpisodeReleaseCountdown.TimeUnit.HOURS -> R.plurals.library_release_in_hours
+        EpisodeReleaseCountdown.TimeUnit.MINUTES -> R.plurals.library_release_in_minutes
+    }
+    return pluralStringResource(resource, countdown.value, countdown.value)
+}
 
 private val libraryDateFormatter = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
 

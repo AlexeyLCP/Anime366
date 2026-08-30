@@ -28,4 +28,16 @@
     <string name="library_tab_postponed_short">Po</string>
     <string name="library_tab_dropped">Dropped</string>
     <string name="library_tab_dropped_short">Dr</string>
+    <plurals name="library_release_in_days">
+        <item quantity="one">Next episode in %1$d day</item>
+        <item quantity="other">Next episode in %1$d days</item>
+    </plurals>
+    <plurals name="library_release_in_hours">
+        <item quantity="one">Next episode in %1$d hour</item>
+        <item quantity="other">Next episode in %1$d hours</item>
+    </plurals>
+    <plurals name="library_release_in_minutes">
+        <item quantity="one">Next episode in %1$d minute</item>
+        <item quantity="other">Next episode in %1$d minutes</item>
+    </plurals>
 </resources>

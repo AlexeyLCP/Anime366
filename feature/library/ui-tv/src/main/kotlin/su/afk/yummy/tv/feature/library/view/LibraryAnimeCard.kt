@@ -29,6 +29,7 @@ internal fun LibraryAnimeCard(
     deleteModifier: Modifier = Modifier,
     cardWidth: Dp = currentTvTitleCardDimensions().width,
     subtitle: String? = null,
+    caption: String? = null,
     posterOverlay: @Composable (BoxScope.() -> Unit)? = null,
 ) {
     var isCardFocused by remember { mutableStateOf(false) }
@@ -44,6 +45,7 @@ internal fun LibraryAnimeCard(
             title = title,
             posterUrl = posterUrl,
             subtitle = subtitle,
+            caption = caption,
             onClick = onClick,
             onFocused = onFocused,
             modifier = cardModifier,

@@ -23,6 +23,7 @@ internal fun LibraryEntry.toLibraryItem(): LibraryItem =
         favoriteUpdatedAt = favoriteUpdatedAt,
         userRating = userRating,
         year = year,
+        nextEpisodeAtSeconds = nextEpisodeAtSeconds,
     )
 
 internal fun LibraryItem.toLibraryEntry(): LibraryEntry =
@@ -41,6 +42,7 @@ internal fun LibraryItem.toLibraryEntry(): LibraryEntry =
         favoriteUpdatedAt = favoriteUpdatedAt,
         userRating = userRating,
         year = year,
+        nextEpisodeAtSeconds = nextEpisodeAtSeconds,
     )
 
 internal fun LibraryPoster?.toStoragePoster(): StorageLibraryPoster? =

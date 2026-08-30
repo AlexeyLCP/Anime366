@@ -47,11 +47,13 @@ import su.afk.yummy.tv.core.designsystem.focus.requestFocusUntilTimeout
 import su.afk.yummy.tv.core.designsystem.focus.tvFocusRestorer
 import su.afk.yummy.tv.core.designsystem.locals.LocalMainMenuFocusRequester
 import su.afk.yummy.tv.core.designsystem.locals.LocalPosterQuality
+import su.afk.yummy.tv.core.designsystem.time.rememberNowEpochSeconds
 import su.afk.yummy.tv.domain.library.model.LibraryItem
 import su.afk.yummy.tv.feature.library.R
 import su.afk.yummy.tv.feature.library.model.LibraryTab
 import su.afk.yummy.tv.feature.library.utils.posterUrl
 import su.afk.yummy.tv.feature.library.utils.tvDateText
+import su.afk.yummy.tv.feature.library.utils.tvReleaseCountdownText
 import su.afk.yummy.tv.feature.library.utils.tvUserRating
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -78,6 +80,7 @@ internal fun LibraryGrid(
     val mainMenuFocusRequester = LocalMainMenuFocusRequester.current
     val posterQuality = LocalPosterQuality.current
     val cardWidth = currentTvTitleCardDimensions().width
+    val nowEpochSeconds = rememberNowEpochSeconds()
     var gridHasFocus by remember { mutableStateOf(false) }
     var restoringFromMainMenu by remember { mutableStateOf(false) }
     var isRestoringFocus by remember { mutableStateOf(false) }
@@ -240,6 +243,7 @@ internal fun LibraryGrid(
                         onDelete = stableOnDelete,
                         cardWidth = adaptiveCardWidth,
                         subtitle = item.tvDateText(tab),
+                        caption = item.tvReleaseCountdownText(nowEpochSeconds),
                         posterOverlay = {
                             rating?.let {
                                 RatingBadge(

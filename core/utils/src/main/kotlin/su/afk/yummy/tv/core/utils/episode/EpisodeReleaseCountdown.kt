@@ -1,7 +1,6 @@
-package su.afk.yummy.tv.feature.details.utils
+package su.afk.yummy.tv.core.utils.episode
 
-import su.afk.yummy.tv.core.model.anime.AnimeEpisodes
-
+/** Сколько осталось до выхода серии, в самой крупной подходящей единице. */
 data class EpisodeReleaseCountdown(
     val value: Int,
     val unit: TimeUnit,
@@ -13,7 +12,14 @@ data class EpisodeReleaseCountdown(
     }
 }
 
-fun AnimeEpisodes.releaseCountdown(nowEpochSeconds: Long): EpisodeReleaseCountdown? {
+/**
+ * Отсчёт до даты выхода серии ([nextDateEpochSeconds], epoch-секунды).
+ * `null`, если даты нет или серия уже вышла.
+ */
+fun releaseCountdown(
+    nextDateEpochSeconds: Long?,
+    nowEpochSeconds: Long,
+): EpisodeReleaseCountdown? {
     val secondsUntilRelease = (nextDateEpochSeconds ?: return null) - nowEpochSeconds
     if (secondsUntilRelease <= 0) return null
 

@@ -11,4 +11,6 @@ data class UserAnimeListItem(
     val isFavorite: Boolean,
     val updatedAtSeconds: Long? = null,
     val userRating: Int? = null,
+    /** Дата выхода следующей серии, epoch-секунды. */
+    val nextEpisodeAtSeconds: Long? = null,
 )

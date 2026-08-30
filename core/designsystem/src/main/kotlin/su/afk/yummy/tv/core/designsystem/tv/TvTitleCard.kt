@@ -40,6 +40,7 @@ fun TvTitleCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     subtitle: String? = null,
+    caption: String? = null,
     onFocused: () -> Unit = {},
     onLongClick: (() -> Unit)? = null,
     width: Dp? = null,
@@ -107,6 +108,16 @@ fun TvTitleCard(
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
+                if (!caption.isNullOrBlank()) {
+                    Text(
+                        text = caption,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.primary,
+                        // Отсчёт до серии в одну строку карточки не влезает.
+                        maxLines = 2,
                         overflow = TextOverflow.Ellipsis,
                     )
                 }
