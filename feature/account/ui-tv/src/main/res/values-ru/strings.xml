@@ -93,4 +93,8 @@
     <string name="account_my_subscriptions_empty">Подписок пока нет</string>
     <string name="account_my_subscriptions_signed_out">Войдите, чтобы увидеть подписки</string>
     <string name="account_error_load_subscriptions_failed">Не удалось загрузить подписки</string>
+    <string name="account_tv_section_activity">Активность</string>
+    <string name="account_tv_section_lists">Мои списки</string>
+    <string name="account_tv_section_social">Сообщество</string>
+    <string name="account_tv_section_about">О себе</string>
 </resources>

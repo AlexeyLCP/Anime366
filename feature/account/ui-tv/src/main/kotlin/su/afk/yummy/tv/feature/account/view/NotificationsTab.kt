@@ -12,6 +12,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.DeleteSweep
+import androidx.compose.material.icons.filled.DoneAll
+import androidx.compose.material.icons.filled.Subscriptions
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -79,13 +83,18 @@ internal fun NotificationsTab(
                 ),
         ) {
             item {
-                AccountHeader(state = state, onEvent = onEvent)
+                AccountHeader(
+                    state = state,
+                    onEvent = onEvent,
+                    downFocusRequester = selectedTabFocusRequester,
+                )
             }
             item {
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     AccountTabs(
                         selected = state.selectedTab,
                         onSelected = { onEvent(AccountState.Event.TabSelected(it)) },
+                        unreadCount = state.unreadNotificationCount,
                         selectedTabFocusRequester = selectedTabFocusRequester,
                         // Вниз с таба — на «Мои подписки»: дальше по колонке фокус ходит сам.
                         contentFocusRequester = notificationsTabState.mySubscriptionsFocusRequester,
@@ -99,6 +108,7 @@ internal fun NotificationsTab(
                     )
                     AccountAction(
                         label = stringResource(R.string.account_my_subscriptions),
+                        icon = Icons.Filled.Subscriptions,
                         onClick = { onEvent(AccountState.Event.MySubscriptionsSelected) },
                         modifier = Modifier
                             .fillMaxWidth()
@@ -113,6 +123,7 @@ internal fun NotificationsTab(
                             if (onMarkAllRead != null) {
                                 AccountAction(
                                     label = stringResource(R.string.account_mark_all_read),
+                                    icon = Icons.Filled.DoneAll,
                                     onClick = onMarkAllRead,
                                     modifier = Modifier
                                         .weight(1f)
@@ -129,6 +140,7 @@ internal fun NotificationsTab(
                             if (state.notifications.isNotEmpty()) {
                                 AccountAction(
                                     label = stringResource(R.string.account_delete_all_notifications),
+                                    icon = Icons.Filled.DeleteSweep,
                                     onClick = { notificationsTabState.showDeleteAllConfirm = true },
                                     modifier = Modifier
                                         .weight(1f)

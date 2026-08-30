@@ -3,7 +3,6 @@
 package su.afk.yummy.tv.feature.account.view
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
@@ -11,10 +10,18 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Pause
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Schedule
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -29,8 +36,6 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
@@ -54,34 +59,40 @@ internal fun ProfileListCountersRow(
 ) {
     val items = listOf(
         ProfileCounterItem(
-            stringResource(R.string.account_profile_list_watching),
-            counts.watching,
-            YummySemanticColors.StatusWatching
+            label = stringResource(R.string.account_profile_list_watching),
+            count = counts.watching,
+            color = YummySemanticColors.StatusWatching,
+            icon = Icons.Filled.PlayArrow,
         ),
         ProfileCounterItem(
-            stringResource(R.string.account_profile_list_planned),
-            counts.planned,
-            YummySemanticColors.StatusPlanned
+            label = stringResource(R.string.account_profile_list_planned),
+            count = counts.planned,
+            color = YummySemanticColors.StatusPlanned,
+            icon = Icons.Filled.Schedule,
         ),
         ProfileCounterItem(
-            stringResource(R.string.account_profile_list_completed),
-            counts.completed,
-            YummySemanticColors.StatusCompleted
+            label = stringResource(R.string.account_profile_list_completed),
+            count = counts.completed,
+            color = YummySemanticColors.StatusCompleted,
+            icon = Icons.Filled.Check,
         ),
         ProfileCounterItem(
-            stringResource(R.string.account_profile_list_dropped),
-            counts.dropped,
-            YummySemanticColors.StatusDropped
+            label = stringResource(R.string.account_profile_list_dropped),
+            count = counts.dropped,
+            color = YummySemanticColors.StatusDropped,
+            icon = Icons.Filled.Close,
         ),
         ProfileCounterItem(
-            stringResource(R.string.account_profile_list_postponed),
-            counts.postponed,
-            YummySemanticColors.StatusPostponed
+            label = stringResource(R.string.account_profile_list_postponed),
+            count = counts.postponed,
+            color = YummySemanticColors.StatusPostponed,
+            icon = Icons.Filled.Pause,
         ),
         ProfileCounterItem(
-            stringResource(R.string.account_profile_list_favorite),
-            counts.favorite,
-            YummySemanticColors.StatusFavorite
+            label = stringResource(R.string.account_profile_list_favorite),
+            count = counts.favorite,
+            color = YummySemanticColors.StatusFavorite,
+            icon = Icons.Filled.Favorite,
         ),
     )
     val internalFocusRequesters = remember(items.size) {
@@ -127,27 +138,12 @@ private fun ProfileCounterChip(
     modifier: Modifier = Modifier,
 ) {
     val shape = RoundedCornerShape(10.dp)
-    val containerColor = if (focused) {
-        MaterialTheme.colorScheme.primary.copy(alpha = 0.16f)
-    } else {
-        MaterialTheme.colorScheme.onSurface.copy(alpha = 0.06f)
-    }
 
     Row(
         modifier = modifier
             .widthIn(min = 132.dp, max = 180.dp)
-            .graphicsLayer {
-                val scale = if (focused) 1.02f else 1f
-                scaleX = scale
-                scaleY = scale
-            }
-            .clip(shape)
-            .background(containerColor)
-            .border(
-                width = if (focused) 3.dp else 2.dp,
-                color = if (focused) MaterialTheme.colorScheme.primary else Color.Transparent,
-                shape = shape,
-            ),
+            .profileTileVisual(focused = focused, shape = shape)
+            .padding(horizontal = 10.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(9.dp),
     ) {
@@ -158,11 +154,11 @@ private fun ProfileCounterChip(
                 .background(item.color.copy(alpha = 0.22f)),
             contentAlignment = Alignment.Center,
         ) {
-            Box(
-                modifier = Modifier
-                    .size(13.dp)
-                    .clip(CircleShape)
-                    .background(item.color),
+            Icon(
+                imageVector = item.icon,
+                contentDescription = null,
+                tint = item.color,
+                modifier = Modifier.size(20.dp),
             )
         }
         Column {

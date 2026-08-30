@@ -10,6 +10,11 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.BarChart
+import androidx.compose.material.icons.filled.Category
+import androidx.compose.material.icons.filled.Schedule
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -54,6 +59,7 @@ internal fun ProfileStatsGrid(
         add(
             ProfileStatsPageModel(
                 title = stringResource(R.string.account_profile_watch_time_title),
+                icon = Icons.Filled.Schedule,
                 slices = summary.watchStatSlices(),
                 valueType = ProfileStatsValueType.DURATION,
             )
@@ -62,6 +68,7 @@ internal fun ProfileStatsGrid(
             add(
                 ProfileStatsPageModel(
                     title = stringResource(R.string.account_profile_list_duration_title),
+                    icon = Icons.Filled.BarChart,
                     slices = it.listDurationSlices(),
                     valueType = ProfileStatsValueType.DURATION,
                 )
@@ -69,6 +76,7 @@ internal fun ProfileStatsGrid(
             add(
                 ProfileStatsPageModel(
                     title = stringResource(R.string.account_profile_genres_title),
+                    icon = Icons.Filled.Category,
                     slices = it.genreCountSlices(),
                     valueType = ProfileStatsValueType.COUNT,
                 )
@@ -79,6 +87,7 @@ internal fun ProfileStatsGrid(
                         R.string.account_profile_ratings_title,
                         it.averageRatingLabel(),
                     ),
+                    icon = Icons.Filled.Star,
                     slices = it.ratingCountSlices(),
                     valueType = ProfileStatsValueType.COUNT,
                     compactLegend = true,

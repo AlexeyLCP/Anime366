@@ -5,6 +5,7 @@ package su.afk.yummy.tv.feature.account.view
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.height
@@ -20,6 +21,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
@@ -61,6 +63,7 @@ internal fun StatsTab(
         if (profileSummary != null) profileOverviewFocusRequester else listFocusRequester
     val scope = rememberCoroutineScope()
     var isProfileOverviewFocused by remember { mutableStateOf(false) }
+    var isHeaderFocused by remember { mutableStateOf(false) }
 
     fun requestProfileOverviewFocus() {
         scope.launch {
@@ -111,6 +114,11 @@ internal fun StatsTab(
                     }
 
                     Key.DirectionDown -> {
+                        // С шапки («Выйти») вниз — на выбранный таб, а не в карточки статистики.
+                        if (isHeaderFocused) {
+                            scope.launch { requestFocusUntilTimeout(statsTabFocusRequester) }
+                            return@onPreviewKeyEvent true
+                        }
                         if (profileSummary != null && !isProfileOverviewFocused) {
                             requestProfileOverviewFocus()
                             return@onPreviewKeyEvent true
@@ -120,6 +128,7 @@ internal fun StatsTab(
                     }
 
                     Key.DirectionUp -> {
+                        if (isHeaderFocused) return@onPreviewKeyEvent false
                         if (isProfileOverviewFocused) return@onPreviewKeyEvent false
                         scrollByProfilePage(direction = -1)
                     }
@@ -129,12 +138,21 @@ internal fun StatsTab(
             },
     ) {
         item {
-            AccountHeader(state = state, onEvent = onEvent)
+            Box(
+                modifier = Modifier.onFocusChanged { isHeaderFocused = it.hasFocus },
+            ) {
+                AccountHeader(
+                    state = state,
+                    onEvent = onEvent,
+                    downFocusRequester = statsTabFocusRequester,
+                )
+            }
         }
         item {
             AccountTabs(
                 selected = state.selectedTab,
                 onSelected = { onEvent(AccountState.Event.TabSelected(it)) },
+                unreadCount = state.unreadNotificationCount,
                 selectedTabFocusRequester = statsTabFocusRequester,
                 contentFocusRequester = contentFocusRequester,
                 autoFocusSelected = !isProfileOverviewFocused,

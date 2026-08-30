@@ -4,14 +4,26 @@ package su.afk.yummy.tv.feature.account.view
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Logout
+import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusProperties
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -26,6 +38,8 @@ import su.afk.yummy.tv.feature.account.utils.label
 internal fun AccountHeader(
     state: AccountState.State,
     onEvent: (AccountState.Event) -> Unit,
+    // Вниз с «Выйти» — на выбранный таб, иначе фокус улетает в первую карточку статистики.
+    downFocusRequester: FocusRequester? = null,
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -33,7 +47,7 @@ internal fun AccountHeader(
         horizontalArrangement = Arrangement.spacedBy(18.dp),
     ) {
         AccountAvatar(avatarUrl = state.avatarUrl, nickname = state.nickname)
-        Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
             Text(
                 text = state.nickname.ifBlank { stringResource(R.string.account_unknown_user) },
                 style = MaterialTheme.typography.displaySmall,
@@ -42,17 +56,19 @@ internal fun AccountHeader(
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
-            state.profileSummary?.let { summary ->
-                AccountHeaderProfileMeta(summary = summary)
-            }
-            val unreadCount = state.notificationCounts.sumOf { it.count }
-            if (unreadCount > 0) {
-                Text(
-                    text = stringResource(R.string.account_unread_count, unreadCount),
-                    style = MaterialTheme.typography.bodyLarge,
-                    fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.primary,
-                )
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+            ) {
+                state.profileSummary?.let { summary -> AccountHeaderProfileMeta(summary = summary) }
+                val unreadCount = state.notificationCounts.sumOf { it.count }
+                if (unreadCount > 0) {
+                    AccountHeaderMetaLine(
+                        icon = Icons.Filled.Notifications,
+                        value = stringResource(R.string.account_unread_count, unreadCount),
+                        color = MaterialTheme.colorScheme.primary,
+                    )
+                }
             }
         }
         Column(
@@ -61,8 +77,12 @@ internal fun AccountHeader(
         ) {
             AccountAction(
                 label = stringResource(R.string.account_logout),
+                icon = Icons.AutoMirrored.Filled.Logout,
                 hint = stringResource(R.string.account_logout_hint),
                 onClick = { onEvent(AccountState.Event.LogoutSelected) },
+                modifier = Modifier.focusProperties {
+                    downFocusRequester?.let { down = it }
+                },
             )
         }
     }
@@ -70,29 +90,40 @@ internal fun AccountHeader(
 
 @Composable
 private fun AccountHeaderProfileMeta(summary: UserProfileSummary) {
-    Column(
-        verticalArrangement = Arrangement.spacedBy(2.dp),
-    ) {
-        AccountHeaderMetaLine(
-            label = stringResource(R.string.account_profile_registered),
-            value = summary.registerDateSeconds.formatProfileDate(),
-        )
-        AccountHeaderMetaLine(
-            label = stringResource(R.string.account_profile_sex),
-            value = summary.sex.label(),
-        )
-    }
+    AccountHeaderMetaLine(
+        icon = Icons.Filled.CalendarMonth,
+        value = summary.registerDateSeconds.formatProfileDate(),
+    )
+    AccountHeaderMetaLine(
+        icon = Icons.Filled.Person,
+        value = summary.sex.label(),
+    )
 }
 
 @Composable
-private fun AccountHeaderMetaLine(label: String, value: String) {
+private fun AccountHeaderMetaLine(
+    icon: ImageVector,
+    value: String,
+    color: Color = MaterialTheme.colorScheme.onSurfaceVariant,
+) {
     if (value.isBlank()) return
-    Text(
-        text = stringResource(R.string.account_profile_meta_line, label, value),
-        style = MaterialTheme.typography.bodyLarge,
-        fontWeight = FontWeight.SemiBold,
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
-        maxLines = 1,
-        overflow = TextOverflow.Ellipsis,
-    )
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            tint = color,
+            modifier = Modifier.size(16.dp),
+        )
+        Text(
+            text = value,
+            style = MaterialTheme.typography.bodyLarge,
+            fontWeight = FontWeight.SemiBold,
+            color = color,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+        )
+    }
 }

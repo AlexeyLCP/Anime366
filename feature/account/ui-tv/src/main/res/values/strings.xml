@@ -93,4 +93,8 @@
     <string name="account_my_subscriptions_empty">You have no subscriptions yet</string>
     <string name="account_my_subscriptions_signed_out">Sign in to see your subscriptions</string>
     <string name="account_error_load_subscriptions_failed">Could not load subscriptions</string>
+    <string name="account_tv_section_activity">Activity</string>
+    <string name="account_tv_section_lists">My lists</string>
+    <string name="account_tv_section_social">Community</string>
+    <string name="account_tv_section_about">About me</string>
 </resources>

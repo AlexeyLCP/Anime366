@@ -5,6 +5,9 @@ package su.afk.yummy.tv.feature.account.view
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.QueryStats
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -32,6 +35,7 @@ import su.afk.yummy.tv.feature.account.account.AccountState
 internal fun AccountTabs(
     selected: AccountState.AccountTab,
     onSelected: (AccountState.AccountTab) -> Unit,
+    unreadCount: Int = 0,
     selectedTabFocusRequester: FocusRequester? = null,
     contentFocusRequester: FocusRequester? = null,
     onContentRequested: (() -> Unit)? = null,
@@ -84,6 +88,7 @@ internal fun AccountTabs(
         ) {
             AccountTabButton(
                 label = stringResource(R.string.account_tab_stats),
+                icon = Icons.Filled.QueryStats,
                 selected = selected == AccountState.AccountTab.STATS,
                 onClick = { onSelected(AccountState.AccountTab.STATS) },
                 modifier = Modifier
@@ -104,6 +109,8 @@ internal fun AccountTabs(
             )
             AccountTabButton(
                 label = stringResource(R.string.account_tab_notifications),
+                icon = Icons.Filled.Notifications,
+                badgeCount = unreadCount,
                 selected = selected == AccountState.AccountTab.NOTIFICATIONS,
                 onClick = { onSelected(AccountState.AccountTab.NOTIFICATIONS) },
                 modifier = Modifier

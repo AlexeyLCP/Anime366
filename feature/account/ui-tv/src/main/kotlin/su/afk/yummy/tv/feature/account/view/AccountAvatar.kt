@@ -3,6 +3,7 @@
 package su.afk.yummy.tv.feature.account.view
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
@@ -24,7 +25,12 @@ internal fun AccountAvatar(avatarUrl: String, nickname: String) {
         modifier = Modifier
             .size(92.dp)
             .clip(CircleShape)
-            .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.18f)),
+            .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.18f))
+            .border(
+                width = 2.dp,
+                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.35f),
+                shape = CircleShape,
+            ),
         contentAlignment = Alignment.Center,
     ) {
         if (avatarUrl.isNotBlank()) {

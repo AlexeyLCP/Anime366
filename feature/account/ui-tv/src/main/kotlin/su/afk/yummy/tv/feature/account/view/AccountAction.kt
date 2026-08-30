@@ -6,11 +6,14 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -20,6 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.KeyEventType
@@ -32,11 +36,14 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import su.afk.yummy.tv.core.designsystem.focus.tvFocusableClick
 
+private const val FOCUSED_SCALE = 1.015f
+
 @Composable
 internal fun AccountAction(
     label: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    icon: ImageVector? = null,
     hint: String? = null,
     selected: Boolean = false,
     enabled: Boolean = true,
@@ -64,17 +71,15 @@ internal fun AccountAction(
     }
     val actionModifier = modifier
         .fillMaxWidth()
-        .clip(shape)
-        .background(
-            color = containerColor,
-            shape = shape,
-        )
         .let {
             if (enabled) {
                 it.tvFocusableClick(
                     onClick = onClick,
                     interactionSource = interactionSource,
-                    shape = shape
+                    shape = shape,
+                    // Кнопка во всю ширину: крупный скейл выпирает за фон и режет текст.
+                    focusedScale = FOCUSED_SCALE,
+                    focusedBorderColor = Color.Transparent,
                 )
             } else {
                 it
@@ -83,6 +88,11 @@ internal fun AccountAction(
         .accountActionKeyEvents(
             onDirectionLeft = onDirectionLeft,
             onDirectionRight = onDirectionRight,
+        )
+        .clip(shape)
+        .background(
+            color = containerColor,
+            shape = shape,
         )
         .border(
             width = if (focused && enabled) 3.dp else 2.dp,
@@ -94,7 +104,16 @@ internal fun AccountAction(
     Row(
         modifier = actionModifier,
         verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
+        icon?.let {
+            Icon(
+                imageVector = it,
+                contentDescription = null,
+                tint = contentColor,
+                modifier = Modifier.size(22.dp),
+            )
+        }
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = label,
