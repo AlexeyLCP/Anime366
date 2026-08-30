@@ -29,8 +29,17 @@ fun String.isZedfilmPlayerUrl(): Boolean =
     contains("zedfilm.ru", ignoreCase = true) ||
             contains("hlamer.ru", ignoreCase = true)
 
+fun String.isAnime365PlayerUrl(): Boolean {
+    val lower = lowercase()
+    return "anime-365.ru" in lower ||
+        "smotret-anime." in lower ||
+        lower.startsWith("anime365:") ||
+        "translations/embed" in lower
+}
+
 fun String.isSupportedPlayerUrl(): Boolean =
-    isKodikPlayerUrl() ||
+    isAnime365PlayerUrl() ||
+            isKodikPlayerUrl() ||
             isAksorPlayerUrl() ||
             isCvhPlayerUrl() ||
             isAllohaPlayerUrl() ||
@@ -41,7 +50,8 @@ fun String.isSupportedPlayerUrl(): Boolean =
 
 fun String.playerDisplayOrderPriority(): Int =
     when {
-        isCvhPlayerUrl() -> 0
-        isKodikPlayerUrl() -> 1
-        else -> 2
+        isAnime365PlayerUrl() -> 0
+        isCvhPlayerUrl() -> 1
+        isKodikPlayerUrl() -> 2
+        else -> 3
     }
