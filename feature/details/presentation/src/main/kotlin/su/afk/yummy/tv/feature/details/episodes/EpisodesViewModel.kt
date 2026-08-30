@@ -94,6 +94,11 @@ class EpisodesViewModel @AssistedInject internal constructor(
         started = SharingStarted.Eagerly,
         initialValue = PreferredPlayer.NONE,
     )
+    private val lastDubbingState = settingsStore.lastDubbing.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.Eagerly,
+        initialValue = "",
+    )
 
     private var animeTitle = ""
     private var posterUrl = ""
@@ -164,11 +169,24 @@ class EpisodesViewModel @AssistedInject internal constructor(
 
             is EpisodesState.Event.EpisodeSelected -> {
                 analytics.eventEpisodesVideoSelected(animeId, event.video.id)
-                showEpisodeDubbingPicker(event.video, restrictToBalancer = false)
+                val remembered = lastDubbingState.value.trim().takeIf { it.isNotBlank() }?.let { name ->
+                    val videos = (currentState.videosState as? VideosUiState.Content)?.videos.orEmpty()
+                    videos.selectEpisodeDubbingLaunchVideo(
+                        episode = event.video.episode,
+                        dubbingName = name,
+                        preferredPlayer = preferredPlayerState.value,
+                    )
+                }
+                if (remembered != null) {
+                    showBalancerPickerForDubbing(remembered)
+                } else {
+                    showEpisodeDubbingPicker(event.video, restrictToBalancer = false)
+                }
             }
 
             is EpisodesState.Event.EpisodeDubbingSelected -> {
                 setState { copy(pendingEpisodeDubbingSelection = null) }
+                viewModelScope.launch { settingsStore.setLastDubbing(event.video.dubbing) }
                 showBalancerPickerForDubbing(event.video)
             }
 

@@ -22,7 +22,6 @@ enum class DetailsButtonAction {
         get() = when (this) {
             SUBSCRIPTIONS,
             TRAILERS,
-            VIEWING_ORDER,
             RATING,
             COLLECTIONS,
             COMMENTS,

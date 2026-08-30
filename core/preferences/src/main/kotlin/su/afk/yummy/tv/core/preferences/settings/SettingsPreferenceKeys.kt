@@ -25,6 +25,7 @@ internal object SettingsPreferenceKeys {
     val nextEpisodeSwitchDelaySecondsKey =
         intPreferencesKey("next_episode_switch_delay_seconds")
     val askDubbingOnWatchKey = booleanPreferencesKey("ask_dubbing_on_watch")
+    val lastDubbingKey = stringPreferencesKey("last_dubbing")
     val pictureInPictureEnabledKey = booleanPreferencesKey("picture_in_picture_enabled")
     val playerOrientationModeKey = stringPreferencesKey("player_orientation_mode")
     val suggestNextEpisodeOnWatchedKey =

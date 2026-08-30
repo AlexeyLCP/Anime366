@@ -225,7 +225,9 @@ fun DetailsTvScreen(
         if (dubbingPicker != null) {
             DubbingPickerOverlay(
                 selection = dubbingPicker,
-                onSelected = { option -> onEvent(DetailsState.Event.DubbingSelected(option.video)) },
+                onSelected = { option, remember ->
+                    onEvent(DetailsState.Event.DubbingSelected(option.video, remember))
+                },
                 onDismiss = ::dismissDubbingPicker,
             )
         }

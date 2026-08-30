@@ -162,15 +162,32 @@ fun Anime365TranslationDto.kindLabel(): String = when {
 }
 
 fun Anime365TranslationDto.dubbingLabel(): String {
-    val author = authorsSummary.ifBlank { title }.ifBlank { kindLabel() }
+    val kind = kindLabel()
+    val author = authorsSummary.ifBlank { title }.ifBlank { kind }
     val quality = qualityType.uppercase()
     return buildString {
-        append(author)
+        append(kind)
+        if (author != kind) append(" · ").append(author)
         if (quality.isNotBlank() && quality != "TV") append(" ($quality)")
         if (typeLang.isNotBlank() && !typeLang.equals("ru", ignoreCase = true)) {
             append(" · ").append(typeLang.uppercase())
         }
     }
+}
+
+fun Anime365SeriesDto.seasonSearchQuery(): String {
+    val raw = titles?.romaji?.ifBlank { null }
+        ?: titles?.en?.ifBlank { null }
+        ?: titles?.ru?.ifBlank { null }
+        ?: title.orEmpty()
+    val stripped = raw
+        .replace(
+            Regex("""(?i)\s*[:.\-]?\s*(\d+(st|nd|rd|th)?\s*)?(season|сезон|cour|part).*$"""),
+            "",
+        )
+        .replace(Regex("""\s+\d+$"""), "")
+        .trim()
+    return stripped.ifBlank { raw.trim() }
 }
 
 const val ANIME365_EMBED_PREFIX = "https://anime-365.ru/translations/embed/"

@@ -112,7 +112,7 @@ class DetailsState {
         data class BalancerConfirmed(val video: AnimeVideo) : Event
 
         /** Пользователь выбрал озвучку в диалоге выбора озвучки. */
-        data class DubbingSelected(val video: AnimeVideo) : Event
+        data class DubbingSelected(val video: AnimeVideo, val remember: Boolean) : Event
 
         /** Пользователь закрыл диалог выбора озвучки. */
         data object DubbingPickerDismissed : Event

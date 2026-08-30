@@ -27,6 +27,7 @@ interface PlayerSettingsStore {
 
     /** Спрашивать озвучку при нажатии "Смотреть", вместо автовыбора самой популярной. */
     val askDubbingOnWatch: Flow<Boolean>
+    val lastDubbing: Flow<String>
     val pictureInPictureEnabled: Flow<Boolean>
 
     /** Принудительная альбомная ориентация плеера, не зависящая от системной блокировки поворота. */
@@ -69,6 +70,7 @@ interface PlayerSettingsStore {
     suspend fun setAutoPlayNextEpisode(enabled: Boolean)
     suspend fun setNextEpisodeSwitchDelaySeconds(seconds: Int)
     suspend fun setAskDubbingOnWatch(enabled: Boolean)
+    suspend fun setLastDubbing(dubbing: String)
     suspend fun setPictureInPictureEnabled(enabled: Boolean)
     suspend fun setPlayerOrientationMode(mode: PlayerOrientationMode)
     suspend fun setSuggestNextEpisodeOnWatched(enabled: Boolean)

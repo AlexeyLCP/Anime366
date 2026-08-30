@@ -176,7 +176,9 @@ fun DetailsMobileScreen(
             onSubscriptionsDismiss = { onEvent(DetailsState.Event.SubscriptionsDismissed) },
             onBalancerConfirmed = { onEvent(DetailsState.Event.BalancerConfirmed(it)) },
             onBalancerDismiss = { onEvent(DetailsState.Event.BalancerPickerDismissed) },
-            onDubbingSelected = { onEvent(DetailsState.Event.DubbingSelected(it.video)) },
+            onDubbingSelected = { option, remember ->
+                onEvent(DetailsState.Event.DubbingSelected(option.video, remember))
+            },
             onDubbingDismiss = { onEvent(DetailsState.Event.DubbingPickerDismissed) },
         )
 

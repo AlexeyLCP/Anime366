@@ -58,7 +58,10 @@ class EpisodeDubbingsViewModel @AssistedInject internal constructor(
     override fun onEvent(event: EpisodeDubbingsState.Event) {
         when (event) {
             EpisodeDubbingsState.Event.BackSelected -> nav.back()
-            is EpisodeDubbingsState.Event.DubbingSelected -> openDubbing(event.name)
+            is EpisodeDubbingsState.Event.DubbingSelected -> {
+                viewModelScope.launch { settingsStore.setLastDubbing(event.name) }
+                openDubbing(event.name)
+            }
             EpisodeDubbingsState.Event.RetrySelected -> viewModelScope.launch { load() }
             is EpisodeDubbingsState.Event.BalancerConfirmed -> {
                 setState { copy(pendingBalancerSelection = null) }

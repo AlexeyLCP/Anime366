@@ -30,6 +30,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -57,17 +58,21 @@ import su.afk.yummy.tv.core.designsystem.tv.TvOverlayAppear
 import su.afk.yummy.tv.feature.details.R
 import su.afk.yummy.tv.feature.details.details.model.DubbingOption
 import su.afk.yummy.tv.feature.details.details.model.DubbingPickerState
+import su.afk.yummy.tv.feature.details.utils.dubbingKind
+import su.afk.yummy.tv.feature.details.utils.dubbingTeam
 import su.afk.yummy.tv.feature.details.utils.formatCompactCount
 
 @Composable
 internal fun DubbingPickerOverlay(
     selection: DubbingPickerState,
-    onSelected: (DubbingOption) -> Unit,
+    onSelected: (DubbingOption, Boolean) -> Unit,
     onDismiss: () -> Unit,
 ) {
     val focusManager = LocalFocusManager.current
     val firstFocusRequester = remember { FocusRequester() }
     var focusedOptionIndex by remember(selection.options) { mutableIntStateOf(0) }
+    var rememberChoice by remember { mutableStateOf(true) }
+    val rows = remember(selection.options) { dubbingPickerRows(selection.options) }
 
     LaunchedEffect(selection.options) {
         if (selection.options.isNotEmpty()) {
@@ -109,7 +114,7 @@ internal fun DubbingPickerOverlay(
                                 }
 
                                 Key.DirectionUp -> focusedOptionIndex == 0
-                                Key.DirectionDown -> focusedOptionIndex == selection.options.lastIndex
+                                Key.DirectionDown -> focusedOptionIndex == rows.lastIndex
                                 else -> false
                             }
                         }
@@ -139,6 +144,12 @@ internal fun DubbingPickerOverlay(
                             )
                         }
                     }
+                    RememberDubbingRow(
+                        checked = rememberChoice,
+                        modifier = Modifier.focusRequester(firstFocusRequester),
+                        onFocused = { focusedOptionIndex = 0 },
+                        onClick = { rememberChoice = !rememberChoice },
+                    )
                     LazyColumn(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -146,19 +157,19 @@ internal fun DubbingPickerOverlay(
                         verticalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
                         itemsIndexed(
-                            items = selection.options,
-                            key = { _, option -> option.item.name },
-                        ) { index, option ->
-                            DubbingOptionItem(
-                                option = option,
-                                modifier = if (index == 0) {
-                                    Modifier.focusRequester(firstFocusRequester)
-                                } else {
-                                    Modifier
-                                },
-                                onFocused = { focusedOptionIndex = index },
-                                onClick = { onSelected(option) },
-                            )
+                            items = rows,
+                            key = { _, row -> row.key },
+                        ) { index, row ->
+                            when (row) {
+                                is DubbingPickerRow.Header -> DubbingKindHeader(row.title)
+                                is DubbingPickerRow.Option -> DubbingOptionItem(
+                                    option = row.option,
+                                    title = row.option.item.name.dubbingTeam(),
+                                    modifier = Modifier,
+                                    onFocused = { focusedOptionIndex = index + 1 },
+                                    onClick = { onSelected(row.option, rememberChoice) },
+                                )
+                            }
                         }
                     }
                 }
@@ -168,11 +179,52 @@ internal fun DubbingPickerOverlay(
 }
 
 @Composable
+private fun RememberDubbingRow(
+    checked: Boolean,
+    modifier: Modifier,
+    onFocused: () -> Unit,
+    onClick: () -> Unit,
+) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val focused by interactionSource.collectIsFocusedAsState()
+    val shape = RoundedCornerShape(12.dp)
+    val contentColor = if (focused) Color.Black else Color.White
+    Text(
+        text = (if (checked) "☑  " else "☐  ") + stringResource(R.string.details_remember_dubbing),
+        style = MaterialTheme.typography.titleSmall,
+        color = contentColor,
+        modifier = modifier
+            .fillMaxWidth()
+            .onFocusChanged { if (it.isFocused) onFocused() }
+            .clip(shape)
+            .background(if (focused) Color.White else Color.White.copy(alpha = 0.10f))
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null,
+                onClick = onClick,
+            )
+            .padding(horizontal = 16.dp, vertical = 12.dp),
+    )
+}
+
+@Composable
+private fun DubbingKindHeader(title: String) {
+    Text(
+        text = title,
+        style = MaterialTheme.typography.labelLarge,
+        fontWeight = FontWeight.SemiBold,
+        color = Color.White.copy(alpha = 0.55f),
+        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+    )
+}
+
+@Composable
 private fun DubbingOptionItem(
     option: DubbingOption,
     modifier: Modifier,
     onFocused: () -> Unit,
     onClick: () -> Unit,
+    title: String = option.item.name,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val focused by interactionSource.collectIsFocusedAsState()
@@ -193,7 +245,7 @@ private fun DubbingOptionItem(
         verticalArrangement = Arrangement.spacedBy(3.dp),
     ) {
         Text(
-            text = option.item.name,
+            text = title,
             style = MaterialTheme.typography.titleSmall,
             fontWeight = FontWeight.SemiBold,
             color = contentColor,
@@ -238,5 +290,27 @@ private fun DubbingOptionItem(
                 overflow = TextOverflow.Ellipsis,
             )
         }
+    }
+}
+
+private sealed interface DubbingPickerRow {
+    val key: String
+
+    data class Header(val title: String) : DubbingPickerRow {
+        override val key: String get() = "h:$title"
+    }
+
+    data class Option(val option: DubbingOption) : DubbingPickerRow {
+        override val key: String get() = option.item.name
+    }
+}
+
+private fun dubbingPickerRows(options: List<DubbingOption>): List<DubbingPickerRow> {
+    val grouped = options.groupBy { it.item.name.dubbingKind() }
+    if (grouped.size <= 1) {
+        return options.map { DubbingPickerRow.Option(it) }
+    }
+    return grouped.flatMap { (kind, items) ->
+        listOf(DubbingPickerRow.Header(kind)) + items.map { DubbingPickerRow.Option(it) }
     }
 }

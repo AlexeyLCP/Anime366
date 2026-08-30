@@ -76,6 +76,12 @@ internal class SettingsDataStore @Inject constructor(
         edit { prefs -> prefs[key] = value }
     }
 
+    suspend fun setString(key: Preferences.Key<String>, value: String) {
+        edit { prefs ->
+            if (value.isBlank()) prefs.remove(key) else prefs[key] = value
+        }
+    }
+
     /**
      * Системный язык как [YaniContentLanguage] по умолчанию, когда язык контента ещё не выбран
      * пользователем. Живёт здесь (а не в [YaniContentLanguage]), чтобы enum оставался чистым

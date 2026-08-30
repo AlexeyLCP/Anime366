@@ -84,10 +84,10 @@ class DetailsViewModel @AssistedInject internal constructor(
         started = SharingStarted.Eagerly,
         initialValue = 0,
     )
-    private val askDubbingOnWatchState = screenDataHandler.askDubbingOnWatch.stateIn(
+    private val lastDubbingState = screenDataHandler.lastDubbing.stateIn(
         scope = viewModelScope,
         started = SharingStarted.Eagerly,
-        initialValue = false,
+        initialValue = "",
     )
     private var libraryMutationVersion = 0
     private var favoriteMutationVersion = 0
@@ -169,6 +169,11 @@ class DetailsViewModel @AssistedInject internal constructor(
 
             is DetailsState.Event.DubbingSelected -> {
                 setState { copy(pendingDubbingSelection = null) }
+                viewModelScope.launch {
+                    screenDataHandler.setLastDubbing(
+                        if (event.remember) event.video.dubbing else "",
+                    )
+                }
                 val allVideos =
                     (currentState.videosState as? VideosUiState.Content)?.videos.orEmpty()
                 showBalancerPicker(
@@ -510,10 +515,17 @@ class DetailsViewModel @AssistedInject internal constructor(
 
             is DetailsWatchTarget.Initial -> {
                 setState { copy(isWatchLaunchPending = false) }
-                if (askDubbingOnWatchState.value) {
-                    showDubbingPicker(target.video)
+                val remembered = lastDubbingState.value.trim().takeIf { it.isNotBlank() }?.let { name ->
+                    videos.selectEpisodeDubbingLaunchVideo(
+                        episode = target.video.episode,
+                        dubbingName = name,
+                        preferredPlayer = preferredPlayerState.value,
+                    )
+                }
+                if (remembered != null) {
+                    navigateToPlayer(remembered)
                 } else {
-                    showBalancerPicker(target.video)
+                    showDubbingPicker(target.video)
                 }
             }
 

@@ -35,8 +35,13 @@ internal fun List<AnimeVideo>.episodeDubbingItems(
             )
         }
         .sortedWith(
-            compareByDescending<EpisodeDubbingsState.DubbingItem> { it.views }
-                .thenBy { it.name }
+            compareBy<EpisodeDubbingsState.DubbingItem> { item ->
+                when {
+                    item.name.startsWith("Озвучка") -> 0
+                    item.name.startsWith("Субтитры") -> 1
+                    else -> 2
+                }
+            }.thenByDescending { it.views }.thenBy { it.name }
         )
         .toList()
 }

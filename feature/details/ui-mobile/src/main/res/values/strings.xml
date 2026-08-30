@@ -97,6 +97,7 @@
     <string name="details_mobile_download_quality_title">Download quality</string>
     <string name="details_mobile_download_quality_prompt">Choose quality</string>
     <string name="details_mobile_episode_dubbings_title">Episode %1$s</string>
+    <string name="details_mobile_remember_dubbing">Remember dubbing</string>
     <string name="details_mobile_episode_dubbings_empty">No dubbings found</string>
     <string name="details_mobile_episodes_count_short">%1$d ep.</string>
     <string name="details_mobile_count_thousands">%1$sK</string>

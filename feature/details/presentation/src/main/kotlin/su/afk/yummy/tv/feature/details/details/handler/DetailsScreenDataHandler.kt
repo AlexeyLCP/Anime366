@@ -32,6 +32,9 @@ class DetailsScreenDataHandler @Inject constructor(
 
     /** Спрашивать озвучку при нажатии "Смотреть", вместо автовыбора самой популярной. */
     val askDubbingOnWatch: Flow<Boolean> = settingsStore.askDubbingOnWatch
+    val lastDubbing: Flow<String> = settingsStore.lastDubbing
+
+    suspend fun setLastDubbing(dubbing: String) = settingsStore.setLastDubbing(dubbing)
 
     fun observeLibraryState(animeId: Int): Flow<AnimeLibraryState> =
         observeAnimeLibraryState(animeId)
