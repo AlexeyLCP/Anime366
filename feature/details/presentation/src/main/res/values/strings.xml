@@ -10,4 +10,5 @@
     <string name="details_download_dubbing_unavailable">Sorry, the selected dubbing is unavailable. Try another one.</string>
     <string name="details_download_enqueue_error">Could not queue download</string>
     <string name="details_download_replace_delete_error">The new download was added, but the previous one could not be removed</string>
+    <string name="details_episode_watched_sync_failed">Could not sync the watched mark with the server</string>
 </resources>

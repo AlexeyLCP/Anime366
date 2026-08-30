@@ -20,6 +20,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import su.afk.yummy.tv.core.designsystem.preview.ScreenPreviewTheme
+import su.afk.yummy.tv.feature.details.episodes.view.EpisodeActionsTvDialog
 import su.afk.yummy.tv.feature.details.episodes.view.EpisodeDubbingPickerOverlay
 import su.afk.yummy.tv.feature.details.episodes.view.EpisodesSection
 import su.afk.yummy.tv.feature.details.view.common.BalancerPickerOverlay
@@ -47,6 +48,12 @@ fun EpisodesTvScreen(
         restoreEpisodesFocusRequest += 1
     }
 
+    val episodeAction = state.pendingEpisodeAction
+    fun dismissEpisodeActions() {
+        onEvent(EpisodesState.Event.EpisodeActionsDismissed)
+        restoreEpisodesFocusRequest += 1
+    }
+
     val balancerPicker = state.pendingBalancerSelection
     val dubbingPicker = state.pendingEpisodeDubbingSelection
     fun dismissDubbingPicker() {
@@ -55,7 +62,9 @@ fun EpisodesTvScreen(
     }
 
     fun handleBack() {
-        if (dubbingPicker != null) {
+        if (episodeAction != null) {
+            dismissEpisodeActions()
+        } else if (dubbingPicker != null) {
             dismissDubbingPicker()
         } else if (balancerPicker != null) {
             dismissBalancerPicker()
@@ -64,7 +73,7 @@ fun EpisodesTvScreen(
         }
     }
 
-    BackHandler(enabled = balancerPicker == null && dubbingPicker == null) {
+    BackHandler(enabled = balancerPicker == null && dubbingPicker == null && episodeAction == null) {
         handleBack()
     }
 
@@ -92,6 +101,9 @@ fun EpisodesTvScreen(
             restoreFocusRequest = restoreEpisodesFocusRequest,
             episodeInfo = state.episodeInfo,
             onVideoSelected = { video -> onEvent(EpisodesState.Event.EpisodeSelected(video)) },
+            onVideoLongPressed = { videos ->
+                onEvent(EpisodesState.Event.EpisodeActionsRequested(videos))
+            },
             onRetry = { onEvent(EpisodesState.Event.RetryVideosSelected) },
         )
 
@@ -105,6 +117,16 @@ fun EpisodesTvScreen(
                     onEvent(EpisodesState.Event.BalancerConfirmed(option.video))
                 },
                 onDismiss = ::dismissBalancerPicker,
+            )
+        }
+        if (episodeAction != null) {
+            EpisodeActionsTvDialog(
+                action = episodeAction,
+                onToggleWatched = {
+                    onEvent(EpisodesState.Event.EpisodeWatchedToggled)
+                    restoreEpisodesFocusRequest += 1
+                },
+                onDismiss = ::dismissEpisodeActions,
             )
         }
         if (dubbingPicker != null) {

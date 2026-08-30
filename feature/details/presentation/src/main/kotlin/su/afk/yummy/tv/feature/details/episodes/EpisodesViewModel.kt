@@ -15,15 +15,16 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import su.afk.yummy.tv.core.mvi.BaseViewModel
 import su.afk.yummy.tv.core.error.api.ErrorHandler
 import su.afk.yummy.tv.core.error.api.RetryStorage
 import su.afk.yummy.tv.core.error.api.StringProvider
 import su.afk.yummy.tv.core.model.anime.AnimeVideo
 import su.afk.yummy.tv.core.model.anime.AnimeWatchProgress
+import su.afk.yummy.tv.core.model.anime.isWatchedProgress
+import su.afk.yummy.tv.core.model.settings.PreferredPlayer
+import su.afk.yummy.tv.core.mvi.BaseViewModel
 import su.afk.yummy.tv.core.navigation.manager.INavigationManager
 import su.afk.yummy.tv.core.preferences.settings.PlayerSettingsStore
-import su.afk.yummy.tv.core.model.settings.PreferredPlayer
 import su.afk.yummy.tv.core.utils.episode.episodeGroupKey
 import su.afk.yummy.tv.domain.account.usecase.ObserveAccountSessionUseCase
 import su.afk.yummy.tv.domain.anime.usecase.GetAnimeDetailsUseCase
@@ -41,6 +42,7 @@ import su.afk.yummy.tv.feature.details.episodes.dubbings.selectEpisodeDubbingLau
 import su.afk.yummy.tv.feature.details.episodes.handler.EpisodeDownloadEnqueueResult
 import su.afk.yummy.tv.feature.details.episodes.handler.EpisodeDownloadHandler
 import su.afk.yummy.tv.feature.details.episodes.handler.EpisodeDownloadPrepareResult
+import su.afk.yummy.tv.feature.details.episodes.handler.EpisodeWatchedHandler
 import su.afk.yummy.tv.feature.details.episodes.utils.buildEpisodeGroups
 import su.afk.yummy.tv.feature.details.episodes.utils.isActive
 import su.afk.yummy.tv.feature.details.episodes.utils.resolveDownloadStatuses
@@ -69,6 +71,7 @@ class EpisodesViewModel @AssistedInject internal constructor(
     private val observeAccountSession: ObserveAccountSessionUseCase,
     private val playerNavigationHandler: DetailsPlayerNavigationHandler,
     private val downloadHandler: EpisodeDownloadHandler,
+    private val watchedHandler: EpisodeWatchedHandler,
     private val observeVideoDownloadStatuses: ObserveVideoDownloadStatusesUseCase,
     private val stringProvider: StringProvider,
     private val analytics: DetailsAnalytics,
@@ -162,6 +165,30 @@ class EpisodesViewModel @AssistedInject internal constructor(
             EpisodesState.Event.EpisodeDubbingPickerDismissed ->
                 setState { copy(pendingEpisodeDubbingSelection = null) }
 
+            is EpisodesState.Event.EpisodeActionsRequested -> {
+                val videos = event.videos.toImmutableList()
+                val episode = videos.firstOrNull()?.episode.orEmpty()
+                if (episode.isBlank()) return
+                setState {
+                    copy(
+                        pendingEpisodeAction = EpisodesState.EpisodeAction(
+                            episode = episode,
+                            videos = videos,
+                            isWatched = watchProgress.bestFor(videos)?.isWatchedProgress() == true,
+                        )
+                    )
+                }
+            }
+
+            EpisodesState.Event.EpisodeWatchedToggled -> {
+                val action = currentState.pendingEpisodeAction ?: return
+                setState { copy(pendingEpisodeAction = null) }
+                viewModelScope.launch { toggleEpisodeWatched(action) }
+            }
+
+            EpisodesState.Event.EpisodeActionsDismissed ->
+                setState { copy(pendingEpisodeAction = null) }
+
             is EpisodesState.Event.BalancerConfirmed -> {
                 analytics.eventEpisodesBalancerConfirmed(animeId, event.video)
                 setState { copy(pendingBalancerSelection = null) }
@@ -253,6 +280,49 @@ class EpisodesViewModel @AssistedInject internal constructor(
 
             EpisodesState.Event.OpenDownloadsScreenSelected ->
                 nav.navigate(videoDownloadNavigator.getVideoDownloadDest())
+        }
+    }
+
+    /**
+     * Ручная отметка серии просмотренной и её снятие.
+     *
+     * Список серий перечитывается с сервера: серверные отметки кешируются вместе с видео, и без
+     * этого снятая отметка вернулась бы при следующем слиянии локального и серверного прогресса.
+     * Локальное состояние подхватит подписка [observeAnimeWatchProgress] — вручную его не трогаем.
+     */
+    private suspend fun toggleEpisodeWatched(action: EpisodesState.EpisodeAction) {
+        val succeeded = if (action.isWatched) {
+            watchedHandler.unmarkWatched(
+                animeId = animeId,
+                episode = action.episode,
+                videos = action.videos,
+                isSignedIn = isSignedIn,
+            )
+        } else {
+            watchedHandler.markWatched(
+                animeId = animeId,
+                episode = action.episode,
+                videos = action.videos,
+                bestDubbing = currentState.bestDubbing,
+                existing = currentState.watchProgress.bestFor(action.videos),
+                meta = EpisodeWatchedHandler.EpisodeMeta(
+                    animeTitle = animeTitle,
+                    posterUrl = posterUrl,
+                    screenshotUrl = screenshotsByEpisode[action.episode].orEmpty(),
+                ),
+                isSignedIn = isSignedIn,
+            )
+        }
+
+        if (!succeeded) {
+            setEffect(
+                EpisodesState.Effect.ShowToast(
+                    stringProvider.get(R.string.details_episode_watched_sync_failed)
+                )
+            )
+        }
+        if (isSignedIn) {
+            refreshVideosFromNetwork()
         }
     }
 

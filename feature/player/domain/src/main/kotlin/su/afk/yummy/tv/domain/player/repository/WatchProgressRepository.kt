@@ -35,6 +35,9 @@ interface WatchProgressRepository {
         screenshotUrl: String,
     )
 
+    /** Удаляет локальный прогресс серии, например при снятии ручной отметки о просмотре. */
+    suspend fun delete(animeId: Int, episode: String)
+
     suspend fun suppressContinueWatchingDisplay(animeId: Int, suppressedAt: Long)
 
     suspend fun allMeaningfulVideoProgress(): List<AnimeWatchProgress>

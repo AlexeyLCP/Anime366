@@ -1,7 +1,8 @@
 package su.afk.yummy.tv.feature.details.mobile.view
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -32,6 +33,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 internal fun DetailsMediaCard(
     title: String,
@@ -54,6 +56,8 @@ internal fun DetailsMediaCard(
     /** Блок под основной строкой карточки — например, раскрывашка описания. */
     bottomContent: (@Composable () -> Unit)? = null,
     onClick: () -> Unit,
+    /** Долгое нажатие по карточке — например, меню действий над серией. */
+    onLongClick: (() -> Unit)? = null,
 ) {
     val contentWeight = 1f - mediaWeight
     val resolvedMediaProgressColor = if (mediaProgressColor == Color.Unspecified) {
@@ -79,7 +83,7 @@ internal fun DetailsMediaCard(
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick),
+            .combinedClickable(onClick = onClick, onLongClick = onLongClick),
         shape = RoundedCornerShape(8.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
     ) {

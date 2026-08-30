@@ -65,6 +65,8 @@ internal class DefaultWatchProgressRepository @Inject constructor(
         screenshotUrl = screenshotUrl,
     )
 
+    override suspend fun delete(animeId: Int, episode: String) = store.delete(animeId, episode)
+
     override suspend fun suppressContinueWatchingDisplay(animeId: Int, suppressedAt: Long) =
         store.suppressContinueWatchingDisplay(animeId, suppressedAt)
 

@@ -136,4 +136,8 @@
     <string name="details_relation_director">Director</string>
     <string name="details_relation_genre">Genre</string>
     <string name="details_relation_titles_found">Titles found: %1$d</string>
+    <string name="details_tv_episode_actions_title">Episode %1$s</string>
+    <string name="details_tv_mark_episode_watched">Mark as watched</string>
+    <string name="details_tv_unmark_episode_watched">Remove watched mark</string>
+    <string name="details_tv_episode_actions_cancel">Cancel</string>
 </resources>

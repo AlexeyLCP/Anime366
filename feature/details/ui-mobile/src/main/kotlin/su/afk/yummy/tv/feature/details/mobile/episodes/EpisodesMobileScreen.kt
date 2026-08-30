@@ -33,6 +33,7 @@ import su.afk.yummy.tv.feature.details.mobile.R
 import su.afk.yummy.tv.feature.details.mobile.details.view.BalancerDialog
 import su.afk.yummy.tv.feature.details.mobile.episodes.utils.mobileWatchStatus
 import su.afk.yummy.tv.feature.details.mobile.episodes.utils.representativeVideo
+import su.afk.yummy.tv.feature.details.mobile.episodes.view.EpisodeActionsSheet
 import su.afk.yummy.tv.feature.details.mobile.episodes.view.EpisodeDownloadBalancerSheet
 import su.afk.yummy.tv.feature.details.mobile.episodes.view.EpisodeDownloadDubbingSheet
 import su.afk.yummy.tv.feature.details.mobile.episodes.view.EpisodeDownloadQualitySheet
@@ -138,10 +139,21 @@ fun EpisodesMobileScreen(
                             onEvent(EpisodesState.Event.OpenDownloadsScreenSelected)
                         },
                         onClick = { onEvent(EpisodesState.Event.EpisodeSelected(video)) },
+                        onLongClick = {
+                            onEvent(EpisodesState.Event.EpisodeActionsRequested(group.videos))
+                        },
                     )
                 }
             }
         }
+    }
+
+    state.pendingEpisodeAction?.let { action ->
+        EpisodeActionsSheet(
+            action = action,
+            onToggleWatched = { onEvent(EpisodesState.Event.EpisodeWatchedToggled) },
+            onDismiss = { onEvent(EpisodesState.Event.EpisodeActionsDismissed) },
+        )
     }
 
     state.pendingEpisodeDubbingSelection?.let { selection ->

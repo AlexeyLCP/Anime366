@@ -7,11 +7,11 @@ import kotlinx.collections.immutable.PersistentSet
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.collections.immutable.persistentSetOf
+import su.afk.yummy.tv.core.model.anime.AnimeEpisodeInfo
+import su.afk.yummy.tv.core.model.anime.AnimeVideo
 import su.afk.yummy.tv.core.mvi.UiEffect
 import su.afk.yummy.tv.core.mvi.UiEvent
 import su.afk.yummy.tv.core.mvi.UiState
-import su.afk.yummy.tv.core.model.anime.AnimeEpisodeInfo
-import su.afk.yummy.tv.core.model.anime.AnimeVideo
 import su.afk.yummy.tv.feature.details.details.model.BalancerPickerState
 import su.afk.yummy.tv.feature.details.details.model.VideosUiState
 import su.afk.yummy.tv.feature.details.episodes.dubbings.EpisodeDubbingsState
@@ -30,6 +30,8 @@ class EpisodesState {
         val pendingDownloadBalancerSelection: EpisodeDownloadBalancerSelection? = null,
         val pendingDownloadQualitySelection: EpisodeDownloadQualitySelection? = null,
         val pendingDownloadedEpisodeAction: DownloadedEpisodeAction? = null,
+        /** Открытое меню действий над серией (долгое нажатие по карточке). */
+        val pendingEpisodeAction: EpisodeAction? = null,
         /** Названия и описания серий из YummyTV API по номеру серии. */
         val episodeInfo: ImmutableMap<String, AnimeEpisodeInfo> = persistentMapOf(),
         /** Серии с раскрытым описанием (мобильная карточка). */
@@ -46,6 +48,14 @@ class EpisodesState {
     data class EpisodeGroup(
         val episode: String,
         val videos: ImmutableList<AnimeVideo>,
+    )
+
+    @Immutable
+    data class EpisodeAction(
+        val episode: String,
+        val videos: ImmutableList<AnimeVideo>,
+        /** Текущий статус серии — от него зависит направление действия. */
+        val isWatched: Boolean,
     )
 
     @Immutable
@@ -198,6 +208,15 @@ class EpisodesState {
 
         /** Пользователь нажал иконку хранилища у скачиваемой серии, чтобы перейти в загрузки. */
         data object OpenDownloadsScreenSelected : Event
+
+        /** Пользователь вызвал меню действий над серией долгим нажатием. */
+        data class EpisodeActionsRequested(val videos: List<AnimeVideo>) : Event
+
+        /** Пользователь переключил отметку "просмотрено" у серии. */
+        data object EpisodeWatchedToggled : Event
+
+        /** Пользователь закрыл меню действий над серией. */
+        data object EpisodeActionsDismissed : Event
 
         /** Пользователь подтвердил видео для запуска после выбора балансера. */
         data class BalancerConfirmed(val video: AnimeVideo) : Event

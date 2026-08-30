@@ -50,6 +50,7 @@ internal fun EpisodeCard(
     episodeTitle: String? = null,
     kodikIframeUrl: String?,
     onClick: () -> Unit,
+    onLongClick: (() -> Unit)? = null,
     modifier: Modifier = Modifier,
     episodeNumber: String = video.episode,
 ) {
@@ -58,7 +59,7 @@ internal fun EpisodeCard(
     Card(
         modifier = modifier
             .width(CardWidth)
-            .tvFocusableClick(onClick = onClick, shape = shape),
+            .tvFocusableClick(onClick = onClick, shape = shape, onLongClick = onLongClick),
         shape = shape,
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceVariant,

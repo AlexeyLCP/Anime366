@@ -53,6 +53,7 @@ internal fun EpisodesGrid(
     restoreFocusRequest: Int,
     episodeInfo: Map<String, AnimeEpisodeInfo>,
     onVideoSelected: (AnimeVideo) -> Unit,
+    onVideoLongPressed: (List<AnimeVideo>) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val episodeKeys = remember(episodeGroups) { episodeGroups.map { it.episode } }
@@ -182,6 +183,10 @@ internal fun EpisodesGrid(
                             ?: groupVideos.firstOrNull { !it.isAlloha() }
                             ?: groupVideos.first()
                         onVideoSelected(pick)
+                    },
+                    onLongClick = {
+                        lastFocusedIndex = index
+                        onVideoLongPressed(groupVideos)
                     },
                     modifier = Modifier
                         .focusRequester(focusRequesters[index])

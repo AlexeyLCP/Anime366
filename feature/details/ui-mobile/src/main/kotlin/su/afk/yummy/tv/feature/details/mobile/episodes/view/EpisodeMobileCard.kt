@@ -63,6 +63,7 @@ internal fun EpisodeMobileCard(
     onDownloadClick: () -> Unit,
     onOpenDownloadsClick: () -> Unit,
     onClick: () -> Unit,
+    onLongClick: () -> Unit,
 ) {
     val downloadStatusText = downloadStatusText(
         status = downloadStatus,
@@ -116,6 +117,7 @@ internal fun EpisodeMobileCard(
             }
         },
         onClick = onClick,
+        onLongClick = onLongClick,
     )
 }
 

@@ -24,6 +24,7 @@ internal fun EpisodesSection(
     watchProgress: DetailsWatchProgressIndex,
     restoreFocusRequest: Int,
     onVideoSelected: (AnimeVideo) -> Unit,
+    onVideoLongPressed: (List<AnimeVideo>) -> Unit,
     episodeInfo: Map<String, AnimeEpisodeInfo> = emptyMap(),
     onRetry: (() -> Unit)? = null,
 ) {
@@ -49,6 +50,7 @@ internal fun EpisodesSection(
             restoreFocusRequest = restoreFocusRequest,
             episodeInfo = episodeInfo,
             onVideoSelected = onVideoSelected,
+            onVideoLongPressed = onVideoLongPressed,
             modifier = Modifier.fillMaxSize(),
         )
     }
