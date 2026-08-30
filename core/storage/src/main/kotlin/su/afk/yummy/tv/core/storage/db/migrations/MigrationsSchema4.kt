@@ -209,3 +209,14 @@ internal val MIGRATION_50_51 = object : Migration(50, 51) {
         db.execSQL("ALTER TABLE library ADD COLUMN rating REAL")
     }
 }
+
+/**
+ * Сезон выхода тайтла (квартал года). Приходит вместе со списками пользователя, поэтому старые
+ * записи заполняются сами при ближайшей синхронизации — разовый бэкфилл не нужен.
+ */
+internal val MIGRATION_51_52 = object : Migration(51, 52) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("ALTER TABLE account_user_list_items ADD COLUMN season TEXT")
+        db.execSQL("ALTER TABLE library ADD COLUMN season TEXT")
+    }
+}

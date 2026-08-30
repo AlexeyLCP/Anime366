@@ -63,6 +63,8 @@ data class AccountUserListItemEntry(
     val isFavorite: Boolean,
     val updatedAtSeconds: Long? = null,
     val nextEpisodeAtSeconds: Long? = null,
+    /** Сезон выхода, слаг [su.afk.yummy.tv.core.model.anime.AnimeSeason]. */
+    val season: String? = null,
 )
 
 @Entity(

@@ -1,5 +1,6 @@
 package su.afk.yummy.tv.data.account.storage.mapper
 
+import su.afk.yummy.tv.core.model.anime.AnimeSeason
 import su.afk.yummy.tv.core.storage.account.AccountAnimeListStateEntry
 import su.afk.yummy.tv.core.storage.account.AccountCollectionItemEntry
 import su.afk.yummy.tv.core.storage.account.AccountCollectionsPageCache
@@ -320,6 +321,7 @@ private fun AccountUserListItemEntry.toUserListItem(): UserAnimeListItem {
         isFavorite = isFavorite,
         updatedAtSeconds = updatedAtSeconds,
         nextEpisodeAtSeconds = nextEpisodeAtSeconds,
+        season = AnimeSeason.fromSlug(season),
     )
 }
 

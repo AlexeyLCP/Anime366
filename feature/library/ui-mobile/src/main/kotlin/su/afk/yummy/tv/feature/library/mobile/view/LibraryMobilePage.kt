@@ -32,6 +32,7 @@ import su.afk.yummy.tv.feature.library.mobile.utils.mobileReleaseCountdownText
 import su.afk.yummy.tv.feature.library.mobile.utils.mobileTabItemCount
 import su.afk.yummy.tv.feature.library.mobile.utils.mobileTitle
 import su.afk.yummy.tv.feature.library.mobile.utils.mobileUserRating
+import su.afk.yummy.tv.feature.library.mobile.utils.mobileYearSeasonText
 import su.afk.yummy.tv.feature.library.mobile.utils.posterUrl
 import su.afk.yummy.tv.feature.library.mobile.utils.shouldShowRemoteLoader
 import su.afk.yummy.tv.feature.library.model.LibraryTab
@@ -113,6 +114,7 @@ internal fun LibraryMobilePage(
         }
 
         items(libraryItems, key = { it.animeId }) { item ->
+            val yearSeasonText = item.mobileYearSeasonText()
             MobileTitleListCard(
                 title = item.title,
                 posterUrl = item.posterUrl(),
@@ -121,9 +123,9 @@ internal fun LibraryMobilePage(
                 captionText = item.mobileReleaseCountdownText(nowEpochSeconds),
                 posterOverlay = {
                     if (state.showTitleYear) {
-                        item.year?.let { year ->
+                        yearSeasonText?.let { text ->
                             LibraryMobileYearBadge(
-                                year = year,
+                                text = text,
                                 modifier = Modifier
                                     .align(Alignment.BottomEnd)
                                     .padding(3.dp),
@@ -184,14 +186,16 @@ internal fun LibraryMobileEmptyList() {
     }
 }
 
-/** Год выхода тайтла в углу постера — как на карточках топа, но компактнее под узкий постер. */
+/**
+ * Год и сезон выхода в углу постера — как на карточках топа, но компактнее под узкий постер.
+ */
 @Composable
 private fun LibraryMobileYearBadge(
-    year: Int,
+    text: String,
     modifier: Modifier = Modifier,
 ) {
     Text(
-        text = year.toString(),
+        text = text,
         fontSize = 11.sp,
         fontWeight = FontWeight.Bold,
         color = MaterialTheme.colorScheme.inverseSurface,

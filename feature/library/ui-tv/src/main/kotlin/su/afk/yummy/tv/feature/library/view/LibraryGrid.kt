@@ -55,6 +55,7 @@ import su.afk.yummy.tv.feature.library.utils.posterUrl
 import su.afk.yummy.tv.feature.library.utils.tvDateText
 import su.afk.yummy.tv.feature.library.utils.tvReleaseCountdownText
 import su.afk.yummy.tv.feature.library.utils.tvUserRating
+import su.afk.yummy.tv.feature.library.utils.tvYearSeasonText
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -219,6 +220,7 @@ internal fun LibraryGrid(
                     val stableOnFocused =
                         remember(item.animeId, index) { { rememberFocusedItem(index) } }
                     val rating = item.tvUserRating()
+                    val yearSeasonText = item.tvYearSeasonText()
                     val stableOnDelete = remember(item.animeId, index) {
                         {
                             pendingFocusAfterDeleteIndex = index
@@ -254,9 +256,9 @@ internal fun LibraryGrid(
                                 )
                             }
                             if (showTitleYear) {
-                                item.year?.let { year ->
+                                yearSeasonText?.let { text ->
                                     LibraryYearBadge(
-                                        year = year,
+                                        text = text,
                                         modifier = Modifier
                                             .align(Alignment.BottomEnd)
                                             .padding(4.dp),
@@ -294,14 +296,14 @@ internal fun LibraryGrid(
     }
 }
 
-/** Год выхода тайтла в углу постера — разметка совпадает с карточкой топа. */
+/** Год и сезон выхода тайтла в углу постера — разметка совпадает с карточкой топа. */
 @Composable
 private fun LibraryYearBadge(
-    year: Int,
+    text: String,
     modifier: Modifier = Modifier,
 ) {
     Text(
-        text = year.toString(),
+        text = text,
         style = MaterialTheme.typography.labelMedium,
         fontWeight = FontWeight.Bold,
         color = MaterialTheme.colorScheme.onSurface,

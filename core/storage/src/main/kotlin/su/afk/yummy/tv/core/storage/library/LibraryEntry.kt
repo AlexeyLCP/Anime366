@@ -30,6 +30,8 @@ data class LibraryEntry(
     /** Общий рейтинг тайтла, приходит вместе со списками пользователя. */
     val rating: Double? = null,
     val nextEpisodeAtSeconds: Long? = null,
+    /** Сезон выхода, слаг [su.afk.yummy.tv.core.model.anime.AnimeSeason]. */
+    val season: String? = null,
 )
 
 data class LibraryPoster(

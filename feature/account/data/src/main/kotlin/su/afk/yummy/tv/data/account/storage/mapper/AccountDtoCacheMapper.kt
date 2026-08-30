@@ -4,6 +4,7 @@ import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.doubleOrNull
 import kotlinx.serialization.json.intOrNull
+import su.afk.yummy.tv.core.model.anime.AnimeSeason
 import su.afk.yummy.tv.core.storage.account.ACCOUNT_USER_PROFILE_CONTENT_FRIENDS
 import su.afk.yummy.tv.core.storage.account.ACCOUNT_USER_PROFILE_CONTENT_POSTS
 import su.afk.yummy.tv.core.storage.account.ACCOUNT_USER_PROFILE_CONTENT_REVIEWS
@@ -97,6 +98,7 @@ internal fun List<YaniUserAnimeDto>.toUserListCache(
                 isFavorite = item.user?.list?.isFav == true,
                 updatedAtSeconds = item.date?.takeIf { it > 0L },
                 nextEpisodeAtSeconds = item.nextEpisode?.takeIf { it > 0L },
+                season = item.season.toAnimeSeason()?.slug,
             )
         },
     )
@@ -316,6 +318,15 @@ private fun YaniAccountPosterDto.standardUrl(): String? =
 private fun YaniAccountPosterDto.bestUrl(): String? =
     mega?.toHttpsUrl() ?: huge?.toHttpsUrl() ?: big?.toHttpsUrl() ?: medium?.toHttpsUrl()
     ?: fullsize?.toHttpsUrl() ?: small?.toHttpsUrl()
+
+/**
+ * Сезон в ответах yani приходит либо числом 1..4, либо слагом `winter`/`spring`/`summer`/`fall`.
+ */
+internal fun JsonElement?.toAnimeSeason(): AnimeSeason? {
+    val primitive = this as? JsonPrimitive ?: return null
+    if (primitive.isString) return AnimeSeason.fromSlug(primitive.content)
+    return AnimeSeason.fromNumber(primitive.intOrNull)
+}
 
 private fun JsonElement?.toFlexibleInt(): Int? {
     val primitive = this as? JsonPrimitive ?: return null

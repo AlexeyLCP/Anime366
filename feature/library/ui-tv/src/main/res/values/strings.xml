@@ -40,4 +40,9 @@
         <item quantity="one">Next episode in %1$d minute</item>
         <item quantity="other">Next episode in %1$d minutes</item>
     </plurals>
+    <string name="library_season_winter">Winter</string>
+    <string name="library_season_spring">Spring</string>
+    <string name="library_season_summer">Summer</string>
+    <string name="library_season_fall">Fall</string>
+    <string name="library_year_season">%1$s · %2$s</string>
 </resources>

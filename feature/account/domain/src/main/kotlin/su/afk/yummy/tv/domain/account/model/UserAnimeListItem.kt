@@ -1,5 +1,7 @@
 package su.afk.yummy.tv.domain.account.model
 
+import su.afk.yummy.tv.core.model.anime.AnimeSeason
+
 data class UserAnimeListItem(
     val animeId: Int,
     val title: String,
@@ -13,4 +15,6 @@ data class UserAnimeListItem(
     val userRating: Int? = null,
     /** Дата выхода следующей серии, epoch-секунды. */
     val nextEpisodeAtSeconds: Long? = null,
+    /** Сезон выхода (квартал года). */
+    val season: AnimeSeason? = null,
 )

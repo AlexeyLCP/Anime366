@@ -1,5 +1,7 @@
 package su.afk.yummy.tv.domain.library.model
 
+import su.afk.yummy.tv.core.model.anime.AnimeSeason
+
 const val FAVORITE_ONLY_LIBRARY_LIST_ID = -1
 
 data class LibraryItem(
@@ -17,4 +19,6 @@ data class LibraryItem(
     val rating: Double? = null,
     /** Дата выхода следующей серии, epoch-секунды. */
     val nextEpisodeAtSeconds: Long? = null,
+    /** Сезон выхода (квартал года). */
+    val season: AnimeSeason? = null,
 )

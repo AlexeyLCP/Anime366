@@ -10,6 +10,7 @@ java {
 
 dependencies {
     api(libs.kotlinx.coroutines.core)
+    api(project(":core:model"))
     implementation(project(":feature:account:domain"))
     implementation(libs.javax.inject)
 }

@@ -46,4 +46,9 @@
         <item quantity="many">До выхода серии %1$d минут</item>
         <item quantity="other">До выхода серии %1$d минуты</item>
     </plurals>
+    <string name="library_season_winter">Зима</string>
+    <string name="library_season_spring">Весна</string>
+    <string name="library_season_summer">Лето</string>
+    <string name="library_season_fall">Осень</string>
+    <string name="library_year_season">%1$s · %2$s</string>
 </resources>

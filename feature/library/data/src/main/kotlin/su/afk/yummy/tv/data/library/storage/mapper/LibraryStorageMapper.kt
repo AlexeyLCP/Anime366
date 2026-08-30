@@ -1,5 +1,6 @@
 package su.afk.yummy.tv.data.library.storage.mapper
 
+import su.afk.yummy.tv.core.model.anime.AnimeSeason
 import su.afk.yummy.tv.core.storage.library.LibraryEntry
 import su.afk.yummy.tv.domain.library.model.LibraryItem
 import su.afk.yummy.tv.domain.library.model.LibraryPoster
@@ -25,6 +26,7 @@ internal fun LibraryEntry.toLibraryItem(): LibraryItem =
         year = year,
         rating = rating,
         nextEpisodeAtSeconds = nextEpisodeAtSeconds,
+        season = AnimeSeason.fromSlug(season),
     )
 
 internal fun LibraryItem.toLibraryEntry(): LibraryEntry =
@@ -45,6 +47,7 @@ internal fun LibraryItem.toLibraryEntry(): LibraryEntry =
         year = year,
         rating = rating,
         nextEpisodeAtSeconds = nextEpisodeAtSeconds,
+        season = season?.slug,
     )
 
 internal fun LibraryPoster?.toStoragePoster(): StorageLibraryPoster? =
