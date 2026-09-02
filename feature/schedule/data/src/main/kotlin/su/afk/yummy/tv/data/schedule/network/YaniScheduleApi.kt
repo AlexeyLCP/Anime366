@@ -26,10 +26,10 @@ class YaniScheduleApi(
                     animeId = it.id,
                     title = it.displayTitle(),
                     poster = YaniSchedulePosterDto(
-                        small = it.posterUrlSmall,
-                        medium = it.posterUrl,
-                        big = it.posterUrl,
-                        fullsize = it.posterUrl,
+                        small = it.listPosterSmall(),
+                        medium = it.listPosterSmall(),
+                        big = it.listPosterFull(),
+                        fullsize = it.listPosterFull(),
                     ),
                     episodes = YaniScheduleEpisodesDto(count = it.numberOfEpisodes),
                 )

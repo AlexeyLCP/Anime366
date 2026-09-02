@@ -38,6 +38,9 @@ data class Anime365SeriesDto(
     fun description(): String =
         descriptions.firstOrNull { it.source.contains("shikimori", ignoreCase = true) }?.value
             ?: descriptions.firstOrNull()?.value.orEmpty()
+
+    fun listPosterSmall(): String? = posterUrlSmall ?: posterUrl
+    fun listPosterFull(): String? = posterUrl ?: posterUrlSmall
 }
 
 @Serializable

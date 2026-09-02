@@ -2,6 +2,8 @@ package su.afk.yummy.tv.android.startup
 
 import android.app.ActivityManager
 import android.content.Context
+import android.graphics.Bitmap
+import android.os.Build
 import coil3.ImageLoader
 import coil3.SingletonImageLoader
 import coil3.annotation.ExperimentalCoilApi
@@ -9,7 +11,13 @@ import coil3.disk.DiskCache
 import coil3.disk.directory
 import coil3.memory.MemoryCache
 import coil3.network.ktor3.KtorNetworkFetcherFactory
+import coil3.request.allowHardware
+import coil3.request.allowRgb565
+import coil3.request.bitmapConfig
 import coil3.request.crossfade
+import coil3.request.maxBitmapSize
+import coil3.size.Precision
+import coil3.size.Size
 import dagger.hilt.android.qualifiers.ApplicationContext
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.okhttp.OkHttp
@@ -45,8 +53,9 @@ class CoilImageLoaderInstaller @Inject constructor(
     @OptIn(ExperimentalCoilApi::class)
     fun install() {
         val cacheBytes = settingsStore.currentPreviewCacheSize.toLong() * 1024L * 1024L
+        val weak = isWeakDevice()
         val memoryCachePercent =
-            if (isLowRamDevice()) LOW_RAM_MEMORY_CACHE_PERCENT else MEMORY_CACHE_PERCENT
+            if (weak) LOW_RAM_MEMORY_CACHE_PERCENT else MEMORY_CACHE_PERCENT
 
         SingletonImageLoader.setSafe {
             // newBuilder(): общий пул соединений и диспетчер с API-клиентом,
@@ -57,10 +66,18 @@ class CoilImageLoaderInstaller @Inject constructor(
                 }
             }
             ImageLoader.Builder(it)
-                .crossfade(true)
+                .crossfade(!weak)
+                .precision(Precision.INEXACT)
+                .maxBitmapSize(if (weak) WEAK_MAX_BITMAP else DEFAULT_MAX_BITMAP)
+                .allowHardware(!weak)
+                .allowRgb565(weak)
+                .apply {
+                    if (weak) bitmapConfig(Bitmap.Config.RGB_565)
+                }
                 .memoryCache {
                     MemoryCache.Builder()
                         .maxSizePercent(context, memoryCachePercent)
+                        .strongReferencesEnabled(!weak)
                         .build()
                 }
                 .diskCache {
@@ -91,12 +108,25 @@ class CoilImageLoaderInstaller @Inject constructor(
         }
     }
 
-    private fun isLowRamDevice(): Boolean =
-        (context.getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager)?.isLowRamDevice == true
+    fun trimMemory() {
+        SingletonImageLoader.get(context).memoryCache?.clear()
+    }
+
+    private fun isWeakDevice(): Boolean {
+        if (Build.SUPPORTED_64_BIT_ABIS.isEmpty()) return true
+        val am = context.getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager
+            ?: return false
+        if (am.isLowRamDevice || am.memoryClass <= 192) return true
+        val info = ActivityManager.MemoryInfo()
+        am.getMemoryInfo(info)
+        return info.totalMem in 1 until 1_800_000_000L
+    }
 
     private companion object {
         const val IMAGE_CACHE_DIR_NAME = "image_cache"
-        const val MEMORY_CACHE_PERCENT = 0.15
-        const val LOW_RAM_MEMORY_CACHE_PERCENT = 0.10
+        const val MEMORY_CACHE_PERCENT = 0.12
+        const val LOW_RAM_MEMORY_CACHE_PERCENT = 0.05
+        val WEAK_MAX_BITMAP = Size(480, 720)
+        val DEFAULT_MAX_BITMAP = Size(1080, 1920)
     }
 }

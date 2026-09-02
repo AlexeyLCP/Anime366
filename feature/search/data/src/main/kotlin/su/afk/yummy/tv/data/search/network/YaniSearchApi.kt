@@ -82,12 +82,12 @@ private fun SearchFilters.seriesComparator(): Comparator<Anime365SeriesDto> {
 private fun Anime365SeriesDto.toSearchItem(): YaniSearchItemDto = YaniSearchItemDto(
     animeId = id,
     title = displayTitle(),
-    poster = YaniSearchPosterDto(
-        small = posterUrlSmall,
-        medium = posterUrl,
-        big = posterUrl,
-        fullsize = posterUrl,
-    ),
+        poster = YaniSearchPosterDto(
+            small = listPosterSmall(),
+            medium = listPosterSmall(),
+            big = listPosterFull(),
+            fullsize = listPosterFull(),
+        ),
     rating = myAnimeListScore?.let { YaniSearchRatingDto(average = it) },
     year = year,
 )

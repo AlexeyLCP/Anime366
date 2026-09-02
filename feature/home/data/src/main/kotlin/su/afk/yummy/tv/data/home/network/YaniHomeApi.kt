@@ -65,7 +65,13 @@ private fun Anime365SeriesDto.toYaniAnime(): YaniAnimeDto = YaniAnimeDto(
     animeUrl = url,
     title = displayTitle(),
     description = description(),
-    poster = YaniPosterDto(small = posterUrlSmall, medium = posterUrl, big = posterUrl, fullsize = posterUrl),
+    poster = YaniPosterDto(
+        small = listPosterSmall(),
+        medium = listPosterSmall(),
+        big = listPosterFull(),
+        fullsize = listPosterFull(),
+        mega = listPosterFull(),
+    ),
     rating = myAnimeListScore?.let { YaniRatingDto(average = it) },
     year = year,
 )
@@ -81,10 +87,11 @@ private fun Anime365TranslationDto.toYaniVideo(): YaniVideoDto {
         dubTitle = authorsSummary.ifBlank { null },
         playerTitle = qualityType.ifBlank { "Anime365" },
         poster = YaniPosterDto(
-            small = seriesDto?.posterUrlSmall,
-            medium = seriesDto?.posterUrl,
-            big = seriesDto?.posterUrl,
-            fullsize = seriesDto?.posterUrl,
+            small = seriesDto?.listPosterSmall(),
+            medium = seriesDto?.listPosterSmall(),
+            big = seriesDto?.listPosterFull(),
+            fullsize = seriesDto?.listPosterFull(),
+            mega = seriesDto?.listPosterFull(),
         ),
     )
 }

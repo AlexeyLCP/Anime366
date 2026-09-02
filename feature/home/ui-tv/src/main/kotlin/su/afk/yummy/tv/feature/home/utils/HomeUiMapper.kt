@@ -15,7 +15,7 @@ internal fun HomeFeedItem.focusKey(): String = when (val action = action) {
 }
 
 internal fun HomeFeedItem.posterUrl(quality: PosterQuality): String? = when (quality) {
-    PosterQuality.LOW -> poster?.medium ?: poster?.big ?: poster?.fullsize ?: poster?.small
+    PosterQuality.LOW -> poster?.small ?: poster?.medium ?: poster?.big ?: poster?.fullsize
     PosterQuality.STANDARD -> poster?.big ?: poster?.medium ?: poster?.fullsize ?: poster?.small
     PosterQuality.MEGA -> poster?.mega ?: poster?.big ?: poster?.medium ?: poster?.fullsize
     ?: poster?.small

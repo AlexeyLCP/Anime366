@@ -1,6 +1,5 @@
 package su.afk.yummy.tv.core.preferences.settings.datastore
 
-import android.os.Build
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import su.afk.yummy.tv.core.model.settings.AppTheme
@@ -92,15 +91,6 @@ internal class DataStoreAppearanceSettingsStore @Inject constructor(
     }
 
     internal companion object {
-        /**
-         * На Android 12+ хватает памяти на постеры в максимальном качестве; на более старых
-         * устройствах по умолчанию стандартное, чтобы не упираться в лимит bitmap-кэша.
-         */
-        val defaultPosterQuality: PosterQuality
-            get() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                PosterQuality.MEGA
-            } else {
-                PosterQuality.STANDARD
-            }
+        val defaultPosterQuality: PosterQuality = PosterQuality.LOW
     }
 }

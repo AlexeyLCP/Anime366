@@ -54,7 +54,7 @@ internal fun HomePoster?.bestUrl(): String? =
 internal fun LibraryItem.posterUrl(quality: PosterQuality): String? = poster.posterUrl(quality)
 
 private fun LibraryPoster?.posterUrl(quality: PosterQuality): String? = when (quality) {
-    PosterQuality.LOW -> this?.medium ?: this?.big ?: this?.fullsize ?: this?.small
+    PosterQuality.LOW -> this?.small ?: this?.medium ?: this?.big ?: this?.fullsize
     PosterQuality.STANDARD -> this?.big ?: this?.medium ?: this?.fullsize ?: this?.small
     PosterQuality.MEGA -> this?.mega ?: this?.big ?: this?.medium ?: this?.fullsize ?: this?.small
     PosterQuality.HIGH -> this?.fullsize ?: this?.mega ?: this?.big ?: this?.medium ?: this?.small

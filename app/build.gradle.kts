@@ -45,6 +45,15 @@ android {
         buildConfigField("String", "APPMETRICA_API_KEY", appmetricaApiKey.toBuildConfigString())
         buildConfigField("String", "VARIOQUB_CLIENT_ID", varioqubClientId.toBuildConfigString())
         buildConfigField("String", "ANIME365_ACCESS_TOKEN", "".toBuildConfigString())
+        ndk {
+            abiFilters += listOf("armeabi-v7a", "arm64-v8a")
+        }
+    }
+
+    packaging {
+        jniLibs {
+            useLegacyPackaging = true
+        }
     }
 
     signingConfigs {

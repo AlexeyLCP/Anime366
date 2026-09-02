@@ -4,7 +4,7 @@ import su.afk.yummy.tv.core.model.settings.PosterQuality
 import su.afk.yummy.tv.domain.account.model.AnimeCollectionSummary
 
 internal fun AnimeCollectionSummary.posterUrl(quality: PosterQuality): String? = when (quality) {
-    PosterQuality.LOW -> poster?.medium ?: poster?.big ?: poster?.fullsize ?: poster?.small ?: posterUrl
+    PosterQuality.LOW -> poster?.small ?: poster?.medium ?: poster?.big ?: poster?.fullsize ?: posterUrl
     PosterQuality.STANDARD -> poster?.big ?: poster?.medium ?: poster?.fullsize ?: poster?.small ?: posterUrl
     PosterQuality.MEGA -> poster?.mega ?: poster?.big ?: poster?.medium ?: poster?.fullsize ?: poster?.small ?: posterUrl
     PosterQuality.HIGH -> poster?.fullsize ?: poster?.mega ?: poster?.big ?: poster?.medium ?: poster?.small ?: posterUrl
