@@ -1,0 +1,5 @@
+{
+  "version": "1.22-11",
+  "apkUrl": "https://github.com/AlexeyLCP/Anime366/releases/download/v1.22-11/Anime366-1.22-11-release.apk",
+  "changelog": "Fix duplicate LazyRow keys crash, restore home row size, GitHub update fallback"
+}

@@ -157,7 +157,7 @@ private fun List<YaniAnimeDto>.toSeriesEntries(
         val id = item.animeId ?: return@mapNotNull null
         val title = item.title.takeIf { it.isNotBlank() } ?: return@mapNotNull null
         Triple(id, title, item)
-    }.mapIndexed { index, (id, title, item) ->
+    }.distinctBy { (id, _, _) -> id }.mapIndexed { index, (id, title, item) ->
         HomeFeedItemEntry(
             language = language,
             watchSignature = watchSignature,
@@ -186,7 +186,7 @@ private fun List<YaniVideoDto>.toNewVideoEntries(
         val seriesId = item.animeId ?: return@mapNotNull null
         val title = item.title.takeIf { it.isNotBlank() } ?: return@mapNotNull null
         seriesId to item.copy(title = title)
-    }.mapIndexed { index, (seriesId, item) ->
+    }.distinctBy { (seriesId, _) -> seriesId }.mapIndexed { index, (seriesId, item) ->
         HomeFeedItemEntry(
             language = language,
             watchSignature = watchSignature,

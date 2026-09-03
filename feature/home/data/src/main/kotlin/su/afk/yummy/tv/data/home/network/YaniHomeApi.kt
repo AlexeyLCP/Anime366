@@ -34,10 +34,10 @@ class YaniHomeApi(
         val fresh = freshDeferred.await()
         YaniFeedDto(
             response = YaniFeedResponseDto(
-                announcements = airing.take(6).map { it.toYaniAnime() },
-                topCarousel = YaniCarouselDto(items = emptyList()),
+                announcements = airing.take(8).map { it.toYaniAnime() },
+                topCarousel = YaniCarouselDto(items = airing.take(8).map { it.toYaniAnime() }),
                 new = fresh.map { it.toYaniAnime() },
-                recommends = emptyList(),
+                recommends = airing.map { it.toYaniAnime() },
                 newVideos = recent.map { it.toYaniVideo() },
                 schedule = airing.map { it.toYaniAnime() },
             ),
@@ -60,7 +60,7 @@ class YaniHomeApi(
         }.body<Anime365TranslationListDto>().data
 }
 
-private const val FEED_LIMIT = 12
+private const val FEED_LIMIT = 24
 
 private fun Anime365SeriesDto.toYaniAnime(): YaniAnimeDto = YaniAnimeDto(
     animeId = id,
