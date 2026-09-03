@@ -276,6 +276,7 @@ internal fun HomeCarousel(
         HorizontalPager(
             state = pagerState,
             userScrollEnabled = false,
+            beyondViewportPageCount = 0,
             modifier = Modifier.fillMaxWidth(),
         ) { page ->
             val item = items[page]

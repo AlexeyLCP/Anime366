@@ -16,6 +16,7 @@ import su.afk.yummy.tv.android.lifecycle.OnlineStatusCoordinator
 import su.afk.yummy.tv.android.outbox.AndroidPendingMutationSyncScheduler
 import su.afk.yummy.tv.android.startup.AppStartupMaintenanceRunner
 import su.afk.yummy.tv.android.startup.CoilImageLoaderInstaller
+import su.afk.yummy.tv.android.startup.LastCrashLogger
 import su.afk.yummy.tv.core.analytics.api.initialize.AnalyticsInitializer
 import su.afk.yummy.tv.core.featuretoggle.FeatureToggleRefreshCoordinator
 import su.afk.yummy.tv.core.featuretoggle.api.FeatureToggleInitializer
@@ -63,6 +64,7 @@ class YummyTvApplication : Application(), Configuration.Provider {
     @OptIn(UnstableApi::class)
     override fun onCreate() {
         super.onCreate()
+        LastCrashLogger.install(this)
 
         installStrictModeIfDebug()
         setupAnalytics()

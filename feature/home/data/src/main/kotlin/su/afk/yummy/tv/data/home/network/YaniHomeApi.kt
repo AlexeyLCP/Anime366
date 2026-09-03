@@ -24,20 +24,20 @@ class YaniHomeApi(
     private val clientProvider: YaniHttpClientProvider,
 ) {
     suspend fun getFeed(): YaniFeedDto = coroutineScope {
-        val airingDeferred = async { series(isAiring = 1, limit = 24) }
-        val recentDeferred = async { translations(limit = 24) }
+        val airingDeferred = async { series(isAiring = 1, limit = FEED_LIMIT) }
+        val recentDeferred = async { translations(limit = FEED_LIMIT) }
         val freshDeferred = async {
-            series(year = Calendar.getInstance().get(Calendar.YEAR), limit = 24)
+            series(year = Calendar.getInstance().get(Calendar.YEAR), limit = FEED_LIMIT)
         }
         val airing = airingDeferred.await()
         val recent = recentDeferred.await()
         val fresh = freshDeferred.await()
         YaniFeedDto(
             response = YaniFeedResponseDto(
-                announcements = airing.take(8).map { it.toYaniAnime() },
-                topCarousel = YaniCarouselDto(items = airing.map { it.toYaniAnime() }),
+                announcements = airing.take(6).map { it.toYaniAnime() },
+                topCarousel = YaniCarouselDto(items = emptyList()),
                 new = fresh.map { it.toYaniAnime() },
-                recommends = airing.map { it.toYaniAnime() },
+                recommends = emptyList(),
                 newVideos = recent.map { it.toYaniVideo() },
                 schedule = airing.map { it.toYaniAnime() },
             ),
@@ -59,6 +59,8 @@ class YaniHomeApi(
             parameter("isActive", 1)
         }.body<Anime365TranslationListDto>().data
 }
+
+private const val FEED_LIMIT = 12
 
 private fun Anime365SeriesDto.toYaniAnime(): YaniAnimeDto = YaniAnimeDto(
     animeId = id,

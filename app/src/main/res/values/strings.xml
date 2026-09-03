@@ -9,4 +9,6 @@
     <string name="interface_mode_mobile">Mobile interface</string>
     <string name="interface_mode_mobile_hint">Compact layout optimized for touchscreen controls</string>
     <string name="episode_push_notification_channel">New episodes</string>
+    <string name="last_crash_title">Last crash</string>
+    <string name="last_crash_ok">OK</string>
 </resources>

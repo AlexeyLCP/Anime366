@@ -527,7 +527,7 @@ fun SettingsMobileScreen(
                 SettingsMobileSection(title = stringResource(R.string.settings_mobile_section_about)) {
                     SettingsMobileAboutRow(
                         label = stringResource(R.string.settings_version_label),
-                        hint = BuildConfig.VERSION_NAME,
+                        hint = "${BuildConfig.VERSION_NAME} · ${android.os.Build.SUPPORTED_ABIS.joinToString()}",
                     )
                     SettingsMobileAboutRow(
                         label = stringResource(R.string.settings_feedback_label),

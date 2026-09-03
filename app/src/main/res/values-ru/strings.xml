@@ -10,4 +10,6 @@
     <string name="interface_mode_mobile">Мобильный интерфейс</string>
     <string name="interface_mode_mobile_hint">Компактная компоновка для сенсорного управления</string>
     <string name="episode_push_notification_channel">Новые серии</string>
+    <string name="last_crash_title">Последний сбой</string>
+    <string name="last_crash_ok">ОК</string>
 </resources>

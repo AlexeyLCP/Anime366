@@ -223,7 +223,7 @@ internal fun HomeDashboard(
                 .onFocusChanged { state ->
                     columnHasFocus = state.hasFocus
                 },
-            contentPadding = PaddingValues(bottom = 520.dp),
+            contentPadding = PaddingValues(bottom = 280.dp),
             verticalArrangement = Arrangement.spacedBy(24.dp),
         ) {
             if (hasContinueWatching) {

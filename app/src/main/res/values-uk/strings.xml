@@ -9,4 +9,6 @@
     <string name="interface_mode_mobile">Мобільний інтерфейс</string>
     <string name="interface_mode_mobile_hint">Компактне компонування для сенсорного керування</string>
     <string name="episode_push_notification_channel">Нові серії</string>
+    <string name="last_crash_title">Остання помилка</string>
+    <string name="last_crash_ok">ОК</string>
 </resources>

@@ -726,7 +726,7 @@ internal fun SettingsTvPanelHost(
 
                         AboutRow(
                             label = stringResource(R.string.settings_version_label),
-                            hint = BuildConfig.VERSION_NAME,
+                            hint = "${BuildConfig.VERSION_NAME} · ${android.os.Build.SUPPORTED_ABIS.joinToString()}",
                             modifier = Modifier.restoreCategoryFocusOnLeft(tabFocusRequester),
                         )
                         SettingsDivider()

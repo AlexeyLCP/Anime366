@@ -4,11 +4,13 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.Box
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import su.afk.yummy.tv.core.deeplink.api.DeepLinkHandler
 import su.afk.yummy.tv.core.tv.api.ITvIntegration
+import su.afk.yummy.tv.android.view.LastCrashDialog
 import su.afk.yummy.tv.feature.main.TvMainGraph
 import su.afk.yummy.tv.feature.search.android.SystemSearchIntentHandler
 import javax.inject.Inject
@@ -34,7 +36,10 @@ class TvActivity : ComponentActivity() {
         tvIntegration.bindBrowsableChannelRequests(this, lifecycleScope)
 
         setContent {
-            mainGraph.MainGraph()
+            Box {
+                mainGraph.MainGraph()
+                LastCrashDialog()
+            }
         }
 
         tvIntegration.start()

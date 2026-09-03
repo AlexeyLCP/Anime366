@@ -10,7 +10,6 @@ import coil3.disk.DiskCache
 import coil3.disk.directory
 import coil3.memory.MemoryCache
 import coil3.network.ktor3.KtorNetworkFetcherFactory
-import coil3.request.allowHardware
 import coil3.request.crossfade
 import coil3.request.maxBitmapSize
 import coil3.size.Precision
@@ -51,8 +50,6 @@ class CoilImageLoaderInstaller @Inject constructor(
     fun install() {
         val cacheBytes = settingsStore.currentPreviewCacheSize.toLong() * 1024L * 1024L
         val weak = isWeakDevice()
-        val memoryCachePercent =
-            if (weak) LOW_RAM_MEMORY_CACHE_PERCENT else MEMORY_CACHE_PERCENT
 
         SingletonImageLoader.setSafe {
             // newBuilder(): общий пул соединений и диспетчер с API-клиентом,
@@ -66,11 +63,12 @@ class CoilImageLoaderInstaller @Inject constructor(
                 .crossfade(!weak)
                 .precision(Precision.INEXACT)
                 .maxBitmapSize(if (weak) WEAK_MAX_BITMAP else DEFAULT_MAX_BITMAP)
-                .allowHardware(!weak)
                 .memoryCache {
                     MemoryCache.Builder()
-                        .maxSizePercent(context, memoryCachePercent)
-                        .strongReferencesEnabled(!weak)
+                        .apply {
+                            if (weak) maxSizeBytes(WEAK_MEMORY_CACHE_BYTES)
+                            else maxSizePercent(context, MEMORY_CACHE_PERCENT)
+                        }
                         .build()
                 }
                 .diskCache {
@@ -118,8 +116,8 @@ class CoilImageLoaderInstaller @Inject constructor(
     private companion object {
         const val IMAGE_CACHE_DIR_NAME = "image_cache"
         const val MEMORY_CACHE_PERCENT = 0.12
-        const val LOW_RAM_MEMORY_CACHE_PERCENT = 0.05
-        val WEAK_MAX_BITMAP = Size(480, 720)
-        val DEFAULT_MAX_BITMAP = Size(1080, 1920)
+        const val WEAK_MEMORY_CACHE_BYTES = 8L * 1024 * 1024
+        val WEAK_MAX_BITMAP = Size(320, 480)
+        val DEFAULT_MAX_BITMAP = Size(720, 1080)
     }
 }
