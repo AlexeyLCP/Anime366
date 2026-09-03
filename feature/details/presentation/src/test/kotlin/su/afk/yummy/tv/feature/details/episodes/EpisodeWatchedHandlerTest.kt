@@ -2,6 +2,7 @@ package su.afk.yummy.tv.feature.details.episodes
 
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -17,6 +18,9 @@ import su.afk.yummy.tv.domain.account.usecase.RemoveWatchedVideosUseCase
 import su.afk.yummy.tv.domain.account.usecase.SaveVideoWatchProgressUseCase
 import su.afk.yummy.tv.domain.player.repository.WatchProgressRepository
 import su.afk.yummy.tv.domain.player.usecase.ClearEpisodeWatchProgressUseCase
+import su.afk.yummy.tv.core.storage.outbox.PendingMutationEntry
+import su.afk.yummy.tv.core.storage.outbox.PendingMutationOutbox
+import su.afk.yummy.tv.core.storage.outbox.PendingMutationSyncScheduler
 import su.afk.yummy.tv.domain.player.usecase.MarkEpisodeWatchedLocallyUseCase
 import su.afk.yummy.tv.feature.details.episodes.handler.EpisodeWatchedHandler
 
@@ -34,6 +38,8 @@ class EpisodeWatchedHandlerTest {
         clearEpisodeWatchProgress = ClearEpisodeWatchProgressUseCase(progressRepository),
         saveVideoWatchProgress = SaveVideoWatchProgressUseCase(watchesRepository),
         removeWatchedVideos = RemoveWatchedVideosUseCase(watchesRepository, NoopNotifier),
+        pendingMutationOutbox = NoopOutbox,
+        pendingMutationSyncScheduler = NoopSync,
     )
 
     private val meta = EpisodeWatchedHandler.EpisodeMeta(
@@ -282,4 +288,16 @@ private class FakeVideoWatchesRepository : VideoWatchesRepository {
 private object NoopNotifier : AccountMutationErrorNotifier {
     override val events: SharedFlow<AccountMutationErrorEvent> = MutableSharedFlow()
     override suspend fun notify(event: AccountMutationErrorEvent) = Unit
+}
+
+private object NoopOutbox : PendingMutationOutbox {
+    override suspend fun enqueue(type: String, payloadJson: String) = Unit
+    override suspend fun pending(): List<PendingMutationEntry> = emptyList()
+    override suspend fun remove(id: Long) = Unit
+    override suspend fun recordAttemptFailure(id: Long) = Unit
+    override fun observeCount() = emptyFlow<Int>()
+}
+
+private object NoopSync : PendingMutationSyncScheduler {
+    override fun scheduleFlush() = Unit
 }
