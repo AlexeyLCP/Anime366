@@ -27,6 +27,7 @@ internal class GitHubUpdateRepository @Inject constructor(
         val url = RELEASES_URL ?: return null
         val response: HttpResponse = httpClient.get(url) {
             header("Accept", GITHUB_ACCEPT)
+            header("User-Agent", GITHUB_USER_AGENT)
         }
         if (!response.status.isSuccess()) return null
 
@@ -38,6 +39,7 @@ internal class GitHubUpdateRepository @Inject constructor(
 
     private companion object {
         const val GITHUB_ACCEPT = "application/vnd.github+json"
+        const val GITHUB_USER_AGENT = "Anime366"
 
         /** null, когда репозиторий обновлений не сконфигурирован — проверка просто выключена. */
         val RELEASES_URL: String? =

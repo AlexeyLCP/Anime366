@@ -8,7 +8,8 @@ import su.afk.yummy.tv.domain.update.model.AppRelease
  * для вызывающего это «обновления нет».
  */
 internal fun GitHubReleaseDto.toDomain(): AppRelease? {
-    val apkUrl = assets.firstOrNull()?.browserDownloadUrl ?: return null
+    val apkUrl = assets.firstOrNull { it.browserDownloadUrl.endsWith(".apk", ignoreCase = true) }
+        ?.browserDownloadUrl ?: return null
     return AppRelease(
         version = tagName.trimStart('v'),
         changelog = body.orEmpty(),

@@ -7,8 +7,8 @@ import su.afk.yummy.tv.domain.account.usecase.GetAccountSessionUseCase
 import su.afk.yummy.tv.domain.account.usecase.GetNotificationCountsUseCase
 import su.afk.yummy.tv.domain.account.usecase.RefreshAccountUseCase
 import su.afk.yummy.tv.domain.update.usecase.GetLatestAppReleaseUseCase
+import su.afk.yummy.tv.domain.update.util.isVersionNewer
 import su.afk.yummy.tv.feature.main.utils.firstOrZero
-import su.afk.yummy.tv.feature.main.utils.isNewer
 import javax.inject.Inject
 import javax.inject.Named
 import kotlin.time.Duration.Companion.hours
@@ -30,7 +30,7 @@ internal class MainSideEffectsHandler @Inject constructor(
             val release = withTimeoutOrNull(GITHUB_UPDATE_TIMEOUT) {
                 getLatestAppRelease(versionName)
             } ?: return@runCatching MainUpdateCheckResult.NotAvailable
-            if (!isCurrentVersionSupported || isNewer(versionName, release.version)) {
+            if (!isCurrentVersionSupported || isVersionNewer(versionName, release.version)) {
                 MainUpdateCheckResult.Available(
                     version = release.version,
                     apkUrl = release.apkUrl,
@@ -58,7 +58,7 @@ internal class MainSideEffectsHandler @Inject constructor(
     }
 
     private companion object {
-        val GITHUB_UPDATE_TIMEOUT = 5.seconds
+        val GITHUB_UPDATE_TIMEOUT = 20.seconds
         val FORTY_EIGHT_HOURS = 48.hours
     }
 }
