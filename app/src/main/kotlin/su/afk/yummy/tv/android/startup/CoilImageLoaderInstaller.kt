@@ -2,7 +2,6 @@ package su.afk.yummy.tv.android.startup
 
 import android.app.ActivityManager
 import android.content.Context
-import android.graphics.Bitmap
 import android.os.Build
 import coil3.ImageLoader
 import coil3.SingletonImageLoader
@@ -12,8 +11,6 @@ import coil3.disk.directory
 import coil3.memory.MemoryCache
 import coil3.network.ktor3.KtorNetworkFetcherFactory
 import coil3.request.allowHardware
-import coil3.request.allowRgb565
-import coil3.request.bitmapConfig
 import coil3.request.crossfade
 import coil3.request.maxBitmapSize
 import coil3.size.Precision
@@ -70,10 +67,6 @@ class CoilImageLoaderInstaller @Inject constructor(
                 .precision(Precision.INEXACT)
                 .maxBitmapSize(if (weak) WEAK_MAX_BITMAP else DEFAULT_MAX_BITMAP)
                 .allowHardware(!weak)
-                .allowRgb565(weak)
-                .apply {
-                    if (weak) bitmapConfig(Bitmap.Config.RGB_565)
-                }
                 .memoryCache {
                     MemoryCache.Builder()
                         .maxSizePercent(context, memoryCachePercent)

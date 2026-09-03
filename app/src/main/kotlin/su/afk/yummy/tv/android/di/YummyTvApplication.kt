@@ -117,10 +117,12 @@ class YummyTvApplication : Application(), Configuration.Provider {
      */
     @OptIn(UnstableApi::class)
     private fun setupCast() {
-        Cast.getSingletonInstance(this).initialize(
-            CastParams.Builder()
-                .setShowSystemOutputSwitcherOnCastButtonClick(true)
-                .build()
-        )
+        runCatching {
+            Cast.getSingletonInstance(this).initialize(
+                CastParams.Builder()
+                    .setShowSystemOutputSwitcherOnCastButtonClick(true)
+                    .build()
+            )
+        }
     }
 }
